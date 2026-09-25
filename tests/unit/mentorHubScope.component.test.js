@@ -80,7 +80,7 @@ describe('FirmManagerHub — firm scope is unchanged by the scope prop', () => {
 
   it('shows the Firm Manager Hub heading and the firm id beneath it', async () => {
     const wrapper = await mountHub()
-    expect(wrapper.find('.level-left .title').text()).toBe('Firm Manager Hub')
+    expect(wrapper.find('.level-left .title').text()).toBe('firmManagerHub.title.firm')
     expect(wrapper.find('.level-left .subtitle').text()).toBe('firm-1')
   })
 
@@ -91,12 +91,12 @@ describe('FirmManagerHub — firm scope is unchanged by the scope prop', () => {
 
   it('shows the firm-flavoured Advisory Distinctions tab exactly once', async () => {
     const labels = tabLabels(await mountHub())
-    expect(labels.filter(l => l === 'Advisory Distinctions')).toHaveLength(1)
+    expect(labels.filter(l => l === 'firmManagerHub.tabs.advisoryDistinctions')).toHaveLength(1)
   })
 
   it('does NOT show either mentor-only tab', async () => {
     const wrapper = await mountHub()
-    expect(tabLabels(wrapper)).not.toContain('Case Reviews')
+    expect(tabLabels(wrapper)).not.toContain('firmManagerHub.tabs.caseReviews')
     expect(tabLabels(wrapper)).not.toContain('templateCheck.tab')
     expect(tabLabels(wrapper)).not.toContain('logicLabReport.tab')
     // Presence of the tab is the visible half; the body must not be mounted either,
@@ -117,7 +117,7 @@ describe('FirmManagerHub — firm scope is unchanged by the scope prop', () => {
     // have hidden them here, which is the failure a shared component makes easy.
     const wrapper = await mountHub()
     expect(tabLabels(wrapper)).toContain('firmTeamProgress.tab')
-    expect(tabLabels(wrapper)).toContain('Team Case Studies')
+    expect(tabLabels(wrapper)).toContain('firmManagerHub.tabs.teamCaseStudies')
     expect(wrapper.findComponent({ name: 'FirmTeamProgress' }).exists()).toBe(true)
   })
 })
@@ -125,7 +125,7 @@ describe('FirmManagerHub — firm scope is unchanged by the scope prop', () => {
 describe('FirmManagerHub — mentor scope', () => {
   it('shows the Mentor Hub heading, with no firm id beneath it', async () => {
     const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
-    expect(wrapper.find('.level-left .title').text()).toBe('Mentor Hub')
+    expect(wrapper.find('.level-left .title').text()).toBe('firmManagerHub.title.mentor')
     // There is no one firm at this tier, so the line that names one must not render
     // an empty grey strap under the heading. Scoped to the page header deliberately —
     // `.subtitle` is Bulma's, and several tab bodies use it further down the screen.
@@ -139,7 +139,7 @@ describe('FirmManagerHub — mentor scope', () => {
 
   it('adds the Case Reviews tab', async () => {
     const labels = tabLabels(await mountHub({ scope: 'mentor', firmId: '' }))
-    expect(labels).toContain('Case Reviews')
+    expect(labels).toContain('firmManagerHub.tabs.caseReviews')
   })
 
   it('adds the Logic Lab Report tab, and mounts it', async () => {
@@ -160,7 +160,7 @@ describe('FirmManagerHub — mentor scope', () => {
 
   it('shows Advisory Distinctions exactly once — the plain-CRUD one, not the firm form', async () => {
     const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
-    expect(tabLabels(wrapper).filter(l => l === 'Advisory Distinctions')).toHaveLength(1)
+    expect(tabLabels(wrapper).filter(l => l === 'firmManagerHub.tabs.advisoryDistinctions')).toHaveLength(1)
     expect(wrapper.findComponent({ name: 'MentorDistinctions' }).exists()).toBe(true)
     // The firm's version carries decline / override / reset-to-platform, which need a
     // layer above to mean anything. Its form must not be on this screen at all.
@@ -187,7 +187,7 @@ describe('FirmManagerHub — mentor scope', () => {
     // Rolling this up would have shown a mentor every firm's shared cases without
     // the anonymise-and-approve step that the Case Reviews tab depends on.
     const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
-    expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
+    expect(tabLabels(wrapper)).not.toContain('firmManagerHub.tabs.teamCaseStudies')
     expect(wrapper.findComponent({ name: 'MentorReview' }).exists()).toBe(true)
   })
 
@@ -285,7 +285,7 @@ describe('the two tiers are recognisably the same screen', () => {
   // per the note above. 🔴 It does NOT leave the Model Library: Mike ruled on 2026-09-23
   // that the picker appears in BOTH, the Hub to set it and the library read-only, so a
   // reader can still tell which currency a report is in.
-  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'Client Copy Request', 'firmTeamProgress.tab', 'Team Case Studies', 'Team Pipeline', 'Sales Tracker Lists', 'Property Tax Rules', 'firmCurrency.tab', 'outcomeConsent.tab']
+  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'firmManagerHub.tabs.clientCopyRequest', 'firmTeamProgress.tab', 'firmManagerHub.tabs.teamCaseStudies', 'firmManagerHub.tabs.teamPipeline', 'firmManagerHub.tabs.salesTrackerLists', 'firmManagerHub.tabs.propertyTaxRules', 'firmCurrency.tab', 'outcomeConsent.tab']
   // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
   // the master export upload, mentor-only beside Template Check, drawn last in the menu.
   //
@@ -324,7 +324,7 @@ describe('the two tiers are recognisably the same screen', () => {
   // the first time a shared tab has sat under this heading, and it is also why a FIRM
   // MANAGER now sees the heading "Rolled up from below" for the first time: the other
   // three entries all stop at the group tier. Named on the drawing before it was found.
-  const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'Case Reviews', 'templateCheck.tab', 'templateLibrary.tab', 'semanticProfiles.tab', 'outcomeLearning.tab']
+  const MENTOR_ONLY_TAIL = ['mentorAdoption.tab', 'logicLabReport.tab', 'firmManagerHub.tabs.caseReviews', 'templateCheck.tab', 'templateLibrary.tab', 'semanticProfiles.tab', 'outcomeLearning.tab']
 
   /** Tabs every tier sees that sit AFTER the mentor-only run, newest last. */
   const SHARED_AFTER_TAIL = ['modelChoices.tab']
@@ -333,7 +333,7 @@ describe('the two tiers are recognisably the same screen', () => {
   // force and the two-file upload that replaces it (Mike, 2026-09-08, item 4.70 stage 3; the
   // tab's name is the approved drawing's). Under "Model Inputs" beside the two above. Mentor-only
   // by DESIGN rather than by default: one national table, and no firm has a different Stats NZ.
-  const MENTOR_ONLY = ['Forecast Trend Thresholds', 'Imported Stock Prices', 'Industry Benchmarks'].concat(MENTOR_ONLY_TAIL)
+  const MENTOR_ONLY = ['firmManagerHub.tabs.forecastTrendThresholds', 'firmManagerHub.tabs.importedStockPrices', 'firmManagerHub.tabs.industryBenchmarks'].concat(MENTOR_ONLY_TAIL)
 
   /**
    * A selector that matches nothing makes every comparison below succeed against an
@@ -343,7 +343,7 @@ describe('the two tiers are recognisably the same screen', () => {
    */
   function assertMenuIsReallyThere (labels) {
     expect(labels.length).toBeGreaterThan(8)
-    expect(labels).toContain('Domain Support')
+    expect(labels).toContain('firmManagerHub.tabs.domainSupport')
   }
 
   it('presents every shared tab in the same order at both scopes', async () => {
@@ -457,7 +457,7 @@ describe('the hub menu — the sidebar itself', () => {
     // their screen moved.
     const wrapper = await mountHub()
     expect(groupHeadings(wrapper)).toEqual([
-      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
+      'firmManagerHub.nav.yourAiCoach', 'firmManagerHub.nav.yourTeamInAction', 'firmManagerHub.nav.modelInputs', 'firmManagerHub.nav.compliance', 'firmManagerHub.nav.rolledUpFromBelow'
     ])
     //
     // ⚠ 19 SINCE 2026-09-21, when Session Processes joined (item 15.1, Decision C — Mike
@@ -489,10 +489,10 @@ describe('the hub menu — the sidebar itself', () => {
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
-    expect(tabLabels(wrapper)[5]).toBe('AI Prompts')
+    expect(tabLabels(wrapper)[5]).toBe('firmManagerHub.tabs.aiPrompts')
     expect(tabLabels(wrapper)[6]).toBe('firmTemplateLibrary.tab')
-    expect(tabLabels(wrapper)[7]).toBe('Meeting Review')
-    expect(tabLabels(wrapper)[8]).toBe('Client Copy Request')
+    expect(tabLabels(wrapper)[7]).toBe('firmManagerHub.tabs.meetingReview')
+    expect(tabLabels(wrapper)[8]).toBe('firmManagerHub.tabs.clientCopyRequest')
   })
 
   it('gives the mentor a Model Inputs heading holding only what it is entitled to', async () => {
@@ -520,11 +520,11 @@ describe('the hub menu — the sidebar itself', () => {
     // drawing's "Your firm".
     const wrapper = await mountHub({ scope: 'mentor', firmId: '' })
     expect(groupHeadings(wrapper)).toEqual([
-      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
+      'firmManagerHub.nav.yourAiCoach', 'firmManagerHub.nav.yourTeamInAction', 'firmManagerHub.nav.modelInputs', 'firmManagerHub.nav.compliance', 'firmManagerHub.nav.rolledUpFromBelow'
     ])
     const names = tabLabels(wrapper)
-    expect(names).toContain('Forecast Trend Thresholds')
-    expect(names).not.toContain('Property Tax Rules')
+    expect(names).toContain('firmManagerHub.tabs.forecastTrendThresholds')
+    expect(names).not.toContain('firmManagerHub.tabs.propertyTaxRules')
   })
 
   it('🔴 keeps the five that teach the AI in ONE group', async () => {
@@ -541,8 +541,8 @@ describe('the hub menu — the sidebar itself', () => {
     const names = tabLabels(wrapper)
     expect(headings.filter(h => /coach/i.test(h))).toHaveLength(1)
     expect(names.slice(0, 5)).toEqual([
-      'Domain Support', 'Advisory Distinctions',
-      'Logic Tables', 'Advisory Staircase', 'Logic-Lab'
+      'firmManagerHub.tabs.domainSupport', 'firmManagerHub.tabs.advisoryDistinctions',
+      'firmManagerHub.tabs.logicTables', 'firmManagerHub.tabs.advisoryStaircase', 'firmManagerHub.tabs.logicLab'
     ])
   })
 
@@ -608,21 +608,21 @@ describe('the hub menu — the sidebar itself', () => {
     // separates this from Currency, where neither middle tier has one value to hold.
     const wrapper = await mountHub({ scope: 'group' })
     expect(groupHeadings(wrapper)).toEqual([
-      'Your AI coach', 'Your Team In Action', 'Model Inputs', 'Compliance', 'Rolled up from below'
+      'firmManagerHub.nav.yourAiCoach', 'firmManagerHub.nav.yourTeamInAction', 'firmManagerHub.nav.modelInputs', 'firmManagerHub.nav.compliance', 'firmManagerHub.nav.rolledUpFromBelow'
     ])
     // ⚠ AND 21 ON 2026-09-24: Owner Focus Tasks, appended to the END of "Model Inputs" (item
     // 5.4), on all four tiers in Mike's own words.
     expect(tabLabels(wrapper)).toHaveLength(21)
-    expect(tabLabels(wrapper)).not.toContain('Team Case Studies')
-    expect(tabLabels(wrapper)).toContain('Case Reviews')
+    expect(tabLabels(wrapper)).not.toContain('firmManagerHub.tabs.teamCaseStudies')
+    expect(tabLabels(wrapper)).toContain('firmManagerHub.tabs.caseReviews')
   })
 
   it('the firm keeps its own version — a different screen, not the same one', async () => {
     // listSharedForFirm, their own advisors in full and not anonymised. Dropping it
     // here too would have removed a screen rather than a duplicate.
     const wrapper = await mountHub()
-    expect(tabLabels(wrapper)).toContain('Team Case Studies')
-    expect(tabLabels(wrapper)).not.toContain('Case Reviews')
+    expect(tabLabels(wrapper)).toContain('firmManagerHub.tabs.teamCaseStudies')
+    expect(tabLabels(wrapper)).not.toContain('firmManagerHub.tabs.caseReviews')
   })
 
   it('🔴 the menu does not collapse itself when a tab is opened', async () => {
@@ -647,7 +647,7 @@ describe('the hub menu — the sidebar itself', () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.find('.hub-menu').exists()).toBe(false)
-    expect(wrapper.find('.hub-menu-closed button').text().trim()).toBe('Show menu')
+    expect(wrapper.find('.hub-menu-closed button').text().trim()).toBe('firmManagerHub.menu.show')
   })
 })
 

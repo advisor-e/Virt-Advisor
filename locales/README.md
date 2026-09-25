@@ -9,18 +9,18 @@
 | **Authored** | `en.json` — English, and only English |
 | **Static files here** | 8 (`de es fr it nl pl pt` + `en`) — a partial **head start**, not the supported list |
 | **Offered to a reader** | **28** (`data/languages.json`) |
-| **Translated on demand** | the other **20** |
+| **Completed by the backend** | every language but English — the 20 with no file, and whatever the 7 partial files lack |
 
-A reader picks a language we do not ship; the whole English locale is POSTed to
-`/api/translate/locale`, translated once, and cached in their browser under
-`va_locale_<code>`. See [`mixins/localeMixin.js`](../mixins/localeMixin.js).
+A reader picks a language; the browser sends the code, and the backend translates the English it
+holds **once per language**, stores it, and shares it with every reader. See
+[`server/utils/uiTranslation.js`](../server/utils/uiTranslation.js).
 
 ## 🔴 The two wrong conclusions, both reached before
 
 **"The other seven files are nearly empty — translation is half-finished."** They hold 8
 top-level keys against English's 54. **That is expected.** They are a partial head start;
-everything missing from them is translated on demand like the other twenty. There is **no
-backlog of translation work**, and nothing here is unfinished.
+the backend completes them like every other language. There is **no backlog of translation
+work**, and nothing here is unfinished.
 
 **"So the app needs a translation tool."** It has one, live and guarded. This is why stage 6
 of the Sales Tracker was skipped (Mike's ruling, 2026-09-22) — its language admin would have

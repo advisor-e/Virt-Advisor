@@ -5,7 +5,8 @@
  *
  * `design/features/localisation-and-currency.md` §1a states how languages work here:
  * ONE authored file (`locales/en.json`), 28 languages offered, 8 shipped as static
- * files and the other 20 translated on demand and cached per browser.
+ * files, and every language but English completed by the BACKEND — translated once per
+ * language, stored at the platform scope, shared by every reader (Mike, 2026-09-25).
  *
  * 🔴 WHY THIS TEST EXISTS, AND IT IS NOT THE USUAL REASON. Nothing here is broken and
  * this guards no bug. It guards a MISREADING — one that has now happened twice, the
@@ -88,27 +89,27 @@ describe('the language policy — localisation-and-currency.md §1a', () => {
     offered.forEach(code => expect(typeof code).toBe('string'))
   })
 
-  test('🔴 THE ON-DEMAND PATH IS WIRED, and it sends the ENGLISH file', () => {
-    // If this breaks, the 20 unshipped languages stop working and the static eight hide
-    // it — the picker still looks right, and only an Arabic or Japanese reader sees
-    // English. That is the silent failure this whole mechanism is exposed to.
-    const mixin = fs.readFileSync(path.join(__dirname, '..', '..', 'mixins', 'localeMixin.js'), 'utf8')
-
-    expect(mixin).toMatch(/\/api\/translate\/locale/)
-    expect(mixin).toMatch(/messages\.en/) // the English locale is what gets sent
-    expect(mixin).toMatch(/va_locale_/) // cached per browser, paid once
-    expect(mixin).toMatch(/Authorization/) // firmAuth-guarded: it spends a metered quota
+  test('🔴 BOTH PICKERS ASK THE BACKEND — for every language, the shipped seven included', () => {
+    // Until 2026-09-25 a shipped language never asked at all, so a German reader saw every
+    // section missing from de.json in English. If either picker stops using the loader, that
+    // returns silently: the picker still looks right and only the reader sees English.
+    ;['localeMixin.js', path.join('collaborate', 'localeMixin.js')].forEach((file) => {
+      const mixin = fs.readFileSync(path.join(__dirname, '..', '..', 'mixins', file), 'utf8')
+      expect(mixin).toMatch(/loadUiLocale\(lang\.code\)/)
+      expect(mixin).not.toMatch(/if \(!this\.\$i18n\.messages\[lang\.code\]\) \{\s*this\.loadingLang/)
+    })
   })
 
-  test('the translation route is guarded — it spends a shared, metered allowance', () => {
-    // P5a. It was open to the whole internet until 2026-09-22. Exhausting the quota
-    // silently reverts 20 languages to English with nothing on screen to explain it.
+  test('the translation routes are guarded — both spend a shared allowance', () => {
+    // P5a. /api/translate/locale was open to the whole internet until 2026-09-22; it now
+    // carries chat messages only. /api/ui-translation spends model calls.
     const server = fs.readFileSync(
       path.join(__dirname, '..', '..', 'server', 'restify-server.js'), 'utf8'
     )
-    const line = server.split('\n').find(l => l.includes('/api/translate/locale'))
-
-    expect(line).toBeDefined()
-    expect(line).toMatch(/firmAuth/)
+    ;['/api/translate/locale', '/api/ui-translation/'].forEach((route) => {
+      const line = server.split('\n').find(l => l.includes("'" + route) && /server\.(get|post)/.test(l))
+      expect(line).toBeDefined()
+      expect(line).toMatch(/firmAuth/)
+    })
   })
 })

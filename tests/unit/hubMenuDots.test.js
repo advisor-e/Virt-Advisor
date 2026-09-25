@@ -28,6 +28,9 @@
  */
 
 const Hub = require('../../components/FirmManagerHub.vue').default
+// The dot's words come from locales/en.json (item 10.1). Real English, not the key stub,
+// because the three pinned sentences below are the load-bearing wording.
+const { englishMocks } = require('../helpers/mountComponent')
 
 const {
   menuDot, menuDotTitle, menuDotCount, menuDotCountLabel, loadTabOpened, markTabOpened
@@ -43,7 +46,7 @@ function daysAgo (n) {
  * backend's 21, and nothing is new in Compliance.
  */
 function hub (over) {
-  return Object.assign({
+  return Object.assign(englishMocks(), {
     complianceNewCount: 0,
     tabOpened: {},
     tabStaleDays: 21,

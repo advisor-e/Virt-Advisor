@@ -72,9 +72,32 @@ const NuxtLinkStub = {
   }
 }
 
+/**
+ * vue-i18n's `<i18n path tag>` component, which the app registers and a bare test mount does
+ * not. It renders the sentence through the test's own `$t`, filling `{name}` from the named
+ * slots — so under `englishMocks()` a test reads the real English sentence with its bold parts
+ * in place, and under the key stub it reads the key. Without it those sentences were invisible
+ * to every test (2026-09-25).
+ */
+const I18nStub = {
+  name: 'I18n',
+  functional: true,
+  props: { path: { type: String, required: true }, tag: { type: [String, Boolean], default: 'span' } },
+  render (h, ctx) {
+    const text = String(ctx.parent.$t(ctx.props.path))
+    const slots = ctx.slots()
+    const children = []
+    text.split(/(\{[A-Za-z0-9_]+\})/).forEach((piece) => {
+      const name = (piece.match(/^\{([A-Za-z0-9_]+)\}$/) || [])[1]
+      if (name && slots[name]) { children.push(...slots[name]) } else if (piece) { children.push(piece) }
+    })
+    return h(ctx.props.tag || 'span', ctx.data, children)
+  }
+}
+
 /** Stubs every component test gets; a caller's own `stubs` merge over these. */
 function defaultStubs () {
-  return { NuxtLink: NuxtLinkStub, 'nuxt-link': NuxtLinkStub }
+  return { NuxtLink: NuxtLinkStub, 'nuxt-link': NuxtLinkStub, i18n: I18nStub }
 }
 
 /**
@@ -109,4 +132,24 @@ function shallowWithBuefy (component, options) {
   }))
 }
 
-module.exports = { localVue, mountWithBuefy, shallowWithBuefy, translateStub }
+/**
+ * `$t` / `$tc` backed by the real `locales/en.json`, for a screen whose tests read the
+ * English it shows — the numbers inside a sentence ("1h 17m — 17m video") are what they
+ * guard, and the key stub would hide them behind a JSON blob. Pass as `mocks`.
+ *
+ * @returns {object} mocks carrying real English `$t`, `$tc` and `$i18n.locale`.
+ */
+function englishMocks () {
+  const VueI18n = require('vue-i18n')
+  // Installed on a private Vue copy: on the global one it defines a read-only
+  // `$i18n` that the mock below could not then replace.
+  createLocalVue().use(VueI18n)
+  const i18n = new VueI18n({ locale: 'en', messages: { en: require('../../locales/en.json') } })
+  return {
+    $t: (key, params) => i18n.t(key, params),
+    $tc: (key, n, params) => i18n.tc(key, n, params),
+    $i18n: { locale: 'en' }
+  }
+}
+
+module.exports = { localVue, mountWithBuefy, shallowWithBuefy, translateStub, englishMocks }

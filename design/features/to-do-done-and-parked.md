@@ -109,6 +109,22 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**16 · A client's document carries no firm, so the white-label promise has nothing behind it.**
+⏸ **Parked 2026-09-25 by Mike ("yes").** Our half is built; waiting on the master team's answer to
+question 8 of the integration email.
+
+- **Built and wired:** `firmBrand()` in [`server/utils/firmsDirectory.js`](../../server/utils/firmsDirectory.js)
+  reads the firm's name, logo and colour through seam **Q-FIRM-BRAND** in
+  [`config/integration.js`](../../config/integration.js). All four call sites carry it — the plan
+  document and the three session screens (2026-09-23). Mike's ruling: the firm's real logo in a
+  fixed-height box, initials disc only as fallback, border in the firm's colour. See
+  [`white-label.md`](white-label.md) §4.
+- **The data is Advisor-e's and we build no screen for it** — Mike: *"Advisor-e already picks up the
+  colour and brands the border to suit"*; it lives on the firm profile page.
+- **What un-parks it:** the master team naming the two columns (question 8 of
+  [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md)). Until then the
+  seam is inert and documents print the placeholder mark.
+
 **7.3 · A second opinion from two AI providers.** ⏸ **Parked 2026-09-23 by Mike.** His own idea,
 unbuilt, and it needs a decision and an impact test before any design — not a build.
 
@@ -352,6 +368,42 @@ locked in the prompt. Either is fine; deciding by accident is not.
 ---
 
 ## 2. Closed recently, with what proved it
+
+**10.1 · Seven manager screens can't be translated.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**.
+
+- **What moved:** 596 strings, word for word — `FirmForecastTrendThresholds`, `FirmSellDownLadder`,
+  `FirmPropertyTaxRules`, `FirmMeetingObservations`, `FirmDepreciationRates`, `CountryRateSchedules`,
+  `FirmCompliance` and `FirmManagerHub`'s own headings, menu and tabs, each under its own block in
+  `locales/en.json`. Sentences with a bold phrase inside use vue-i18n's `<i18n>` slot component, as
+  `MentorDistinctions.vue` already did. The two notes recording the English as a deviation are gone.
+- **Proved:** every key each screen uses exists and none is unused; **seen in German in a running
+  build** — menu, thresholds, price ladder, depreciation, compliance, observations, distinctions.
+- **Found on the way and fixed the same day, on Mike's yes:** five readers decoded incoming data a
+  chunk at a time, so a letter split across two chunks became "��" — in any AI reply, and in stored
+  German as "Verm��genswerte". Each now decodes whole letters (`openaiClient.js` `readBody` and
+  `parseSSEStream`, `advisorEngine.js`, `courseEngine.js`, `routes/translate.js`); the translation
+  refuses and redoes any string carrying one.
+- **Extended the same day on Mike's yes:** six further hub screens that 10.1 never listed —
+  `FirmMeetingTypes`, `DepreciationDocumentReview`, `FirmBenchmarker`, `FirmClientCopyRequests`,
+  `FirmDistinctionForm`, `FirmMeetingPatterns` — 211 more strings, seen in German. `FirmRail` and
+  `MethodGuideSection` had no English of their own: every word they show comes from a parent or data.
+
+**12.1 · Course Builder shows about 86 pieces of English that bypass the translation file.**
+✅ **Closed 2026-09-25 by Mike ("yes - done")**.
+
+- **What moved:** all of `components/CourseBuilder.vue`'s wording — 141 strings, word for word — into
+  the `courseBuilder` block of `locales/en.json`; the certificate date now follows the reader's
+  language through `utils/dateLocale.js`. **One sentence stays English on purpose:** the template
+  starter, because `requestedSessionCount` reads the session count out of it.
+- **Proved:** every one of the 142 keys the screen uses exists, none unused; the three Course
+  Builder tests read the real English (`englishMocks`); **seen in German in a running build** —
+  picker, meta line and buttons all German.
+- **Found on the way and fixed the same day, on Mike's yes:** the language picker never asked for
+  a translation for the seven shipped languages, and the free service behind the other twenty could
+  translate about a quarter of one language a day. Replaced by backend translation, once per
+  language and shared (`server/utils/uiTranslation.js`, `localisation-and-currency.md` §1a).
+  Measured live: German 6,231 of 6,232 strings, Japanese 6,200 of 6,232.
 
 **13.2 · Conversion is per model, and no model states which currency its figures are in.**
 ✅ **Closed 2026-09-25 by Mike ("yes - done")**.

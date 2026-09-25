@@ -11,6 +11,7 @@ import pl from '../locales/pl.json'
 import collaborateEn from '../locales/collaborate/en.json'
 import { mergeSections, COLLABORATE_SECTIONS } from '../utils/i18nMessages'
 import { intlLocaleFor } from '../utils/dateLocale'
+import { restoreReaderLocale } from '../utils/uiLocaleLoader'
 
 Vue.use(VueI18n)
 
@@ -53,6 +54,11 @@ export default ({ app }) => {
     messages: { en: enMessages, fr, es, de, pt, it, nl, pl },
     dateTimeFormats
   })
+  // The server always renders English, so the reader's remembered language is applied
+  // once the page is live — switching before hydration would make the two disagree.
+  if (process.client) {
+    window.onNuxtReady(() => { restoreReaderLocale(app.i18n) })
+  }
 }
 
 export { dateTimeFormats, LOCALES }

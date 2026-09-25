@@ -2,29 +2,27 @@
 .ftt
   .notification.is-info.is-light.mb-4
     p.is-size-7
-      | These decide when the #[b Three-Way Forecast]’s two-year comparison marks a measure amber or red. Every number here is yours.
-      |  #[b A measure you leave blank is still shown in full, with both years and the movement — it is simply never banded.]
-      |  That is the right setting for anything you would rather report than judge.
+      | {{ $t('firmForecastTrendThresholds.intro.lead') }}#[b {{ $t('firmForecastTrendThresholds.intro.forecastName') }}]{{ $t('firmForecastTrendThresholds.intro.afterName') }}
+      |  #[b {{ $t('firmForecastTrendThresholds.intro.blankNote') }}]
+      |  {{ $t('firmForecastTrendThresholds.intro.reportNote') }}
 
   .has-text-centered.py-5(v-if="loading")
     b-loading(:is-full-page="false" :active="true")
 
   template(v-else)
     .mb-4
-      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") Some thresholds are set here
-      b-tag(v-else type="is-light" size="is-medium") Everything is inherited
+      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") {{ $t('firmForecastTrendThresholds.status.someSetHere') }}
+      b-tag(v-else type="is-light" size="is-medium") {{ $t('firmForecastTrendThresholds.status.allInherited') }}
 
     .box
-      p.has-text-weight-semibold.mb-1 Where the figure stands
-      p.is-size-7.has-text-grey.mb-3
-        | These three are judged on this year’s level. Each has its own numbers, because
-        |  46 days means a quite different thing about a customer, a supplier and a shelf.
+      p.has-text-weight-semibold.mb-1 {{ $t('firmForecastTrendThresholds.levels.heading') }}
+      p.is-size-7.has-text-grey.mb-3 {{ $t('firmForecastTrendThresholds.levels.intro') }}
 
       .ftt-row.ftt-head
-        span Measure
-        span.has-text-right Green up to
-        span.has-text-right Amber up to
-        span Red
+        span {{ $t('firmForecastTrendThresholds.table.measure') }}
+        span.has-text-right {{ $t('firmForecastTrendThresholds.levels.greenUpTo') }}
+        span.has-text-right {{ $t('firmForecastTrendThresholds.levels.amberUpTo') }}
+        span {{ $t('firmForecastTrendThresholds.levels.red') }}
         span
 
       .ftt-row(v-for="m in levelFields" :key="m.key")
@@ -35,21 +33,18 @@
         b-input(v-model="form.levels[m.key].amber" type="number" step="any" size="is-small")
         span.is-size-7.has-text-grey {{ redAbove(m.key) }}
         .ftt-source
-          b-tag(v-if="isOwn('levels', m.key)" type="is-info is-light" size="is-small") set here
-          b-tag(v-else type="is-light" size="is-small") inherited
+          b-tag(v-if="isOwn('levels', m.key)" type="is-info is-light" size="is-small") {{ $t('firmForecastTrendThresholds.source.setHere') }}
+          b-tag(v-else type="is-light" size="is-small") {{ $t('firmForecastTrendThresholds.source.inherited') }}
 
     .box
-      p.has-text-weight-semibold.mb-1 How far it moved
-      p.is-size-7.has-text-grey.mb-3
-        | These three are judged on the movement between the two years. A level would not
-        |  travel: a gross margin that is alarming for a retailer is routine for a builder,
-        |  whereas a margin that fell three points is worth a look in any trade.
+      p.has-text-weight-semibold.mb-1 {{ $t('firmForecastTrendThresholds.movements.heading') }}
+      p.is-size-7.has-text-grey.mb-3 {{ $t('firmForecastTrendThresholds.movements.intro') }}
 
       .ftt-row.ftt-head
-        span Measure
-        span.has-text-right Worth a look
-        span.has-text-right Needs an explanation
-        span Unit
+        span {{ $t('firmForecastTrendThresholds.table.measure') }}
+        span.has-text-right {{ $t('firmForecastTrendThresholds.movements.worthALook') }}
+        span.has-text-right {{ $t('firmForecastTrendThresholds.movements.needsExplanation') }}
+        span {{ $t('firmForecastTrendThresholds.movements.unit') }}
         span
 
       .ftt-row(v-for="m in movementFields" :key="m.key")
@@ -60,27 +55,27 @@
         b-input(v-model="form.movements[m.key].crit" type="number" step="any" size="is-small")
         span.is-size-7.has-text-grey {{ m.unit }}
         .ftt-source
-          b-tag(v-if="isOwn('movements', m.key)" type="is-info is-light" size="is-small") set here
-          b-tag(v-else type="is-light" size="is-small") inherited
+          b-tag(v-if="isOwn('movements', m.key)" type="is-info is-light" size="is-small") {{ $t('firmForecastTrendThresholds.source.setHere') }}
+          b-tag(v-else type="is-light" size="is-small") {{ $t('firmForecastTrendThresholds.source.inherited') }}
 
     b-message(v-if="saveError" type="is-danger" size="is-small") {{ saveError }}
 
     .buttons
-      b-button(type="is-primary" :loading="saving" @click="save") Save these thresholds
-      b-button(type="is-light" :disabled="!hasOwn || saving" @click="confirmReset") Go back to inherited
-      b-button(type="is-text" @click="toggleHistory") {{ showHistory ? 'Hide change history' : 'Change history' }}
+      b-button(type="is-primary" :loading="saving" @click="save") {{ $t('firmForecastTrendThresholds.actions.save') }}
+      b-button(type="is-light" :disabled="!hasOwn || saving" @click="confirmReset") {{ $t('firmForecastTrendThresholds.actions.reset') }}
+      b-button(type="is-text" @click="toggleHistory") {{ showHistory ? $t('firmForecastTrendThresholds.actions.hideHistory') : $t('firmForecastTrendThresholds.history.heading') }}
 
     .box(v-if="showHistory")
-      p.has-text-weight-semibold.mb-2 Change history
-      p.is-size-7.has-text-grey(v-if="!history.length") Nothing has been saved at this level yet.
+      p.has-text-weight-semibold.mb-2 {{ $t('firmForecastTrendThresholds.history.heading') }}
+      p.is-size-7.has-text-grey(v-if="!history.length") {{ $t('firmForecastTrendThresholds.history.empty') }}
       table.table.is-fullwidth.is-narrow(v-else)
         tbody
           tr(v-for="h in history" :key="h.id")
-            td Version {{ h.version }}
+            td {{ $t('firmForecastTrendThresholds.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.created_by }}
             td.is-size-7.has-text-grey {{ h.created_at }}
             td.has-text-right
-              b-button(size="is-small" type="is-light" @click="restore(h.id)") Restore
+              b-button(size="is-small" type="is-light" @click="restore(h.id)") {{ $t('firmForecastTrendThresholds.actions.restore') }}
 </template>
 
 <script>
@@ -159,21 +154,23 @@ export default {
      * other way; the arithmetic and the validator carry the direction themselves.
      */
     levelFields () {
+      const k = 'firmForecastTrendThresholds.levels'
       return [
-        { key: 'debtorDays', label: 'Debtor days', help: 'How long customers take to pay. Mike’s own figures: 35 and 45.' },
-        { key: 'creditorDays', label: 'Creditor days', help: 'How long the business takes to pay suppliers. A high figure is the one that reads as stretching them.' },
-        { key: 'stockDays', label: 'Stock days', help: 'How long stock sits before it sells. Varies more by trade than either of the other two.' },
-        { key: 'currentRatio', label: 'Current ratio', help: 'Current assets, including the bank, over current liabilities. Higher is better, so this row reads the other way up: green at or above the first figure, amber at or above the second, red below. Counts in the Business Performance Report\u2019s health score.', readsUp: true },
-        { key: 'debtToEquity', label: 'Debt to equity', help: 'Total liabilities over equity, equity being assets less liabilities. Green up to the first figure, amber up to the second, red above. Counts in the Business Performance Report\u2019s health score.' }
+        { key: 'debtorDays', label: this.$t(`${k}.debtorDays.label`), help: this.$t(`${k}.debtorDays.help`) },
+        { key: 'creditorDays', label: this.$t(`${k}.creditorDays.label`), help: this.$t(`${k}.creditorDays.help`) },
+        { key: 'stockDays', label: this.$t(`${k}.stockDays.label`), help: this.$t(`${k}.stockDays.help`) },
+        { key: 'currentRatio', label: this.$t(`${k}.currentRatio.label`), help: this.$t(`${k}.currentRatio.help`), readsUp: true },
+        { key: 'debtToEquity', label: this.$t(`${k}.debtToEquity.label`), help: this.$t(`${k}.debtToEquity.help`) }
       ]
     },
 
     /** The three measures judged on the movement between the two years. */
     movementFields () {
+      const k = 'firmForecastTrendThresholds.movements'
       return [
-        { key: 'salesGrowth', label: 'Sales growth falls below', help: 'A percentage. Negative is allowed — “below −5%” is an ordinary red line.', unit: '% growth' },
-        { key: 'grossMargin', label: 'Gross margin falls by more than', help: 'In percentage points, so a fall from 42% to 40% is 2.', unit: 'percentage points' },
-        { key: 'overheadRatio', label: 'Overheads against sales rise by more than', help: 'In percentage points. Rising means running costs are taking more of every dollar sold.', unit: 'percentage points' }
+        { key: 'salesGrowth', label: this.$t(`${k}.salesGrowth.label`), help: this.$t(`${k}.salesGrowth.help`), unit: this.$t(`${k}.salesGrowth.unit`) },
+        { key: 'grossMargin', label: this.$t(`${k}.grossMargin.label`), help: this.$t(`${k}.grossMargin.help`), unit: this.$t(`${k}.grossMargin.unit`) },
+        { key: 'overheadRatio', label: this.$t(`${k}.overheadRatio.label`), help: this.$t(`${k}.overheadRatio.help`), unit: this.$t(`${k}.overheadRatio.unit`) }
       ]
     }
   },
@@ -222,9 +219,11 @@ export default {
      */
     redAbove (key) {
       const amber = this.form.levels[key] && this.form.levels[key].amber
-      if (amber === '' || amber === null || amber === undefined) { return 'nothing is red until an amber figure is set' }
+      if (amber === '' || amber === null || amber === undefined) { return this.$t('firmForecastTrendThresholds.levels.redNothing') }
       const field = this.levelFields.find(f => f.key === key)
-      return (field && field.readsUp ? 'anything below ' : 'anything above ') + amber
+      return field && field.readsUp
+        ? this.$t('firmForecastTrendThresholds.levels.redBelow', { amber })
+        : this.$t('firmForecastTrendThresholds.levels.redAbove', { amber })
     },
 
     /**
@@ -274,7 +273,7 @@ export default {
         const data = await this.api('POST', '/api/firm-manager/trend-thresholds', { thresholds: this.payload() })
         this.own = data.own || {}
         this.applyToForm(data.resolved || {})
-        this.$buefy.toast.open({ message: 'Thresholds saved', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmForecastTrendThresholds.toast.saved'), type: 'is-success' })
         if (this.showHistory) { await this.loadHistory() }
       } catch (err) {
         this.saveError = err.message
@@ -289,9 +288,9 @@ export default {
      */
     confirmReset () {
       this.$buefy.dialog.confirm({
-        title: 'Go back to inherited thresholds',
-        message: 'This level will stop holding its own thresholds and will take them from the level above again. Advisors here will see that level\'s bands.',
-        confirmText: 'Go back to inherited',
+        title: this.$t('firmForecastTrendThresholds.resetDialog.title'),
+        message: this.$t('firmForecastTrendThresholds.resetDialog.message'),
+        confirmText: this.$t('firmForecastTrendThresholds.actions.reset'),
         type: 'is-warning',
         onConfirm: () => this.reset()
       })
@@ -304,7 +303,7 @@ export default {
         const data = await this.api('POST', '/api/firm-manager/trend-thresholds', { thresholds: {} })
         this.own = {}
         this.applyToForm(data.resolved || {})
-        this.$buefy.toast.open({ message: 'Now inheriting again', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmForecastTrendThresholds.toast.inheriting'), type: 'is-success' })
       } catch (err) {
         this.saveError = err.message
       } finally {
@@ -331,7 +330,7 @@ export default {
         const data = await this.api('POST', '/api/firm-manager/trend-thresholds/restore', { versionId })
         this.applyToForm(data.resolved || {})
         await this.load()
-        this.$buefy.toast.open({ message: 'That version is back in force', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmForecastTrendThresholds.toast.restored'), type: 'is-success' })
       } catch (err) {
         this.saveError = err.message
       }

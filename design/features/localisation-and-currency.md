@@ -42,11 +42,23 @@ row got it backwards.** Read this before concluding anything about translation.
 | **Authored by us** | `locales/en.json` — English, and **only** English |
 | **Shipped as static files** | 8 (`de en es fr it nl pl pt`) — a head start for common languages, **not** a list of what is supported |
 | **Offered to a reader** | **28** (`data/languages.json`) |
-| **Translated on demand** | the other **20** — `ar az ca cs da el eo fi he hi hu id ja ko ru sk sv tr uk zh` |
+| **Completed by the backend** | **every language but English** — the 20 with no file, and whatever the 7 partial files lack |
 
-**The mechanism** (`mixins/localeMixin.js`): a reader picks a language we do not ship, the whole
-English locale is POSTed to `/api/translate/locale`, translated once, and cached in `localStorage`
-under `va_locale_<code>`. The cost is paid **once per browser**, not once per visit.
+**The mechanism** (`server/utils/uiTranslation.js`, Mike's ruling 2026-09-25): a reader picks a
+language and the browser sends **the code only** to `GET /api/ui-translation/:code`. The backend
+translates the English it holds (`en.json` plus Collaborate's file) through the `translate` AI role,
+**once per language**, and stores it at the platform scope — so the cost is paid once for **every
+reader**, not once per browser. Each translated string must keep its placeholders, plural
+separators and HTML tags exactly, or it is served in English and retried later. A string whose
+English changes is translated again on its own. The first reader of a language waits a few minutes
+while it runs (the picker shows its spinner); the browser keeps a copy under `va_ui_<code>` and
+downloads again only when the version changes (`utils/uiLocaleLoader.js`). The chosen language is
+remembered in this browser (`va_reader_locale`) and every page opens in it — which is how the
+manager hubs, which have no picker of their own, are read in another language.
+
+🔴 **Chat messages do NOT come through here.** A Collaborate message is personal content, and only
+Meeting Review may send that to a model (CLAUDE.md), so it stays on `/api/translate/locale`
+(MyMemory).
 
 ### What this means for anyone writing code here
 
@@ -63,9 +75,15 @@ put it in `en.json`, and all 28 languages follow. Adding a 29th language is a ro
 
 **"The other seven locale files are nearly empty — translation is unfinished."** They hold 8
 top-level keys against English's 54, which looks alarming and is not. Those files are a partial
-head start; everything missing from them is translated on demand like the other twenty. **Nothing
-is unfinished and there is no backlog of translation work.** *(Read exactly this way twice —
-2026-09-22 being the second.)*
+head start; the backend completes them like every other language. **Nothing is unfinished and
+there is no backlog of translation work.** *(Read exactly this way twice — 2026-09-22 being the
+second.)*
+
+⚠ **Lesson, 2026-09-25: "it is translated on demand" was stated here for three days while it was
+true of nothing.** The seven shipped languages never asked for a translation at all, and the other
+twenty asked a free service whose daily allowance covered about a quarter of one language — its
+failures came back as English and were cached as finished. A claim about translation is checked by
+counting what comes back for a real language, never by reading the mechanism.
 
 **"The app cannot translate, so it needs a translation tool."** It can, it does, and it has since
 before item 17. This is why **stage 6 of the Sales Tracker was skipped** (Mike's ruling,
@@ -74,10 +92,9 @@ one. If a future port arrives carrying its own translation machinery, the answer
 
 ### Where it can genuinely go wrong — and these are real
 
-- **The quota is shared and metered.** 20 languages depend on one third-party allowance.
-  Exhausting it **silently reverts those readers to English** with nothing on screen to say why.
-  This is why `/api/translate/locale` is signed-in-only (P5a) — the guard is about who may spend
-  the quota, not about scoping.
+- **Translation spends model calls.** Both translation routes are signed-in-only (P5a) — the guard
+  is about who may spend them, not about scoping. A language that comes back more than half English
+  is refused by the browser rather than shown, and the reader stays where they were.
 - **A failure must never blank a label.** Falling back to the key, or to English, always beats an
   empty string on a screen an advisor is holding in front of a client.
 - **Chunking is load-bearing, not tidiness** — see §3. An oversized request once reverted an entire
@@ -108,21 +125,20 @@ Node 18 and would throw on the locked runtime.
 **P5 · Sanitise and cap untrusted text before it leaves for a third party, and validate the shape
 of the reply before using it.**
 
-**P5a · 🔴 THE TRANSLATION ROUTE IS SIGNED-IN-ONLY, because it spends a metered quota that twenty
-languages depend on.** `POST /api/translate/locale` carries `firmAuth` — not a manager role, since
-every caller is an ordinary reader choosing a language, and the route itself reads no identity. The
-guard is about **who may spend the quota**, not about scoping.
+**P5a · 🔴 THE TRANSLATION ROUTES ARE SIGNED-IN-ONLY, because they spend a metered allowance.**
+`GET /api/ui-translation/:code` (the app's wording) and `POST /api/translate/locale` (chat messages)
+both carry `firmAuth` — not a manager role, since every caller is an ordinary reader choosing a
+language, and neither route reads an identity. The guard is about **who may spend the allowance**,
+not about scoping.
 
-⚠ **It was open to the whole internet until 2026-09-22**, sitting between `/api/health` and the
-first guarded route with no auth at all. The cost is not only the bill: **20 of our 28 languages are
-translated through it on demand**, so exhausting the daily allowance silently reverts those readers
-to English with nothing on screen to explain it. Pinned by `tests/unit/serverWiring.test.js`, which
+⚠ **`/api/translate/locale` was open to the whole internet until 2026-09-22**, sitting between
+`/api/health` and the first guarded route with no auth at all. Pinned by `tests/unit/serverWiring.test.js`, which
 also asserts that **nothing but `/api/health` and the anonymous report maths is unguarded** — the
 report routes are figures-in-figures-out and hold no identity, which is why they are the one stated
 exception.
 
-**Every caller sends the token** (`mixins/localeMixin.js`, `mixins/collaborate/localeMixin.js`,
-`components/collaborate/shared/ConversationPane.vue`). None did before, so guarding the route without
+**Every caller sends the token** (`utils/uiLocaleLoader.js` for both pickers,
+`components/collaborate/shared/ConversationPane.vue` for chat). None did before, so guarding the route without
 changing them would have broken language switching everywhere.
 
 **P6 · Currency: read by any signed-in firm user, the FIRM's value written by managers only.** A

@@ -20,12 +20,11 @@
  *    (design/COURSE-SLICED-SESSION-WORDING.md, and this app's own rule for a
  *    choice between defined options).
  *
- * CourseBuilder is not yet i18n'd (its copy is inline English — see the i18n
- * sweep in design/ACTIONS.md), so these assertions read the English the screen
- * actually shows, matching the file's convention.
+ * These assertions read the real English from locales/en.json (englishMocks):
+ * the figures inside the sentences are what they guard.
  */
 
-const { mountWithBuefy } = require('../helpers/mountComponent')
+const { mountWithBuefy, englishMocks } = require('../helpers/mountComponent')
 const CourseBuilder = require('~/components/CourseBuilder.vue').default
 
 /** A sliced session, in the shape the engine now emits. */
@@ -82,7 +81,7 @@ function designRequestBody () {
 
 async function mountDesign (data) {
   const wrapper = mountWithBuefy(CourseBuilder, {
-    propsData: { advisorId: 'advisor-1', firmId: 'firm-1', apiToken: 'token' }
+    propsData: { advisorId: 'advisor-1', firmId: 'firm-1', apiToken: 'token' }, mocks: englishMocks()
   })
   await wrapper.setData(Object.assign({
     phase: 'design',

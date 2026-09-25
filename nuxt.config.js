@@ -139,6 +139,7 @@ export default {
     { path: '/api/advisor/ai-readiness', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/advisor', handler: '~/server-middleware/advisor.js' },
     { path: '/api/translate', handler: '~/server-middleware/translate.js' },
+    { path: '/api/ui-translation', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/course', handler: '~/server-middleware/course.js' },
     { path: '/api/report', handler: '~/server-middleware/report.js' },
     { path: '/api/cases', handler: '~/server-middleware/apiProxy.js' },

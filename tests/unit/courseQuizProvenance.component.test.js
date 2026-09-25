@@ -3,7 +3,7 @@
  */
 'use strict'
 
-const { mountWithBuefy } = require('../helpers/mountComponent')
+const { mountWithBuefy, englishMocks } = require('../helpers/mountComponent')
 const CourseBuilder = require('~/components/CourseBuilder.vue').default
 
 /**
@@ -16,9 +16,8 @@ const CourseBuilder = require('~/components/CourseBuilder.vue').default
  *   • a result saved BEFORE provenance existed → says nothing at all, rather
  *     than guessing a source it cannot know.
  *
- * CourseBuilder is not yet i18n'd (its copy is inline English — see the i18n
- * sweep in design/ACTIONS.md), so these assertions read the English the screen
- * actually shows, matching the file's current convention.
+ * These assertions read the real English from locales/en.json (englishMocks):
+ * the provenance values inside the sentences are what they guard.
  */
 
 function reviewResult (extra) {
@@ -37,7 +36,7 @@ function reviewResult (extra) {
 /** Mount straight into the quiz-review phase with the given saved results. */
 async function mountReview (results) {
   const wrapper = mountWithBuefy(CourseBuilder, {
-    propsData: { advisorId: 'advisor-1', firmId: 'firm-1', apiToken: 'token' }
+    propsData: { advisorId: 'advisor-1', firmId: 'firm-1', apiToken: 'token' }, mocks: englishMocks()
   })
   await wrapper.setData({
     phase: 'quiz-review',
@@ -91,10 +90,39 @@ describe('Quiz Review names the bank behind each question', () => {
   })
 })
 
+describe("the approved 'couldn't assess' sentence follows the reader's language", () => {
+  const { UNGRADED_FEEDBACK } = require('~/utils/quizScoring')
+
+  function mountReading (translation) {
+    return mountWithBuefy(CourseBuilder, {
+      propsData: { advisorId: 'advisor-1', firmId: 'firm-1', apiToken: 'token' },
+      mocks: Object.assign(englishMocks(), {
+        $t: key => (key === 'courseBuilder.quiz.ungradedFeedback' ? translation : key)
+      })
+    })
+  }
+
+  test('a saved ungraded result — old or new — shows the reader\'s-language sentence', () => {
+    const wrapper = mountReading('Wir konnten diese Antwort nicht bewerten.')
+
+    expect(wrapper.vm.feedbackText({ ungraded: true, feedback: UNGRADED_FEEDBACK }))
+      .toBe('Wir konnten diese Antwort nicht bewerten.')
+  })
+
+  test('a moderation block and the marker\'s own feedback are shown exactly as saved', () => {
+    const wrapper = mountReading('translated')
+    const blocked = 'This answer was stopped by a content check: "…".'
+
+    expect(wrapper.vm.feedbackText({ ungraded: true, feedback: blocked })).toBe(blocked)
+    expect(wrapper.vm.feedbackText({ feedback: 'Correct.' })).toBe('Correct.')
+    expect(wrapper.vm.feedbackText({})).toBe('')
+  })
+})
+
 describe('provenance is recorded on the result, not just the question', () => {
   test('_questionProvenance carries the bank identity and the entry number', () => {
     const wrapper = mountWithBuefy(CourseBuilder, {
-      propsData: { advisorId: 'advisor-1', firmId: 'firm-1', apiToken: 'token' }
+      propsData: { advisorId: 'advisor-1', firmId: 'firm-1', apiToken: 'token' }, mocks: englishMocks()
     })
     wrapper.setData({
       quizBank: { key: 'Phone Techniques', source: 'a.pdf', origin: 'platform' },
@@ -111,7 +139,7 @@ describe('provenance is recorded on the result, not just the question', () => {
 
   test('with no bank it records nulls — never a guessed source', () => {
     const wrapper = mountWithBuefy(CourseBuilder, {
-      propsData: { advisorId: 'advisor-1', firmId: 'firm-1', apiToken: 'token' }
+      propsData: { advisorId: 'advisor-1', firmId: 'firm-1', apiToken: 'token' }, mocks: englishMocks()
     })
     wrapper.setData({
       quizBank: null,

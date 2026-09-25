@@ -1,11 +1,9 @@
 <template lang="pug">
 .mobs
   .notification.is-info.is-light.mb-4
-    p.is-size-7
-      | What your advisors are checked on in each kind of meeting. Advisors see this list
-      |  #[b before they walk in], and their own coaching notes are checked against it
-      |  afterwards — every finding quoting what was said, or saying plainly that it did
-      |  not happen.
+    i18n.is-size-7(path="firmMeetingObservations.intro.body" tag="p")
+      template(#before)
+        b {{ $t('firmMeetingObservations.intro.before') }}
 
   //- Whether the points are landing, above the points themselves — a manager reads the result
   //- before deciding whether to change the list. It renders itself at the FIRM tier only and
@@ -30,22 +28,20 @@
 
   template(v-else)
     .mobs-pick.mb-4
-      b-field(label="Meeting type" label-position="on-border")
+      b-field(:label="$t('firmMeetingObservations.pick.meetingType')" label-position="on-border")
         b-select(v-model="scenarioId" expanded)
           option(v-for="s in scenarios" :key="s.id" :value="s.id") {{ s.name }}
-      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") You have changed this list
-      b-tag(v-else type="is-light" size="is-medium") Everything is inherited
+      b-tag(v-if="hasOwn" type="is-info is-light" size="is-medium") {{ $t('firmMeetingObservations.pick.changedHere') }}
+      b-tag(v-else type="is-light" size="is-medium") {{ $t('firmMeetingObservations.pick.allInherited') }}
 
     .box(v-if="current")
-      h4.title.is-6.mb-1 What we check
-      p.is-size-7.has-text-grey.mb-4
-        | Each one is a question the software looks for in the transcript and answers with a
-        |  quotation, or with #[b not found]. Write them so an answer would be something
-        |  somebody said.
+      h4.title.is-6.mb-1 {{ $t('firmMeetingObservations.points.heading') }}
+      i18n.is-size-7.has-text-grey.mb-4(path="firmMeetingObservations.points.help" tag="p")
+        template(#notFound)
+          b {{ $t('firmMeetingObservations.points.notFound') }}
 
       p.is-size-7.has-text-grey.py-4(v-if="!current.points.length")
-        | Nothing is checked in this kind of meeting yet. Add the first point below, and every
-        |  advisor here will see it before their next meeting of this type.
+        | {{ $t('firmMeetingObservations.points.empty') }}
 
       .mobs-row(v-for="p in current.points" :key="p.id")
         .mobs-text
@@ -59,10 +55,10 @@
             //- Marked by whoever writes the point, never judged per meeting by the model.
             //- Mike's ruling 2026-09-02 — see the component note.
             b-checkbox.mt-2(v-model="draftCannotHear" size="is-small")
-              | This cannot be heard on a recording
+              | {{ $t('firmMeetingObservations.points.cannotHearCheckbox') }}
             b-field.mt-2(
               v-if="draftCannotHear"
-              label="Words that hint it happened (optional)"
+              :label="$t('firmMeetingObservations.points.hintWordsLabel')"
               label-position="on-border")
               b-taginput(
                 v-model="draftHints"
@@ -71,66 +67,66 @@
                 size="is-small"
                 ellipsis)
             .buttons.are-small.mt-2
-              b-button(type="is-primary" :loading="saving" @click="saveEdit(p)") Save
-              b-button(type="is-light" @click="cancelEdit") Cancel
+              b-button(type="is-primary" :loading="saving" @click="saveEdit(p)") {{ $t('firmMeetingObservations.actions.save') }}
+              b-button(type="is-light" @click="cancelEdit") {{ $t('firmMeetingObservations.actions.cancel') }}
           template(v-else)
             p {{ p.text }}
-            p.is-size-7.has-text-grey(v-if="p.advisorText") Advisor sees: {{ p.advisorText }}
+            p.is-size-7.has-text-grey(v-if="p.advisorText") {{ $t('firmMeetingObservations.points.advisorSees', { text: p.advisorText }) }}
             b-tag.mt-1(v-if="p.cannotHear" type="is-warning" size="is-small")
-              | Cannot be heard on a recording
+              | {{ $t('firmMeetingObservations.points.cannotHearTag') }}
         .mobs-source
           b-tag(:type="sourceTag(p.source)" size="is-small") {{ sourceLabel(p.source) }}
         .mobs-acts(v-if="editingId !== p.id")
-          b-button(size="is-small" type="is-text" @click="startEdit(p)") Edit
+          b-button(size="is-small" type="is-text" @click="startEdit(p)") {{ $t('firmMeetingObservations.actions.edit') }}
           //- Reset is offered only where there is something of ours to drop.
           b-button(
             v-if="p.source === 'edited-here'"
             size="is-small"
             type="is-text"
             :loading="saving"
-            @click="resetPoint(p)") Use the inherited wording
+            @click="resetPoint(p)") {{ $t('firmMeetingObservations.actions.useInheritedWording') }}
           b-button(
             v-if="p.source === 'added-here'"
             size="is-small"
             type="is-text"
             :loading="saving"
-            @click="confirmDelete(p)") Remove
+            @click="confirmDelete(p)") {{ $t('firmMeetingObservations.actions.remove') }}
           b-button(
             v-else
             size="is-small"
             type="is-text"
             :loading="saving"
-            @click="decline(p, true)") Switch off
+            @click="decline(p, true)") {{ $t('firmMeetingObservations.actions.switchOff') }}
 
       //- Points switched off are shown rather than hidden: a manager who cannot see what
       //- they turned off cannot turn it back on, and would read the shorter list as the
       //- whole list.
       .mobs-off(v-if="declinedHere.length")
-        p.is-size-7.has-text-weight-semibold.mb-2 Switched off here
+        p.is-size-7.has-text-weight-semibold.mb-2 {{ $t('firmMeetingObservations.declined.heading') }}
         .mobs-row(v-for="p in declinedHere" :key="p.id")
           .mobs-text
             p.has-text-grey {{ p.text }}
           .mobs-source
-            b-tag(type="is-light" size="is-small") off
+            b-tag(type="is-light" size="is-small") {{ $t('firmMeetingObservations.declined.offTag') }}
           .mobs-acts
-            b-button(size="is-small" type="is-text" :loading="saving" @click="decline(p, false)") Switch back on
+            b-button(size="is-small" type="is-text" :loading="saving" @click="decline(p, false)") {{ $t('firmMeetingObservations.actions.switchBackOn') }}
 
       b-message(v-if="saveError" type="is-danger" size="is-small") {{ saveError }}
 
       .mobs-add.mt-4(v-if="adding")
-        b-field(label="A new point" label-position="on-border")
+        b-field(:label="$t('firmMeetingObservations.add.label')" label-position="on-border")
           b-input(
             v-model="draft"
             type="textarea"
             rows="2"
             :maxlength="maxPointLength"
-            placeholder="Understanding was checked before moving on from the figures."
+            :placeholder="$t('firmMeetingObservations.add.placeholder')"
             size="is-small")
         b-checkbox(v-model="draftCannotHear" size="is-small")
-          | This cannot be heard on a recording
+          | {{ $t('firmMeetingObservations.points.cannotHearCheckbox') }}
         b-field.mt-2(
           v-if="draftCannotHear"
-          label="Words that hint it happened (optional)"
+          :label="$t('firmMeetingObservations.points.hintWordsLabel')"
           label-position="on-border")
           b-taginput(
             v-model="draftHints"
@@ -139,12 +135,12 @@
             size="is-small"
             ellipsis)
         .buttons.are-small.mt-3
-          b-button(type="is-primary" :loading="saving" @click="addPoint") Add this point
-          b-button(type="is-light" @click="cancelAdd") Cancel
+          b-button(type="is-primary" :loading="saving" @click="addPoint") {{ $t('firmMeetingObservations.add.submit') }}
+          b-button(type="is-light" @click="cancelAdd") {{ $t('firmMeetingObservations.actions.cancel') }}
 
       .buttons.mt-4(v-else)
-        b-button(type="is-light" @click="startAdd") Add a point
-        b-button(type="is-text" @click="toggleHistory") {{ showHistory ? 'Hide change history' : 'Change history' }}
+        b-button(type="is-light" @click="startAdd") {{ $t('firmMeetingObservations.add.start') }}
+        b-button(type="is-text" @click="toggleHistory") {{ showHistory ? $t('firmMeetingObservations.history.hide') : $t('firmMeetingObservations.history.heading') }}
 
     //- ── Set aside by advisors ─────────────────────────────────────────
     //- 🔴 ORDERED BY MIKE, 2026-09-08, in the same breath as permitting the thing it shows:
@@ -162,19 +158,18 @@
     //- own level would be the first thing in this app to cross it. If a firm wants a point
     //- back, that is a conversation — and this screen is what makes the conversation possible.
     .box(v-if="showsSetAside")
-      h4.title.is-6.mb-1 Set aside by advisors
+      h4.title.is-6.mb-1 {{ $t('firmMeetingObservations.setAside.heading') }}
       p.is-size-7.has-text-grey.mb-1
-        | Your advisors may take a point off their own list. This is where that shows. Nothing
-        |  here changes what you have set — your list is unchanged.
+        | {{ $t('firmMeetingObservations.setAside.intro') }}
       //- 🔴 MIKE'S OWN INSTRUCTION, 2026-09-08: "explain this is a review of 'active' advisors
       //- so managers know its not their total team as a %". Wording approved by him the same
       //- day. It exists because there is NO DENOMINATOR — this app holds no advisors table
       //- (config/db-schema.sql, four times), so a firm's headcount is unknowable here and
       //- "4 of 12" cannot be built. Without this line a manager reads "4" as a share of their
       //- whole team.
-      p.is-size-7.has-text-grey.mb-4
-        | #[b A count of the advisors who have changed their own list] — not your whole team,
-        |  and never a percentage of it.
+      i18n.is-size-7.has-text-grey.mb-4(path="firmMeetingObservations.setAside.countNote" tag="p")
+        template(#counted)
+          b {{ $t('firmMeetingObservations.setAside.counted') }}
 
       b-message(v-if="setAsideError" type="is-danger" size="is-small") {{ setAsideError }}
 
@@ -185,11 +180,12 @@
           //- Every point is listed, including the ones nobody has touched: a screen showing
           //- only the exceptions cannot be read as reassurance, because an empty screen and a
           //- broken screen look identical.
-          p.is-size-7.has-text-grey.mt-1(v-if="!p.count") Nobody has set this aside.
+          p.is-size-7.has-text-grey.mt-1(v-if="!p.count") {{ $t('firmMeetingObservations.setAside.nobody') }}
           p.is-size-7.mt-1(v-else)
-            | Set aside by
-            template(v-for="(w, i) in p.setAsideBy")
-              |  #[b {{ w.name || 'an advisor whose name we do not hold' }}]{{ i < p.setAsideBy.length - 1 ? ',' : '' }}
+            | {{ $t('firmMeetingObservations.setAside.setAsideBy') }}
+            template(v-for="(part, i) in nameParts(p.setAsideBy)")
+              b(v-if="part.type === 'element'" :key="'n' + i") {{ part.value }}
+              span(v-else :key="'s' + i") {{ part.value }}
 
     //- ── The retention dial (slice 2) ──────────────────────────────────
     //- ⚠ THE FIGURE HERE IS SPOKEN ALOUD TO A CLIENT. The consent wording is fixed and a
@@ -197,17 +193,15 @@
     //- sentence an advisor says in a real meeting tomorrow. That is why the warning is on
     //- the screen and not only in the code.
     .box
-      h4.title.is-6.mb-1 How long transcripts are kept
-      p.is-size-7.has-text-grey.mb-4
-        | The recording is always deleted as soon as it becomes a transcript. This sets how
-        |  long the transcript itself is kept.
-        |  #[b Your advisors say this figure out loud to the client]
-        |  when they ask permission to record, so it changes what they promise.
+      h4.title.is-6.mb-1 {{ $t('firmMeetingObservations.retention.heading') }}
+      i18n.is-size-7.has-text-grey.mb-4(path="firmMeetingObservations.retention.intro" tag="p")
+        template(#spoken)
+          b {{ $t('firmMeetingObservations.retention.spoken') }}
 
       b-message(v-if="retentionError" type="is-danger" size="is-small") {{ retentionError }}
 
       b-field(grouped)
-        b-field(label="Months" label-position="on-border")
+        b-field(:label="$t('firmMeetingObservations.retention.months')" label-position="on-border")
           b-input(
             v-model.number="retentionDraft"
             type="number"
@@ -217,28 +211,28 @@
             style="max-width: 8rem")
         b-field
           b-tag(:type="retentionSetHere ? 'is-info is-light' : 'is-light'" size="is-medium")
-            | {{ retentionSetHere ? 'Set here' : 'Inherited — ' + retentionPhrase }}
+            | {{ retentionSetHere ? $t('firmMeetingObservations.retention.setHere') : $t('firmMeetingObservations.retention.inherited', { phrase: retentionPhrase }) }}
 
       .buttons.are-small.mt-2
-        b-button(type="is-primary" :loading="savingRetention" @click="saveRetention") Save this period
+        b-button(type="is-primary" :loading="savingRetention" @click="saveRetention") {{ $t('firmMeetingObservations.retention.save') }}
         b-button(
           v-if="retentionSetHere"
           type="is-light"
           :loading="savingRetention"
-          @click="resetRetention") Use the inherited period
+          @click="resetRetention") {{ $t('firmMeetingObservations.retention.useInherited') }}
 
     .box(v-if="showHistory")
-      p.has-text-weight-semibold.mb-2 Change history
-      p.is-size-7.has-text-grey(v-if="!historyRows.length") Nothing has been saved at this level yet.
+      p.has-text-weight-semibold.mb-2 {{ $t('firmMeetingObservations.history.heading') }}
+      p.is-size-7.has-text-grey(v-if="!historyRows.length") {{ $t('firmMeetingObservations.history.empty') }}
       table.table.is-fullwidth.is-narrow(v-else)
         tbody
           tr(v-for="h in historyRows" :key="h.part + '-' + h.id")
             td.is-size-7 {{ partLabel(h.part) }}
-            td Version {{ h.version }}
+            td {{ $t('firmMeetingObservations.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.saved_by }}
             td.is-size-7.has-text-grey {{ h.created_at }}
             td.has-text-right
-              b-button(size="is-small" type="is-light" @click="restore(h)") Restore
+              b-button(size="is-small" type="is-light" @click="restore(h)") {{ $t('firmMeetingObservations.history.restore') }}
 </template>
 
 <script>
@@ -277,15 +271,15 @@
  *      points and an "Add a point" button only. The Brief has a firm editing the platform's
  *      list, which cannot be done with an add button alone.
  *
- * ⚠ ENGLISH IS HARDCODED HERE, matching every other tab in this hub — the hub's copy is a
- * single existing i18n item rather than a per-tab one (see the note on `HUB_TITLES` in
- * `FirmManagerHub.vue`). The consent wording, which is the text that actually must not
- * drift, is not on this screen and is not built yet.
+ * Every word a manager sees comes from the `firmMeetingObservations` block of the locale
+ * files (item 10.1). The consent wording, which is the text that actually must not drift,
+ * is not on this screen.
  *
  * Vue 2 Options API, Pug, Buefy — no exceptions to the house rules.
  */
 import FirmMeetingTypes from '~/components/firm/FirmMeetingTypes.vue'
 import FirmMeetingPatterns from '~/components/firm/FirmMeetingPatterns.vue'
+import { intlLocaleFor } from '~/utils/dateLocale'
 
 export default {
   name: 'FirmMeetingObservations',
@@ -428,6 +422,31 @@ export default {
 
   methods: {
     /**
+     * The advisors who set a point aside, as the reader's language lists names — "A, B, C"
+     * in English, "A, B und C" in German — with each name its own part so it can be bold.
+     * Starts with the space that follows "Set aside by".
+     *
+     * @param {Array<{name: string}>} advisors
+     * @returns {Array<{type: string, value: string}>} `element` parts are names
+     */
+    nameParts (advisors) {
+      const names = (advisors || []).map(w => w.name || this.$t('firmMeetingObservations.setAside.unnamedAdvisor'))
+      let parts
+      try {
+        parts = new Intl.ListFormat(intlLocaleFor(this.$i18n && this.$i18n.locale), { type: 'unit', style: 'short' })
+          .formatToParts(names)
+      } catch (e) {
+        // No list formatter in this browser: the English form it always used.
+        parts = []
+        names.forEach((n, i) => {
+          if (i) { parts.push({ type: 'literal', value: ', ' }) }
+          parts.push({ type: 'element', value: n })
+        })
+      }
+      return [{ type: 'literal', value: ' ' }].concat(parts)
+    },
+
+    /**
      * Read the retention period in force here, and what this level set itself.
      *
      * Loaded separately from the points so a fault in one does not blank the other: a
@@ -444,7 +463,7 @@ export default {
         this.retentionMin = data.min
         this.retentionMax = data.max
       } catch (err) {
-        this.retentionError = 'The retention period could not be read: ' + err.message
+        this.retentionError = this.$t('firmMeetingObservations.retention.readFailed', { message: err.message })
       }
     },
 
@@ -522,7 +541,7 @@ export default {
         this.setAside = data.scenarios || []
       } catch (err) {
         this.setAside = []
-        this.setAsideError = 'What your advisors have set aside could not be loaded: ' + err.message
+        this.setAsideError = this.$t('firmMeetingObservations.setAside.loadFailed', { message: err.message })
       }
     },
 
@@ -543,16 +562,16 @@ export default {
      * @returns {string}
      */
     sourceLabel (source) {
-      if (source === 'edited-here') { return 'edited here' }
-      if (source === 'added-here') { return 'added here' }
-      return 'inherited'
+      if (source === 'edited-here') { return this.$t('firmMeetingObservations.source.editedHere') }
+      if (source === 'added-here') { return this.$t('firmMeetingObservations.source.addedHere') }
+      return this.$t('firmMeetingObservations.source.inherited')
     },
 
     /** Which storage key a history row came from, in words. */
     partLabel (part) {
-      if (part === 'declines') { return 'Switched off' }
-      if (part === 'overrides') { return 'Edited' }
-      return 'Added'
+      if (part === 'declines') { return this.$t('firmMeetingObservations.history.part.declines') }
+      if (part === 'overrides') { return this.$t('firmMeetingObservations.history.part.overrides') }
+      return this.$t('firmMeetingObservations.history.part.own')
     },
 
     startEdit (point) {
@@ -595,7 +614,7 @@ export default {
      */
     async saveEdit (point) {
       const text = String(this.draft || '').trim()
-      if (!text) { this.saveError = 'A point needs some words.'; return }
+      if (!text) { this.saveError = this.$t('firmMeetingObservations.errors.needsWords'); return }
       const base = `/api/firm-manager/meeting-observations/${this.scenarioId}`
       const path = point.source === 'added-here'
         ? `${base}/own/${point.id}`
@@ -625,7 +644,7 @@ export default {
 
     async addPoint () {
       const text = String(this.draft || '').trim()
-      if (!text) { this.saveError = 'A point needs some words.'; return }
+      if (!text) { this.saveError = this.$t('firmMeetingObservations.errors.needsWords'); return }
       await this.mutate(
         'POST',
         `/api/firm-manager/meeting-observations/${this.scenarioId}/own`,
@@ -658,9 +677,9 @@ export default {
     /** Removing a point this level added is not undoable from the screen, so it asks first. */
     confirmDelete (point) {
       this.$buefy.dialog.confirm({
-        title: 'Remove this point',
-        message: 'Advisors here will stop being checked on it. Points you have inherited can be switched off instead, and switched back on later.',
-        confirmText: 'Remove it',
+        title: this.$t('firmMeetingObservations.confirmRemove.title'),
+        message: this.$t('firmMeetingObservations.confirmRemove.message'),
+        confirmText: this.$t('firmMeetingObservations.confirmRemove.confirm'),
         type: 'is-warning',
         onConfirm: () => this.mutate(
           'DELETE',

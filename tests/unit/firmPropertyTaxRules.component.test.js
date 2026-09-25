@@ -17,7 +17,7 @@
 // and it would do it silently, on a screen where every other blank number legitimately
 // means zero.
 
-const { mountWithBuefy } = require('../helpers/mountComponent')
+const { mountWithBuefy, englishMocks } = require('../helpers/mountComponent')
 const FirmPropertyTaxRules = require('../../components/firm/FirmPropertyTaxRules.vue').default
 
 /** Mount the tab with its one network call stubbed to whatever the test needs. */
@@ -27,7 +27,9 @@ async function mountTab (resolved, own) {
     json: () => Promise.resolve({ resolved: resolved || {}, own: own || {} })
   }))
   const wrapper = mountWithBuefy(FirmPropertyTaxRules, {
-    propsData: { apiToken: 'test-token' }
+    propsData: { apiToken: 'test-token' },
+    // Real English: two tests below read the label and the intro sentence as a manager sees them.
+    mocks: englishMocks()
   })
   await wrapper.vm.$nextTick()
   await wrapper.vm.$nextTick()
