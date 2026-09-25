@@ -415,9 +415,13 @@
         "ours": true,
         "detail": "2026-09-24 - found while proving item O5 of the OpenAI working page. Mike said yes to filing it, and added the section-by-section option in the note."
       },
-      "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; item 8.3, since both need the same design work.",
-      "note": "THE HARD PART IS SPEAKERS, NOT SPLITTING: OpenAI labels each file's speakers A, B afresh, so pieces must be tied back to one advisor - known_speaker_references (up to four 2-10 second clips) is the documented way. MIKE'S OPTION 2026-09-24, in his words: meeting presentations have sections, each with a response section; clicking a section starts its own recording, as the voice recorder does in the guided AI session elsewhere in the app, saved per section and combined at the end - which also shows a technical dropout sooner than the end of the meeting. Evidence: OPENAI-DEVELOPER-DOCS.md O5.",
-      "comment": "2026-09-24 - filed on Mike's yes, with his option recorded. Design it together with 8.3."
+      "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; the Strategy Planner's Run session (pages/strategy-planner.vue, StrategyConceptCapture.vue, StrategyCaptureCard.vue) and its navigation timeline (strategySessionStore.js); item 8.3, since both need the same design work.",
+      "note": "DRAWN 2026-09-25 ON MIKE'S YES, NOT APPROVED, NOT BUILT: design/mockups/strategy-session-recording.html - the Strategy Planner's Run session, one concept card per section, joining his Decisions 10 and 11. Six decisions A-F wait on him, one at a time. THE HARD PART IS SPEAKERS: a known_speaker_references clip cut from the consent line names the advisor in every section. MIKE'S OPTION 2026-09-24, in his words: meeting presentations have sections, each with a response section; clicking a section starts its own recording, as the voice recorder does in the guided AI session elsewhere in the app, saved per section and combined at the end - which also shows a technical dropout sooner than the end of the meeting.",
+      "comment": "2026-09-24 - filed on Mike's yes, with his option recorded. Design it together with 8.3.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-25"
+      }
     },
     {
       "ref": "13.5",

@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recording Sessions in Sections</title>
+<!--
+================================================================================
+  RECORDING A STRATEGY SESSION IN SECTIONS — item 8.4, inside the Strategy Planner's
+  Run session. Drawn 2026-09-25. NOT APPROVED. NOTHING ON THIS PAGE IS BUILT.
+
+  It is the artefact the build will be measured against, per CLAUDE.md's
+  Save-the-Artefact rule: open it beside the build and name every difference before
+  shipping.
+
+  WHAT IT JOINS. Two things Mike has already asked for:
+  1. Decisions 10 and 11 of design/mockups/strategy-planner.html, RULED 2026-09-16:
+     a strategy session is a Meeting Review meeting type (the Planner builds no
+     recorder of its own), and "the open field claims the words spoken while it is
+     open, from the session's navigation timeline. The AI tidies wording and NEVER
+     decides placement."
+  2. His option on item 8.4, 2026-09-24: "meeting presentations have sections, each
+     with a response section; clicking a section starts its own recording ... saved
+     per section and combined at the end - which also shows a technical dropout
+     sooner than the end of the meeting."
+
+  WHAT ALREADY EXISTS AND IS REUSED, NOT REDRAWN.
+  - The navigation timeline: strategy_session_timeline, POST
+    /api/strategy/sessions/:id/timeline. Every box the advisor opens is already
+    recorded with its time. Built for Decision 11; nothing reads it yet.
+  - Meeting Review's consent, capture, transcription and audio destruction:
+    MeetingConsentPanel.vue, MeetingRecorder.vue, server/routes/meetingReview.js,
+    meetingAudioStore.js, transcriptionClient.js.
+  - The firm declaration gate (compliance.md P1): no declaration, no recording.
+  - Meeting Review's two reports, read from one joined transcript.
+
+  THE CONSENT WORDS ON SCREEN 2 ARE COPIED FROM locales/en.json meetingConsent,
+  which is held against design/MEETING-CONSENT-WORDING.md by
+  tests/unit/meetingConsentWording.test.js. They are NOT to be reworded.
+  THE BOX LABELS AND PROMPTS ARE PORTER'S 5 FORCES as shipped in
+  data/strategy-frameworks.json. EVERY OTHER WORD ON THIS PAGE IS OURS, and is
+  listed in the wording table for Mike to rule on.
+================================================================================
+-->
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --bright: #00b1e0; --eg: #6b7f99; --bg: #fff;
+    --good: #2e7d32; --crit: #c0392b; --warn: #b36b00; --rec: #d32f2f;
+    --goodwash: #edf7ee; --critwash: #fdeeee; --recwash: #fff1f1;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+      --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+      --good: #7fcf85; --crit: #ff8a80; --warn: #ffb74d; --rec: #ff6b6b;
+      --goodwash: #16301c; --critwash: #3a1c1c; --recwash: #3a1a1f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+    --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+    --good: #7fcf85; --crit: #ff8a80; --warn: #ffb74d; --rec: #ff6b6b;
+    --goodwash: #16301c; --critwash: #3a1c1c; --recwash: #3a1a1f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    color: var(--body); background: var(--bg); margin: 0;
+    padding-block: 32px 80px; padding-inline: 16px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: clamp(24px, 4vw, 30px); margin: 0 0 6px; text-wrap: balance; }
+  h2 { color: var(--ink); font-size: clamp(18px, 3vw, 21px); margin: 40px 0 4px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 78ch; }
+  .lede b { color: var(--ink); }
+  .cap { color: var(--eg); font-size: 12.5px; margin: 8px 0 0; max-width: 82ch; }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 18px 0 0; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul, .note ol { margin: 6px 0 0; padding-left: 20px; }
+  .note li { margin: 0 0 5px; }
+  code { font-size: 12.5px; }
+  .tablewrap { overflow-x: auto; }
+  table.m { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+  table.m th, table.m td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.m th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  .dec { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px dashed var(--accent); border-radius: 4px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+
+  /* The screen, drawn */
+  .screen { border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); background: var(--bg); overflow: hidden; margin: 14px 0 0; }
+  .rail { display: flex; gap: 4px; padding: 10px 14px; background: var(--wash); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .rail span { font-size: 12.5px; padding: 4px 10px; border-radius: 6px; color: var(--eg); }
+  .rail span.on { background: #0070c0; color: #fff; font-weight: 700; }
+  .frame { border: 10px solid #0070c0; margin: 14px; padding: 18px 20px; }
+  .runhead { color: var(--ink); font-weight: 700; margin: 0 0 10px; font-size: 15px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 0 0 14px; }
+  .card.live { border: 2px solid var(--rec); }
+  .cardtop { background: var(--wash); padding: 10px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .cardtop b { color: var(--ink); }
+  .grow { flex: 1; }
+  .muted { color: var(--eg); font-size: 12.5px; }
+  .btn { display: inline-block; background: var(--accent); color: #fff; border-radius: 6px; padding: 6px 13px; font-weight: 600; font-size: 13.5px; white-space: nowrap; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .btn.recbtn { background: transparent; color: var(--rec); border: 1px solid var(--rec); }
+  .btn.recbtn::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--rec); margin-right: 7px; vertical-align: 0; }
+  .btn.danger { background: transparent; color: var(--crit); border: 1px solid var(--crit); }
+  .btn.small { padding: 3px 10px; font-size: 12.5px; }
+  .forces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 10px; padding: 14px; }
+  .field { border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; }
+  .field.open { border: 2px solid var(--accent); box-shadow: 0 0 0 3px #0070c022; }
+  .field h5 { margin: 0 0 3px; color: var(--ink); font-size: 13.5px; }
+  .field p.q { margin: 0 0 7px; font-size: 12px; color: var(--eg); }
+  .field .typed { border: 1px solid var(--line); border-radius: 5px; min-height: 38px; padding: 6px 8px; font-size: 13px; }
+  .field .typed.empty { color: var(--eg); font-style: italic; }
+  .claim { font-size: 11.5px; color: var(--accent); font-weight: 700; margin: 6px 0 0; }
+
+  /* the recording strip */
+  .strip { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--recwash); border-bottom: 1px solid var(--line); padding: 10px 14px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--rec); display: inline-block; }
+  .strip b { color: var(--rec); }
+  .clock { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
+  .secs { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .sec { font-size: 12px; border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; }
+  .sec.done { border-color: var(--good); color: var(--good); background: var(--goodwash); }
+  .sec.now { border-color: var(--rec); color: var(--rec); background: var(--recwash); font-weight: 700; }
+  .sec.work { border-color: var(--warn); color: var(--warn); }
+  .sec.fail { border-color: var(--crit); color: var(--crit); background: var(--critwash); }
+
+  /* consent */
+  .consent { padding: 18px 20px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+  .cstep { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .cstep h4 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .said { border-left: 4px solid var(--accent); background: var(--wash); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; margin: 8px 0; }
+  .said small { display: block; color: var(--eg); font-size: 11.5px; margin: 0 0 4px; font-weight: 700; letter-spacing: .04em; }
+  .recbar { background: var(--recwash); color: var(--rec); font-weight: 700; padding: 7px 10px; border-radius: 6px; font-size: 13px; margin: 0 0 8px; }
+
+  /* words arriving */
+  .heard { margin: 8px 0 0; border: 1px dashed var(--accent); border-radius: 7px; padding: 8px 10px; font-size: 12.5px; }
+  .heard .lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--eg); margin: 0 0 3px; }
+  .heard .raw { color: var(--eg); margin: 0 0 7px; }
+  .heard .raw i { font-style: normal; font-weight: 700; }
+  .heard .tidy { color: var(--ink); margin: 0 0 7px; font-size: 13px; }
+  .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tray { margin: 0 14px 14px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--wash); }
+  .tray h5 { margin: 0 0 6px; color: var(--ink); font-size: 13.5px; }
+  .tray p { margin: 0 0 6px; font-size: 12.5px; }
+
+  .banner { margin: 14px; padding: 10px 14px; border-radius: 8px; font-size: 13.5px; }
+  .banner.fail { background: var(--critwash); border-left: 4px solid var(--crit); }
+  .banner.fail b { color: var(--crit); }
+  .banner.ok { background: var(--goodwash); border-left: 4px solid var(--good); }
+  .banner.ok b { color: var(--good); }
+
+  /* how it works */
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 10px; margin: 14px 0 0; counter-reset: s; }
+  .flow div { border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; font-size: 13px; background: var(--bg); position: relative; }
+  .flow div::before { counter-increment: s; content: counter(s); display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; margin: 0 0 6px; }
+  .flow b { color: var(--ink); display: block; }
+
+  .decision { border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 15px; margin: 12px 0; background: var(--bg); }
+  .decision h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
+  .decision p { margin: 0 0 6px; }
+  .rec { font-weight: 600; color: var(--ink); }
+  .against { color: var(--eg); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner · Run session · item 8.4 · drawn 2026-09-25 · not approved · not built</p>
+  <h1>Recording a strategy session in sections</h1>
+  <p class="lede">Each concept card in Run session becomes <b>its own short recording</b>. The advisor presses the card's
+    record button, and pressing the next card's button closes the one before. Each section is turned into text
+    <b>as soon as it closes</b> and its audio is deleted straight after. The words then land in <b>the box that
+    was open when they were spoken</b>. The advisor keeps, edits or rejects each one. At the end the sections join
+    into one transcript, so Meeting Review's summary and coaching notes work as they do now.</p>
+  <p class="lede">This joins two things you've already asked for: <b>Decisions 10 and 11</b> of the planner drawing
+    (16 Sep), and <b>your option on 8.4</b> (24 Sep), <i>"clicking a section starts its own recording … saved per
+    section and combined at the end — which also shows a technical dropout sooner than the end of the meeting."</i></p>
+
+  <div class="note">
+    <h3>The impact test, stated before the design</h3>
+    <ul>
+      <li><b>The problem.</b> A strategy session can't be recorded today. OpenAI refuses a file over 25 MB, which is
+        about 27 minutes of browser audio (measured 24 Sep). Meeting Review sends the whole meeting as one file, so a
+        planning session would be refused and its audio destroyed anyway. Every box in the planner is typed by hand,
+        often while the client is still talking.</li>
+      <li><b>How we'll know.</b>
+        <ul>
+          <li>A test session of at least 45 minutes is transcribed with no refusal. Today that's impossible.</li>
+          <li>Advisor and client are labelled correctly in every section, not only the first. Checked by reading every
+            section of that test session.</li>
+          <li>Every passage lands in the box that was open when it was spoken. Checked against the navigation
+            timeline on the same session.</li>
+          <li>How many suggested sentences the advisor keeps, edits or rejects. This is counted, not guessed. A low
+            keep-rate says the tidy step isn't earning its place.</li>
+        </ul></li>
+      <li><b>What already does this job, and why it isn't enough.</b>
+        <ul>
+          <li><b>On-device dictation</b> (12.2) gets the advisor's own words into a box, but only what the advisor
+            chooses to say into the microphone. It never hears the client and never labels speakers.</li>
+          <li><b>Meeting Review's recorder</b> hears everyone, but as one file. That fails past 27 minutes, and it
+            only shows a failure at the very end.</li>
+        </ul></li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>Checked against the OpenAI contract rules (<code>OPENAI-ZDR-CONSTRAINTS.md</code>) and the privacy exception</h3>
+    <ul>
+      <li><b>Z1:</b> audio goes to <code>/v1/audio/transcriptions</code>, which keeps nothing. The tidy step uses
+        <code>/v1/chat/completions</code>. Both are allowed.</li>
+      <li><b>Z3:</b> every passage sent for tidying passes the moderation check first, as <code>moderate:</code> spoken
+        text. Meeting Review's reports already do this.</li>
+      <li><b>Z4, Z5, Z7:</b> it's bound to one session, behind the login, and audio isn't a file input.</li>
+      <li><b>Z9:</b> until OpenAI switches ZDR on for the project, nothing here may be described as covered by ZDR.</li>
+      <li><b>The privacy exception in <code>CLAUDE.md</code>:</b> this is Meeting Review (Decision 10), so it sits
+        inside the one exception and doesn't open a second. Internal IDs and firm or advisor identifiers are still
+        stripped.</li>
+      <li><b>The firm declaration gate</b> (Compliance P1) applies unchanged. If the firm hasn't declared, the record
+        buttons are locked, exactly as <code>/meeting-record</code> is today.</li>
+    </ul>
+  </div>
+
+  <!-- ───────────────────────────── SCREEN 1 ───────────────────────────── -->
+  <h2>1 · Run session, before anything is recorded</h2>
+  <p class="cap">Each concept card gains one control in its header. Nothing else about the card changes. The session
+    isn't recording, and nothing records until the advisor presses a button. <span class="dec">Decision A</span>
+    <span class="dec">Decision B</span></p>
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span>2 · Build session</span><span class="on">3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="frame">
+      <p class="runhead">Choose Your Competition Fronts</p>
+      <div class="card">
+        <div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span>
+          <span class="btn recbtn">Record this section</span></div>
+        <div class="forces">
+          <div class="field"><h5>Customers</h5><p class="q">Are customers likely to be motivated to pay premium prices in return for latest style or fashion, technology or prestige? Are they concerned about your business safety, environment or ethical impact?</p><div class="typed empty">Type, dictate, or record the section</div></div>
+          <div class="field"><h5>New Entrants</h5><p class="q">How easy is it for new entrants to enter your marketplace? Is it conceivable that your current supplier could become your future competition?</p><div class="typed empty">Type, dictate, or record the section</div></div>
+          <div class="field"><h5>Suppliers</h5><p class="q">Is there competition amongst your suppliers? Do they actively compete for your business, and if you had to shift to a new supplier, how easy would it be?</p><div class="typed empty">Type, dictate, or record the section</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="cardtop"><b>Blue Ocean Strategy</b><span class="grow"></span>
+          <span class="btn recbtn">Record this section</span></div>
+        <p class="muted" style="margin:10px 14px">…the card as it is today…</p>
+      </div>
+    </div>
+  </div>
+  <p class="cap">Sample arrangement only: Porter's placed under one of Pivot's step names. The placeholder line inside
+    an empty box is <b>not</b> new wording; it stands in for whatever the box shows today. Typing and dictation still work
+    exactly as now, whether or not a section is recording.</p>
+
+  <!-- ───────────────────────────── SCREEN 2 ───────────────────────────── -->
+  <h2>2 · The first press asks for consent, once for the whole session</h2>
+  <p class="cap">This is Meeting Review's own two-step consent, shown <b>inside</b> the planner. It isn't a copy and
+    it isn't a new screen. Every word below is the approved wording, taken from the app. The advisor speaks the line
+    into the first section's recording. Every later section is covered by it and doesn't ask again. <span class="dec">Decision C</span></p>
+  <div class="screen">
+    <div class="consent">
+      <div class="cstep">
+        <h4>Before you record</h4>
+        <p style="margin:0 0 6px">Read these words aloud as soon as recording starts. The recording is your evidence that you asked.</p>
+        <div class="said"><small>Approved wording — read aloud, by you, first</small>Before we begin — I'd like to record our meeting. The recording is turned into a written transcript by AI, and the recording itself is deleted as soon as that's done. It gives you a written summary of what we agree today, and it helps me review how I did. Nothing is shared outside our firm. Is everyone here happy for me to record?</div>
+        <p class="muted">The audio is transcribed and then deleted. The transcript is kept for 18 months and is visible to you and your firm — never to Advisor-e.</p>
+        <div class="acts"><span class="btn">Start recording</span><span class="btn ghost">Cancel</span></div>
+      </div>
+      <div class="cstep">
+        <div class="recbar">● Recording. The consent you are about to hear is being captured.</div>
+        <h4>Read the words aloud now</h4>
+        <div class="said"><small>Repeated so you read rather than remember</small>Before we begin — I'd like to record our meeting. The recording is turned into a written transcript by AI, and the recording itself is deleted as soon as that's done. It gives you a written summary of what we agree today, and it helps me review how I did. Nothing is shared outside our firm. Is everyone here happy for me to record?</div>
+        <p style="margin:0 0 8px"><b>Did everyone agree to be recorded?</b></p>
+        <div class="acts"><span class="btn">Yes — continue</span><span class="btn danger">No — stop and delete</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">"18 months" is the firm's own retention setting, filled in from the dial, never typed. 🔴 <b>It also
+    records the advisor's voice for telling speakers apart:</b> while the line is being read, the browser keeps its
+    <b>first 8 seconds</b> as a separate short clip. That's the advisor's voice sample for every later section (see
+    "How it works" below). It's deleted with the rest of the audio. This is why the line must be read by the advisor
+    and never by the client, a rule the consent page already states.</p>
+
+  <!-- ───────────────────────────── SCREEN 3 ───────────────────────────── -->
+  <h2>3 · Recording: one section live, earlier ones already turned into text</h2>
+  <p class="cap">A strip across the top of Run session shows the whole session at a glance: which section is recording
+    and for how long, and what happened to each earlier one. The live card has a red edge. The open box is the one
+    that will claim the words, and it says so. <span class="dec">Decision D</span> <span class="dec">Decision E</span></p>
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span>2 · Build session</span><span class="on">3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="strip"><span class="dot"></span><b>Recording</b><span>Section 3 · Porter's 5 Forces</span>
+      <span class="clock">06:12</span><span class="grow"></span>
+      <span class="btn ghost small">End recording</span><span class="btn danger small">Stop and delete everything</span></div>
+    <div class="secs">
+      <span class="sec done">1 · Collaborative Thinking · text ready · audio deleted</span>
+      <span class="sec work">2 · Blue Ocean Strategy · turning into text…</span>
+      <span class="sec now">3 · Porter's 5 Forces · recording 06:12</span>
+    </div>
+    <div class="frame">
+      <p class="runhead">Choose Your Competition Fronts</p>
+      <div class="card live">
+        <div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span>
+          <span class="clock" style="color:var(--rec)">● 06:12</span></div>
+        <div class="forces">
+          <div class="field"><h5>Customers</h5><p class="q">Are customers likely to be motivated to pay premium prices…</p><div class="typed">Price-led; loyal to the brand but not to us</div></div>
+          <div class="field open"><h5>Suppliers</h5><p class="q">Is there competition amongst your suppliers? Do they actively compete for your business, and if you had to shift to a new supplier, how easy would it be?</p><div class="typed empty"></div>
+            <p class="claim">● What's said now goes here</p></div>
+          <div class="field"><h5>Substitutes</h5><p class="q">What are the alternatives to your product or service?…</p><div class="typed empty"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="cardtop"><b>Blue Ocean Strategy</b><span class="grow"></span>
+          <span class="btn recbtn">Record this section</span></div>
+        <p class="muted" style="margin:10px 14px">Pressing this closes section 3 and starts section 4, with no gap and no second consent.</p>
+      </div>
+    </div>
+  </div>
+  <p class="cap"><b>"End recording"</b> closes the live section and finishes the session's recording. <b>"Stop and
+    delete everything"</b> is Meeting Review's existing stop-and-delete, and it takes <b>every</b> section with it: the
+    audio, the text and any words already offered in the boxes. It answers a client who asks to stop halfway through.
+    <b>At 25 minutes</b> a section closes by itself and continues as "Porter's 5 Forces (part 2)", so no single file
+    reaches OpenAI's limit. <span class="dec">Decision E</span></p>
+
+  <!-- ───────────────────────────── SCREEN 4 ───────────────────────────── -->
+  <h2>4 · The words arrive in their boxes, and nothing goes in until the advisor keeps it</h2>
+  <p class="cap">Once a section has been turned into text, each passage appears <b>under the box that was open when it
+    was spoken</b>. It shows what was actually said, with who said it, and beneath that the sentence an advisor would
+    have typed. Nothing enters the box until the advisor presses <b>Keep</b>. This is Decision 11: the clock decides
+    where a passage goes, and the AI only tidies the wording. <span class="dec">Decision F</span></p>
+  <div class="screen">
+    <div class="frame">
+      <p class="runhead">Choose Your Competition Fronts</p>
+      <div class="card">
+        <div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span>
+          <span class="sec done">section 3 · text ready · audio deleted</span></div>
+        <div class="forces">
+          <div class="field"><h5>Suppliers</h5><p class="q">Is there competition amongst your suppliers?…</p>
+            <div class="typed empty"></div>
+            <div class="heard">
+              <p class="lbl">Heard, 14:21–14:23</p>
+              <p class="raw"><i>Client:</i> "honestly there's only two people who'll do the powder coating anywhere near us and one of them's already told us they're full till March so if the other one puts his price up we're stuck"<br>
+                <i>Advisor:</i> "so you've effectively got one supplier for coating"</p>
+              <p class="lbl">Suggested wording</p>
+              <p class="tidy">Only two powder-coating suppliers nearby, and one is full until March, so in practice there's a single supplier with pricing power over us.</p>
+              <div class="acts"><span class="btn small">Keep</span><span class="btn ghost small">Edit</span><span class="btn ghost small">Reject</span><span class="btn ghost small">Move to another box</span></div>
+            </div>
+          </div>
+          <div class="field"><h5>Customers</h5><p class="q">Are customers likely to be motivated to pay premium prices…</p>
+            <div class="typed">Price-led; loyal to the brand but not to us</div>
+            <p class="muted" style="margin:6px 0 0">Nothing was said while this box was open.</p></div>
+        </div>
+        <div class="tray">
+          <h5>Said while no box was open (2)</h5>
+          <p><b>14:15</b> · Advisor: "right, so this one's Porter's — five things pressing on the business at once…"</p>
+          <p><b>14:31</b> · Client: "the other thing is Bunnings started stocking a flat-pack version last year"</p>
+          <div class="acts"><span class="btn ghost small">Move to a box</span><span class="btn ghost small">Leave it in the transcript only</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">The example client's words are invented for the drawing and marked as such here. The advisor's
+    <b>typed</b> words are never overwritten. A kept suggestion is added <b>beneath</b> what is already in the box.
+    "Heard" and "Suggested wording" are stored side by side with what the advisor finally keeps: that's the Original /
+    AI Suggestion / Final Approved Value record the engineering standards require. A passage spoken while
+    <b>no</b> box was open (the teaching slide, a side remark) is never guessed into a box. It waits in the tray, and
+    nothing is lost if it stays there. This is the honest cost recorded against Decision 11: the words only sort
+    themselves if the advisor moves through the boxes as the conversation moves.</p>
+
+  <!-- ───────────────────────────── SCREEN 5 ───────────────────────────── -->
+  <h2>5 · A section fails, and the advisor knows within minutes, not at the end</h2>
+  <p class="cap">This is the gain you named on 8.4. One failed section costs that section only. The meeting carries on
+    recording in the next section, and the advisor finds out while the client is still in the room, while there's time
+    to type the missing points.</p>
+  <div class="screen">
+    <div class="secs">
+      <span class="sec done">1 · Collaborative Thinking · text ready</span>
+      <span class="sec fail">2 · Blue Ocean Strategy · couldn't be turned into text</span>
+      <span class="sec now">3 · Porter's 5 Forces · recording 02:40</span>
+    </div>
+    <div class="banner fail"><b>Section 2 (Blue Ocean Strategy) couldn't be turned into text.</b> Its audio has been
+      deleted, as it always is. Anything you typed in that card is safe. Recording carries on with this section.</div>
+  </div>
+  <p class="cap">The audio is deleted whether or not the transcription worked. That is Meeting Review's P8, unchanged:
+    a failure loses the recording, never the client's privacy.</p>
+
+  <!-- ───────────────────────────── SCREEN 6 ───────────────────────────── -->
+  <h2>6 · End recording: the sections become one meeting</h2>
+  <div class="screen">
+    <div class="secs">
+      <span class="sec done">1 · Collaborative Thinking</span><span class="sec done">2 · Blue Ocean Strategy</span>
+      <span class="sec done">3 · Porter's 5 Forces</span><span class="sec done">4 · Porter's 5 Forces (part 2)</span>
+      <span class="sec done">5 · Productive Habits</span>
+    </div>
+    <div class="banner ok"><b>Recording finished. 5 sections, 52 minutes, all turned into text, all audio deleted.</b>
+      Words still waiting in boxes: 7. <span class="btn small" style="margin-left:8px">Read my reports</span></div>
+  </div>
+  <p class="cap">The five transcripts join in order, each shifted by its start time, into <b>one</b> meeting transcript.
+    Meeting Review's Meeting Summary and My Coaching Notes read that one transcript exactly as they do today.
+    <b>"Read my reports"</b> is the label you approved on 7 Sep, reused, not new. Words not yet kept stay offered in
+    their boxes afterwards, so the advisor can finish sorting them after the client leaves.</p>
+
+  <!-- ───────────────────────────── HOW IT WORKS ───────────────────────────── -->
+  <h2>How it works underneath</h2>
+  <div class="flow">
+    <div><b>Record a section</b>The browser records the card's section in small pieces, which are saved as they arrive, as now. A crash costs seconds.</div>
+    <div><b>Close it</b>The next card's button, "End recording", or 25 minutes closes the section.</div>
+    <div><b>Turn it into text</b>That section alone goes to OpenAI with the advisor's 8-second voice sample, so the advisor is named correctly in every section.</div>
+    <div><b>Delete the audio</b>At once, whether or not that worked, and the deletion is checked, as now.</div>
+    <div><b>Match by the clock</b>Each passage's time is laid against the navigation timeline. The box open at that moment claims it. No AI involved.</div>
+    <div><b>Tidy the wording</b>Each passage is moderation-checked, then tidied. It's offered under its box and kept only by the advisor.</div>
+    <div><b>Join at the end</b>All sections become one transcript for Meeting Review's two reports.</div>
+  </div>
+  <div class="note">
+    <h3>🔴 Why the 8-second voice sample is needed: the one hard problem</h3>
+    <p style="margin:0">Today the code decides who the advisor is by <b>who speaks first</b>
+      (<code>attributeSpeakers</code>). That's safe only because the consent line opens the recording. Section 2 onwards
+      has no consent line. If the client speaks first, <b>every</b> label in that section is swapped, and nothing on
+      screen looks wrong. OpenAI's documented fix is to send a 2–10 second sample of a known speaker
+      (<code>known_speaker_references</code>) with each file. The consent line runs about 25 seconds, too long, so the
+      browser keeps its first 8 seconds as a separate clip while it records. No audio is cut on the server, which
+      matters because the locked Node 14.15 runs no audio tools.</p>
+  </div>
+
+  <!-- ───────────────────────────── DECISIONS ───────────────────────────── -->
+  <h2>The decisions this drawing needs</h2>
+  <p class="cap">Asked one at a time, each as a yes or no. None is ruled yet. Each will be written back here with your
+    words, and the recommendation stays beneath it.</p>
+
+  <div class="decision"><h3>Decision A · what one section is</h3>
+    <p class="rec">Recommended: one concept card.</p>
+    <p>That matches your "each presentation has a response section". One concept's discussion fits comfortably under
+      the 25-minute limit, and a failure loses one concept, not a whole step.</p>
+    <p class="against">Against: a step holding four concepts would mean fewer button presses. But a step can easily run
+      past 27 minutes, and one failure would then lose all four.</p></div>
+
+  <div class="decision"><h3>Decision B · how a section starts</h3>
+    <p class="rec">Recommended: the advisor presses the card's button, as your option says. Pressing another card's
+      button closes the one before.</p>
+    <p>It's deliberate, so a recording never starts because the advisor clicked into a box to type.</p>
+    <p class="against">Against: starting automatically when a box in a new card is opened would need no presses at
+      all. But it would also start recording when an advisor only meant to type, with the client unaware.</p></div>
+
+  <div class="decision"><h3>Decision C · consent</h3>
+    <p class="rec">Recommended: consent once per session, spoken into the first section, covering every section after it.</p>
+    <p>It's one meeting under the approved wording, "I'd like to record our meeting", and you confirmed on 16 Sep that
+      a planning session counts as a meeting.</p>
+    <p class="against">Against: asking at every section would be tiresome and would undercut the approved line, which
+      already asks about the whole meeting.</p></div>
+
+  <div class="decision"><h3>Decision D · when the words arrive</h3>
+    <p class="rec">Recommended: as each section is turned into text, during the session.</p>
+    <p>A failure shows within minutes (your point on 8.4), and an advisor can keep words during a natural pause instead
+      of facing everything at the end.</p>
+    <p class="against">Against: suggestions appearing mid-meeting could distract the advisor in front of the client.
+      They only appear in cards the conversation has already moved past, but that is the risk.</p></div>
+
+  <div class="decision"><h3>Decision E · a section that runs long</h3>
+    <p class="rec">Recommended: at 25 minutes it closes by itself and carries on as "part 2" of the same card, with no gap.</p>
+    <p>No file can reach OpenAI's 25 MB limit, whatever the advisor forgets to press.</p>
+    <p class="against">Against: a warning asking the advisor to press something would keep them in control, but it asks
+      for attention at exactly the moment they're listening to a client.</p></div>
+
+  <div class="decision"><h3>Decision F · how a kept suggestion enters the box</h3>
+    <p class="rec">Recommended: added beneath what's already typed, never replacing it. Nothing enters a box without Keep.</p>
+    <p>What the advisor typed in the room is the most reliable record, and the AI's wording is only a suggestion.</p>
+    <p class="against">Against: replacing would keep boxes shorter, but it would silently discard the advisor's own words.</p></div>
+
+  <!-- ───────────────────────────── WORDING ───────────────────────────── -->
+  <h2>Every new word on this page is ours, and needs your ruling</h2>
+  <div class="tablewrap">
+    <table class="m">
+      <thead><tr><th>Where</th><th>Our wording</th></tr></thead>
+      <tbody>
+        <tr><td>Card button</td><td>Record this section</td></tr>
+        <tr><td>The open box, while recording</td><td>● What's said now goes here</td></tr>
+        <tr><td>Strip</td><td>Recording · Section 3 · Porter's 5 Forces · 06:12</td></tr>
+        <tr><td>Strip buttons</td><td>End recording · Stop and delete everything</td></tr>
+        <tr><td>Section states</td><td>recording · turning into text… · text ready · audio deleted · couldn't be turned into text</td></tr>
+        <tr><td>Long section</td><td>Porter's 5 Forces (part 2)</td></tr>
+        <tr><td>Under a box</td><td>Heard · Suggested wording · Keep · Edit · Reject · Move to another box</td></tr>
+        <tr><td>Empty box note</td><td>Nothing was said while this box was open.</td></tr>
+        <tr><td>Tray</td><td>Said while no box was open (2) · Move to a box · Leave it in the transcript only</td></tr>
+        <tr><td>Failure banner</td><td>Section 2 (Blue Ocean Strategy) couldn't be turned into text. Its audio has been deleted, as it always is. Anything you typed in that card is safe. Recording carries on with this section.</td></tr>
+        <tr><td>Finished banner</td><td>Recording finished. 5 sections, 52 minutes, all turned into text, all audio deleted. Words still waiting in boxes: 7.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">Not ours, and not to be reworded: the consent screens (approved 1 Sep) and "Read my reports"
+    (approved 7 Sep).</p>
+
+  <!-- ───────────────────────────── NOT SOLVED ───────────────────────────── -->
+  <h2>What this drawing does not solve</h2>
+  <div class="note">
+    <ul>
+      <li>🔴 <b>The speaker-labelling model retires on 26 Feb 2027</b> with no named successor (item 8.3). The voice
+        sample is a feature of that model. First step: ask OpenAI, through the ZDR contact, what replaces it. The design
+        doesn't change, but its engine may.</li>
+      <li><b>Meeting Review's own recorder</b>, used outside the planner, still records one file and still stops at about
+        27 minutes. The same section machinery serves it, but its screen has no cards to hang sections on, so it needs its
+        own drawing. This one is the planner's.</li>
+      <li><b>ZDR isn't switched on yet.</b> The signed amendment waits on OpenAI enabling it for the project. Until then
+        nothing here may be described as covered by it.</li>
+      <li><b>Live proof needs a real browser, the OpenAI key and a database</b>, which means the desktop or UAT. The laptop
+        can build and test it, but it can't record a real session.</li>
+      <li><b>The strategy meeting type's name</b> is yours to word. It sits at mentor level with the other eleven and
+        cascades as they do.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
