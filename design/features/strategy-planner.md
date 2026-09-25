@@ -8,6 +8,11 @@
 > into 1 seamless document that can easily expand over time."* And: *"each concept needs to be
 > presented AS IT CURRENTLY APPEARS in the slides."*
 >
+> ☑ **WHAT THAT RULE MEANS — Mike, 2026-09-25:** *"it was there to ensure that the original import
+> was followed - not such that it could never be changed in future."* It governs how a concept is
+> **imported and drawn** (§0's method), and is **no bar to an advisor editing a page's text** for a
+> session. Said while scoping advisor editing of the presentation.
+>
 > **§1–§7 describe the build as it stood BEFORE this redirection, and have not been
 > redesigned.** The four steps described there are built and walked in a browser, and they keep
 > working — but the framework model in §2 is superseded and is marked so. **§8 is the one piece

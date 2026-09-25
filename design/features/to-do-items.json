@@ -76,6 +76,31 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
+      "ref": "15.25",
+      "name": "An advisor cannot edit a concept page's text before running the session",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "an advisor cannot tailor the presentation to the client in front of them",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "An advisor sees the whole presentation in Run session before the meeting and can save it, but cannot change a word of it. Mike wants to edit the text, for example to add a few points.",
+      "risk": "Every client hears the same words, or the advisor retypes pages outside the app. An edit that overflows would print a messy page on the client's plan; the fit check measured on 2026-09-25 is the guard against that.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-25, in his words: \"I want to be able to EDIT the presentation - perhaps i want to add a few points etc\". He tried the test and approved the build the same day."
+      },
+      "touches": "components/strategy/StrategyConceptGraphic.vue, which Run session and the printed plan both draw through; pages/strategy-planner.vue; StrategyPlanDocument.vue; strategySessionStore.js and routes/strategyPlanner.js to save edits on the session; the approved test design/mockups/strategy-edit-text-test.html and scripts/edit-text-test/.",
+      "note": "APPROVED TO BUILD BY MIKE 2026-09-25 from the test he clicked: design/mockups/strategy-edit-text-test.html. Click text on a concept page, edit, it re-wraps in the page's own font; a fit check says what it runs into; Put back the original undoes it. Session only (his Decision C, 2026-09-21). RULED 2026-09-25: AN EDIT THAT DOES NOT FIT IS NOT SAVED until shortened - because, in his words, \"we will add the ability to 'add a page' later on and for those who have much more, they will use the 'add a template' function\" (15.20). MEASURED: rewording always fits; paragraphs take 19-273 more characters, circle labels about 7. Photo text is not editable.",
+      "comment": "2026-09-25 - filed and approved to build in the same conversation, after Mike tried the editing test.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-25"
+      }
+    },
+    {
       "ref": "15.24",
       "name": "Business Owner Expectations plan page overflows past about 14 tasks",
       "rankedByMike": false,
@@ -417,7 +442,7 @@
       },
       "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; the Strategy Planner's Run session (pages/strategy-planner.vue, StrategyConceptCapture.vue, StrategyCaptureCard.vue) and its navigation timeline (strategySessionStore.js); item 8.3, since both need the same design work.",
       "note": "DRAWN 2026-09-25 ON MIKE'S YES, NOT APPROVED, NOT BUILT: design/mockups/strategy-session-recording.html - the Strategy Planner's Run session, one concept card per section, joining his Decisions 10 and 11. Six decisions A-F wait on him, one at a time. THE HARD PART IS SPEAKERS: a known_speaker_references clip cut from the consent line names the advisor in every section. MIKE'S OPTION 2026-09-24, in his words: meeting presentations have sections, each with a response section; clicking a section starts its own recording, as the voice recorder does in the guided AI session elsewhere in the app, saved per section and combined at the end - which also shows a technical dropout sooner than the end of the meeting.",
-      "comment": "2026-09-24 - filed on Mike's yes, with his option recorded. Design it together with 8.3.",
+      "comment": "2026-09-25 - Mike's call: PROCEED - the drawing's six decisions next, asked one at a time. Filed 2026-09-24 on his yes, with his option recorded; design it together with 8.3.",
       "activeOn": {
         "machine": "laptop",
         "since": "2026-09-25"
