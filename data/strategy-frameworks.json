@@ -10,11 +10,12 @@
     "design/features/strategy-planner.md is the Brief. Three things this file used to say are",
     "no longer true, and each one would send a new row to the wrong place:",
     "",
-    "  1. THE SCOPE IS 46 CONCEPTS, NOT 45. The 45 was counted from ADV.0's index. Mike's",
+    "  1. THE SCOPE IS 47 CONCEPTS, NOT 45. The 45 was counted from ADV.0's index. Mike's",
     "     scoping ruling of 2026-09-17 counted 52 from the five decks' own contents tables and",
     "     agendas; on 2026-09-23 (item 15.17) eight agenda rows were deleted and two framing",
-    "     pages brought in, leaving Business Targets 1, Strategic Orientation 1 3, Strategic",
-    "     Orientation 2 18, Sales & Marketing 16, Organisational Review 8.",
+    "     pages brought in, and on 2026-09-25 (item 15.23) Business Owner Expectations came",
+    "     back as one row running its model, leaving Business Targets 2, Strategic Orientation",
+    "     1 3, Strategic Orientation 2 18, Sales & Marketing 16, Organisational Review 8.",
     "",
     "  2. 🔴 ADV.0 PLANNING OUTCOMES IS NEVER THE SOURCE OF A CONCEPT OR ITS TEXT. It is a",
     "     COPY of the decks' contents tables and it has drifted: four concepts missing from",
@@ -36,7 +37,7 @@
     "     form and captured in another. Census sections 2, 3 and 4 finding 6.",
     "",
     "🔴 A NEW .vue FILE NAMED AFTER A FRAMEWORK IS STILL THE THING THAT RULING REFUSED. If a",
-    "framework will not fit a form, the answer is a new FORM - one more for all 46 - never a",
+    "framework will not fit a form, the answer is a new FORM - one more for all 47 - never a",
     "component for that one framework.",
     "",
     "🔴 THE CONCEPT TEXT IS NOT HERE, AND MUST NOT BE COPIED HERE. Each framework points at",
@@ -130,7 +131,7 @@
       "id": "business-targets",
       "name": "Business Targets",
       "planningDomain": "business-targets",
-      "sourceLabel": "the agenda, slide 2"
+      "sourceLabel": "the deck, pages 3–6"
     },
     {
       "id": "strategic-orientation-1",
@@ -385,7 +386,7 @@
     "This is NOT duplication, and neither may be deleted in favour of the other."
   ],
   "_conceptsReadme": [
-    "THE CONCEPT INDEX - THE 46, AS RECORDS. To-do item 15.1. This is the thing the Planner",
+    "THE CONCEPT INDEX - THE 47, AS RECORDS. To-do item 15.1. This is the thing the Planner",
     "never had: a concept as a record of its own. Before it, the engine knew Strategic",
     "Orientation 2 as ONE row and its eighteen concepts only as words inside that row, so a",
     "ranker could not return a concept because no concept existed to return.",
@@ -397,11 +398,15 @@
     "2-3). Ligatures are normalised to ASCII and nothing else is altered. If a sentence here",
     "reads oddly, it reads that way on the slide - fix the deck, never this file.",
     "",
-    "WHERE EACH ROW CAME FROM, and why the count is 46:",
+    "WHERE EACH ROW CAME FROM, and why the count is 47:",
     "  session-scope-table  34  Strategic Orientation 2 (18) + Sales & Marketing (16)",
     "  agenda               10  Strategic Orientation 1 (2) + Organisational Review (8) -",
     "                          these decks have no scope table",
     "  framing-page          2  Business Targets (1) + Strategic Orientation 1 (1)",
+    "  deck-page             1  Business Targets - Business Owner Expectations, pages 5-6,",
+    "                          named on the agenda and pointed at its own pages. It RUNS",
+    "                          A MODEL (`model`) and its lead-in is `pageWords`, his page",
+    "                          text read off by machine. Item 15.23, approved 2026-09-25.",
     "",
     "🔴 A NULL DESCRIPTION IS DELIBERATE - Decision B, approved 2026-09-17. Where",
     "conceptSummary or helpsClientTo is null, MIKE WRITES THAT LINE. It is never to be",
@@ -411,9 +416,9 @@
     "  THE ONE EXCEPTION IS HIS OWN, ruled 2026-09-17. Organisational Review's agenda already",
     "  prints a one-line description under each of its nine items - \"Who reports to who?\",",
     "  \"What's MOST important to us?\" - so those nine carry it as their conceptSummary. Like",
-    "  every other line here it was READ OFF THE SLIDE by machine, not typed. That leaves",
-    "  9 agenda rows still name-only (Business Targets 5, Strategic Orientation 1 4), and",
-    "  ALL 18 still have a null helpsClientTo, which stays his.",
+    "  every other line here it was READ OFF THE SLIDE by machine, not typed. Every row now",
+    "  carries a helpsClientTo: the lines not read off a deck were drafted and approved by him",
+    "  word for word, and design/AGENDA-HELPS-LINES.md records each one.",
     "",
     "🔴 SHARED TEXT IS STORED ONCE AND POINTED AT - Decision E, approved 2026-09-17. The decks",
     "merge some table cells across two rows, so a `conceptSummaryRef` / `helpsClientToRef` names",
@@ -466,6 +471,26 @@
       "captureForm": null,
       "captureTemplate": null,
       "captureFormBasis": "unmeasured"
+    },
+    {
+      "id": "business-owner-expectations",
+      "name": "Business Owner Expectations",
+      "planningDomain": "business-targets",
+      "deck": "business-targets",
+      "page": 5,
+      "lastPage": 6,
+      "source": "deck-page",
+      "conceptSummary": null,
+      "helpsClientTo": "Put a number on the life each owner wants — the income, the hours, the time off and the work they'd rather be doing — and see how big the business has to become to pay for it.",
+      "teachingForm": null,
+      "captureForm": null,
+      "captureTemplate": null,
+      "captureFormBasis": "unmeasured",
+      "pageWords": [
+        "Complete the Business Owner Expectations table to record your income and leisure time goals; then record your thoughts on how you can be most effective at work.",
+        "Complete the Business Development Stages table to record the ‘scale dynamics’ / ‘business performance’ required to achieve your personal income, lifestyle and daily activity goals."
+      ],
+      "model": "/owner-expectations"
     },
     {
       "id": "our-session-objective",
@@ -533,9 +558,9 @@
       "conceptSummary": "This concept Identifies the various pricing components in your service delivery (as they relate) to the value client’s place on their problem being solved.",
       "helpsClientTo": "This allows for a leveraged (delegated) team delivery AND multiple price points. Clients with more time (to do things themselves) can save money; those that just want the ‘problem to disappear’ can pay a premium for time saving and risk reduction.",
       "teachingForm": "staged-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "banded-grid",
+      "captureTemplate": "Price For Problem Solving",
+      "captureFormBasis": "measured"
     },
     {
       "id": "price-for-delivery-medium",
@@ -547,9 +572,9 @@
       "conceptSummaryRef": "price-for-problem-solving",
       "helpsClientToRef": "price-for-problem-solving",
       "teachingForm": "staged-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "banded-grid",
+      "captureTemplate": "Price For Delivery Medium",
+      "captureFormBasis": "measured"
     },
     {
       "id": "vertical-integration",
@@ -561,10 +586,10 @@
       "conceptSummary": "This concept explores the supply and distribution chain to see if you need to own more of the value chain components.",
       "helpsClientTo": "To identify asset purchases or alliances that could help protect existing market share and sales margin or new products that could increase your sales.",
       "teachingForm": "vertical-chain",
-      "captureForm": null,
-      "captureTemplate": null,
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Vertical/ & Horizontal Integration Tasks",
       "responsePage": 24,
-      "captureFormBasis": "unmeasured"
+      "captureFormBasis": "measured"
     },
     {
       "id": "horizontal-integration",
@@ -576,10 +601,10 @@
       "conceptSummary": "This concept explores the additional products or service that you could cross-sell to existing customers or would attract new customers to your business.",
       "helpsClientToRef": "vertical-integration",
       "teachingForm": "above-below-line",
-      "captureForm": null,
-      "captureTemplate": null,
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Vertical/ & Horizontal Integration Tasks",
       "responsePage": 24,
-      "captureFormBasis": "unmeasured"
+      "captureFormBasis": "measured"
     },
     {
       "id": "market-diffusion-theory",
@@ -591,9 +616,9 @@
       "conceptSummary": "This concept explores the introduction of a new product (similar to product life cycle) but focuses on how the market reacts and the ‘tipping point’ required to achieve success.",
       "helpsClientTo": "To identify where they are in the marketing process so they don’t waste money in the wrong areas. (kind of like the law of diminishing return / flogging a dead horse)",
       "teachingForm": "annotated-curve",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "small-comparison-grid",
+      "captureTemplate": "Curve & Cycle Notes",
+      "captureFormBasis": "measured"
     },
     {
       "id": "boston-model",
@@ -619,9 +644,9 @@
       "conceptSummary": "This concept explores how a new product or service becomes popular (gains acceptance) and then over time, becomes outdated and no longer relevant. (Decline)",
       "helpsClientTo": "Understand the likelihood of your client’s product or service being replaced (or eroded) by new product offers, new technology or product substitutes.",
       "teachingForm": "annotated-curve",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "small-comparison-grid",
+      "captureTemplate": "Curve & Cycle Notes",
+      "captureFormBasis": "measured"
     },
     {
       "id": "technology-points",
@@ -675,10 +700,10 @@
       "conceptSummary": "This concept explores using unrelated products to increase foot traffic or shorter sales cycle offerings, vs related upsell or ‘after sale’ offerings.",
       "helpsClientTo": "Help your client to explore possible revenue alternatives or ways to diversify, whilst minimizing risk.",
       "teachingForm": "upstream-core-downstream",
-      "captureForm": null,
-      "captureTemplate": null,
+      "captureForm": "banded-grid",
+      "captureTemplate": "Revenue Streams",
       "responsePage": 34,
-      "captureFormBasis": "unmeasured"
+      "captureFormBasis": "measured"
     },
     {
       "id": "risk-reward-matrix",
@@ -704,10 +729,10 @@
       "conceptSummary": "This concept explains how Volatility can be measured in terms of Probability and therefore, can be a better ‘predictor’ of events going forward.",
       "helpsClientTo": "Develop more meaningful targets and reports.",
       "teachingForm": "live-data-chart",
-      "captureForm": null,
-      "captureTemplate": null,
+      "captureForm": "banded-grid",
+      "captureTemplate": "Volatility Graph Observations",
       "responsePage": 37,
-      "captureFormBasis": "unmeasured"
+      "captureFormBasis": "measured"
     },
     {
       "id": "senges-circles-of-causality",
@@ -804,9 +829,9 @@
       "conceptSummary": "This framework explains the logical order to construct an advertisement.",
       "helpsClientTo": "Build more effective adverts and have a review framework so you can ‘A’ and ‘B’ test if desired.",
       "teachingForm": "staged-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "banded-grid",
+      "captureTemplate": "A.I.D.C.R.A Advertisement",
+      "captureFormBasis": "measured"
     },
     {
       "id": "digital-funnel-storyboard",
@@ -818,9 +843,9 @@
       "conceptSummary": "This concept explores the sequential offerings, messaging and responses, to entice your target customer ‘from their couch to your cash register’.",
       "helpsClientTo": "Get clear on how to utilise all their marketing assets in one comprehensive plan.",
       "teachingForm": "fixed-rows-named-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Engagement Story-Board",
+      "captureFormBasis": "measured"
     },
     {
       "id": "outbound-messaging-plan",
@@ -832,9 +857,9 @@
       "conceptSummary": "This framework helps you schedule your messaging activities and explores Medium, Platform, Time & Cost as planning considerations.",
       "helpsClientTo": "Execute an effective campaign amongst all other business activities/ responsibilities.",
       "teachingForm": "fixed-rows-named-columns",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Outbound Communication Plan",
+      "captureFormBasis": "measured"
     },
     {
       "id": "inbound-landing-page-review",
@@ -860,9 +885,9 @@
       "conceptSummary": "This concept explores a review of your product from a ‘what stops people from buying it?’ vs features/ profitability.",
       "helpsClientTo": "Get clear of what your customer will happily pay for, what they could care less about & what they just don’t want from you. 2",
       "teachingForm": "prompt-list",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "prompt-answer-sheet",
+      "captureTemplate": "Sparketing Thoughts",
+      "captureFormBasis": "measured"
     },
     {
       "id": "branding-review",
@@ -930,9 +955,9 @@
       "conceptSummary": "This checklist explores the different sales channel options and encourages a pros and cons discussion.",
       "helpsClientTo": "Identify a variety of ways to engage salespeople to sell your products or service to a wider market.",
       "teachingForm": "pros-and-cons-grid",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "prompt-answer-sheet",
+      "captureTemplate": "Sales Distribution (Channel) Options",
+      "captureFormBasis": "measured"
     },
     {
       "id": "sales-process-review",

@@ -236,11 +236,11 @@ describe('the session scope menu — item 15.1 Stage 1', () => {
       .toEqual(DECKS.map(d => d.name))
   })
 
-  it('🔴 offers every one of the 46 concepts, not a subset', () => {
+  it('🔴 offers every one of the 47 concepts, not a subset', () => {
     // The screen this replaced offered 5 of the 52, because it read a framework list
     // rather than Mike's concept index.
-    // 46 since 2026-09-23: 52 as Mike scoped it, less the eight agenda rows he deleted as the session's stage directions, plus two framing pages.
-    expect(mountMenu().findAll('tbody tr')).toHaveLength(46)
+    // 47 since 2026-09-25: 52 as Mike scoped it, less the eight agenda rows he deleted as the session's stage directions, plus two framing pages, plus Business Owner Expectations back as one row (item 15.23).
+    expect(mountMenu().findAll('tbody tr')).toHaveLength(47)
   })
 
   it('🔴 PRODUCES PIVOT — the acceptance test, across two decks', () => {
@@ -382,7 +382,7 @@ describe('the session scope menu — item 15.1 Stage 1', () => {
     // The counts, not the sentence around them — `$t` is stubbed in these mounts, so
     // reading the rendered string would assert the stub's format rather than the maths.
     const w = mountMenu(PIVOT_CONCEPTS)
-    expect(w.vm.totalConcepts).toBe(46)
+    expect(w.vm.totalConcepts).toBe(47)
     // Strategic Orientation 2 is the third panel and holds nine of Pivot's eleven; Sales
     // & Marketing is the fourth and holds the other two.
     expect(w.vm.chosenInDeck(DECKS[2])).toBe(9)

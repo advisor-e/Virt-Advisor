@@ -67,7 +67,30 @@ const PAGES = [
   { template: 'Customer Loyalty', deck: 'sales-marketing', page: 36 },
   { template: 'Pricing', deck: 'sales-marketing', page: 38 },
   { template: 'Packaging', deck: 'sales-marketing', page: 40 },
-  { template: 'Divisional KPIs', deck: 'organisational-review', page: 22 }
+  { template: 'Divisional KPIs', deck: 'organisational-review', page: 22 },
+  // Item 15.16, ruled by Mike 2026-09-24 — design/STRATEGY-CAPTURE-FORM-PROPOSALS.md.
+  // Two more question sheets, read exactly as the four above.
+  { template: 'Sparketing Thoughts', deck: 'sales-marketing', page: 32 },
+  { template: 'Sales Distribution (Channel) Options', deck: 'sales-marketing', page: 42 },
+  // One table drawn across two pages — part 1 costs Free to Small Fee, part 2 names
+  // the three client tiers. Both pages rule the same eight columns.
+  { template: 'Engagement Story-Board', deck: 'sales-marketing', pages: [20, 21] },
+  // 🔴 THE REST ARE GRIDS OF WRITING LINES, NOT QUESTION SHEETS, and `grid` says so.
+  // Read as a question sheet, his first column became the questions: Deming's
+  // "Common Cause" lost all six of its lines and Revenue Streams' whole Upstream
+  // column vanished. `headerRows` is how many rows head the columns; `labelColumns`
+  // is where he names the rows. Both are read off his page, and both are stated here
+  // rather than guessed from fonts — p24 names a row in the same regular type as his
+  // examples, so nothing in the text layer could tell them apart.
+  { template: 'Vertical/ & Horizontal Integration Tasks', deck: 'strategic-orientation-2', page: 24, grid: { headerRows: 1, labelColumns: [0] } },
+  { template: 'Revenue Streams', deck: 'strategic-orientation-2', page: 34, grid: { headerRows: 1, labelColumns: [] } },
+  { template: 'Volatility Graph Observations', deck: 'strategic-orientation-2', page: 37, grid: { headerRows: 1, labelColumns: [] } },
+  { template: 'A.I.D.C.R.A Advertisement', deck: 'sales-marketing', page: 16, grid: { headerRows: 2, labelColumns: [] } },
+  { template: 'Outbound Communication Plan', deck: 'sales-marketing', page: 25, grid: { headerRows: 1, labelColumns: [] } },
+  // Two tables stacked on one page. `region` is the band of the page each occupies,
+  // in the reader's 1500px space; the second one's title sits in the gap between.
+  { template: 'Price For Problem Solving', deck: 'strategic-orientation-2', page: 21, region: [110, 400], grid: { headerRows: 2, labelColumns: [] } },
+  { template: 'Price For Delivery Medium', deck: 'strategic-orientation-2', page: 21, region: [480, 780], grid: { headerRows: 2, labelColumns: [] } }
 ]
 
 /**
@@ -180,9 +203,15 @@ function bandOf (lines, v) {
  * @param {object} pageJson  as scripts/read-deck-pages.py writes it
  * @returns {{columns: number, rows: Array<{cells: Array<{text: string}>}>}}
  */
-function gridOfPage (pageJson) {
-  const xs = ruleLines(pageJson.drawings, isVerticalRule, 0)
-  const ys = ruleLines(pageJson.drawings, isHorizontalRule, 1)
+function gridOfPage (pageJson, options) {
+  const opts = options || {}
+  // A band of the page, for two tables stacked on one. Outside it nothing is read.
+  const inRegion = opts.region
+    ? y => y >= opts.region[0] && y <= opts.region[1]
+    : () => true
+  const drawings = pageJson.drawings.filter(d => inRegion(d.rect[1]))
+  const xs = ruleLines(drawings, isVerticalRule, 0)
+  const ys = ruleLines(drawings, isHorizontalRule, 1)
   if (xs.length < 2 || ys.length < 2) {
     throw new Error(`${pageJson.deck} p${pageJson.page}: no grid — ${xs.length} vertical and ${ys.length} horizontal rules`)
   }
@@ -190,7 +219,7 @@ function gridOfPage (pageJson) {
   const columns = xs.length - 1
   const cells = ys.slice(0, -1).map(() => Array.from({ length: columns }, () => []))
 
-  pageJson.spans.forEach((s) => {
+  pageJson.spans.filter(s => inRegion(s.bbox[1])).forEach((s) => {
     // Chrome, never content — and it overlaps the last row, so it must go first.
     if (isPageNumber(s, pageJson)) { return }
     // The span's own top-left, in the same 1500px space as the rules.
@@ -201,14 +230,107 @@ function gridOfPage (pageJson) {
     cells[r][c].push(s)
   })
 
-  const rows = cells.map(row => ({
-    cells: row.map((spans) => {
-      // Reading order within the cell: down the lines, then across each line.
-      spans.sort((a, b) => (Math.abs(a.bbox[1] - b.bbox[1]) > 4 ? a.bbox[1] - b.bbox[1] : a.bbox[0] - b.bbox[0]))
-      const text = expandLigatures(spans.map(s => s.text).join(' ')).replace(/\s+/g, ' ').trim()
-      return { text }
+  const textOf = (spans) => {
+    // Reading order within the cell: down the lines, then across each line.
+    spans.sort((a, b) => (Math.abs(a.bbox[1] - b.bbox[1]) > 4 ? a.bbox[1] - b.bbox[1] : a.bbox[0] - b.bbox[0]))
+    return expandLigatures(spans.map(s => s.text).join(' ')).replace(/\s+/g, ' ').trim()
+  }
+
+  if (!opts.grid) {
+    const rows = cells.map(row => ({ cells: row.map(spans => ({ text: textOf(spans) })) }))
+    return { columns, rows }
+  }
+  return linesGrid(cells, xs, ys, drawings.filter(isHorizontalRule), opts.grid, textOf)
+}
+
+/** His line numbers — `1`, `2.` — printed at the start of a writing line. */
+const LINE_NUMBER = /^\d+[.,]?$/
+
+/** A cell that holds a numbered list of placeholder letters: `1. A 2. B 3. C 4. D`. */
+const PLACEHOLDER_LIST = /^(\d+\.\s*[A-Z]\s*)+$/
+
+/**
+ * A grid of WRITING LINES, in the encoding his workbooks already use.
+ *
+ * `strategyCaptureForms` reads a workbook's ruled line as `blank: true`, and a table
+ * with ruled lines as a banded grid: the lines are the boxes, the words are labels.
+ * A deck page has no such flag — it draws cells, not lines — so this supplies it:
+ *
+ * - **An empty body cell, or one holding only his line number, is a line.**
+ * - **His worked example, in regular type in an answer cell, is a line too** —
+ *   `guide: true`, shown as grey guide text in its own box. That is how the deck-page
+ *   question sheets already treat his examples, and it is the only reading that keeps
+ *   every line he drew: p24's "Customer Experience vs. Bottom Line Focus" row holds
+ *   nothing BUT his example. (Where an example sits in a ruled WORKBOOK table, above its
+ *   lines rather than in one, is item 15.18 and Mike's call; this does not decide it.)
+ * - **Bold type in an answer column is a heading** — p34's "Our Thoughts to Support
+ *   These Ideas" — and stays words.
+ * - **A merged cell is detected from his own rules**: where no rule crosses a column,
+ *   the cell below continues the one above. A merged NAME carries down so each of its
+ *   lines is labelled; a merged ANSWER is one box, and its continuations are `merged`.
+ * - **A placeholder list — `1. A 2. B 3. C 4. D` — is that many lines.**
+ *
+ * @param {Array<Array<Array<object>>>} cells  spans per [row][column]
+ * @param {Array<number>} xs  vertical rule positions
+ * @param {Array<number>} ys  horizontal rule positions
+ * @param {Array<object>} hRules  the horizontal rule drawings, with their extents
+ * @param {{headerRows: number, labelColumns: Array<number>}} grid  read off his page
+ * @param {function(Array<object>): string} textOf
+ * @returns {{columns: number, rows: Array<{cells: Array<object>}>}}
+ */
+function linesGrid (cells, xs, ys, hRules, grid, textOf) {
+  const columns = xs.length - 1
+  // Is there a rule along the top of row r across column c? If not, the cell merges up.
+  const ruledAbove = (r, c) => {
+    const mid = (xs[c] + xs[c + 1]) / 2
+    return hRules.some(d => Math.abs(d.rect[1] - ys[r]) < 2 && d.rect[0] - 2 <= mid && d.rect[2] + 2 >= mid)
+  }
+
+  // Gather each column's merged runs so a run's words belong to its first row.
+  const head = cells.map(row => row.map(() => null))
+  for (let c = 0; c < columns; c++) {
+    for (let r = 0; r < cells.length; r++) {
+      head[r][c] = (r > grid.headerRows && !ruledAbove(r, c)) ? head[r - 1][c] : r
+    }
+  }
+  const runSpans = (r, c) => {
+    const spans = []
+    for (let i = 0; i < cells.length; i++) {
+      if (head[i][c] === r) { cells[i][c].forEach(s => spans.push(s)) }
+    }
+    return spans
+  }
+
+  const rows = []
+  cells.forEach((row, r) => {
+    const out = row.map((spans, c) => {
+      // `header` is what lets the mapper tell his second heading row — the question
+      // each column asks — from a worked example sitting above the lines, which a
+      // workbook's banded grid also puts in row 1 (item 15.18, Mike's call).
+      if (r < grid.headerRows) { return { text: textOf(spans), header: true } }
+      const h = head[r][c]
+      const label = grid.labelColumns.includes(c)
+      const own = runSpans(h, c)
+      const text = textOf(own.slice())
+      if (label) { return h === r ? { text } : { text, merged: true } }
+      if (h !== r) { return { text: '', merged: true } }
+      if (!text) { return { text: '', blank: true } }
+      if (LINE_NUMBER.test(text)) { return { text, blank: true } }
+      if (own.every(s => s.bold)) { return { text } }
+      return { text, blank: true, guide: true }
     })
-  }))
+
+    // A row of placeholder lists becomes that many rows of numbered lines.
+    const lists = out.map(cell => (cell.guide && PLACEHOLDER_LIST.test(cell.text)) ? cell.text.match(/\d+\./g) : null)
+    if (lists.some(Boolean) && lists.every((l, c) => l || grid.labelColumns.includes(c) || out[c].merged)) {
+      const n = Math.max.apply(null, lists.filter(Boolean).map(l => l.length))
+      for (let i = 0; i < n; i++) {
+        rows.push({ cells: out.map((cell, c) => lists[c] ? { text: lists[c][i] || '', blank: true } : cell) })
+      }
+      return
+    }
+    rows.push({ cells: out })
+  })
 
   return { columns, rows }
 }
@@ -222,18 +344,23 @@ function gridOfPage (pageJson) {
 function build (pagesDir) {
   const templates = {}
   PAGES.forEach((p) => {
-    const file = path.join(pagesDir, `${p.deck}-p${p.page}.json`)
-    if (!fs.existsSync(file)) {
-      throw new Error(`missing ${file} — run: python scripts/read-deck-pages.py ${p.deck} ${p.page} --out ${pagesDir}`)
-    }
-    const pageJson = JSON.parse(fs.readFileSync(file, 'utf8'))
+    const pages = p.pages || [p.page]
+    const tables = pages.map((n) => {
+      const file = path.join(pagesDir, `${p.deck}-p${n}.json`)
+      if (!fs.existsSync(file)) {
+        throw new Error(`missing ${file} — run: python scripts/read-deck-pages.py ${p.deck} ${n} --out ${pagesDir}`)
+      }
+      return gridOfPage(JSON.parse(fs.readFileSync(file, 'utf8')), { region: p.region, grid: p.grid })
+    })
     templates[p.template] = {
       // Provenance, so the table can be found again on his page rather than trusted.
-      file: `${p.deck} deck, page ${p.page}`,
+      file: pages.length > 1
+        ? `${p.deck} deck, pages ${pages.join(' and ')}`
+        : `${p.deck} deck, page ${pages[0]}`,
       format: 'deck-page',
       deck: p.deck,
-      page: p.page,
-      tables: [gridOfPage(pageJson)]
+      page: pages[0],
+      tables
     }
   })
   return { templates }

@@ -222,17 +222,25 @@ function sameJob (a, b) {
  * Within a single branch only the first sighting of a ref is kept: a duplicate on one
  * branch is `toDoItems.test.js`'s job and it fails the build there, where it can.
  *
- * @param {Array<{label: string, entries: Array<{ref: string, name: string}>}>} branches
+ * A ref in a branch's `inherited` list was already on the list where that branch and this
+ * one last shared history, so both hold ONE item and a different title is a rename. Titles
+ * alone cannot say so: 15.8 went from "stock images" to "unlicensed pictures" on
+ * 2026-09-24, sharing no word, while the other branch was behind.
+ *
+ * @param {Array<{label: string, entries: Array<{ref: string, name: string}>, inherited: (string[]|undefined)}>} branches
  * @returns {Array<{ref: string, sides: Array<{label: string, name: string}>}>} in ref order
  */
 function clashes (branches) {
   var byRef = {}
   ;(branches || []).forEach(function (branch) {
     if (!branch || !Array.isArray(branch.entries)) { return }
+    var inherited = branch.inherited || []
     branch.entries.forEach(function (entry) {
       var sides = byRef[entry.ref] || (byRef[entry.ref] = [])
       var held = sides.some(function (s) { return s.label === branch.label })
-      if (!held) { sides.push({ label: branch.label, name: entry.name }) }
+      if (!held) {
+        sides.push({ label: branch.label, name: entry.name, shared: inherited.indexOf(entry.ref) !== -1 })
+      }
     })
   })
 
@@ -240,7 +248,7 @@ function clashes (branches) {
   Object.keys(byRef).forEach(function (ref) {
     var sides = byRef[ref]
     if (sides.length < 2) { return }
-    var differs = sides.slice(1).some(function (s) { return !sameJob(sides[0].name, s.name) })
+    var differs = sides.slice(1).some(function (s) { return !s.shared && !sameJob(sides[0].name, s.name) })
     if (differs) { found.push({ ref: ref, sides: sides }) }
   })
   return found.sort(function (a, b) { return compareRefs(a.ref, b.ref) })
@@ -562,8 +570,13 @@ function ceilingLines (gitSafe, currentBranch, isCandidate, local) {
   var topOf = function (entries) {
     return entries === null ? null : highest(entries.map(function (e) { return e.ref }))
   }
-  var row = function (label, entries, pages) {
-    return { label: label, highest: topOf(entries), entries: entries || [], pages: pages || [] }
+  var row = function (label, entries, pages, inherited) {
+    return { label: label, highest: topOf(entries), entries: entries || [], pages: pages || [], inherited: inherited || [] }
+  }
+  // The refs a branch shares with this one by ancestry — see clashes().
+  var inheritedFrom = function (name) {
+    var base = String(gitSafe(['merge-base', 'HEAD', name]) || '').trim()
+    return base ? (entriesOn(gitSafe, base) || []).map(function (e) { return e.ref }) : []
   }
 
   var mine = local
@@ -581,7 +594,7 @@ function ceilingLines (gitSafe, currentBranch, isCandidate, local) {
     raw.split('\n').forEach(function (entry) {
       var name = String(entry).trim()
       if (!isCandidate(name, currentBranch)) { return }
-      rows.push(row(name, entriesOn(gitSafe, name), pagesOn(gitSafe, name)))
+      rows.push(row(name, entriesOn(gitSafe, name), pagesOn(gitSafe, name), inheritedFrom(name)))
     })
   }
 

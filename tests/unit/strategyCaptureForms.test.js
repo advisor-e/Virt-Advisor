@@ -56,13 +56,29 @@ describe('the capture tables are Mike\'s own, and every concept that names one f
 })
 
 describe('a concept with no measured template is told so, never given a borrowed table', () => {
-  test('the 32 unmeasured concepts return supplied:false with a reason', () => {
-    const unmeasured = concepts.filter(c => !c.captureTemplate)
+  test('the unmeasured concepts return supplied:false with a reason', () => {
+    // A concept that RUNS A MODEL captures through it (item 15.23) and is covered below.
+    const unmeasured = concepts.filter(c => !c.captureTemplate && !c.model)
     unmeasured.forEach((c) => {
       const result = forms.captureForConcept(c)
       expect(result.supplied).toBe(false)
       expect(result.reason).toBe('no-capture-template-measured')
       expect(result.fields).toBeUndefined()
+    })
+  })
+
+  test('🔴 a concept that runs a model captures nothing into the session — item 15.23, Decision B', () => {
+    // Mike, 2026-09-25: the card saves to the client's ONE Owner Expectations record. A
+    // box admitted here would let the same figures land in the session too, and the two
+    // copies would drift — the exact outcome the ruling refused.
+    const withModel = concepts.filter(c => c.model)
+    expect(withModel.map(c => c.id)).toEqual(['business-owner-expectations'])
+    withModel.forEach((c) => {
+      const result = forms.captureForConcept(c)
+      expect(result).toEqual({ supplied: true, form: forms.MODEL_FORM, model: '/owner-expectations', fields: [] })
+      const getConcept = id => concepts.find(x => x.id === id) || null
+      expect(forms.hasCaptureField(c.id, 'o1.name', getConcept)).toBe(false)
+      expect(forms.hasCaptureField(c.id, 'anything', getConcept)).toBe(false)
     })
   })
 
@@ -397,7 +413,9 @@ describe('a ruled line is a box, and a heading is never one', () => {
 
     const checked = []
     const wrong = concepts
-      .filter(c => c.captureTemplate && c.captureForm)
+      // The small comparison grid is worked through too, but its first column is an
+      // answer, not a prompt — it has its own test, below.
+      .filter(c => c.captureTemplate && c.captureForm && c.captureForm !== forms.SMALL_COMPARISON_GRID)
       .map((c) => {
         const capture = forms.captureForConcept(c)
         if (!capture.supplied || !capture.fields) { return null }
@@ -415,6 +433,29 @@ describe('a ruled line is a box, and a heading is never one', () => {
     // Without this the test passes by checking nothing the day a template is renamed.
     expect(checked.length).toBeGreaterThan(0)
     expect(wrong).toEqual([])
+  })
+
+  test('🔴 the small comparison grid puts every word of his worked table in exactly one box', () => {
+    // Curve & Cycle Notes is worked through top to bottom, so there is no blank cell to
+    // say where the boxes are. Read as a question sheet, his whole Diffusion Curve column
+    // became questions: 3 boxes where the page asks 4. So the check is that NOTHING he
+    // wrote is lost or used twice — each cell below the headings is a box's label, its
+    // example, or both halves of `Name: example` — and both his columns are present.
+    const users = concepts.filter(c => c.captureForm === forms.SMALL_COMPARISON_GRID)
+    expect(users.length).toBeGreaterThan(0)
+    users.forEach((c) => {
+      const table = forms.resolveTemplate(c.captureTemplate).tables[0]
+      const fields = forms.captureForConcept(c).fields
+      const written = []
+      table.rows.slice(1).forEach(r => r.cells.forEach((cell) => { if (cell.text) { written.push(cell.text) } }))
+      const carried = []
+      fields.forEach((f) => {
+        const whole = `${f.rowLabel}: ${f.example}`
+        if (written.includes(whole)) { carried.push(whole) } else { carried.push(f.rowLabel, f.example) }
+      })
+      expect(carried.sort()).toEqual(written.sort())
+      expect(new Set(fields.map(f => f.columnLabel)).size).toBe(table.columns)
+    })
   })
 
   test('🔴 a WORKED EXAMPLE under a heading is never read as the heading', () => {

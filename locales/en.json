@@ -2041,6 +2041,21 @@
         "toStages": "Next — business development stages",
         "back": "Back",
         "print": "Print"
+      },
+      "embedded": {
+        "save": "Save to {client}",
+        "oneRecord": "The same figures open on the Owner Expectations page for this client."
+      },
+      "contrast": {
+        "subtitle": "Who does what, in return for what",
+        "income": "Income",
+        "time": "Weekly hours · weeks annual leave",
+        "tasks": "Focus tasks/duties %",
+        "now": "Now",
+        "focus": "Focus",
+        "hoursLeave": "{hours} hrs · {weeks} wks",
+        "mustReach": "The business must reach",
+        "notSaved": "No figures have been saved for this client yet."
       }
     },
     "volatility": {
@@ -6077,6 +6092,7 @@
       "colHelps": "Helps Your Client To…",
       "agendaOnly": "This deck is an agenda, not a scope table — it has no Concept Summary and no Helps Your Client To… column. Those two columns are empty here because Mike has not written them, and nothing else may.",
       "sharedCell": "shared cell",
+      "modelTag": "Model",
       "sharedWithRow": "This text is one cell in the deck, shared with “{row}”. Editing it changes both rows.",
       "sharedBothColumns": "The deck puts the same sentence in both of this row's columns.",
       "totalIncluded": "{count} concept included | {count} concepts included",
@@ -6160,6 +6176,7 @@
       "capture": "Capture",
       "blank": "not filled in",
       "notWorked": "Scoped for this session, not worked through yet.",
+      "modelFailed": "These figures could not be read just now. Open the step again and try once more.",
       "closingHeading": "Objectives & actions"
     },
     "process": {

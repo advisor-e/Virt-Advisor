@@ -78,7 +78,7 @@
             //- its deck's contents page, so a number there would be a wrong reference on
             //- a table a client reads. A framing page sitting in the same deck has a REAL
             //- page and must show it — which the deck-level test could not tell apart.
-            td.ssm-pg {{ concept.source === 'agenda' ? '—' : concept.page }}
+            td.ssm-pg {{ concept.source === 'agenda' ? '—' : (concept.lastPage ? concept.page + '–' + concept.lastPage : concept.page) }}
 
             //- An agenda row is name-only (Decision B), so the name takes the three columns
             //- rather than leaving two empty cells that read as missing data.
@@ -98,6 +98,8 @@
               td.ssm-name
                 | {{ concept.name }}
                 span.ssm-shared(v-if="sharedNote(concept)" :title="sharedNote(concept)") {{ $t('strategyPlanner.menu.sharedCell') }}
+                //- Tells the advisor this card runs a calculator (item 15.23, approved drawing).
+                span.ssm-model(v-if="concept.model") {{ $t('strategyPlanner.menu.modelTag') }}
                 //- 🔴 THE AI'S LINE SITS UNDER THE NAME, NEVER IN A COLUMN OF ITS OWN.
                 //- Decision A binds the table to Mike's own five columns in his order, and
                 //- a sixth would break it. It is styled apart from his text on purpose: a
@@ -455,6 +457,17 @@ export default {
   color: #5b6f8a;
   font-size: 0.76rem;
   margin-top: 0.1rem;
+}
+.ssm-model {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #fff;
+  background: #0070c0;
+  border-radius: 4px;
+  padding: 0.05rem 0.35rem;
+  vertical-align: 1px;
 }
 .ssm-shared {
   display: inline-block;

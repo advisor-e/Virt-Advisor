@@ -9,25 +9,25 @@
 
 ---
 
-## 2026-09-24 (afternoon) · Laptop · branch `feat/advisor-progress`
+## 2026-09-24 (evening) · Laptop · branch `feat/advisor-progress`
 
-**Clean. 629 suites / 13,773 tests green with coverage, lint 0 errors. 0 behind `master`** —
-merged the desktop's PR #130 (dictation) today. **10 ahead of `master` at shutdown (11 with this
-note's own fix) — past the PR threshold, so a pull request is due.**
+**Clean and pushed at `2f435d24` plus this note. 629 suites / 13,752 tests green, audit PASS.
+3 ahead, 0 behind `master`, no PR yet.**
 
-**Closed today, each on Mike's word:** **5.4** Business Owner Expectations (built — `/owner-expectations`,
-per-owner tasks, the hub's **Owner Focus Tasks** tab on all four tiers, saved against the client;
-filed as 5.3, renumbered by the desktop because 5.3 was spent) · **15.3** every scope-menu row has
-an approved Helps line · **15.4** every plan label ruled · **15.10** settled by the 23 Sep framing page.
+**Closed today on Mike's word:** **15.1** (Strategy Planner stages 1–7 built; the rest lives in
+15.20 / 15.17 / 15.2 / 15.22) · **15.16** (13 concepts capture into his own tables, 22 → 35 of 46) ·
+**15.11** (its slide tables built under 15.16, read off the page, not drawn). **Filed:** **15.22**,
+the seven concepts still needing his ruling. All of it is in
+[`STRATEGY-CAPTURE-FORM-PROPOSALS.md`](STRATEGY-CAPTURE-FORM-PROPOSALS.md).
 
-**Mike's standing ruling, now in `report-models.md`:** a source-workbook fault is **fixed without
-asking and never shown on screen** — no "differs from the spreadsheet" card. The Retirement Review's
-card is gone.
+**FOR THE DESKTOP:** `scripts/read-deck-capture-tables.js` now reads a page declared `grid` as
+writing lines — merged cells from his rules, his example as guide text, a question row. **Your
+branch's `check:branch` shows "15.8 used twice" until you merge `master`: it is one item, renamed
+today, and `master` already carries the new name.** The check itself now tells a rename from a
+clash (`scripts/ref-ceiling.js`), on this branch until it reaches `master`.
 
-**Next here: 15.16** — draft an answer form for each of 20 topics from its deck page, file first,
-then one at a time. **15.8** waits on Mike's replacement pictures (two unlicensed images are live in
-client plans; he chose to hold rather than remove).
+**SHARED FILES TOUCHED:** `StrategyConceptCapture.vue`, `StrategyCaptureCard.vue`,
+`StrategyPlanDocument.vue`, `pages/strategy-planner.vue`, `server/utils/strategyCaptureForms.js`,
+`scripts/ref-ceiling.js`, `design/features/README.md` (one link on row 15).
 
-**SHARED FILES TOUCHED:** `FirmManagerHub.vue` (new tab, appended), `RetirementReview.vue`,
-`locales/en.json`, `nuxt.config.js` (proxy line), `restify-server.js`, `.gitignore`.
-**In hand:** 15.1, 15.17, 15.20 unchanged — not worked today.
+**In hand:** 15.17, 15.20 unchanged — not worked today. **Next here:** 15.22 when Mike rules.

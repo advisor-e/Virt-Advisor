@@ -76,29 +76,25 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "15.1",
-      "name": "The strategy domain has thirteen materials and no session to run them in",
+      "ref": "15.24",
+      "name": "Business Owner Expectations plan page overflows past about 14 tasks",
       "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-16"
-      },
-      "why": "The engine already diagnoses planning need, routes to the Planning Outcomes Review and names thirteen materials. The advisor arrives and there is no screen, so the session still runs on slides and the client's answers never reach the app.",
-      "risk": "Without it the planning routes lead nowhere: an advisor asking for a planning session is sent to materials that exist only as slide decks, and nothing said in the room carries forward to the next session or into the engine. The counter-risk is scale - close to fifty capture tables and forty concept cards, so the frameworks must be data a mentor authors, never code, or the build never ends.",
+      "waitingOn": "Mike",
+      "why": "The contrast page prints one row per task any named owner holds. It fits one A4 sheet with the workbook's ten tasks and room for about four more, but an owner may hold twenty.",
+      "risk": "A firm whose owners add their own tasks gets a table running under the page's running foot on the client's plan - the fault fixed once already on 2026-09-25 at ten tasks. Nothing is lost; the page just prints badly.",
       "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-16 - 'i want you to design a strategy planner that allows an advisor to have a preliminary conversation with their client to design a strategic plan format', then the four-domains-expanding-to-nine structure, the facilitation feedback, and the ruling to build it as the strategy domain's execution surface. Source decks in C:/Documents/Visual Code Projects/Strategy Planner."
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-25 - found measuring the 15.23 build: 76px spare below the table at ten tasks, about 17px a row. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
-      "touches": "data/strategy-domain-support.json, data/sales-marketing-domain-support.json and data/staff-domain-support.json, which between them hold the four Planning Domains' frameworks; data/growth-fundamentals.json for the nine Growth Aspects and nine stages; the client_planning, reveal_growth_curve, heald_matrix and capacity_capability_opportunity logic trees; Meeting Review's observation points and My Coaching Notes for the facilitation half; the DashboardReport page pattern and its Workbench for the output; /eight-levers, already built; and a new client-level session-capture store, because the decks carry tables forward between sessions.",
-      "note": "REDIRECTED BY MIKE 2026-09-17 - design from the OUTPUT; Brief section 0 stages the build. BUILT: stages 1, 2, 3, 3b, 4b (closing 15.7), stage 5 forms 1-6 of 9, stage 6 the AI pre-tick, stage 7 the door. NOTHING WAITS ON MIKE. RULINGS NEVER TO BE RE-RAISED are held in Brief section 0 - do not reopen them, including all five stage 7 decisions on mockups/strategy-session-resume.html, settled 2026-09-22: A, B, D, E ruled, C DROPPED. In-card calculators: Brief 7a. STAGE 8 STOOD DOWN by Mike 2026-09-23 for the twelve frameworks an advisor cannot run; its impact test is in Brief 0. 44 of 46 run; the other two are 15.17 and Drafting Tender Proposals, not a gap.",
-      "comment": "2026-09-16 - filed on Mike's instruction after a full read of the fourteen source documents he supplied. Much is specified already: the strategy support's diagnostic entry is the advisor-facing check he asked for, and the Client Planning Framework sizes a plan three ways - Bizz Case, Lite Fundamentals, Planning Outcomes Review. BUT TWO OF THE FOUR PLANNING DOMAINS ARE AUTHORED OUTSIDE THE STRATEGY FILE - Sales & Marketing Review in sales-marketing-domain-support.json, Organisational Review in staff-domain-support.json - so the Planner reads across three domain files or delivers half the session. The impact test reshaped the task twice: the recording half is Meeting Review's, the maths half the Model Library's, 8 Profit Levers already built."
+      "touches": "components/strategy/StrategyOwnerContrast.vue (the page), utils/ownerExpectationsPrint.js (which tasks print), design/mockups/strategy-concept-owner-expectations.html (the approved drawing a fix must amend).",
+      "note": "A DESIGN CHOICE FOR MIKE, NOT A PATCH: let the task rows continue onto a second sheet, print smaller type, or print only the tasks whose share changes between now and focus. Owners across does not affect it - six named owners fit on one sheet, measured 2026-09-25.",
+      "comment": "2026-09-25 - filed on Mike's yes while walking the 15.23 build in a browser."
     },
     {
       "ref": "15.2",
@@ -120,27 +116,6 @@
       "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
       "note": "NOT IN THIS BUILD - Mike's ruling 2026-09-16 - 'the ~100 Growth Aspect questions', on design/mockups/strategy-planner.html, where the reasoning is recorded in full. The coverage check ships on the nine names alone and still does its job: it shows WHERE a plan is thin. Source is his '9 Growth Aspect Questions hyperlinked.pdf' - about 100 questions across the nine aspects. growth-fundamentals.json already holds the nine names and descriptions, so this adds questions beneath an existing structure rather than inventing one. Under the hub-page rule the screen starts at the mentor tier ALONE: platform content, identical for every firm.",
       "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as the drawing's ruling on the ~100 Growth Aspect questions. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
-    },
-    {
-      "ref": "15.11",
-      "name": "Five concepts keep their fill-in table on a slide nobody has drawn",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Five concepts carry their response table on a deck page rather than in a workbook. Every one of the 33 approved drawings is a teaching page, so those five teach well and then have nothing to capture into.",
-      "risk": "A client is taught Vertical Integration and handed a page saying there is no table for it, when Mike wrote one - on Strategic Orientation 2 p24. It reads as the concept being unfinished rather than the app not having drawn his page. Three comments in the code say the rebuilt graphic restores these, which is how the gap stayed invisible: every session reading them believes it is already handled.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-20 - found while wiring the first four drawings for 15.7; the concept's responsePage is 24 and no drawing covers it. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "responsePage on five concepts in data/strategy-frameworks.json - pages 24, 34, 37 and 41 of Strategic Orientation 2; the five drawings themselves, by the method in design/features/strategy-planner.md section 0; scripts/build-concept-graphics.js, which today maps one drawing to one concept and would need to carry a second; and StrategyConceptCapture.vue, where the response page would render.",
-      "note": "NOT A BUG IN THE WIRING - the 33 drawings are all teaching pages and always were, so this is work never scoped rather than work done wrong. THE THREE STALE COMMENTS ARE CORRECTED (2026-09-20) so no session reads them as a promise already kept. A drawing here is a CAPTURE surface, not a picture: boxes an advisor types into, laid over Mike's own page - which is why it needs a design decision before the method is applied, and why it is not simply five more of 15.7.",
-      "comment": "2026-09-20 - filed on Mike's yes the same session it was found, rather than left in a handover. Found by asking why Vertical Integration's plan page offered nothing to fill in after its drawing landed."
     },
     {
       "ref": "16",
@@ -267,27 +242,6 @@
       "touches": "The Strategy Planner's session surface; a new Restify route for the model call; the 52 concept records as the 'known business concepts' source. The market analysis data source is unidentified and is the first question this item must answer.",
       "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.14. The impact test and the hub-page judgement are both unrun.",
       "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.14). Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "15.16",
-      "name": "An advisor teaches twenty topics and has nowhere to write the client answer down",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Of 46 concepts, 22 teach from a drawn page and capture nothing. Two are framing pages needing no answers; the other 20 leave the advisor nowhere to record what the client said.",
-      "risk": "Nearly half the planner teaches a client and captures nothing, so the session does not carry forward - the same fault 15.11 scores 4 for at five concepts, here at twenty-two. It waits on Mike because strategy-planner.md section 4 is explicit: the census measured nine forms across 24 templates, not 52, and choosing a form for a concept outside those 24 is a DESIGN DECISION, not a reading. server/utils/strategyFrameworks.js throws if an unmeasured concept is given one.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-23 - \"if you have concepts that are yet to be wired up, why werent they put forward as a task?? get on with it.\" Raised after 15.6 closed and its closure recorded the thirty-two in passing."
-      },
-      "touches": "captureFormBasis and captureTemplate on 32 concepts in data/strategy-frameworks.json; the CAPTURE_BASES validator in server/utils/strategyFrameworks.js which refuses a form on an unmeasured row; tests/unit/strategyCaptureForms.test.js which pins all 32 returning supplied:false; scripts/build-concept-register.js, the page Mike already worked 17 rows of.",
-      "note": "PROCEED - Mike, 2026-09-24. Measured that day: 46 concepts, 24 with no measured form, 22 of them taught, 20 once the two framing pages are set aside. NEXT: draft a proposed answer form for each of the 20 from its own deck page - one of the nine measured forms, or teaching only - save every proposal in a file first, then put each to Mike alone, starting with the four supplied templates no concept uses: SWOT Notes, Sales Flowchart, Tension Point Scripts, Curve and Cycle Notes. Choosing a form is his decision (Brief section 4); the validator refuses one without it.",
-      "comment": "2026-09-23 - filed on Mike's instruction. Numbers taken from the shipped data, not from a note."
     },
     {
       "ref": "12.1",
@@ -485,6 +439,27 @@
       "touches": "server/report/threeWayForecastModel.js (fxAllowancePct and salesFxAllowancePct, fxOnPurchases, fxOnSales, the deposit and balance lines near 1068-1137); server/report/importShipmentModel.js, which defers exchange to the forecast; their intake screens and golden tests; item 13.2, which labels the currency of a converted figure.",
       "note": "A REVIEW FIRST, NOT A BUILD. Established 2026-09-24 from the code: no supplier currency and no exchange rate exist in either model - only a percentage allowance on purchases and a matching one on overseas sales. The review should settle what the advisor enters (supplier currency, rate, and whether the allowance stays as a buffer on top), and run the impact test before any design. Firm currency stays a firm setting - Mike's ruling 2026-09-22, recorded on 13.2.",
       "comment": "2026-09-24 - filed on Mike's request, raised mid-way through scoping 12.2."
+    },
+    {
+      "ref": "15.22",
+      "name": "Seven Strategy Planner topics still need Mike's ruling before they can capture",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Seven of the 46 concepts still teach and capture nothing: Sales Process Review, (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
+      "risk": "An advisor running these topics has nowhere to record what the client said, so it does not reach the plan or the next session. Choosing a form for them is Mike's decision (census section 4), so nothing moves until he rules.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-24 - closing 15.16: \"build as many as you can with what you have - we can pick up the rest later\", and on Sales Process Review, \"move forward without it for now - we can pick it up later\". Filed on his yes at shutdown the same day."
+      },
+      "touches": "design/STRATEGY-CAPTURE-FORM-PROPOSALS.md sections 2 and 5-6, where each proposal and the reason it was not built are recorded; data/strategy-frameworks.json captureForm on the seven; scripts/read-deck-capture-tables.js if a deck page is read.",
+      "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - his Sales Flowchart (p47) and Tension Point Scripts (p50) are both its tables; held because of confusion over the client's sales process, and the Sales Flowchart template reads as 5 boxes where his page has 15 steps. (2) Landing Page Review - pp27-30 are a finished worked example with no blank copy; which column is the client's is his call. (3) The five with no capture page are proposed as teaching only, because any box label would be written by us.",
+      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown, so the remainder of 15.16 has a place on the list."
     }
   ]
 }
