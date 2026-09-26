@@ -9,28 +9,23 @@
 
 ---
 
-## 2026-09-25 (afternoon) · Laptop · branch `feat/advisor-progress`
+## 2026-09-26 · Laptop · branch `feat/advisor-progress`
 
-**Clean. 632 suites / 13,797 tests green. 8 ahead of `master`, 0 behind — not yet in a PR.**
+**Clean and pushed; PR #135 open (11 commits: 15.25, 15.17's agenda, the 15.28 drawing). Green at
+push: 632 suites / 13,808 tests.**
 
-**Closed on Mike's word:** **15.25**, an advisor edits a concept page's text on Run session (session
-only, refused when it does not fit, prints in the plan). **Built on his yes:** the Our Session
-Objective agenda now lists the session's own steps. **Filed:** 15.26 (agenda fits six steps), 15.27
-(the step-purpose tooltip was never built). **Drawn, not approved:** 8.4, recording a session in
-sections, `design/mockups/strategy-session-recording.html` — six decisions A–F wait on Mike.
-**Corrected:** the recording gates — ZDR signed and approved, the lawyer and staff consultation are
-the firm's (Mike's rulings).
+🔴 **START HERE: `git stash list`.** Item **15.28 — Alignment Statements** was approved to build
+by Mike and is **about half built in `stash@{0}`** ("15.28 BUILD IN PROGRESS"), not on any branch,
+10 tests red. Stashed so PR #135 stayed green. `git stash pop`, then: count pins 47→48, tests for
+`gapRows` / `tableForms` / `support-document`, the mockup subtitle, `AGENDA-HELPS-LINES.md`, the
+Brief, and a browser walk of the card. The item's note lists the same.
 
-**FOR THE DESKTOP:** `StrategyConceptGraphic.vue` now wraps the drawing in a `div.scgw`, takes
-`edits`, `editable` and `agendaItems`, and emits `text-edited`. `StrategyConceptCapture`,
-`StrategyTeachingSlide`, `StrategyCaptureCard` and `StrategyPlanDocument` each gained a `textEdits`
-prop. `scope_json` now carries `edits`, and `setScope` keeps them like the suggestion. New route
-`PUT /api/strategy/sessions/:id/edits`.
+**Ruled today (written on the drawing):** the logo box stays on the Maslow sheet; long firm names
+accepted ("majority rules"); p9 as grey guide text; the menu line; third in Business Targets; a
+dash in the Page column.
 
-**SHARED FILES TOUCHED:** the five strategy components above, `pages/strategy-planner.vue`,
-`StrategyStepBuilder.vue` (comment only), `strategySessionStore.js`, `routes/strategyPlanner.js`,
-`restify-server.js`, `locales/en.json`, `design/features/meeting-review.md`,
-`design/MEETING-CONSENT-WORDING.md`.
+**FOR THE DESKTOP, once 15.28 lands:** `StrategyConceptCapture.vue` gets `sections`/`blocksOf`
+(a form per table), `strategyFrameworks.js` a `support-document` source, and
+`read-deck-pages.py` an `alignment` document. Nothing of it is on the branch yet.
 
-**In hand:** 15.17 (the Cultural Core Values drawing), 15.20, 8.4. **Handbook:** not published this
-session, on Mike's word.
+**In hand:** 15.28, 15.17, 15.20, 8.4.

@@ -90,15 +90,15 @@
         "since": "2026-09-26"
       },
       "why": "After the owners put numbers on what they want, nothing in the planner helps them turn those wishes into statements each party hears. Mike's L.Suppt.Alignment deck does exactly that and is not in the app.",
-      "risk": "Without it an advisor running Business Targets stops at the numbers, and the owners' expectations are never written as Vision, Purpose, Values, Mission and Strategy, or said to the team, customers and community. The deck sits in a PDF the planner cannot see. Counter-risk: five teaching slides is the largest single drawing job yet, and each needs Mike's approval.",
+      "risk": "Without it an advisor running Business Targets stops at the numbers, and the owners' expectations are never written as Vision, Purpose, Values, Mission and Strategy, or said to the team, customers and community. The deck sits in a PDF the planner cannot see. Counter-risk: six teaching sheets is the largest single drawing job yet, and each needs Mike's approval.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-26, his own words: \"i think it should be included - it can be placed in the 'business targets' section since often, in order to improve owner alignment, they need to define their expectations by calculating their wishes and communictaing them to each party\", and \"viewed and have responses captured in the same method/style as the oprientation and other sections\"."
       },
-      "touches": "The deck copied into design/planning-templates/; a concept row in data/strategy-frameworks.json under business-targets; drawings by the section 0 method in design/mockups/ and scripts/build-concept-graphics.js; the named-field-stack capture form for slide 8 and a rows-by-columns form for slide 10, both already built; the count guards in tests/unit/strategyConcepts.test.js and conceptGraphics.test.js.",
-      "note": "DRAWN 2026-09-26, NOT YET APPROVED TO BUILD: design/mockups/strategy-concept-alignment-statements.html, all four decisions ruled the same day and written on it. The deck is 11 slides. Teaching: Maslow p3, Alderfer p4-5, the 5 Domains p6-7, and the worked What We Say / What We Mean example p9. Capture: p8, Vision / Purpose / Values / Mission / Strategy, each with his own prompt (a named-field stack, as Strategic Statements), and p10, Who We're Talking To / What We Say / What We Mean, three blank rows. NOT A DUPLICATE: Strategic Statements captures only Strategic Objective and Strategy. Draw before building.",
-      "comment": "2026-09-26 - asked for by Mike in his own words and filed at once; the score is ours."
+      "touches": "The deck read from Mike's own folder by scripts/read-deck-pages.py, as the five decks are; a concept row in data/strategy-frameworks.json under business-targets; drawings by the section 0 method in design/mockups/ and scripts/build-concept-graphics.js; the named-field-stack capture form for slide 8 and a rows-by-columns form for slide 10, both already built; the count guards in tests/unit/strategyConcepts.test.js and conceptGraphics.test.js.",
+      "note": "APPROVED TO BUILD BY MIKE 2026-09-26, BUILD ABOUT HALF DONE AND IN GIT STASH ON THE LAPTOP (\"15.28 BUILD IN PROGRESS\"), not on any branch. Drawing with his four rulings: design/mockups/strategy-concept-alignment-statements.html. In the stash: the concept third in Business Targets (source support-document, Page column a dash on his ruling), six drawings wired with page editing, both forms read off his p8 and p9 with a form per table. Left: count pins 47 to 48, new tests, the mockup subtitle, AGENDA-HELPS-LINES.md, the Brief, a browser check.",
+      "comment": "2026-09-26 - asked for by Mike in his own words and filed at once; drawn, ruled and approved the same day. His call at shutdown: proceed."
     },
     {
       "ref": "15.27",
