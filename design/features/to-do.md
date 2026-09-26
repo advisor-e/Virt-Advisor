@@ -46,7 +46,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 9 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
 | 10 | **8.3** Meeting Review's speaker-labelling model is switched off 26 Feb 2027, with no named replacement ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 11 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 12 | **13.5** Review imported-stock FX in the forecast and import model: supplier currency and exchange rate ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 12 | **13.5** Foreign currency, freight and duty in the Three-Way Forecast, by the accounting standards ⚠ *not yet ranked by Mike* | 4 | — | Us | **desktop**, since 2026-09-26 |
 | 13 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 14 | **13.6** Translations mistake business words and three screens split sentences around bold text ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 15 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |

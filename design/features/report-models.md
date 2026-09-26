@@ -711,7 +711,10 @@ The evidence for every one is in
 [`../THREE-WAY-FORECAST-DEVIATIONS.md`](../THREE-WAY-FORECAST-DEVIATIONS.md), and the
 largest overstated year-one profit by 55,654. Month stepping was one of them: the workbook
 advanced by 31 days, so its third year ran three weeks adrift — **ruled and fixed 2026-09-02
-("obviously, it needs to be per calendar month")**.
+("obviously, it needs to be per calendar month")**. The report states, on screen and under every
+printed statement page, that actual results are likely to differ from it (FRS-42 para 59, Mike's
+ruling 2026-09-26). Its calculation treatments, against the accounting standards, are recorded for
+accountants in [`CALCULATION-ASSUMPTIONS.md`](../CALCULATION-ASSUMPTIONS.md).
 
 > 🔴 **The lesson this build is worth remembering for, and it applies to every model here.**
 > `resolveInputs` merges what a screen sends over the workbook's own sample, so **an input the
@@ -1066,9 +1069,11 @@ any month.
 >
 > **Interest cover is modelled, and it is charged with the other interest.** His sheet adds
 > two things to the deferred balance, both pro-rated over a **360-day** year: 6% interest
-> cover and a 10% currency movement. 43,057.20 becomes **44,798.62** — his own figure, and
-> the test reproduces it. The currency half is the forecast's exchange allowance; the 6% was
-> modelled nowhere until Mike's instruction of 2026-09-04 (*"can you fix the 6% interest
+> cover and a 10% currency movement. 43,057.20 becomes **44,798.62** — his own figure.
+> ⚠ **Only the 6% is modelled as his sheet has it:** the forecast charges its exchange allowance
+> as a flat 10% of the whole order, deposit included — 10,764.30 on this order against his
+> 1,088.39 — and the test adds the currency half itself rather than asking the engine. Item 13.5
+> replaces it. The 6% was modelled nowhere until Mike's instruction of 2026-09-04 (*"can you fix the 6% interest
 > issue"*), given after the build **reported** it as a gap rather than inventing a charge.
 > **The 360-day year is not a rounding choice** — on 365 the currency charge is 1,073.48 and
 > the workbook stops agreeing.

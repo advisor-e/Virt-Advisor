@@ -9,27 +9,27 @@
 
 ---
 
-## 2026-09-25 (afternoon) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-26 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed at `1375c0eb`. 636 suites / 13,774 tests green, audit PASS.** 8 ahead of
-`master`, 0 behind — not yet at the 10 that calls for a PR. Nothing is `activeOn` here.
+**Clean and pushed. 636 suites / 13,787 tests green, audit PASS. 0 behind `master`; everything
+ahead is in PR #134** (opened today, description current). Not merged — that is the master team's.
 
-**Closed on Mike's word:** 12.1, 10.1 (plus 16.1 and 13.2 this morning). **Parked:** 16.
-**Filed:** 13.6 (translation glossary), 46.1 (benchmark provisional years), 10.2 (backend-worded
-English on hub screens).
+**Worked: 13.5**, now *Foreign currency, freight and duty in the Three-Way Forecast*. Mike ruled
+the design by the accounting standards; the drawing
+[`three-way-forecast-foreign-currency.html`](mockups/three-way-forecast-foreign-currency.html) is
+**approved, not built**; his call is **proceed**. `activeOn` desktop.
+**Shipped:** the forecast's FRS-42 caution, on screen and under every printed statement page.
+**Filed:** 44.1, a full IFRS / FRS-42 review of the forecast plus a disclosure screen for firm
+managers (unranked). **New:** [`CALCULATION-ASSUMPTIONS.md`](CALCULATION-ASSUMPTIONS.md), the
+accountants' record of the forecast's treatments.
 
-**Pick up first tomorrow:** OpenAI says ZDR is enabled for the organisation (recorded verbatim,
-`OPENAI-AUDIO-TERMS-EMAIL.md` §5.8). Mike checks the console for the org badge AND the Project's
-setting; then 8.1 and `OPENAI-ZDR-CONSTRAINTS.md`'s status are updated on what he saw.
+**Pick up first:** the 13.5 build — engine, screen, saved shape, and a test that runs the
+workbook's twelve months of orders through the engine itself.
 
-### 🔴 FOR THE LAPTOP — when this branch reaches `master`
-- **Translation is now the backend's** (`server/utils/uiTranslation.js`, `GET /api/ui-translation/:code`,
-  new AI role `translate`). Any NEW screen text still just goes in `en.json` — nothing else to do.
-- **`locales/en.json` gained ~1,040 lines at its END** (15 new blocks). If you also appended blocks,
-  the merge conflicts at the file's tail: keep both sides.
-- **`tests/helpers/mountComponent.js`** gained `englishMocks()` (real English `$t`) and renders
-  `<i18n>` by default — drop any `stubs: { i18n: true }` you add.
-- **`openaiClient.js` now decodes whole letters**; a split "ö" or "—" used to become "��".
-- From this morning, still unmerged: Buefy's stylesheet is `assets/css/buefy-brand.css` (edit the
-  `.scss`, run `npm run brand-css`; `npm install` with npm 8 on Node 14.15); the forecast P&L has
-  four overseas lines.
+### 🔴 FOR THE LAPTOP
+
+- **13.5 will change** `threeWayForecastModel.js` (the overseas schedule), `importShipmentModel.js`,
+  `ThreeWayForecastIntake.vue`, `ThreeWayForecastReport.vue` and `threeWayForecastSavedShape.js`.
+  Ask before touching them. The "Exchange-rate movement" line will hide when it is zero.
+- Yesterday's notes still apply until PR #134 merges: translation is the backend's, `en.json`
+  grew at its tail (keep both sides), and `mountComponent` renders `<i18n>` by default.
