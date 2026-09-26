@@ -35,7 +35,7 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **15.26** The Our Session Objective agenda has room for six steps; a seventh prints over the logo ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 1 | **15.26** The Our Session Objective agenda has room for six steps; a seventh prints over the logo ⚠ *not yet ranked by Mike* | 2 | — | Us | **laptop**, since 2026-09-26 |
 | 2 | **15.24** Business Owner Expectations plan page overflows past about 14 tasks ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 3 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 4 | **16** A client's document carries no firm, so the white-label promise has nothing behind it ⚠ *not yet ranked by Mike* | 4 | — | Outside | — |
@@ -55,7 +55,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 18 | **13.5** Review imported-stock FX in the forecast and import model: supplier currency and exchange rate ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 19 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 
-**Nineteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Nineteen live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

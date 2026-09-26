@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session Objective Sheets</title>
+<!--
+  design/mockups/strategy-session-objective-two-sheets.html
+
+  🔴 ITEM 15.26 — OUR SESSION OBJECTIVE AS TWO SHEETS. DRAWN, NOT APPROVED, NOT BUILT.
+
+  Mike, 2026-09-26, his own words, on seeing a two-column agenda on the one page:
+
+      "session objective needs to be on its own page - it frames the session and
+       establisges permission boundaries - page 2 is the agenda layout is over to you"
+
+  So the concept gets two sheets, as Collaborative Thinking already has. It AMENDS the
+  approved drawing strategy-concept-our-session-objective.html:
+
+    SHEET 1  that drawing unchanged, less the "Agenda:" heading and its rows.
+    SHEET 2  the agenda alone. Frame and firm mark are sheet 1's. The title "Agenda" is
+             set in his title style (x 44.34, y 90.59, 50pt, #002B64) — his heading on
+             p2 read "Agenda:"; as a page title the colon goes. Rows are his row
+             (bullet 98.09, text 150.69, 25pt, #434343, pitch 34.55) starting at 184.09,
+             where his first body line sits under the title.
+
+  THE LAYOUT — Mike's word: "over to you".
+    1-17 steps   one column; 17 is what fits above the firm's mark
+    18-34        two columns, as even as they can be
+    35-40        three columns; 40 is the most any session may hold (strategySessionStore)
+    any line     wider than its space is squeezed to fit that line only (textLength,
+                 spacingAndGlyphs); never stretched, and a line that fits is left alone
+    no steps     his own four agenda lines, moved up as one block, exactly as today
+
+  Every session the app allows fits, so Build session needs no limit and no new words.
+  Step names past his standard five are samples, named as such.
+-->
+<style>
+  :root {
+    --ground: #eef3f8; --card: #ffffff; --ink: #002b64; --body: #23405f;
+    --muted: #5b6f8a; --line: #d5e1ee; --accent: #0070c0;
+    --slot-bg: #fff7e8; --slot-ink: #8a5a00; --slot-line: #e0b878;
+    --shadow: 0 12px 32px rgba(0, 43, 100, .10);
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+      --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+      --slot-bg: #3a2810; --slot-ink: #ffc76b; --slot-line: #6b4a18;
+      --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #05132a; --card: #0a1f3d; --ink: #e6f0fa; --body: #cfe0f2;
+    --muted: #9fb4d0; --line: #1a3559; --accent: #00b1e0;
+    --slot-bg: #3a2810; --slot-ink: #ffc76b; --slot-line: #6b4a18;
+    --shadow: 0 12px 32px rgba(0, 0, 0, .38);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 16px 64px; background: var(--ground);
+    font-family: var(--sans); color: var(--body); line-height: 1.55;
+  }
+  main { max-width: 1120px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; color: var(--ink); margin: 0 0 4px; line-height: 1.25; }
+  .sub { color: var(--muted); margin: 0 0 24px; font-size: .95rem; }
+
+  section.controls {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 20px; box-shadow: var(--shadow);
+  }
+  .controls h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--muted); margin: 0 0 10px; }
+  .firms { display: flex; flex-wrap: wrap; gap: 8px; }
+  button.firm {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--body);
+    border-radius: 999px; padding: 7px 14px; font: inherit; font-size: .9rem;
+  }
+  button.firm[aria-pressed="true"] { border-color: var(--sw); color: var(--ink); font-weight: 600; }
+  .swatch { width: 13px; height: 13px; border-radius: 50%; background: var(--sw); }
+
+  figure { margin: 0 0 22px; }
+  .sheet {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .sheet svg { display: block; width: 100%; height: auto; }
+  figcaption { color: var(--muted); font-size: .88rem; margin-top: 10px; }
+
+  .note {
+    background: var(--slot-bg); border: 1px solid var(--slot-line); color: var(--slot-ink);
+    border-radius: 10px; padding: 12px 14px; margin: 0 0 20px; font-size: .92rem;
+  }
+  .note strong { color: inherit; }
+  .slot-ring { outline: 2px dashed var(--slot-line); outline-offset: 3px; }
+
+  @media (max-width: 640px) {
+    body { padding: 20px 16px 48px; }
+    h1 { font-size: 1.25rem; }
+  }
+  h2.case { font-size: 1rem; color: var(--ink); margin: 0 0 10px; }
+  h2.part { font-size: 1.15rem; color: var(--ink); margin: 34px 0 12px; }
+  .measure { color: var(--muted); font-size: .88rem; margin: 10px 0 0; }
+  table.rule { border-collapse: collapse; margin: 0 0 22px; font-size: .92rem; }
+  table.rule th, table.rule td { border: 1px solid var(--line); padding: 6px 12px; text-align: left; }
+  table.rule th { color: var(--ink); background: var(--card); }
+  .wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Our Session Objective, as two sheets</h1>
+  <p class="sub">
+    Item 15.26 &mdash; drawn from your approved page on your ruling of 26 September 2026.
+    <b>Drawn, not approved, not built.</b>
+  </p>
+
+  <p class="note">
+    <strong>Your ruling:</strong> <i>&ldquo;session objective needs to be on its own page &mdash;
+    it frames the session and establishes permission boundaries &mdash; page 2 is the agenda,
+    layout is over to you.&rdquo;</i> Sheet 1 is your page exactly as approved, with the agenda
+    taken off. Sheet 2 is the agenda alone, in your title style and your 25-point rows. Your
+    type is never made smaller; only a line too long for its space is squeezed, and only that
+    line.
+  </p>
+
+  <h2 class="part">Sheet 1 &mdash; the framing page</h2>
+  <figure>
+    <h2 class="case">Your page, less the agenda. Nothing else moves.</h2>
+    <div class="sheet" data-case="sheet1">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Our Session Objective. A welcome line, seven bullets of ground rules for the meeting with two of them emphasised, then a heading reading Agenda and four numbered section items.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- ============================================================
+             FIXED ARTWORK — every span read from the PDF text layer of
+             Advance.2.Strategic Orientation.1.pdf p2. x, y, size, weight
+             and colour are his; each line is pinned to its own measured
+             width with textLength.
+             ============================================================ -->
+        <g font-family="Open Sans, sans-serif">
+          <text x="44.34" y="90.59" font-size="50" fill="#002B64"
+                textLength="509.55" lengthAdjust="spacing">Our Session Objective</text>
+
+          <text x="75.69" y="184.09" font-size="25" fill="#434343"
+                textLength="619.33" lengthAdjust="spacing">Welcome, it&#8217;s all about you and your business today&#8230;</text>
+
+          <!-- His ground rules. Two are BOLD #002B64 on his page and the rest
+               regular #434343 — the emphasis is his, and it is the whole point of
+               the page, so it is carried exactly. -->
+          <text x="98.09" y="239.62" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="239.62" font-size="25" fill="#434343"
+                textLength="540.68" lengthAdjust="spacing">Everyone contributes to collaborative thinking.</text>
+
+          <text x="98.09" y="273.99" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="273.99" font-size="25" fill="#434343"
+                textLength="378.35" lengthAdjust="spacing">Planned Breaks &amp; Housekeeping</text>
+
+          <text x="98.09" y="308.37" font-size="25" font-weight="700" fill="#002B64">&#9679;</text>
+          <text x="150.69" y="308.37" font-size="25" font-weight="700" fill="#002B64"
+                textLength="1008.3" lengthAdjust="spacing">My/Our Role in the Planning Session is to Challenge What You Believe To Be True!</text>
+
+          <text x="98.09" y="342.74" font-size="25" font-weight="700" fill="#002B64">&#9679;</text>
+          <text x="150.69" y="342.74" font-size="25" font-weight="700" fill="#002B64"
+                textLength="1098.17" lengthAdjust="spacing">Your Role is to be Ready To Explore Issues/ Ideas With an Open Heart and an Open Mind.</text>
+
+          <text x="98.09" y="377.12" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="377.12" font-size="25" fill="#434343"
+                textLength="1104.6" lengthAdjust="spacing">The Objective (expectations) for Today&#8217;s meeting is that we &#8216;Discover What We&#8217;ve Been Missing&#8217;!</text>
+
+          <text x="98.09" y="411.49" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="411.49" font-size="25" fill="#434343"
+                textLength="258.45" lengthAdjust="spacing">Record what we learn.</text>
+
+          <text x="98.09" y="445.87" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="445.87" font-size="25" fill="#434343"
+                textLength="405.7" lengthAdjust="spacing">Build an action plan going forward.</text>
+
+
+        </g>
+
+        <!-- ============================================================
+             THE AGENDA SLOT — Mike's ruling, 2026-09-23. In the app these
+             rows are the SESSION'S OWN STEPS, the list the advisor named in
+             Build session. His four lines are the shipped default and are
+             what this drawing is approved against.
+
+             🔴 The rows are his page span for span: the sentence in #434343
+             and the "(section n)" tag bold #002B64, set INLINE at its own
+             measured x, because on his page the tag interrupts the line
+             rather than following it. Row 2 runs sentence, tag, sentence.
+             ============================================================ -->
+        
+
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
+          <circle class="fm-disc" style="display:none" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" style="display:none" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" style="display:none" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+
+        <!-- His deck frame, returned in the firm's colour rather than #00B1E0.
+             Five bars inset from the edge with the foot broken in the lower left,
+             and the firm's mark standing in that break. -->
+        <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+      </svg>
+    </div>
+    
+  </figure>
+
+  <h2 class="part">Sheet 2 &mdash; the agenda</h2>
+  <div class="wrap">
+    <table class="rule">
+      <tr><th>Steps in the session</th><th>How sheet 2 lays them out</th></tr>
+      <tr><td>none yet</td><td>your own four agenda lines, as today</td></tr>
+      <tr><td>1 to 17</td><td>one column &mdash; 17 is what fits above the firm&rsquo;s mark</td></tr>
+      <tr><td>18 to 34</td><td>two columns, as even as they can be</td></tr>
+      <tr><td>35 to 40</td><td>three columns &mdash; 40 is the most a session may hold</td></tr>
+    </table>
+  </div>
+
+  <figure>
+    <h2 class="case">Sheet 2 before a session names its steps — your own four agenda lines, as today.</h2>
+    <div class="sheet" data-case="none">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Agenda. The session's steps, in order.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- ============================================================
+             FIXED ARTWORK — every span read from the PDF text layer of
+             Advance.2.Strategic Orientation.1.pdf p2. x, y, size, weight
+             and colour are his; each line is pinned to its own measured
+             width with textLength.
+             ============================================================ -->
+                <g font-family="Open Sans, sans-serif">
+          <text x="44.34" y="90.59" font-size="50" fill="#002B64">Agenda</text>
+        </g>
+
+<g class="agenda-slot" font-family="Open Sans, sans-serif">
+          <text x="98.09" y="184.09" font-size="25" fill="#434343">&#9679;</text>
+          <!-- 🔴 xml:space="preserve" ON EVERY SPAN OF HIS THAT CARRIES A LEADING OR
+               TRAILING SPACE. His "(section n)" tags interrupt the line, so the space
+               before one lives at the END of the span before it and is part of that
+               span's MEASURED width. SVG collapses edge whitespace by default, so the
+               glyphs stretched to fill the pinned width instead and closed the gap:
+               the drawing read "same page'.(section 1)" and "data(section 2)&". Caught
+               by putting this beside his page, which is step 1 of the method and the
+               only thing that could have caught it. -->
+          <text x="150.69" y="184.09" font-size="25" fill="#434343" xml:space="preserve"
+                textLength="928.6" lengthAdjust="spacing">Review the Planning Process &amp; Language to ensure we&#8217;re all on the &#8216;same page&#8217;. </text>
+          <text x="1080.44" y="184.09" font-size="25" font-weight="700" fill="#002B64"
+                textLength="128.05" lengthAdjust="spacing">(section 1)</text>
+
+          <text x="98.09" y="218.98" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="218.98" font-size="25" fill="#434343" xml:space="preserve"
+                textLength="651.48" lengthAdjust="spacing">Assess current position by reviewing (pre-meeting) data </text>
+          <text x="803.01" y="218.98" font-size="25" font-weight="700" fill="#002B64"
+                textLength="128.05" lengthAdjust="spacing">(section 2)</text>
+          <text x="931.18" y="218.98" font-size="25" fill="#434343" xml:space="preserve"
+                textLength="388.22" lengthAdjust="spacing"> &amp; Financial Performance Reports</text>
+
+          <text x="98.09" y="253.36" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="253.36" font-size="25" fill="#434343" xml:space="preserve"
+                textLength="803.73" lengthAdjust="spacing">Determine the business Strategic Objective &amp; document the Strategy </text>
+          <text x="955.33" y="253.36" font-size="25" font-weight="700" fill="#002B64"
+                textLength="128.05" lengthAdjust="spacing">(section 3)</text>
+
+          <text x="98.09" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="287.73" font-size="25" fill="#434343"
+                textLength="1218" lengthAdjust="spacing">Brainstorm &amp; record Operational Objectives and Tactics (actions) in the Automated Action Plan Reminder</text>
+        </g>
+
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
+          <circle class="fm-disc" style="display:none" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" style="display:none" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" style="display:none" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+
+        <!-- His deck frame, returned in the firm's colour rather than #00B1E0.
+             Five bars inset from the edge with the foot broken in the lower left,
+             and the firm's mark standing in that break. -->
+        <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+      </svg>
+    </div>
+    <p class="measure">Measured on this drawing: lowest line ends at <b>293</b> (the firm&rsquo;s mark starts at 778) · rightmost line ends at <b>1370</b> (the frame starts at 1,478) · lines squeezed: <b>0</b>.</p>
+  </figure>
+
+  <figure>
+    <h2 class="case">Sheet 2 with five steps — your standard session.</h2>
+    <div class="sheet" data-case="five">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Agenda. The session's steps, in order.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- ============================================================
+             FIXED ARTWORK — every span read from the PDF text layer of
+             Advance.2.Strategic Orientation.1.pdf p2. x, y, size, weight
+             and colour are his; each line is pinned to its own measured
+             width with textLength.
+             ============================================================ -->
+                <g font-family="Open Sans, sans-serif">
+          <text x="44.34" y="90.59" font-size="50" fill="#002B64">Agenda</text>
+        </g>
+
+        <g class="agenda-slot is-live" font-family="Open Sans, sans-serif">
+          <text x="98.09" y="184.09" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="184.09" font-size="25" fill="#434343">Identify the Resistance</text>
+          <text x="98.09" y="218.64" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="218.64" font-size="25" fill="#434343">Choose Your Competition Fronts</text>
+          <text x="98.09" y="253.18" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="253.18" font-size="25" fill="#434343">Rehearse the Message</text>
+          <text x="98.09" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="287.73" font-size="25" fill="#434343">Trial the Prototype</text>
+          <text x="98.09" y="322.28" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="322.28" font-size="25" fill="#434343">Do It &amp; Review It</text>
+        </g>
+
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
+          <circle class="fm-disc" style="display:none" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" style="display:none" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" style="display:none" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+
+        <!-- His deck frame, returned in the firm's colour rather than #00B1E0.
+             Five bars inset from the edge with the foot broken in the lower left,
+             and the firm's mark standing in that break. -->
+        <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+      </svg>
+    </div>
+    <p class="measure">Measured on this drawing: lowest line ends at <b>328</b> (the firm&rsquo;s mark starts at 778) · rightmost line ends at <b>513</b> (the frame starts at 1,478) · lines squeezed: <b>0</b>.</p>
+  </figure>
+
+  <figure>
+    <h2 class="case">Seventeen steps — the most one column holds.</h2>
+    <div class="sheet" data-case="seventeen">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Agenda. The session's steps, in order.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- ============================================================
+             FIXED ARTWORK — every span read from the PDF text layer of
+             Advance.2.Strategic Orientation.1.pdf p2. x, y, size, weight
+             and colour are his; each line is pinned to its own measured
+             width with textLength.
+             ============================================================ -->
+                <g font-family="Open Sans, sans-serif">
+          <text x="44.34" y="90.59" font-size="50" fill="#002B64">Agenda</text>
+        </g>
+
+        <g class="agenda-slot is-live" font-family="Open Sans, sans-serif">
+          <text x="98.09" y="184.09" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="184.09" font-size="25" fill="#434343">Identify the Resistance</text>
+          <text x="98.09" y="218.64" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="218.64" font-size="25" fill="#434343">Choose Your Competition Fronts</text>
+          <text x="98.09" y="253.18" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="253.18" font-size="25" fill="#434343">Rehearse the Message</text>
+          <text x="98.09" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="287.73" font-size="25" fill="#434343">Trial the Prototype</text>
+          <text x="98.09" y="322.28" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="322.28" font-size="25" fill="#434343">Do It &amp; Review It</text>
+          <text x="98.09" y="356.82" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="356.82" font-size="25" fill="#434343">Sample step 6</text>
+          <text x="98.09" y="391.37" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="391.37" font-size="25" fill="#434343">Sample step 7</text>
+          <text x="98.09" y="425.92" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="425.92" font-size="25" fill="#434343">Sample step 8</text>
+          <text x="98.09" y="460.46" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="460.46" font-size="25" fill="#434343">Sample step 9</text>
+          <text x="98.09" y="495.01" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="495.01" font-size="25" fill="#434343">Sample step 10</text>
+          <text x="98.09" y="529.56" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="529.56" font-size="25" fill="#434343">Sample step 11</text>
+          <text x="98.09" y="564.10" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="564.10" font-size="25" fill="#434343">Sample step 12</text>
+          <text x="98.09" y="598.65" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="598.65" font-size="25" fill="#434343">Sample step 13</text>
+          <text x="98.09" y="633.20" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="633.20" font-size="25" fill="#434343">Sample step 14</text>
+          <text x="98.09" y="667.74" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="667.74" font-size="25" fill="#434343">Sample step 15</text>
+          <text x="98.09" y="702.29" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="702.29" font-size="25" fill="#434343">Sample step 16</text>
+          <text x="98.09" y="736.84" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="736.84" font-size="25" fill="#434343">Sample step 17</text>
+        </g>
+
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
+          <circle class="fm-disc" style="display:none" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" style="display:none" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" style="display:none" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+
+        <!-- His deck frame, returned in the firm's colour rather than #00B1E0.
+             Five bars inset from the edge with the foot broken in the lower left,
+             and the firm's mark standing in that break. -->
+        <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+      </svg>
+    </div>
+    <p class="measure">Measured on this drawing: lowest line ends at <b>742</b> (the firm&rsquo;s mark starts at 778) · rightmost line ends at <b>513</b> (the frame starts at 1,478) · lines squeezed: <b>0</b>.</p>
+  </figure>
+
+  <figure>
+    <h2 class="case">Twenty-four steps — the most a standard session may hold. Two columns of twelve.</h2>
+    <div class="sheet" data-case="twentyfour">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Agenda. The session's steps, in order.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- ============================================================
+             FIXED ARTWORK — every span read from the PDF text layer of
+             Advance.2.Strategic Orientation.1.pdf p2. x, y, size, weight
+             and colour are his; each line is pinned to its own measured
+             width with textLength.
+             ============================================================ -->
+                <g font-family="Open Sans, sans-serif">
+          <text x="44.34" y="90.59" font-size="50" fill="#002B64">Agenda</text>
+        </g>
+
+        <g class="agenda-slot is-live" font-family="Open Sans, sans-serif">
+          <text x="98.09" y="184.09" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="184.09" font-size="25" fill="#434343">Identify the Resistance</text>
+          <text x="98.09" y="218.64" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="218.64" font-size="25" fill="#434343">Choose Your Competition Fronts</text>
+          <text x="98.09" y="253.18" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="253.18" font-size="25" fill="#434343">Rehearse the Message</text>
+          <text x="98.09" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="287.73" font-size="25" fill="#434343">Trial the Prototype</text>
+          <text x="98.09" y="322.28" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="322.28" font-size="25" fill="#434343">Do It &amp; Review It</text>
+          <text x="98.09" y="356.82" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="356.82" font-size="25" fill="#434343">Sample step 6</text>
+          <text x="98.09" y="391.37" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="391.37" font-size="25" fill="#434343">Sample step 7</text>
+          <text x="98.09" y="425.92" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="425.92" font-size="25" fill="#434343">Sample step 8</text>
+          <text x="98.09" y="460.46" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="460.46" font-size="25" fill="#434343">Sample step 9</text>
+          <text x="98.09" y="495.01" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="495.01" font-size="25" fill="#434343">Sample step 10</text>
+          <text x="98.09" y="529.56" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="529.56" font-size="25" fill="#434343">Sample step 11</text>
+          <text x="98.09" y="564.10" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="150.69" y="564.10" font-size="25" fill="#434343">Sample step 12</text>
+          <text x="786.55" y="184.09" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="184.09" font-size="25" fill="#434343">Sample step 13</text>
+          <text x="786.55" y="218.64" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="218.64" font-size="25" fill="#434343">Sample step 14</text>
+          <text x="786.55" y="253.18" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="253.18" font-size="25" fill="#434343">Sample step 15</text>
+          <text x="786.55" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="287.73" font-size="25" fill="#434343">Sample step 16</text>
+          <text x="786.55" y="322.28" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="322.28" font-size="25" fill="#434343">Sample step 17</text>
+          <text x="786.55" y="356.82" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="356.82" font-size="25" fill="#434343">Sample step 18</text>
+          <text x="786.55" y="391.37" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="391.37" font-size="25" fill="#434343">Sample step 19</text>
+          <text x="786.55" y="425.92" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="425.92" font-size="25" fill="#434343">Sample step 20</text>
+          <text x="786.55" y="460.46" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="460.46" font-size="25" fill="#434343">Sample step 21</text>
+          <text x="786.55" y="495.01" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="495.01" font-size="25" fill="#434343">Sample step 22</text>
+          <text x="786.55" y="529.56" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="529.56" font-size="25" fill="#434343">Sample step 23</text>
+          <text x="786.55" y="564.10" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="615.9" x="839.15" y="564.10" font-size="25" fill="#434343">Sample step 24</text>
+        </g>
+
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
+          <circle class="fm-disc" style="display:none" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" style="display:none" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" style="display:none" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+
+        <!-- His deck frame, returned in the firm's colour rather than #00B1E0.
+             Five bars inset from the edge with the foot broken in the lower left,
+             and the firm's mark standing in that break. -->
+        <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+      </svg>
+    </div>
+    <p class="measure">Measured on this drawing: lowest line ends at <b>569</b> (the firm&rsquo;s mark starts at 778) · rightmost line ends at <b>1014</b> (the frame starts at 1,478) · lines squeezed: <b>0</b>.</p>
+  </figure>
+
+  <figure>
+    <h2 class="case">Forty steps — the most any session may hold. Three columns.</h2>
+    <div class="sheet" data-case="forty">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Agenda. The session's steps, in order.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- ============================================================
+             FIXED ARTWORK — every span read from the PDF text layer of
+             Advance.2.Strategic Orientation.1.pdf p2. x, y, size, weight
+             and colour are his; each line is pinned to its own measured
+             width with textLength.
+             ============================================================ -->
+                <g font-family="Open Sans, sans-serif">
+          <text x="44.34" y="90.59" font-size="50" fill="#002B64">Agenda</text>
+        </g>
+
+        <g class="agenda-slot is-live" font-family="Open Sans, sans-serif">
+          <text x="98.09" y="184.09" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="184.09" font-size="25" fill="#434343">Identify the Resistance</text>
+          <text x="98.09" y="218.64" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="218.64" font-size="25" fill="#434343">Choose Your Competition Fronts</text>
+          <text x="98.09" y="253.18" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="253.18" font-size="25" fill="#434343">Rehearse the Message</text>
+          <text x="98.09" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="287.73" font-size="25" fill="#434343">Trial the Prototype</text>
+          <text x="98.09" y="322.28" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="322.28" font-size="25" fill="#434343">Do It &amp; Review It</text>
+          <text x="98.09" y="356.82" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="356.82" font-size="25" fill="#434343">Sample step 6</text>
+          <text x="98.09" y="391.37" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="391.37" font-size="25" fill="#434343">Sample step 7</text>
+          <text x="98.09" y="425.92" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="425.92" font-size="25" fill="#434343">Sample step 8</text>
+          <text x="98.09" y="460.46" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="460.46" font-size="25" fill="#434343">Sample step 9</text>
+          <text x="98.09" y="495.01" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="495.01" font-size="25" fill="#434343">Sample step 10</text>
+          <text x="98.09" y="529.56" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="529.56" font-size="25" fill="#434343">Sample step 11</text>
+          <text x="98.09" y="564.10" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="564.10" font-size="25" fill="#434343">Sample step 12</text>
+          <text x="98.09" y="598.65" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="598.65" font-size="25" fill="#434343">Sample step 13</text>
+          <text x="98.09" y="633.20" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="150.69" y="633.20" font-size="25" fill="#434343">Sample step 14</text>
+          <text x="557.06" y="184.09" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="184.09" font-size="25" fill="#434343">Sample step 15</text>
+          <text x="557.06" y="218.64" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="218.64" font-size="25" fill="#434343">Sample step 16</text>
+          <text x="557.06" y="253.18" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="253.18" font-size="25" fill="#434343">Sample step 17</text>
+          <text x="557.06" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="287.73" font-size="25" fill="#434343">Sample step 18</text>
+          <text x="557.06" y="322.28" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="322.28" font-size="25" fill="#434343">Sample step 19</text>
+          <text x="557.06" y="356.82" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="356.82" font-size="25" fill="#434343">Sample step 20</text>
+          <text x="557.06" y="391.37" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="391.37" font-size="25" fill="#434343">Sample step 21</text>
+          <text x="557.06" y="425.92" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="425.92" font-size="25" fill="#434343">Sample step 22</text>
+          <text x="557.06" y="460.46" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="460.46" font-size="25" fill="#434343">Sample step 23</text>
+          <text x="557.06" y="495.01" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="495.01" font-size="25" fill="#434343">Sample step 24</text>
+          <text x="557.06" y="529.56" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="529.56" font-size="25" fill="#434343">Sample step 25</text>
+          <text x="557.06" y="564.10" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="564.10" font-size="25" fill="#434343">Sample step 26</text>
+          <text x="557.06" y="598.65" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="598.65" font-size="25" fill="#434343">Sample step 27</text>
+          <text x="557.06" y="633.20" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="609.66" y="633.20" font-size="25" fill="#434343">Sample step 28</text>
+          <text x="1016.03" y="184.09" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="184.09" font-size="25" fill="#434343">Sample step 29</text>
+          <text x="1016.03" y="218.64" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="218.64" font-size="25" fill="#434343">Sample step 30</text>
+          <text x="1016.03" y="253.18" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="253.18" font-size="25" fill="#434343">Sample step 31</text>
+          <text x="1016.03" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="287.73" font-size="25" fill="#434343">Sample step 32</text>
+          <text x="1016.03" y="322.28" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="322.28" font-size="25" fill="#434343">Sample step 33</text>
+          <text x="1016.03" y="356.82" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="356.82" font-size="25" fill="#434343">Sample step 34</text>
+          <text x="1016.03" y="391.37" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="391.37" font-size="25" fill="#434343">Sample step 35</text>
+          <text x="1016.03" y="425.92" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="425.92" font-size="25" fill="#434343">Sample step 36</text>
+          <text x="1016.03" y="460.46" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="460.46" font-size="25" fill="#434343">Sample step 37</text>
+          <text x="1016.03" y="495.01" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="495.01" font-size="25" fill="#434343">Sample step 38</text>
+          <text x="1016.03" y="529.56" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="529.56" font-size="25" fill="#434343">Sample step 39</text>
+          <text x="1016.03" y="564.10" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="386.4" x="1068.63" y="564.10" font-size="25" fill="#434343">Sample step 40</text>
+        </g>
+
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
+          <circle class="fm-disc" style="display:none" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" style="display:none" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" style="display:none" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+
+        <!-- His deck frame, returned in the firm's colour rather than #00B1E0.
+             Five bars inset from the edge with the foot broken in the lower left,
+             and the firm's mark standing in that break. -->
+        <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+      </svg>
+    </div>
+    <p class="measure">Measured on this drawing: lowest line ends at <b>639</b> (the firm&rsquo;s mark starts at 778) · rightmost line ends at <b>1243</b> (the frame starts at 1,478) · lines squeezed: <b>0</b>.</p>
+  </figure>
+
+  <figure>
+    <h2 class="case">Six steps, one of them the longest name an advisor can type (128 characters).</h2>
+    <div class="sheet" data-case="long">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Agenda. The session's steps, in order.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- ============================================================
+             FIXED ARTWORK — every span read from the PDF text layer of
+             Advance.2.Strategic Orientation.1.pdf p2. x, y, size, weight
+             and colour are his; each line is pinned to its own measured
+             width with textLength.
+             ============================================================ -->
+                <g font-family="Open Sans, sans-serif">
+          <text x="44.34" y="90.59" font-size="50" fill="#002B64">Agenda</text>
+        </g>
+
+        <g class="agenda-slot is-live" font-family="Open Sans, sans-serif">
+          <text x="98.09" y="184.09" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="184.09" font-size="25" fill="#434343">Identify the Resistance</text>
+          <text x="98.09" y="218.64" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="218.64" font-size="25" fill="#434343">Assess the current position by reviewing the pre-meeting data, the financial performance reports and last quarter&#8217;s survey</text>
+          <text x="98.09" y="253.18" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="253.18" font-size="25" fill="#434343">Choose Your Competition Fronts</text>
+          <text x="98.09" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="287.73" font-size="25" fill="#434343">Rehearse the Message</text>
+          <text x="98.09" y="322.28" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="322.28" font-size="25" fill="#434343">Trial the Prototype</text>
+          <text x="98.09" y="356.82" font-size="25" fill="#434343">&#9679;</text>
+          <text class="ag-t" data-max="1304.3" x="150.69" y="356.82" font-size="25" fill="#434343">Do It &amp; Review It</text>
+        </g>
+
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
+          <circle class="fm-disc" style="display:none" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" style="display:none" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" style="display:none" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+
+        <!-- His deck frame, returned in the firm's colour rather than #00B1E0.
+             Five bars inset from the edge with the foot broken in the lower left,
+             and the firm's mark standing in that break. -->
+        <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+      </svg>
+    </div>
+    <p class="measure">Measured on this drawing: lowest line ends at <b>362</b> (the firm&rsquo;s mark starts at 778) · rightmost line ends at <b>1456</b> (the frame starts at 1,478) · lines squeezed: <b>1</b>.</p>
+  </figure>
+</main>
+
+<script>
+  // A line wider than its space is squeezed to fit that space; a line that fits is left
+  // exactly as it is. The build does the same after the page is drawn.
+  (function () {
+    Array.prototype.forEach.call(document.querySelectorAll('text.ag-t'), function (t) {
+      var max = Number(t.getAttribute('data-max'))
+      if (t.getComputedTextLength() > max) {
+        t.setAttribute('textLength', String(max))
+        t.setAttribute('lengthAdjust', 'spacingAndGlyphs')
+        t.classList.add('is-squeezed')
+      }
+    })
+  })()
+</script>
+</body>
+</html>
