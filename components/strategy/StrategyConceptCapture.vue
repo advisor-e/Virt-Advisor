@@ -29,6 +29,10 @@ section.scc2
       :firm-name="firmName"
       :firm-colour="firmColour"
       :firm-logo="firmLogo"
+      :edits="editsFor(n - 1)"
+      :editable="editable"
+      :agenda-items="agendaItems"
+      @text-edited="relayTextEdit"
     )
     p.scc2-concept-text(v-if="conceptSummary") {{ conceptSummary }}
     p.scc2-concept-text(v-if="helpsClientTo") {{ helpsClientTo }}
@@ -212,6 +216,7 @@ import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import StrategyOrgChartBuilder from '~/components/strategy/StrategyOrgChartBuilder.vue'
 import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 import { hasConceptGraphic, conceptTitlesItself, conceptSheetCount } from '~/components/strategy/concepts'
+import { sheetEdits } from '~/utils/conceptTextBlocks'
 
 /** The one capture form that is a small application rather than a page of boxes. */
 const ORG_CHART_FORM = 'parent-child-list'
@@ -359,6 +364,24 @@ export default {
     token: {
       type: String,
       default: ''
+    },
+
+    /** The session's page edits, `{ '<conceptId>#<sheet>': { block: text } }` — item 15.25. */
+    textEdits: {
+      type: Object,
+      default: () => ({})
+    },
+
+    /** True on the Run screen: the advisor may edit this concept's page text. */
+    editable: {
+      type: Boolean,
+      default: false
+    },
+
+    /** The session's step names, for a page whose agenda is the step list (Our Session Objective). */
+    agendaItems: {
+      type: Array,
+      default: () => []
     }
   },
 
@@ -588,6 +611,24 @@ export default {
   },
 
   methods: {
+    /**
+     * One sheet's saved page edits.
+     * @param {number} sheet
+     * @returns {Object<string, string>}
+     */
+    editsFor (sheet) {
+      return sheetEdits(this.textEdits, this.conceptId, sheet)
+    },
+
+    /**
+     * @param {{conceptId: string, sheet: number, block: string, text: (string|null)}} edit
+     * @param {function(boolean): void} done
+     */
+    relayTextEdit (edit, done) {
+      // Payload: the page edit and its done(ok) callback, unchanged — the page saves it.
+      this.$emit('text-edited', edit, done)
+    },
+
     /**
      * A DOM id for the field's label to point at.
      * @param {object} field

@@ -331,8 +331,10 @@ export default {
     },
 
     /**
-     * What this step is for — the manager's note, shown to the advisor as a tooltip and
-     * never to the client. Only the authoring screen edits it (`show-purpose`).
+     * What this step is for — the manager's note. Only the authoring screen edits it
+     * (`show-purpose`). ⚠ The approved drawing shows it to the advisor as a tooltip, never
+     * to the client; that tooltip is NOT BUILT and the session does not yet carry the
+     * field — item 15.27.
      * @param {string} stepKey
      * @param {string} purpose
      * @returns {void}

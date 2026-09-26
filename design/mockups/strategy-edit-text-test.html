@@ -1,0 +1,302 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Edit Text Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>:root{--bg:#f1f6fb;--ink:#002b64;--muted:#6b7f99;--panel:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0d1726;--ink:#cfe3ff;--muted:#8ea3bd;--panel:#16263a}}
+:root[data-theme="dark"]{--bg:#0d1726;--ink:#cfe3ff;--muted:#8ea3bd;--panel:#16263a}
+body{margin:0;font-family:'Open Sans',sans-serif;background:var(--bg);color:var(--ink);padding:0 16px 160px}
+.intro{max-width:900px;margin:20px auto 0;font-size:14.5px;line-height:1.55}.intro h1{font-size:22px;margin:0 0 6px}.intro p{margin:0 0 8px}.intro .m{color:var(--muted);font-size:13px}
+#ed{color:#23405f}
+#stage{max-width:1200px;margin:16px auto;background:#fff;box-shadow:0 2px 12px #0002}
+#stage svg{display:block;width:100%;height:auto}
+text.blk{cursor:text} text.blk:hover{fill-opacity:.75}
+#ed{position:fixed;left:16px;right:16px;bottom:16px;max-width:900px;margin:auto;background:#fff;border:2px solid #0070c0;border-radius:10px;padding:12px;display:none;box-shadow:0 6px 24px #0003}
+#ed textarea{width:100%;min-height:90px;font:15px 'Open Sans',sans-serif;box-sizing:border-box}
+#st{font-weight:700;margin:6px 0}.ok{color:#2e7d32}.bad{color:#c0392b}
+button{font:600 14px 'Open Sans',sans-serif;padding:6px 12px;margin-right:6px}</style></head>
+<body><div class="intro"><h1>Try it: edit the text on a concept page</h1>
+<p><b>Click any piece of text on the page below</b> (a question, a heading, a label in a circle). Change the words in the box that opens, then press <b>Apply</b>. The text re-wraps in the page's own font and size, and the box tells you whether it <b>fits</b> or what it <b>runs into</b>. <b>Put back the original</b> undoes it.</p>
+<p class="m">A throwaway test, 25 Sep 2026. It isn't part of the app and nothing you type is saved anywhere. The firm shown is a sample (Hartley &amp; Co). Try adding a sentence to the "New Entrants" question on the left, which has the most room, and to a label inside a circle, which has the least.</p></div>
+<div id="stage"><svg viewBox="0 0 1500 844" role="img"
+               aria-label="Porter's 5 Forces: Existing Rivalry at the centre, ringed by Customers at the top, Suppliers to the right, Substitutes below and New Entrants to the left, with a question against each.">
+            <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+            <!--
+              🔴 EVERY x AND y BELOW IS HIS, NOT MINE. The PDF page is 720×405pt; at
+              1500px wide that is a scale of 2.0833, and each line's left edge, baseline
+              and point size comes straight out of the page's text layer multiplied by
+              it. Nothing here was positioned by eye — the first attempt was, using a
+              guessed page width, and every block overran the edge and collided with
+              the ring.
+            -->
+            <text x="57.8" y="98.7" font-family="Open Sans, Segoe UI, sans-serif" font-size="50"
+                  fill="#002B64">Porter&#8217;s (Michael) 5 Forces</text>
+            <text x="57.8" y="130" font-family="Open Sans, Segoe UI, sans-serif" font-size="22.9"
+                  fill="#002B64">(Where&#8217;s the pressure coming from?)</text>
+
+            <!-- The ring. Each quarter takes the colour of the node it runs up to. -->
+            <g fill="none" stroke-width="14">
+              <path d="M 516 465 A 232 232 0 0 1 748 233" stroke="#519AD9"></path>
+              <path d="M 748 233 A 232 232 0 0 1 980 465" stroke="#F47D2F"></path>
+              <path d="M 980 465 A 232 232 0 0 1 748 697" stroke="#474747"></path>
+              <path d="M 748 697 A 232 232 0 0 1 516 465" stroke="#75A157"></path>
+            </g>
+
+            <!-- The five forces -->
+            <circle cx="748" cy="233" r="76" fill="#F47D2F"></circle>
+            <circle cx="980" cy="465" r="76" fill="#474747"></circle>
+            <circle cx="748" cy="697" r="76" fill="#75A157"></circle>
+            <circle cx="516" cy="465" r="76" fill="#519AD9"></circle>
+            <circle cx="748" cy="465" r="90" fill="#3A6FC8"></circle>
+
+            <!-- The labels inside the circles: Calibri in his deck, Carlito here. -->
+            <g font-family="Carlito, Calibri, Segoe UI, sans-serif" font-size="22.9" fill="#ffffff">
+              <text x="698.4" y="238.7">Customers</text>
+              <text x="939.7" y="473.3">Suppliers</text>
+              <text x="695.9" y="707.8">Substitutes</text>
+              <text x="492" y="460.8">New</text>
+              <text x="474.4" y="485.8">Entrants</text>
+            </g>
+            <g font-family="Carlito, Calibri, Segoe UI, sans-serif" font-size="37.5" fill="#ffffff">
+              <text x="689.7" y="457.7">Existing</text>
+              <text x="696.6" y="498.4">Rivalry</text>
+            </g>
+
+            <!-- New Entrants, top left. His line breaks, his baselines. -->
+            <g font-family="Open Sans, Segoe UI, sans-serif" font-size="18.8" fill="#4A86E8">
+              <text x="80.5" y="234">How easy is it for new entrants to enter your</text>
+              <text x="80.5" y="255.9">marketplace? Is it conceivable that your current</text>
+              <text x="80.5" y="277.7">supplier could become your future competition for</text>
+              <text x="80.5" y="299.6">example?</text>
+            </g>
+
+            <!-- Customers, top right -->
+            <g font-family="Open Sans, Segoe UI, sans-serif" font-size="18.8" fill="#ED7D31">
+              <text x="850.8" y="141.9">Are customers likely to be motivated to pay premium prices in</text>
+              <text x="850.8" y="163.8">return for &#8216;latest style/fashion&#8217;, technology or prestige/status? Are</text>
+              <text x="850.8" y="185.7">customers concerned about your business safety/ environment /</text>
+              <text x="850.8" y="207.6">ethical impact?</text>
+            </g>
+
+            <!-- His two bold statements. Both were missing from the old hand-drawing. -->
+            <g font-family="Open Sans, Segoe UI, sans-serif" font-size="22.9" font-weight="700"
+               fill="#002B64">
+              <text x="937.3" y="284.8">Expectations, Demands, Drivers</text>
+              <text x="1014.4" y="313">of Needs &amp; Wants.</text>
+              <text x="127.2" y="618">Technology, Innovative approach</text>
+              <text x="218.1" y="646.1">Barriers to entry.</text>
+            </g>
+
+            <!-- Substitutes, bottom left -->
+            <g font-family="Open Sans, Segoe UI, sans-serif" font-size="18.8" fill="#548135">
+              <text x="80.5" y="706.9">What are the alternatives to your product or service?</text>
+              <text x="80.5" y="728.7">Could your customers solve their problem a different</text>
+              <text x="80.5" y="750.6">way?</text>
+            </g>
+
+            <!-- Suppliers, bottom right -->
+            <g font-family="Open Sans, Segoe UI, sans-serif" font-size="18.8" fill="#434343">
+              <text x="985.2" y="647.4">Is there competition amongst your suppliers?, do</text>
+              <text x="985.2" y="669.2">they actively compete for your business and if you</text>
+              <text x="985.2" y="691.1">had to shift to a new supplier, how easy would it</text>
+              <text x="985.2" y="713">be?</text>
+            </g>
+
+            <!--
+              🔴 THE FIRM'S MARK, WHERE ADVISOR-E'S USED TO BE. This is the slot the
+              whole rebuild exists for. THE LOGO IS THE MARK — Mike, 2026-09-22 — and
+              the disc below it is the fallback for a firm holding none. The box is a
+              fixed height with xMinYMid meet, so any proportion fits without being
+              stretched or cropped. The switcher above proves both states move.
+            -->
+            <g id="firmMark">
+
+              <image class="fm-logo" x="86" y="766" width="240" height="48" preserveAspectRatio="xMinYMid meet" style="display:none"></image>
+              <circle id="firmDisc" cx="110" cy="790" r="24" fill="#0070c0"></circle>
+              <text id="firmInitials" x="110" y="799" text-anchor="middle" fill="#ffffff"
+                    font-family="Open Sans, Segoe UI, sans-serif" font-size="22"
+                    font-weight="700">H</text>
+              <text id="firmName" x="146" y="798" fill="#002B64"
+                    font-family="Open Sans, Segoe UI, sans-serif" font-size="22.9"
+                    font-weight="600">Hartley &amp; Co</text>
+            </g>
+            <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+            <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+            <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+            <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+            <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+          </svg></div>
+<div id="ed"><textarea id="ta"></textarea><p id="st"></p>
+<button id="ap">Apply</button><button id="rs">Put back the original</button><button id="cl">Close</button></div>
+<script>document.fonts.ready.then(function () {
+  const svg = document.querySelector('#stage svg')
+  const NS = 'http://www.w3.org/2000/svg'
+  const vb = svg.viewBox.baseVal
+
+  // ---- 1. Group the page's lines into blocks (a paragraph = consecutive lines sharing
+  //         x, size, weight and colour, stepping down by about one line height).
+  const inMark = t => t.closest('[class*="firm"],[id*="firm"],[class*="fm-"]')
+  const lines = Array.from(svg.querySelectorAll('text')).filter(t => !inMark(t) && t.getAttribute('y'))
+  const sig = (t) => {
+    const cs = getComputedStyle(t)
+    return [cs.fontSize, cs.fontWeight, cs.fontStyle, cs.fill, cs.textAnchor].join('|')
+  }
+  const num = (t, a) => parseFloat(t.getAttribute(a))
+  const blocks = []
+  lines.forEach((t) => {
+    const fs = parseFloat(getComputedStyle(t).fontSize)
+    const b = blocks[blocks.length - 1]
+    const prev = b && b.lines[b.lines.length - 1]
+    if (prev && sig(prev) === sig(t) && Math.abs(num(prev, 'x') - num(t, 'x')) < 2) {
+      const gap = num(t, 'y') - num(prev, 'y')
+      if (gap > fs * 0.8 && gap < fs * 1.8) { b.lines.push(t); return }
+    }
+    blocks.push({ lines: [t] })
+  })
+
+  const probe = (tpl) => {
+    const p = tpl.cloneNode(false)
+    p.removeAttribute('textLength'); p.removeAttribute('lengthAdjust')
+    p.style.display = ''
+    p.setAttribute('visibility', 'hidden')
+    tpl.parentNode.appendChild(p)
+    return p
+  }
+  const natural = (tpl, s) => { const p = probe(tpl); p.textContent = s; const w = p.getComputedTextLength(); p.remove(); return w }
+
+  blocks.forEach((b, i) => {
+    const first = b.lines[0]
+    b.id = i
+    b.fs = parseFloat(getComputedStyle(first).fontSize)
+    b.x = num(first, 'x'); b.y0 = num(first, 'y')
+    const gaps = b.lines.slice(1).map((l, k) => num(l, 'y') - num(b.lines[k], 'y')).sort((a, c) => a - c)
+    b.lh = gaps.length ? gaps[Math.floor(gaps.length / 2)] : b.fs * 1.3
+    b.width = Math.max.apply(null, b.lines.map(l => parseFloat(l.getAttribute('textLength')) || natural(l, l.textContent)))
+    b.justified = b.lines.length > 1 && b.lines.slice(0, -1).every(l => l.hasAttribute('textLength'))
+    b.pinned = b.lines.some(l => l.hasAttribute('textLength'))
+    b.original = b.lines.map(l => l.textContent.trim()).join(' ').replace(/\s+/g, ' ')
+    b.current = b.lines.slice()
+    b.lines.forEach(l => { l.classList.add('blk'); l.dataset.block = i })
+  })
+
+  // ---- 2. Paint-level hit-testing: which painted things sit under a set of lines.
+  const bg = el => el.tagName === 'rect' && +el.getAttribute('width') >= vb.width - 1 && +el.getAttribute('height') >= vb.height - 1
+  function under (els) {
+    const own = new Set(els)
+    const hits = new Map(); let points = 0; const perPoint = []
+    els.forEach((el) => {
+      const r = el.getBoundingClientRect()
+      for (let y = r.top + 2; y < r.bottom - 1; y += 4) {
+        for (let x = r.left + 2; x < r.right - 1; x += 4) {
+          points++
+          const s = new Set()
+          document.elementsFromPoint(x, y).forEach((h) => {
+            if (!svg.contains(h) || h === svg || own.has(h) || bg(h) || h.tagName === 'g') { return }
+            s.add(h); hits.set(h, (hits.get(h) || 0) + 1)
+          })
+          perPoint.push(s)
+        }
+      }
+    })
+    return { hits, points, perPoint }
+  }
+  const offPage = els => els.some((el) => { const bb = el.getBBox(); return bb.x < -1 || bb.y < -1 || bb.x + bb.width > vb.width + 1 || bb.y + bb.height > vb.height + 1 })
+  const describe = h => h.tagName === 'text' ? '"' + h.textContent.trim().slice(0, 40) + '"' : h.tagName + (h.getAttribute('fill') && h.getAttribute('fill') !== 'none' ? ' ' + h.getAttribute('fill') : '') + (h.getAttribute('stroke') ? ' stroke ' + h.getAttribute('stroke') : '')
+
+  blocks.forEach((b) => {
+    const u = under(b.lines)
+    b.base = new Set(u.hits.keys())
+    // A box the block sits wholly inside (a label in a circle, text on a panel).
+    b.containers = Array.from(u.hits.entries()).filter(([, n]) => n >= u.points * 0.95).map(([h]) => h)
+  })
+
+  // ---- 3. Re-wrap a block's text at its own font, size and column width.
+  function wrap (b, text) {
+    const out = []
+    text.split(/\n+/).forEach((para) => {
+      const words = para.trim().split(/\s+/).filter(Boolean)
+      let line = ''
+      words.forEach((w) => {
+        const t = line ? line + ' ' + w : w
+        if (line && natural(b.lines[0], t) > b.width + 0.5) { out.push({ s: line, full: true }); line = w } else { line = t }
+      })
+      if (line) out.push({ s: line, full: false })
+    })
+    return out
+  }
+  function render (b, text) {
+    b.current.forEach(l => { if (!b.lines.includes(l)) { l.remove() } })
+    b.lines.forEach(l => { l.style.display = 'none' })
+    if (text === null) { b.lines.forEach(l => { l.style.display = '' }); b.current = b.lines.slice(); return b.current }
+    const tpl = b.lines[0]
+    b.current = wrap(b, text).map((ln, k) => {
+      const e = tpl.cloneNode(false)
+      e.style.display = ''
+      e.removeAttribute('textLength'); e.removeAttribute('lengthAdjust')
+      e.setAttribute('y', (b.y0 + k * b.lh).toFixed(1))
+      e.textContent = ln.s
+      if (b.justified && ln.full) { e.setAttribute('textLength', b.width.toFixed(1)); e.setAttribute('lengthAdjust', 'spacing') }
+      e.classList.add('blk'); e.dataset.block = b.id
+      tpl.parentNode.insertBefore(e, tpl)
+      return e
+    })
+    return b.current
+  }
+  function check (b) {
+    const els = b.current
+    const u = under(els)
+    const hitNew = Array.from(u.hits.keys()).filter(h => !b.base.has(h) && !(h.dataset && h.dataset.block === String(b.id)))
+    const leftBox = b.containers.filter(c => u.perPoint.some(s => !s.has(c)))
+    const reasons = []
+    if (offPage(els)) { reasons.push('runs off the page') }
+    if (hitNew.length) { reasons.push('runs into ' + hitNew.slice(0, 3).map(describe).join(', ')) }
+    if (leftBox.length) { reasons.push('spills out of its ' + leftBox.map(describe).join(', ')) }
+    return { fits: !reasons.length, lines: els.length, reasons }
+  }
+
+  // ---- 4. The click-to-edit panel.
+  const ed = document.getElementById('ed'); const ta = document.getElementById('ta'); const st = document.getElementById('st')
+  let open = null
+  svg.addEventListener('click', (e) => {
+    const t = e.target.closest('text.blk'); if (!t) { return }
+    open = blocks[+t.dataset.block]
+    ta.value = open.current.map(l => l.textContent.trim()).join(' ')
+    st.textContent = 'Editing a ' + open.lines.length + '-line block. Change the words, then Apply.'; st.className = ''
+    ed.style.display = 'block'; ta.focus()
+  })
+  document.getElementById('ap').onclick = () => {
+    if (!open) { return }
+    render(open, ta.value); const r = check(open)
+    st.textContent = r.fits ? 'Fits — ' + r.lines + ' line(s).' : 'Does not fit: ' + r.reasons.join('; ') + '.'
+    st.className = r.fits ? 'ok' : 'bad'
+  }
+  document.getElementById('rs').onclick = () => { if (open) { render(open, null); ta.value = open.original; st.textContent = 'Original put back.'; st.className = 'ok' } }
+  document.getElementById('cl').onclick = () => { ed.style.display = 'none' }
+
+  window.__dbg = { blocks, render, check, wrap, natural }
+  // ---- 5. The measurement: grow each block a word at a time until it no longer fits.
+  const FILLER = 'and we should also review how this affects our pricing, our people and our plans for the coming year'.split(' ')
+  window.__measureAll = function () {
+    return blocks.map((b) => {
+      const words = b.original.split(' ')
+      let fitWords = 0; let firstFail = null; let maxLines = b.lines.length
+      const baseline = (render(b, b.original), check(b))
+      for (let n = 1; n <= 120; n++) {
+        const extra = []; for (let k = 0; k < n; k++) { extra.push(FILLER[k % FILLER.length]) }
+        render(b, b.original + ' ' + extra.join(' '))
+        const r = check(b)
+        if (!r.fits) { firstFail = r.reasons.join('; '); break }
+        fitWords = n; maxLines = r.lines
+      }
+      render(b, null)
+      const extraChars = FILLER.slice(0).concat(FILLER, FILLER, FILLER, FILLER, FILLER).slice(0, fitWords).join(' ').length
+      return {
+        block: b.id, text: b.original.slice(0, 70), lines: b.lines.length, words: words.length, chars: b.original.length,
+        pinned: b.pinned, justified: b.justified, baselineFits: baseline.fits, baselineIssue: baseline.reasons.join('; '),
+        extraWordsThatFit: fitWords, extraCharsThatFit: fitWords ? extraChars + 1 : 0,
+        headroomPct: Math.round(100 * (fitWords ? extraChars + 1 : 0) / Math.max(1, b.original.length)),
+        maxLines, stoppedBecause: firstFail || 'still fitting at +120 words'
+      }
+    })
+  }
+})
+</script></body></html>

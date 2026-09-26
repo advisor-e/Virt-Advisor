@@ -8,6 +8,11 @@
 > into 1 seamless document that can easily expand over time."* And: *"each concept needs to be
 > presented AS IT CURRENTLY APPEARS in the slides."*
 >
+> ☑ **WHAT THAT RULE MEANS — Mike, 2026-09-25:** *"it was there to ensure that the original import
+> was followed - not such that it could never be changed in future."* It governs how a concept is
+> **imported and drawn** (§0's method), and is **no bar to an advisor editing a page's text** for a
+> session. Said while scoping advisor editing of the presentation.
+>
 > **§1–§7 describe the build as it stood BEFORE this redirection, and have not been
 > redesigned.** The four steps described there are built and walked in a browser, and they keep
 > working — but the framework model in §2 is superseded and is marked so. **§8 is the one piece
@@ -1091,6 +1096,10 @@ next session by design. **Do not add a purge job here** by analogy with `meeting
 in Task / Whom / When. Every read is scoped by firm, and a session in another firm reads as
 **absent rather than forbidden**, so an id cannot be probed for existence.
 
+**The advisor's page edits ride `scope_json`** beside the ticks, the steps and the AI's
+suggestion (§9a) — no schema change. 🔴 **Every scope save keeps them**, exactly as it keeps the
+suggestion: renaming a step must never put an edited page back to the original.
+
 ## 5. How spoken words will reach the right box
 
 **"How spoken words reach the right box"** (the session an advisor runs), answering Mike's own
@@ -1113,7 +1122,7 @@ from a list of the nine**, and the wheel counts those. No model reads an objecti
 |---|---|
 | **The three objective tests** — *"Can a failing objective reach the plan"* (the session an advisor runs) | Ruled *"flag it, never block"* and drawn as Yes/No badges. Not in the build. |
 | **The Mentor Hub authoring tab** | Needs `FirmManagerHub.vue`, active on the desktop. |
-| **Voice recording** | A strategy session is a **Meeting Review meeting type** (*"Voice recording the session"*, the session an advisor runs) — the Planner builds no recorder. It inherits that feature's three non-coding gates: staff consultation, a lawyer per market, and the OpenAI audio-terms letter. **The typed capture must stand alone until they clear.** |
+| **Voice recording** | A strategy session is a **Meeting Review meeting type** (*"Voice recording the session"*, the session an advisor runs) — the Planner builds no recorder. It inherits that feature's gates: **a firm records nothing until it has made the Compliance declaration** (built 2026-09-10), and **a first real recording waits on OpenAI switching ZDR on** — signed 2026-09-23, approved 2026-09-24. A lawyer and staff consultation are the firm's own, never gates (Mike's rulings; [`meeting-review.md`](meeting-review.md) §4). **The typed capture must stand alone until ZDR is on.** Sections, item 8.4: [`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html), drawn 2026-09-25, not approved. |
 | **The ~100 Growth Aspect questions** | Item **15.2**, filed on Mike's yes. |
 | **The aspect descriptions on the wheel labels** | Mike's own deferral, 2026-09-16. |
 | **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down). **None of this is designed. Do not assume it from the September drawing.** *(One thing has LEFT this row: the document's assembly ORDER is Pivot's anatomy, census §1. And one thing has left the FEATURE: the "Where To Start??" routing flow, withdrawn by Mike on 2026-09-17 — see the box at the top.)* |
@@ -1447,13 +1456,58 @@ picture only when it lies wholly under the firm's mark (question 8), rewrites ev
 and reads the page's own title. All 25 pages of Organisational Review convert in about 5 s.
 `tests/unit/pdfConvert.test.js` pins each condition. **No route, store or screen yet.**
 
+## 9a. Editing a concept page's text — built 2026-09-25 (item 15.25)
+
+**Mike's request, 2026-09-25:** *"I want to be able to EDIT the presentation - perhaps i want to
+add a few points etc."* He tried the working test —
+[`design/mockups/strategy-edit-text-test.html`](../mockups/strategy-edit-text-test.html) — and
+approved the build the same day. Wording:
+[`design/STRATEGY-EDIT-TEXT-WORDING.md`](../STRATEGY-EDIT-TEXT-WORDING.md).
+
+**How it works.** On **Run session** an advisor clicks any text on a concept's drawing. The box
+beneath the page takes the words; the block re-wraps in the page's own font, size and column
+width as they type, and the page says **Fits the page.** or what it runs into, outlined in red.
+**Save** stores it; **Put back the original** removes it. Every surface draws a concept through
+`StrategyConceptGraphic`, so the edit shows on the Run screen and in the client's printed plan
+with no second copy.
+
+- 🔴 **An edit that does not fit is never saved** — Mike, 2026-09-25: *"we will add the ability to
+  'add a page' later on and for those who have much more, they will use the 'add a template'
+  function"* (§9). Save stays disabled until it fits.
+- 🔴 **This session only** — Decision C, 2026-09-21. The drawing is never written; an edited
+  block's lines are hidden and new ones drawn beside them.
+- **What cannot be edited:** words inside a photograph; the firm's mark; and the agenda lines on
+  *Our Session Objective*, which come from the session's steps.
+- ☑ **"AS IT CURRENTLY APPEARS" governs the import, not this** — his clarification the same day,
+  at the top of this Brief.
+
+**A block is a paragraph, not a line** — his page's paragraphs are several `<text>` lines, so the
+run re-wraps together (`utils/conceptTextBlocks.js`). An edit is stored under the block's position
+**and a hash of its original words**, so a drawing corrected later drops an old edit rather than
+landing it on a different question.
+
+**Measured before it was built** (Porter's 5 Forces, Blue Ocean Strategy): rewording always fits;
+paragraphs take 19–273 more characters; circle labels about 7.
+
+**Three differences from the approved test, all found or chosen while building:**
+1. **The box sits under the page and sticks to the window's foot**, where the test floated it.
+   The planner's sheet is a CSS size container, which pins a `fixed` box to the sheet's foot:
+   opening it scrolled the page 1,880 px away from the drawing. Found by running the app.
+2. **The fit check asks each shape directly** (`isPointInFill`/`isPointInStroke`) where the test
+   asked the screen what sat under each point — which only answers for the part scrolled into
+   view, so a lower page would have reported "fits" whatever it hit.
+3. **A failed save reuses the page's own message** (*"That box could not be saved…"*) and leaves
+   the box open with the words in it, rather than adding an unapproved sentence.
+
 ## 10. Where it lives
 
 `data/strategy-frameworks.json` (`planningDomains`, `decks`, `frameworks`, `concepts`) ·
 `server/utils/strategyFrameworks.js` · `server/utils/strategySessionStore.js` ·
 `server/routes/strategyPlanner.js` · `components/strategy/StrategyScopeMenu.vue`,
 `StrategyCaptureCard.vue`, `StrategyGrowthWheel.vue`, `StrategyPlanDocument.vue` ·
-`pages/strategy-planner.vue` · `config/db-schema.sql`
+`pages/strategy-planner.vue` · `config/db-schema.sql` · page editing (§9a):
+`components/strategy/StrategyConceptGraphic.vue`, `StrategyTextEditPanel.vue`,
+`utils/conceptTextBlocks.js`, `utils/conceptTextDom.js`, `PUT /api/strategy/sessions/:id/edits`
 
 🔴 **THE CLIENT'S PDF IS PRINT CSS, AND IT CANNOT BE SCOPED.** The `@page` sheet and the rules
 that hide the advisor's screen live in a **deliberately unscoped** `<style>` block at the foot of

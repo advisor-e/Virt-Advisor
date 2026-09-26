@@ -9,25 +9,23 @@
 
 ---
 
-## 2026-09-24 (evening) · Laptop · branch `feat/advisor-progress`
+## 2026-09-26 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed at `2f435d24` plus this note. 629 suites / 13,752 tests green, audit PASS.
-3 ahead, 0 behind `master`, no PR yet.**
+**Clean and pushed; PR #135 open (11 commits: 15.25, 15.17's agenda, the 15.28 drawing). Green at
+push: 632 suites / 13,808 tests.**
 
-**Closed today on Mike's word:** **15.1** (Strategy Planner stages 1–7 built; the rest lives in
-15.20 / 15.17 / 15.2 / 15.22) · **15.16** (13 concepts capture into his own tables, 22 → 35 of 46) ·
-**15.11** (its slide tables built under 15.16, read off the page, not drawn). **Filed:** **15.22**,
-the seven concepts still needing his ruling. All of it is in
-[`STRATEGY-CAPTURE-FORM-PROPOSALS.md`](STRATEGY-CAPTURE-FORM-PROPOSALS.md).
+🔴 **START HERE: `git stash list`.** Item **15.28 — Alignment Statements** was approved to build
+by Mike and is **about half built in `stash@{0}`** ("15.28 BUILD IN PROGRESS"), not on any branch,
+10 tests red. Stashed so PR #135 stayed green. `git stash pop`, then: count pins 47→48, tests for
+`gapRows` / `tableForms` / `support-document`, the mockup subtitle, `AGENDA-HELPS-LINES.md`, the
+Brief, and a browser walk of the card. The item's note lists the same.
 
-**FOR THE DESKTOP:** `scripts/read-deck-capture-tables.js` now reads a page declared `grid` as
-writing lines — merged cells from his rules, his example as guide text, a question row. **Your
-branch's `check:branch` shows "15.8 used twice" until you merge `master`: it is one item, renamed
-today, and `master` already carries the new name.** The check itself now tells a rename from a
-clash (`scripts/ref-ceiling.js`), on this branch until it reaches `master`.
+**Ruled today (written on the drawing):** the logo box stays on the Maslow sheet; long firm names
+accepted ("majority rules"); p9 as grey guide text; the menu line; third in Business Targets; a
+dash in the Page column.
 
-**SHARED FILES TOUCHED:** `StrategyConceptCapture.vue`, `StrategyCaptureCard.vue`,
-`StrategyPlanDocument.vue`, `pages/strategy-planner.vue`, `server/utils/strategyCaptureForms.js`,
-`scripts/ref-ceiling.js`, `design/features/README.md` (one link on row 15).
+**FOR THE DESKTOP, once 15.28 lands:** `StrategyConceptCapture.vue` gets `sections`/`blocksOf`
+(a form per table), `strategyFrameworks.js` a `support-document` source, and
+`read-deck-pages.py` an `alignment` document. Nothing of it is on the branch yet.
 
-**In hand:** 15.17, 15.20 unchanged — not worked today. **Next here:** 15.22 when Mike rules.
+**In hand:** 15.28, 15.17, 15.20, 8.4.

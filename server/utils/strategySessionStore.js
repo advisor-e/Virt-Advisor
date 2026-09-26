@@ -77,6 +77,22 @@ const MAX_STEPS = 40
 /** The two values `strategy_session_entries.source` accepts. */
 const SOURCES = ['typed', 'transcript']
 
+/**
+ * A bound on one edited block of a concept page (item 15.25). A page's paragraphs run to
+ * about 250 characters and the screen refuses an edit the page cannot hold — Mike's ruling,
+ * 2026-09-25 — so this is a ceiling on a runaway client, never on an advisor.
+ */
+const MAX_EDIT = 2000
+
+/** A bound on edited blocks per page. Blue Ocean Strategy, the densest drawn, has 12. */
+const MAX_EDITS_PER_SHEET = 200
+
+/** Names an edited page: `<conceptId>#<sheet>`, as `components/strategy/concepts` ids it. */
+const SHEET_KEY = /^[a-z0-9][a-z0-9-]{0,110}#\d{1,2}$/
+
+/** Names a block on that page: its position and a hash of its original words. */
+const BLOCK_KEY = /^b\d{1,4}-[0-9a-z]{1,13}$/
+
 function fail (code, message) {
   const e = new Error(message)
   e.code = code
@@ -198,7 +214,42 @@ function encodeScope (scope) {
   // it. It rides `scope_json` exactly as `steps` does — no schema change.
   const suggestion = normaliseSuggestion(scope.suggestion)
   if (suggestion) { encoded.suggestion = suggestion }
+  const edits = normaliseEdits(scope.edits)
+  if (Object.keys(edits).length) { encoded.edits = edits }
   return JSON.stringify(encoded)
+}
+
+/**
+ * The advisor's own wording on this session's concept pages, bounded. Item 15.25.
+ *
+ * 🔴 THESE BELONG TO THE SESSION AND TO NOTHING ELSE. Mike's Decision C, 2026-09-21: *"The
+ * advisor edits only the session in front of him, and his changes never become the firm's
+ * standard by accident."* The drawings are never touched; an edit is a replacement for one
+ * block's words, applied wherever this session's pages are drawn.
+ *
+ * ⚠ AN ENTRY THAT FAILS ITS SHAPE IS DROPPED, NEVER REFUSED HERE. The route refuses a bad
+ * single edit with a reason; this is the ceiling on the whole map, and a stored row must
+ * always decode. A malformed key cannot be applied to a page anyway — it names no block.
+ *
+ * @param {*} raw - `{ '<conceptId>#<sheet>': { '<blockKey>': 'text' } }`
+ * @returns {Object<string, Object<string, string>>}
+ */
+function normaliseEdits (raw) {
+  const out = {}
+  if (isNil(raw) || typeof raw !== 'object' || Array.isArray(raw)) { return out }
+  Object.keys(raw).slice(0, MAX_SCOPE_ENTRIES).forEach((sheetKey) => {
+    const blocks = raw[sheetKey]
+    if (!SHEET_KEY.test(sheetKey) || isNil(blocks) || typeof blocks !== 'object' || Array.isArray(blocks)) { return }
+    const kept = {}
+    Object.keys(blocks).slice(0, MAX_EDITS_PER_SHEET).forEach((blockKey) => {
+      const text = blocks[blockKey]
+      if (BLOCK_KEY.test(blockKey) && typeof text === 'string' && text.trim() && text.length <= MAX_EDIT) {
+        kept[blockKey] = text
+      }
+    })
+    if (Object.keys(kept).length) { out[sheetKey] = kept }
+  })
+  return out
 }
 
 /**
@@ -234,7 +285,7 @@ function decodeScope (raw) {
   // saved before the step builder existed has no `steps` key at all; it comes back as an
   // empty list and the page decides what to do with that, rather than this module
   // inventing a step nobody named.
-  const empty = { domains: [], frameworks: [], steps: [], suggestion: null }
+  const empty = { domains: [], frameworks: [], steps: [], suggestion: null, edits: {} }
   if (isNil(raw)) { return empty }
   let parsed = raw
   if (typeof raw === 'string') {
@@ -247,7 +298,9 @@ function decodeScope (raw) {
     steps: Array.isArray(parsed.steps) ? parsed.steps.map(normaliseStep) : [],
     // A session that has never been suggested for has no `suggestion` key at all, and
     // comes back as null — distinct from a suggestion that returned nothing.
-    suggestion: normaliseSuggestion(parsed.suggestion)
+    suggestion: normaliseSuggestion(parsed.suggestion),
+    // A session nobody has edited has no `edits` key, and comes back as an empty map.
+    edits: normaliseEdits(parsed.edits)
   }
 }
 
@@ -465,9 +518,13 @@ async function listSessionsForClient (clientId, firmId) {
  * caller that means to replace the suggestion passes one; a caller that says nothing keeps
  * what is there.
  *
+ * 🔴 AND IT NEVER ERASES THE ADVISOR'S PAGE EDITS, FOR THE SAME REASON (item 15.25). Every
+ * tick, rename and drag saves the scope whole, and none of those screens carries the edits.
+ * Without this, renaming a step would silently put every edited page back to the original.
+ *
  * @param {number} sessionId
  * @param {string} firmId
- * @param {object} scope `{ domains: string[], frameworks: string[], steps?, suggestion? }`
+ * @param {object} scope `{ domains: string[], frameworks: string[], steps?, suggestion?, edits? }`
  * @returns {Promise<boolean>} false when no such session belongs to this firm
  */
 async function setScope (sessionId, firmId, scope) {
@@ -475,10 +532,14 @@ async function setScope (sessionId, firmId, scope) {
   const firm = requireId(firmId, 'firm id')
 
   let toEncode = scope
-  if (scope && typeof scope === 'object' && !Array.isArray(scope) && isNil(scope.suggestion)) {
+  const isObject = scope && typeof scope === 'object' && !Array.isArray(scope)
+  if (isObject && (isNil(scope.suggestion) || isNil(scope.edits))) {
     const existing = await getSession(id, firm)
-    const kept = existing && existing.scope ? existing.scope.suggestion : null
-    if (kept) { toEncode = Object.assign({}, scope, { suggestion: kept }) }
+    const stored = existing && existing.scope ? existing.scope : {}
+    const keep = {}
+    if (isNil(scope.suggestion) && stored.suggestion) { keep.suggestion = stored.suggestion }
+    if (isNil(scope.edits) && stored.edits) { keep.edits = stored.edits }
+    toEncode = Object.assign({}, scope, keep)
   }
 
   const scopeJson = encodeScope(toEncode)
@@ -522,6 +583,64 @@ async function saveSuggestion (sessionId, firmId, suggestion) {
     frameworks: existing.scope.frameworks,
     steps: existing.scope.steps,
     suggestion
+  })
+}
+
+/**
+ * Save the advisor's wording for one block of one concept page, or put it back to the
+ * original. Item 15.25; approved to build by Mike 2026-09-25 from
+ * `design/mockups/strategy-edit-text-test.html`.
+ *
+ * 🔴 THE SERVER DOES NOT JUDGE WHETHER THE WORDS FIT THE PAGE, AND CANNOT. Mike ruled the
+ * same day that an edit which does not fit is not saved; that is measured in the browser,
+ * against the drawing's own shapes, before this is ever called. What this enforces is the
+ * shape and the ceiling — a page, a block, a bounded string — and that the session is this
+ * firm's.
+ *
+ * ⚠ `text` null, empty, or identical to nothing stored all mean the same: no edit. "Put back
+ * the original" removes the entry rather than storing the original's words, so a drawing
+ * corrected later shows its correction instead of an old copy.
+ *
+ * @param {object} params
+ * @param {number} params.sessionId
+ * @param {string} params.firmId
+ * @param {string} params.sheetKey `<conceptId>#<sheet>`
+ * @param {string} params.blockKey the block's name on that page
+ * @param {string|null} params.text the advisor's words, or null to put back the original
+ * @returns {Promise<boolean>} false when no such session belongs to this firm
+ * @throws {Error} err.code 'BAD_INPUT'
+ */
+async function saveTextEdit (params) {
+  const p = params || {}
+  const id = requireSessionId(p.sessionId)
+  const firm = requireId(p.firmId, 'firm id')
+  if (!SHEET_KEY.test(String(p.sheetKey || ''))) { throw fail('BAD_INPUT', 'The page is not named correctly.') }
+  if (!BLOCK_KEY.test(String(p.blockKey || ''))) { throw fail('BAD_INPUT', 'The block is not named correctly.') }
+  const text = isNil(p.text) ? '' : p.text
+  if (typeof text !== 'string') { throw fail('BAD_INPUT', 'The edited text must be text.') }
+  if (text.length > MAX_EDIT) { throw fail('BAD_INPUT', 'The edited text is too long.') }
+
+  const existing = await getSession(id, firm)
+  if (!existing) { return false }
+
+  const edits = JSON.parse(JSON.stringify(existing.scope.edits || {}))
+  const sheet = edits[p.sheetKey] || {}
+  if (text.trim()) {
+    if (!sheet[p.blockKey] && Object.keys(sheet).length >= MAX_EDITS_PER_SHEET) {
+      throw fail('BAD_INPUT', 'This page has too many edits.')
+    }
+    sheet[p.blockKey] = text
+  } else {
+    delete sheet[p.blockKey]
+  }
+  if (Object.keys(sheet).length) { edits[p.sheetKey] = sheet } else { delete edits[p.sheetKey] }
+
+  return setScope(id, firm, {
+    domains: existing.scope.domains,
+    frameworks: existing.scope.frameworks,
+    steps: existing.scope.steps,
+    suggestion: existing.scope.suggestion,
+    edits
   })
 }
 
@@ -777,6 +896,7 @@ module.exports = {
   listSessionsForClient,
   setScope,
   saveSuggestion,
+  saveTextEdit,
   saveEntry,
   loadEntries,
   openField,

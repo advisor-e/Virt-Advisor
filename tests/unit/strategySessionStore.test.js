@@ -302,8 +302,9 @@ describe('the scope screen 1 records', () => {
     const session = await store.getSession(await openSession(), FIRM)
     // `suggestion: null` is the fourth empty, added with stage 6: a session nobody has
     // pressed "Suggest for this client" on has no suggestion, which is distinct from a
-    // suggestion that came back with nothing in it.
-    expect(session.scope).toEqual({ domains: [], frameworks: [], steps: [], suggestion: null })
+    // suggestion that came back with nothing in it. `edits: {}` is the fifth, added with
+    // item 15.25: nobody has changed a word on any of this session's pages.
+    expect(session.scope).toEqual({ domains: [], frameworks: [], steps: [], suggestion: null, edits: {} })
   })
 
   it('records what the advisor ticked', async () => {
@@ -382,6 +383,116 @@ describe('the scope screen 1 records', () => {
       const session = await store.getSession(id, FIRM)
       expect(session.scope.suggestion).not.toBeNull()
       expect(session.scope.suggestion.concepts).toEqual([])
+    })
+  })
+
+  // 🔴 ITEM 15.25 — AN ADVISOR'S OWN WORDING ON A CONCEPT PAGE, FOR THIS SESSION ONLY.
+  // It rides the same `scope_json` as the ticks, the steps and the suggestion, and every
+  // one of those saves replaces the column whole. The failure these guard is invisible in
+  // UAT until it bites: an advisor renames a step, and every page they edited quietly goes
+  // back to the original — on screen and in the client's printed plan.
+  describe("the advisor's page edits, kept beside everything else", () => {
+    const edit = (id, over) => store.saveTextEdit(Object.assign({
+      sessionId: id,
+      firmId: FIRM,
+      sheetKey: 'porters-5-forces#0',
+      blockKey: 'b10-1k2x9',
+      text: 'Do trade buyers care more about delivery speed than price?'
+    }, over || {}))
+
+    it('stores an edit and reads it back against its page and block', async () => {
+      const id = await openSession()
+      expect(await edit(id)).toBe(true)
+
+      const { edits } = (await store.getSession(id, FIRM)).scope
+      expect(edits).toEqual({
+        'porters-5-forces#0': { 'b10-1k2x9': 'Do trade buyers care more about delivery speed than price?' }
+      })
+    })
+
+    it('SURVIVES a tick, a step rename and a new suggestion — none of them erases it', async () => {
+      const id = await openSession()
+      await edit(id)
+      await store.setScope(id, FIRM, { frameworks: ['porters-5-forces'], steps: [{ name: 'Renamed', items: [] }] })
+      await store.saveSuggestion(id, FIRM, { at: '2026-09-25T09:00:00.000Z', concepts: [] })
+
+      const { edits, steps } = (await store.getSession(id, FIRM)).scope
+      expect(steps[0].name).toBe('Renamed')
+      expect(edits['porters-5-forces#0']['b10-1k2x9']).toMatch(/delivery speed/)
+    })
+
+    it('an edit does not erase the suggestion either', async () => {
+      const id = await openSession()
+      await store.saveSuggestion(id, FIRM, { at: '2026-09-25T09:00:00.000Z', concepts: [{ id: 'pricing', reason: 'r' }] })
+      await edit(id)
+
+      expect((await store.getSession(id, FIRM)).scope.suggestion.concepts[0].id).toBe('pricing')
+    })
+
+    it('replaces an earlier edit of the same block rather than keeping both', async () => {
+      const id = await openSession()
+      await edit(id)
+      await edit(id, { text: 'Second thoughts.' })
+
+      expect((await store.getSession(id, FIRM)).scope.edits['porters-5-forces#0']).toEqual({ 'b10-1k2x9': 'Second thoughts.' })
+    })
+
+    it('"Put back the original" removes the edit, and the page with it when it was the last', async () => {
+      const id = await openSession()
+      await edit(id)
+      await edit(id, { blockKey: 'b2-abc', text: 'Customers and trade buyers' })
+      await edit(id, { text: null })
+
+      expect((await store.getSession(id, FIRM)).scope.edits).toEqual({ 'porters-5-forces#0': { 'b2-abc': 'Customers and trade buyers' } })
+      await edit(id, { blockKey: 'b2-abc', text: '   ' })
+      expect((await store.getSession(id, FIRM)).scope.edits).toEqual({})
+    })
+
+    it('keeps one session\'s edits out of every other session', async () => {
+      const mine = await openSession()
+      const other = await openSession()
+      await edit(mine)
+
+      expect((await store.getSession(other, FIRM)).scope.edits).toEqual({})
+    })
+
+    it('refuses a session belonging to another firm', async () => {
+      const id = await openSession()
+      expect(await edit(id, { firmId: OTHER_FIRM })).toBe(false)
+      expect((await store.getSession(id, FIRM)).scope.edits).toEqual({})
+    })
+
+    it('refuses a malformed page, a malformed block, and text past the ceiling', async () => {
+      const id = await openSession()
+      await expect(edit(id, { sheetKey: 'porters-5-forces' })).rejects.toMatchObject({ code: 'BAD_INPUT' })
+      await expect(edit(id, { sheetKey: '../x#0' })).rejects.toMatchObject({ code: 'BAD_INPUT' })
+      await expect(edit(id, { blockKey: 'block-10' })).rejects.toMatchObject({ code: 'BAD_INPUT' })
+      await expect(edit(id, { text: 'x'.repeat(2001) })).rejects.toMatchObject({ code: 'BAD_INPUT' })
+      await expect(edit(id, { text: { not: 'text' } })).rejects.toMatchObject({ code: 'BAD_INPUT' })
+    })
+
+    it('refuses the 201st edit on one page, but still replaces an existing one', async () => {
+      const id = await openSession()
+      const blocks = {}
+      for (let i = 0; i < 200; i++) { blocks['b' + i + '-a'] = 'x' }
+      await store.setScope(id, FIRM, { frameworks: [], edits: { 'porters-5-forces#0': blocks } })
+
+      await expect(edit(id, { blockKey: 'b999-a' })).rejects.toMatchObject({ code: 'BAD_INPUT' })
+      expect(await edit(id, { blockKey: 'b0-a', text: 'changed' })).toBe(true)
+    })
+
+    it('drops a stored entry that could never be applied, rather than failing to read', async () => {
+      const id = await openSession()
+      await store.setScope(id, FIRM, {
+        frameworks: [],
+        edits: {
+          'porters-5-forces#0': { 'b1-a': 'kept', 'not a key': 'dropped', 'b2-a': 7, 'b3-a': '' },
+          'bad key': { 'b1-a': 'dropped' },
+          'pricing#0': ['not', 'a', 'map']
+        }
+      })
+
+      expect((await store.getSession(id, FIRM)).scope.edits).toEqual({ 'porters-5-forces#0': { 'b1-a': 'kept' } })
     })
   })
 
@@ -525,7 +636,7 @@ last_opened_at: 'x'
     }]])
 
     expect((await store.getSession(7, FIRM)).scope)
-      .toEqual({ domains: [], frameworks: [], steps: [], suggestion: null })
+      .toEqual({ domains: [], frameworks: [], steps: [], suggestion: null, edits: {} })
   })
 
   it('reports a re-scope of a session this firm does not own as not done', async () => {

@@ -76,6 +76,73 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
+      "ref": "15.28",
+      "name": "Alignment Statements join Business Targets - taught and captured like every other concept",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-26"
+      },
+      "why": "After the owners put numbers on what they want, nothing in the planner helps them turn those wishes into statements each party hears. Mike's L.Suppt.Alignment deck does exactly that and is not in the app.",
+      "risk": "Without it an advisor running Business Targets stops at the numbers, and the owners' expectations are never written as Vision, Purpose, Values, Mission and Strategy, or said to the team, customers and community. The deck sits in a PDF the planner cannot see. Counter-risk: six teaching sheets is the largest single drawing job yet, and each needs Mike's approval.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-26, his own words: \"i think it should be included - it can be placed in the 'business targets' section since often, in order to improve owner alignment, they need to define their expectations by calculating their wishes and communictaing them to each party\", and \"viewed and have responses captured in the same method/style as the oprientation and other sections\"."
+      },
+      "touches": "The deck read from Mike's own folder by scripts/read-deck-pages.py, as the five decks are; a concept row in data/strategy-frameworks.json under business-targets; drawings by the section 0 method in design/mockups/ and scripts/build-concept-graphics.js; the named-field-stack capture form for slide 8 and a rows-by-columns form for slide 10, both already built; the count guards in tests/unit/strategyConcepts.test.js and conceptGraphics.test.js.",
+      "note": "APPROVED TO BUILD BY MIKE 2026-09-26, BUILD ABOUT HALF DONE AND IN GIT STASH ON THE LAPTOP (\"15.28 BUILD IN PROGRESS\"), not on any branch. Drawing with his four rulings: design/mockups/strategy-concept-alignment-statements.html. In the stash: the concept third in Business Targets (source support-document, Page column a dash on his ruling), six drawings wired with page editing, both forms read off his p8 and p9 with a form per table. Left: count pins 47 to 48, new tests, the mockup subtitle, AGENDA-HELPS-LINES.md, the Brief, a browser check.",
+      "comment": "2026-09-26 - asked for by Mike in his own words and filed at once; drawn, ruled and approved the same day. His call at shutdown: proceed."
+    },
+    {
+      "ref": "15.27",
+      "name": "A step's purpose never reaches the advisor - the approved tooltip was never built",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The approved Build session drawing says a step's purpose is written by the mentor and the advisor sees it as a tooltip. No tooltip exists, and the purpose is dropped before it reaches the session.",
+      "risk": "Invisible today because every purpose ships empty. The first time a mentor writes one, no advisor sees it and nothing says why - the words a mentor wrote to guide the session simply vanish.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-25 - found reading the step builder while scoping 15.25: its comment claimed a tooltip nobody had built. Mike said yes to filing it."
+      },
+      "touches": "components/strategy/StrategyStepBuilder.vue (shows purpose only on the manager screen); pages/strategy-planner.vue seedSteps and saves, which copy name and items only; server/utils/strategySessionStore.js normaliseStep, which keeps name and items only; design/mockups/strategy-session-process.html, the approved drawing.",
+      "note": "APPROVED DRAWING, NOT A NEW FEATURE: strategy-session-process.html (Mike, 2026-09-21) - 'Written by the mentor. The advisor sees it as a tooltip; the client never does.' Carry purpose from the handed-down process into the session's steps and show it to the advisor only, never in the client's plan. Measure nothing is lost for a session saved before the field travelled.",
+      "comment": "2026-09-25 - filed on Mike's yes at shutdown, and the step builder's comment corrected to point here."
+    },
+    {
+      "ref": "15.26",
+      "name": "The Our Session Objective agenda has room for six steps; a seventh prints over the logo",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The page's agenda now lists the session's own steps (Mike's 2026-09-23 ruling), one line each at his spacing. Six fit above the firm's mark; a session may hold up to forty.",
+      "risk": "An advisor who names seven or more steps gets agenda lines printed across the firm's logo on the client's plan and on screen. Nothing is lost; the page reads badly. Pivot's standard session has five.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-25 - measured in a browser while wiring the agenda: line 7 ends at 799 against the mark's top at 778. Mike said yes to filing it."
+      },
+      "touches": "components/strategy/concepts/OurSessionObjective.vue (generated; its live agenda group comes from bindAgendaSlot in scripts/build-concept-graphics.js); the approved drawing design/mockups/strategy-concept-our-session-objective.html, which a fix must amend.",
+      "note": "A DESIGN CHOICE FOR MIKE, NOT A PATCH: smaller type past six, two columns, or a cap on how many steps a session may name. Measured 2026-09-25: five and six steps clear the mark (bottom 730 and 764 against 778); seven, eight and nine do not.",
+      "comment": "2026-09-25 - filed on Mike's yes at shutdown, the day the agenda was wired."
+    },
+    {
       "ref": "15.24",
       "name": "Business Owner Expectations plan page overflows past about 14 tasks",
       "rankedByMike": false,
@@ -114,8 +181,8 @@
         "detail": "2026-09-16 - the 9 Growth Aspect Questions deck is one of the fourteen he supplied for the Strategy Planner; split out of 15.1 on his yes, as Decision 7 of the drawing. Not a new idea of ours."
       },
       "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
-      "note": "NOT IN THIS BUILD - Mike's ruling 2026-09-16 - 'the ~100 Growth Aspect questions', on design/mockups/strategy-planner.html, where the reasoning is recorded in full. The coverage check ships on the nine names alone and still does its job: it shows WHERE a plan is thin. Source is his '9 Growth Aspect Questions hyperlinked.pdf' - about 100 questions across the nine aspects. growth-fundamentals.json already holds the nine names and descriptions, so this adds questions beneath an existing structure rather than inventing one. Under the hub-page rule the screen starts at the mentor tier ALONE: platform content, identical for every firm.",
-      "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as the drawing's ruling on the ~100 Growth Aspect questions. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
+      "note": "PROCEED ON MIKE'S WORD 2026-09-25, WITH HIS DIRECTION: the questions are INCLUDED IN THE BUILD, and in the session he PREFERS THE AI TO PUT THEM FORWARD when the conversation turns to an aspect, over a deep-dive button. The live half depends on 8.4: the AI hears a session only once section recording turns each section into text as it closes. SCOPED 2026-09-25: his 9 Growth Aspect Questions hyperlinked.pdf holds 98 questions - Process Improvement 9, Customer Focus 9, Sales 8, Authenticity 12, Inventory & Equipment 11, Team Focus 11, Innovation 13, Governance 14, Harmony / Balance 11. Impact test: 0 of 98 in the app today. Draw before building; the mentor-tier screen touches FirmManagerHub.vue.",
+      "comment": "2026-09-25 - Mike: proceed, with the direction above. First split out of 15.1 on his yes, 2026-09-16, as Decision 7 of the drawing."
     },
     {
       "ref": "16",
@@ -307,7 +374,7 @@
         "detail": "2026-09-23 - 'lets get the remaining 12 frameworks sorted before we deal with this', then 'read them closely - slide 4 in organisational review DOES NOT contain business development stages', which forced the decks open rather than their titles compared."
       },
       "touches": "A new drawing in design/mockups/ by the section 0 method and its ARTEFACTS.md row; scripts/build-concept-graphics.js DRAWINGS; the count guards in tests/unit/conceptGraphics.test.js, which pin 35 svgs and 34 titled concepts.",
-      "note": "THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Checked by rendering it, not by its title. CLOSED THE SAME DAY: eight stage directions deleted on Mike's ruling, Divisional KPI's and Review Internal Insights Data wired from his own material, and two pages brought in that were never among the 52 - Our Session Objective and Collaborative Thinking, the first concept with TWO teaching sheets. 44 of 46 run. Drafting Tender Proposals is the other unrunnable row and is NOT a gap - his summary calls it general reading. Record: strategy-planner.md section 0.",
+      "note": "PROCEED ON MIKE'S WORD 2026-09-25. WHAT REMAINS: Define the Cultural Core Values still has no drawing and no capture form, so it is one of two concepts that cannot run - Drafting Tender Proposals is the other, deliberately. THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Draw it by the section 0 method for his approval, or bring it in through 15.20's converter, which turned this very page to clean vector on 2026-09-23. The other work done under this number - eight stage directions deleted, two framing pages added, their agenda wired 2026-09-25 - is finished.",
       "comment": "2026-09-23 - filed as nine stage directions, then rewritten to what survives his ruling. His challenge disproved a page mapping built from extracted titles; every claim here is from a 150dpi render of his own slide."
     },
     {
@@ -415,9 +482,13 @@
         "ours": true,
         "detail": "2026-09-24 - found while proving item O5 of the OpenAI working page. Mike said yes to filing it, and added the section-by-section option in the note."
       },
-      "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; item 8.3, since both need the same design work.",
-      "note": "THE HARD PART IS SPEAKERS, NOT SPLITTING: OpenAI labels each file's speakers A, B afresh, so pieces must be tied back to one advisor - known_speaker_references (up to four 2-10 second clips) is the documented way. MIKE'S OPTION 2026-09-24, in his words: meeting presentations have sections, each with a response section; clicking a section starts its own recording, as the voice recorder does in the guided AI session elsewhere in the app, saved per section and combined at the end - which also shows a technical dropout sooner than the end of the meeting. Evidence: OPENAI-DEVELOPER-DOCS.md O5.",
-      "comment": "2026-09-24 - filed on Mike's yes, with his option recorded. Design it together with 8.3."
+      "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; the Strategy Planner's Run session (pages/strategy-planner.vue, StrategyConceptCapture.vue, StrategyCaptureCard.vue) and its navigation timeline (strategySessionStore.js); item 8.3, since both need the same design work.",
+      "note": "DRAWN 2026-09-25 ON MIKE'S YES, NOT APPROVED, NOT BUILT: design/mockups/strategy-session-recording.html - the Strategy Planner's Run session, one concept card per section, joining his Decisions 10 and 11. Six decisions A-F wait on him, one at a time. THE HARD PART IS SPEAKERS: a known_speaker_references clip cut from the consent line names the advisor in every section. MIKE'S OPTION 2026-09-24, in his words: meeting presentations have sections, each with a response section; clicking a section starts its own recording, as the voice recorder does in the guided AI session elsewhere in the app, saved per section and combined at the end - which also shows a technical dropout sooner than the end of the meeting.",
+      "comment": "2026-09-25 - Mike's call: PROCEED - the drawing's six decisions next, asked one at a time. Filed 2026-09-24 on his yes, with his option recorded; design it together with 8.3.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-25"
+      }
     },
     {
       "ref": "13.5",

@@ -223,7 +223,10 @@
             :firm-name="firmBrand.name || ''"
             :firm-colour="firmBrand.colour || undefined"
             :firm-logo="firmBrand.logo || ''"
+            :text-edits="textEdits"
+            editable
             class="sp-card"
+            @text-edited="onTextEdited"
             @field-opened="onFrameworkFieldOpened(card.framework, $event)"
             @field-changed="onFrameworkFieldChanged(card.framework, $event)"
             @field-typing="onFrameworkFieldTyping(card.framework, $event)"
@@ -250,6 +253,10 @@
             :firm-name="firmBrand.name || ''"
             :firm-colour="firmBrand.colour || undefined"
             :firm-logo="firmBrand.logo || ''"
+            :text-edits="textEdits"
+            :agenda-items="agendaNames"
+            editable
+            @text-edited="onTextEdited"
             @field-opened="onVisitFieldOpened(card.visit, $event)"
             @field-changed="onVisitFieldChanged(card.visit, $event)"
             @fields-changed="onVisitFieldsChanged(card.visit, $event)"
@@ -291,6 +298,7 @@
         :firm-name="firmBrand.name || ''"
         :firm-colour="firmBrand.colour || undefined"
         :firm-logo="firmBrand.logo || ''"
+        :text-edits="textEdits"
       )
       section.sp-section
         h4.sp-h {{ $t('strategyPlanner.wheel.heading') }}
@@ -470,6 +478,11 @@ export default {
       suggestState: '',
       /** Captured text, keyed `frameworkId::fieldKey`. */
       entries: {},
+      /**
+       * The advisor's own wording on this session's concept pages — item 15.25.
+       * `{ '<conceptId>#<sheet>': { '<block>': 'words' } }`, as the session stores it.
+       */
+      textEdits: {},
       /**
        * Each ticked concept's real fill-in table, keyed by concept id, as
        * `GET /api/strategy/concepts/:id/capture` returns it. Loaded when the
@@ -900,6 +913,16 @@ export default {
           value: (this.entries[f.id + '::' + x.key] || '').trim()
         }))
       }))
+    },
+
+    /**
+     * The step names, in order, for the agenda on Our Session Objective — Mike's ruling of
+     * 2026-09-23 that the framing page's agenda IS the session's step list. A step not yet
+     * named is left out rather than printed as an empty bullet.
+     * @returns {string[]}
+     */
+    agendaNames () {
+      return this.planStepDefs.map(s => String(s.name || '').trim()).filter(Boolean)
     },
 
     /**
@@ -1701,6 +1724,8 @@ export default {
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
         const body = await res.json()
         this.sessionId = body.sessionId
+        // A new session starts with every page exactly as drawn.
+        this.textEdits = {}
         // Stage 7: this is a new session, not a reopened one, so no banner — and the bar
         // goes now that `mostRecentSession` sees a session id.
         this.reopenedAt = null
@@ -1895,6 +1920,7 @@ export default {
         this.suggested = (scope.suggestion && Array.isArray(scope.suggestion.concepts))
           ? scope.suggestion.concepts.slice()
           : []
+        this.textEdits = (scope.edits && typeof scope.edits === 'object') ? scope.edits : {}
 
         // Every typed box, keyed exactly as the screen keys them.
         const entries = {}
@@ -2127,6 +2153,48 @@ export default {
         // it exists to prevent. The words are still on screen — a failed save never rolls
         // the advisor back — so "unsaved" is the accurate word for them.
         this.saveState = 'unsaved'
+      }
+    },
+
+    /**
+     * Save the advisor's wording for one block of a concept page — item 15.25, approved to
+     * build by Mike 2026-09-25. The drawing has already measured that the words fit; an
+     * edit that does not fit never reaches here (his ruling the same day).
+     *
+     * 🔴 THE EDIT BOX STAYS OPEN UNTIL THIS SAYS IT SAVED. `done(false)` leaves the advisor's
+     * words in the box with the page's save-failed message above, so a failure can never
+     * look like a finished edit.
+     *
+     * @route PUT /api/strategy/sessions/:id/edits
+     * @param {{conceptId: string, sheet: number, block: string, text: (string|null)}} edit
+     *   text null puts back the original
+     * @param {function(boolean): void} done
+     */
+    async onTextEdited (edit, done) {
+      const finish = typeof done === 'function' ? done : () => {}
+      if (!this.sessionId || !edit) { finish(false); return }
+      this.error = ''
+      this.saveState = 'saving'
+      try {
+        const res = await fetch('/api/strategy/sessions/' + this.sessionId + '/edits', {
+          method: 'PUT',
+          credentials: 'same-origin',
+          headers: this.headers(true),
+          body: JSON.stringify(edit)
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        const sheetKey = edit.conceptId + '#' + edit.sheet
+        const sheet = Object.assign({}, this.textEdits[sheetKey] || {})
+        if (edit.text) { sheet[edit.block] = edit.text } else { delete sheet[edit.block] }
+        const next = Object.assign({}, this.textEdits)
+        if (Object.keys(sheet).length) { next[sheetKey] = sheet } else { delete next[sheetKey] }
+        this.textEdits = next
+        this.markSaved()
+        finish(true)
+      } catch (e) {
+        this.error = this.$t('strategyPlanner.errors.saveFailed')
+        this.saveState = 'unsaved'
+        finish(false)
       }
     },
 

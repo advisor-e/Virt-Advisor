@@ -206,8 +206,9 @@ describe('the firm frame is on every drawing, identically', () => {
     })
 
     // 32 drawings until 2026-09-23; then Our Session Objective (1) and
-    // Collaborative Thinking (2 sheets).
-    expect(svgs).toBe(35)
+    // Collaborative Thinking (2 sheets); 2026-09-26 Alignment Statements (6 sheets,
+    // awaiting approval, item 15.28).
+    expect(svgs).toBe(41)
     BARS.forEach(([cls]) => expect(cls + ':' + counts[cls]).toBe(cls + ':' + svgs))
   })
 
