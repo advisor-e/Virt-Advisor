@@ -11,21 +11,19 @@
 
 ## 2026-09-26 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed; PR #135 open (11 commits: 15.25, 15.17's agenda, the 15.28 drawing). Green at
-push: 632 suites / 13,808 tests.**
+**Clean and pushed. 6 ahead of master, 0 behind (PR threshold 10). Green at push: 634 suites /
+13,809 tests.**
 
-🔴 **START HERE: `git stash list`.** Item **15.28 — Alignment Statements** was approved to build
-by Mike and is **about half built in `stash@{0}`** ("15.28 BUILD IN PROGRESS"), not on any branch,
-10 tests red. Stashed so PR #135 stayed green. `git stash pop`, then: count pins 47→48, tests for
-`gapRows` / `tableForms` / `support-document`, the mockup subtitle, `AGENDA-HELPS-LINES.md`, the
-Brief, and a browser walk of the card. The item's note lists the same.
+**Closed today on Mike's word:** 15.28 Alignment Statements (built; table rows now one height per
+row), 15.27 (a step's purpose reaches the advisor as a tooltip on Build session), 15.26 (Our
+Session Objective is two sheets; the agenda lists each step with its concepts beneath, rules in
+`utils/agendaLayout.js`), 15.24 (Owner Expectations holds ONE shared, editable list of up to ten
+tasks — model, screen, printed table and the managers' Owner Focus Tasks tab).
 
-**Ruled today (written on the drawing):** the logo box stays on the Maslow sheet; long firm names
-accepted ("majority rules"); p9 as grey guide text; the menu line; third in Business Targets; a
-dash in the Page column.
+**FOR THE DESKTOP:**
+- Owner Expectations tasks are now one list of ten shared by all owners (Mike, 2026-09-26), not a
+  list per owner. Anything reading duties should expect identical names across owners, at most ten.
+- `utils/agendaLayout.js` is new; `conceptSheetCount` now takes an agenda page count.
+- The generator writes a non-breaking space as `&#160;` (`scripts/build-concept-graphics.js`).
 
-**FOR THE DESKTOP, once 15.28 lands:** `StrategyConceptCapture.vue` gets `sections`/`blocksOf`
-(a form per table), `strategyFrameworks.js` a `support-document` source, and
-`read-deck-pages.py` an `alignment` document. Nothing of it is on the branch yet.
-
-**In hand:** 15.28, 15.17, 15.20, 8.4.
+**In hand, not touched today:** 15.17, 15.20, 8.4.
