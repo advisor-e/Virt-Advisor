@@ -54,6 +54,27 @@ describe('the page carries the purpose from the handed-down step to the save', (
   })
 })
 
+describe('the Run screen\'s agenda is the list the client\'s plan prints — item 15.26', () => {
+  test('🔴 an unnamed step is on it as "Step 3", with its concepts, exactly as the plan has it', () => {
+    const vm = {
+      $t: (k, p) => 'Step ' + p.n,
+      planStepDefs: [
+        { key: 's1', name: 'Identify the Resistance', items: ['porters'] },
+        { key: 's2', name: '', items: ['blue'] }
+      ],
+      placeableCards: [
+        { key: 'porters', conceptId: 'porters-5-forces', name: 'Porter\'s 5 Forces', summary: '', prompts: [] },
+        { key: 'blue', conceptId: 'blue-ocean-strategy', name: 'Blue Ocean Strategy', summary: '', prompts: [] }
+      ]
+    }
+    vm.planSteps = Page.computed.planSteps.call(vm)
+    expect(Page.computed.agendaGroups.call(vm)).toEqual([
+      { name: 'Identify the Resistance', children: ['Porter\'s 5 Forces'] },
+      { name: 'Step 2', children: ['Blue Ocean Strategy'] }
+    ])
+  })
+})
+
 describe('the advisor reads it as a tooltip beside the step\'s name', () => {
   const mount = (steps, showPurpose) => mountWithBuefy(StrategyStepBuilder, {
     propsData: { cards: [], steps, sessionLabel: 'Example client', showPurpose: !!showPurpose }

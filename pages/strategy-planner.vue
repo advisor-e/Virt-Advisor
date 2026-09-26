@@ -254,7 +254,7 @@
             :firm-colour="firmBrand.colour || undefined"
             :firm-logo="firmBrand.logo || ''"
             :text-edits="textEdits"
-            :agenda-items="agendaNames"
+            :agenda-items="agendaGroups"
             editable
             @text-edited="onTextEdited"
             @field-opened="onVisitFieldOpened(card.visit, $event)"
@@ -352,6 +352,7 @@ import { isDevHost } from '~/utils/devHost'
 import { rolesFrom, namedRoles } from '~/utils/orgChart'
 import { getSavedReport } from '~/utils/clientReports'
 import { requestFromSaved, contrastFrom } from '~/utils/ownerExpectationsPrint'
+import { agendaGroups as groupsOfSteps } from '~/utils/agendaLayout'
 
 /** Where the master app leaves the advisor's token before our pages load. */
 const TOKEN_KEY = 'advisor_e_token'
@@ -916,13 +917,19 @@ export default {
     },
 
     /**
-     * The step names, in order, for the agenda on Our Session Objective — Mike's ruling of
-     * 2026-09-23 that the framing page's agenda IS the session's step list. A step not yet
-     * named is left out rather than printed as an empty bullet.
-     * @returns {string[]}
+     * The steps, in order, each with the concepts placed in it, for the agenda on Our
+     * Session Objective — Mike's ruling of 2026-09-23 that the framing page's agenda IS the
+     * session's step list, and of 2026-09-26 that each step is a parent with its concepts
+     * as children (item 15.26).
+     *
+     * 🔴 BUILT FROM `planSteps`, THE LIST THE CLIENT'S PLAN PRINTS — Mike, 2026-09-26. This
+     * screen used to leave an unnamed step off while the plan printed it as "Step 3", so the
+     * advisor checked one agenda and the client read another, and the unnamed step's concepts
+     * vanished from the screen's copy.
+     * @returns {Array<{name: string, children: string[]}>}
      */
-    agendaNames () {
-      return this.planStepDefs.map(s => String(s.name || '').trim()).filter(Boolean)
+    agendaGroups () {
+      return groupsOfSteps(this.planSteps)
     },
 
     /**

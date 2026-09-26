@@ -218,6 +218,10 @@ export const CONCEPT_GRAPHICS = {
     () => import(
       /* webpackChunkName: 'concept-our-session-objective' */
       '~/components/strategy/concepts/OurSessionObjective.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-our-session-objective-sheet2' */
+      '~/components/strategy/concepts/OurSessionObjectiveSheet2.vue'
     )
   ],
   'collaborative-thinking': [
@@ -315,17 +319,53 @@ export function hasConceptGraphic (conceptId) {
 }
 
 /**
+ * The sheet of a concept that carries the session's agenda, from 0.
+ *
+ * 🔴 ITEM 15.26: that sheet repeats for as many agenda pages as the session needs —
+ * one until three columns are full — so the sheets a screen loops are the drawings plus
+ * any extra agenda pages. Read from the artefact's `agenda-slot`, never listed by hand.
+ *
+ * @type {Object<string, number>}
+ */
+export const CONCEPT_AGENDA_SHEET = {
+  'our-session-objective': 1
+}
+
+/**
  * How many teaching sheets this concept has.
  *
  * A screen loops this rather than assuming one, which is what every surface did
  * until 2026-09-23. Zero means the concept has no drawing and the screens fall
  * back to Mike's words.
  *
+ * ⚠ THIS FILE IMPORTS NOTHING, so it stays out of every page's first load. A screen
+ * showing the agenda passes its page count in, from `agendaSheetCount` in
+ * utils/agendaLayout.js.
+ *
  * @param {string} conceptId
+ * @param {number} [agendaPages] how many pages the session's agenda takes, for a concept
+ *   with an agenda sheet; one when omitted
  * @returns {number}
  */
-export function conceptSheetCount (conceptId) {
-  return hasConceptGraphic(conceptId) ? CONCEPT_GRAPHICS[conceptId].length : 0
+export function conceptSheetCount (conceptId, agendaPages) {
+  if (!hasConceptGraphic(conceptId)) { return 0 }
+  const drawn = CONCEPT_GRAPHICS[conceptId].length
+  return Object.prototype.hasOwnProperty.call(CONCEPT_AGENDA_SHEET, conceptId)
+    ? drawn + Math.max(1, agendaPages || 1) - 1
+    : drawn
+}
+
+/**
+ * Which drawing a sheet shows, and which agenda page if it is an agenda sheet.
+ *
+ * @param {string} conceptId
+ * @param {number} sheet from 0, as the screens loop it
+ * @returns {{drawing: number, agendaPage: number}} agendaPage is 0 off the agenda sheet
+ */
+export function conceptSheetAt (conceptId, sheet) {
+  const at = CONCEPT_AGENDA_SHEET[conceptId]
+  if (at === undefined || sheet < at) { return { drawing: sheet, agendaPage: 0 } }
+  return { drawing: at, agendaPage: sheet - at }
 }
 
 /**

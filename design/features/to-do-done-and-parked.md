@@ -353,6 +353,23 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.26 · The Our Session Objective agenda had room for six steps; a seventh printed over the logo.**
+✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he ruled it, approved it and it was built.
+
+- **His rulings:** *"session objective needs to be on its own page - it frames the session and
+  establisges permission boundaries - page 2 is the agenda layout is over to you"*, then *"the
+  agenda page needs to show the step/stage as a parent - the name of the concept as a child
+  hierarchy please"*.
+- **What proves it:** built to the approved drawing
+  [`../mockups/strategy-session-objective-two-sheets.html`](../mockups/strategy-session-objective-two-sheets.html).
+  Sheet 1 is his framing page without the agenda; sheet 2 the agenda, each step in his bold row
+  with its concepts beneath it, up to three columns, continuing on another sheet past that. The
+  rules live in `utils/agendaLayout.js`; `tests/unit/agendaLayout.test.js` holds every session
+  size up to forty steps holding every concept to the firm's mark and the frame. Walked in a
+  browser on Run session and the client's plan. Commit: `git log --grep "(15.26)"`.
+- **Not proved here:** printing a real multi-sheet agenda to paper — the extra sheet is drawn and
+  counted, and printed through the same page the plan already prints.
+
 **15.27 · A step's purpose never reached the advisor — the approved tooltip was never built.**
 ✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he picked it up.
 

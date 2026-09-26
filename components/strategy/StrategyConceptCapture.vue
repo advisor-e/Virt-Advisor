@@ -221,6 +221,7 @@ import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import StrategyOrgChartBuilder from '~/components/strategy/StrategyOrgChartBuilder.vue'
 import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 import { hasConceptGraphic, conceptTitlesItself, conceptSheetCount } from '~/components/strategy/concepts'
+import { agendaSheetCount } from '~/utils/agendaLayout'
 import { sheetEdits } from '~/utils/conceptTextBlocks'
 
 /** The one capture form that is a small application rather than a page of boxes. */
@@ -411,7 +412,10 @@ export default {
       default: false
     },
 
-    /** The session's step names, for a page whose agenda is the step list (Our Session Objective). */
+    /**
+     * The session's steps, each with its concepts, `{ name, children }` — for a page whose
+     * agenda is the step list (Our Session Objective).
+     */
     agendaItems: {
       type: Array,
       default: () => []
@@ -421,11 +425,12 @@ export default {
   computed: {
     /**
      * How many teaching sheets this concept has — 0 where it has no drawing.
-     * Looped rather than assumed; Collaborative Thinking has two.
+     * Looped rather than assumed; Collaborative Thinking has two, and Our Session
+     * Objective's agenda runs to another sheet past three columns (item 15.26).
      * @returns {number}
      */
     sheetCount () {
-      return conceptSheetCount(this.conceptId)
+      return conceptSheetCount(this.conceptId, agendaSheetCount(this.agendaItems))
     },
 
     /** @returns {boolean} true where this concept has an approved drawing */

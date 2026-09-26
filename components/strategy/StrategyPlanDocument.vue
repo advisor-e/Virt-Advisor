@@ -99,7 +99,7 @@ article.spd(:style="frameStyle")
             :firm-colour="firmColour"
             :firm-logo="firmLogo"
             :edits="editsFor(item.conceptId, n - 1)"
-            :agenda-items="agendaNames"
+            :agenda-items="agendaGroups"
           )
           //- 🔴 THE ADVISOR'S BLURB IS NOT THE CLIENT'S READING. `conceptSummary` is the
           //- CONCEPT SUMMARY column of the scope menu — what an advisor reads to decide
@@ -263,6 +263,7 @@ import StrategyPlanMark from '~/components/strategy/StrategyPlanMark.vue'
 import StrategyPlanFrame from '~/components/strategy/StrategyPlanFrame.vue'
 import StrategyOwnerContrast from '~/components/strategy/StrategyOwnerContrast.vue'
 import { hasConceptGraphic, conceptTitlesItself, promptsEchoDrawing, conceptSheetCount } from '~/components/strategy/concepts'
+import { agendaGroups as groupsOfSteps, agendaSheetCount } from '~/utils/agendaLayout'
 import { sheetEdits } from '~/utils/conceptTextBlocks'
 
 export default {
@@ -382,13 +383,14 @@ export default {
     },
 
     /**
-     * The step names, in order, for the agenda on Our Session Objective — Mike's ruling of
-     * 2026-09-23: the framing page's agenda IS the session's step list, so the page the
-     * client reads and the agenda page above it can never disagree.
-     * @returns {string[]}
+     * The steps, in order, each with its concepts, for the agenda on Our Session Objective —
+     * Mike's ruling of 2026-09-23: the framing page's agenda IS the session's step list, so
+     * the page the client reads and the agenda page above it can never disagree. Built by the
+     * same `agendaGroups` the Run screen uses (item 15.26).
+     * @returns {Array<{name: string, children: string[]}>}
      */
-    agendaNames () {
-      return this.steps.map(s => String(s.name || '').trim()).filter(Boolean)
+    agendaGroups () {
+      return groupsOfSteps(this.steps)
     }
   },
 
@@ -431,7 +433,7 @@ export default {
      * @returns {number}
      */
     sheetsOf (item) {
-      return Math.max(1, conceptSheetCount(item.conceptId))
+      return Math.max(1, conceptSheetCount(item.conceptId, agendaSheetCount(this.agendaGroups)))
     },
 
     /**

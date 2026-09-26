@@ -811,7 +811,17 @@ approved by Mike 2026-09-23. 🔴 **ITS AGENDA IS A LIVE SLOT, AND IT IS THE SES
 LIST** — his ruling the same day, so the page a client reads and the running order the app
 follows can never be two different lists. His four lines are the shipped default and are what
 the drawing was approved against; `bindAgendaSlot` keeps his group WHOLE under `v-if` and adds a
-sibling under `v-else`. ⚠ One fault, caught only by the side-by-side: his *(section n)* tags
+sibling under `v-else`. 🔴 **TWO SHEETS SINCE 2026-09-26 (item 15.26).** Mike: *"session
+objective needs to be on its own page - it frames the session and establisges permission
+boundaries - page 2 is the agenda layout is over to you"*, then *"the agenda page needs to show
+the step/stage as a parent - the name of the concept as a child hierarchy"*. Sheet 1 is his
+framing page without the agenda; sheet 2 is the agenda, each step in his bold row with its
+concepts beneath it at 21pt, in the fewest columns up to three, continuing on another sheet past
+three — approved drawing
+[`../mockups/strategy-session-objective-two-sheets.html`](../mockups/strategy-session-objective-two-sheets.html).
+The rules live once, in `utils/agendaLayout.js`, which the sheet draws from and the Run screen and
+the plan count sheets from; `tests/unit/agendaLayout.test.js` holds every size a session can take
+to the firm's mark and the frame. The page never lists itself. ⚠ One fault, caught only by the side-by-side: his *(section n)* tags
 interrupt the line, so the space before each one lives at the END of the span before it and is
 inside that span's measured width — SVG collapses edge whitespace, so the glyphs stretched to
 fill the pinned width and closed the gap. Four spans now carry `xml:space="preserve"`.

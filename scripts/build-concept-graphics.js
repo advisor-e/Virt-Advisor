@@ -125,7 +125,10 @@ const DRAWINGS = [
   // 🔴 THE ONLY DRAWING WITH A LIVE REGION IN IT — its AGENDA block is the session's
   // own step list, Mike's ruling of 2026-09-23. `bindAgendaSlot` handles it; every
   // other drawing is fixed artwork and passes through untouched.
-  { file: 'strategy-concept-our-session-objective.html', svg: 1, conceptId: 'our-session-objective' },
+  // Two sheets since 2026-09-26 (item 15.26), Mike: "session objective needs to be on its
+  // own page … page 2 is the agenda". Sheet 2 carries the slot.
+  { file: 'strategy-concept-our-session-objective.html', svg: 1, sheet: 1, conceptId: 'our-session-objective' },
+  { file: 'strategy-concept-our-session-objective.html', svg: 2, sheet: 2, conceptId: 'our-session-objective' },
 
   // 🔴 THE ONLY CONCEPT WITH TWO TEACHING SHEETS, and the reason `sheet` exists.
   // Mike, 2026-09-23: *"include BOTH the christchurch engineer and picture +
@@ -361,15 +364,6 @@ function bindFirmMark (svg) {
 }
 
 /**
- * His agenda rows, measured off Advance.2.Strategic Orientation.1.pdf p2.
- *
- * The bullet and the text sit at fixed x on every row; only y advances. The
- * pitch is his own four rows averaged — 584.41, 619.30, 653.68, 688.05, so
- * (688.05 - 584.41) / 3 — rather than a number chosen to look right.
- */
-const AGENDA_ROW = { bulletX: 98.09, textX: 150.69, firstY: 584.41, pitch: 34.5467, size: 25, ink: '#434343' }
-
-/**
  * Turn the drawing's `agenda-slot` group into a live list, where one exists.
  *
  * 🔴 WHY A DRAWING HAS A SLOT AT ALL, WHICH NO OTHER ONE DOES. Mike ruled on
@@ -385,9 +379,13 @@ const AGENDA_ROW = { bulletX: 98.09, textX: 150.69, firstY: 584.41, pitch: 34.54
  * on the page when no session supplies steps. The generated list is a SIBLING
  * group under `v-else`, never an edit to his.
  *
- * ⚠ A STEP NAME IS NOT ONE OF HIS MEASURED LINES, so the generated rows carry no
- * `textLength`. Pinning an advisor's own wording to the width of Mike's sentence
- * would stretch or crush it — the pin exists to reproduce HIS justification.
+ * 🔴 EACH STEP PRINTS WITH ITS CONCEPTS BENEATH IT, placed by `utils/agendaLayout.js`
+ * — Mike's rulings of 2026-09-26 (item 15.26), from the drawing he approved. Every row
+ * arrives with its own position, size and colour, so this group only draws them; the
+ * rules live in one module the Run screen, the plan and the tests all read.
+ *
+ * ⚠ A STEP NAME IS NOT ONE OF HIS MEASURED LINES, so no row is pinned to his widths.
+ * A line that still overruns its space once drawn is squeezed by the component.
  *
  * @param {string} svg
  * @returns {{svg: string, hasSlot: boolean}}
@@ -401,20 +399,17 @@ function bindAgendaSlot (svg) {
 
   const head = svg.slice(open, svg.indexOf('>', open) + 1)
   const drawn = svg.slice(open, close + 4)
-  const r = AGENDA_ROW
 
   // His group, untouched but for the v-if that hides it once a session has steps.
-  const fallback = drawn.replace(head, head.slice(0, -1) + ' v-if="!agendaItems.length">')
+  const fallback = drawn.replace(head, head.slice(0, -1) + ' v-if="!agendaRows.length">')
 
   const live = [
     '<g class="agenda-slot is-live" v-else font-family="Open Sans, sans-serif">',
-    '  <template v-for="(item, i) in agendaItems">',
-    '    <text :key="\'b\' + i" x="' + r.bulletX + '"',
-    '          :y="' + r.firstY + ' + i * ' + r.pitch + '"',
-    '          font-size="' + r.size + '" fill="' + r.ink + '">&#9679;</text>',
-    '    <text :key="\'t\' + i" x="' + r.textX + '"',
-    '          :y="' + r.firstY + ' + i * ' + r.pitch + '"',
-    '          font-size="' + r.size + '" fill="' + r.ink + '">{{ item }}</text>',
+    '  <template v-for="(r, i) in agendaRows">',
+    '    <text v-if="r.lead" :key="\'m\' + i" :x="r.markX" :y="r.y"',
+    '          :font-size="r.size" :font-weight="r.weight" :fill="r.ink">{{ r.mark }}</text>',
+    '    <text :key="\'t\' + i" class="ag-t" :data-max="r.max" :x="r.x" :y="r.y"',
+    '          :font-size="r.size" :font-weight="r.weight" :fill="r.ink">{{ r.text }}</text>',
     '  </template>',
     '</g>'
   ].join('\n        ')
@@ -458,7 +453,9 @@ ${indented}
  * what Mike approved.
  *
  * Vue 2, Options API, Pug.
- */
+ */${hasSlot ? `
+import { layoutAgenda } from '~/utils/agendaLayout'
+` : ''}
 export default {
   name: '${registeredName(drawing.conceptId, drawing.sheet)}',
 
@@ -500,11 +497,13 @@ export default {
     }${hasSlot ? `,
 
     /**
-     * The session's own running order, one string per step.
+     * The session's own running order: each step with the concepts placed in it,
+     * \`{ name, children }\`, from \`agendaGroups\` in utils/agendaLayout.js.
      *
      * Mike's ruling, 2026-09-23: the framing page's AGENDA **is** the step list
      * the advisor names in Build session, not a second list of its own — so the
-     * page a client reads and the order the app follows can never disagree.
+     * page a client reads and the order the app follows can never disagree. And
+     * 2026-09-26: each step is a parent with its concepts as children (item 15.26).
      *
      * EMPTY IS NOT A MISSING VALUE. It means no session has supplied steps, and
      * the page then shows Mike's own four lines exactly as drawn, which is the
@@ -513,8 +512,48 @@ export default {
     agendaItems: {
       type: Array,
       default: () => []
+    },
+
+    /** Which agenda sheet this is, from 0 — more than one only past three columns. */
+    agendaPage: {
+      type: Number,
+      default: 0
     }` : ''}
-  }
+  }${hasSlot ? `,
+
+  computed: {
+    /** @returns {Array<object>} this sheet's rows, each carrying its own place and look */
+    agendaRows () {
+      const pages = layoutAgenda(this.agendaItems)
+      return (pages[this.agendaPage] || { rows: [] }).rows
+    }
+  },
+
+  mounted () {
+    this.squeeze()
+  },
+
+  updated () {
+    this.squeeze()
+  },
+
+  methods: {
+    /**
+     * A line the layout's estimate let through slightly too wide is squeezed to its
+     * space; every other line is left exactly as drawn. Browser-only.
+     */
+    squeeze () {
+      if (!this.$el || !this.$el.querySelectorAll) { return }
+      Array.prototype.forEach.call(this.$el.querySelectorAll('text.ag-t'), (t) => {
+        const max = Number(t.getAttribute('data-max'))
+        t.removeAttribute('textLength')
+        t.removeAttribute('lengthAdjust')
+        if (typeof t.getComputedTextLength !== 'function' || !(t.getComputedTextLength() > max)) { return }
+        t.setAttribute('textLength', String(max))
+        t.setAttribute('lengthAdjust', 'spacingAndGlyphs')
+      })
+    }
+  }` : ''}
 }
 </script>
 
@@ -745,6 +784,18 @@ function renderRegistry () {
     })
     .join(',' + '\n')
 
+  // Which sheet of a concept carries the agenda slot, read from the artefact itself.
+  const agendaSheets = []
+  const seen = new Map()
+  DRAWINGS.forEach((d) => {
+    const svg = nthSvg(fs.readFileSync(path.join(MOCKUPS, d.file), 'utf8'), d.svg)
+    servedConcepts(d).forEach((id) => {
+      const index = seen.get(id) || 0
+      seen.set(id, index + 1)
+      if (svg.indexOf('<g class="agenda-slot"') !== -1) { agendaSheets.push('  ' + registryKey(id) + ': ' + index) }
+    })
+  })
+
   const titled = Array.from(DRAWINGS.reduce((acc, d) => {
     const svg = nthSvg(fs.readFileSync(path.join(MOCKUPS, d.file), 'utf8'), d.svg)
     if (!carriesOwnTitle(svg)) { return acc }
@@ -804,17 +855,53 @@ export function hasConceptGraphic (conceptId) {
 }
 
 /**
+ * The sheet of a concept that carries the session's agenda, from 0.
+ *
+ * 🔴 ITEM 15.26: that sheet repeats for as many agenda pages as the session needs —
+ * one until three columns are full — so the sheets a screen loops are the drawings plus
+ * any extra agenda pages. Read from the artefact's \`agenda-slot\`, never listed by hand.
+ *
+ * @type {Object<string, number>}
+ */
+export const CONCEPT_AGENDA_SHEET = {
+${agendaSheets.join(',' + String.fromCharCode(10))}
+}
+
+/**
  * How many teaching sheets this concept has.
  *
  * A screen loops this rather than assuming one, which is what every surface did
  * until 2026-09-23. Zero means the concept has no drawing and the screens fall
  * back to Mike's words.
  *
+ * ⚠ THIS FILE IMPORTS NOTHING, so it stays out of every page's first load. A screen
+ * showing the agenda passes its page count in, from \`agendaSheetCount\` in
+ * utils/agendaLayout.js.
+ *
  * @param {string} conceptId
+ * @param {number} [agendaPages] how many pages the session's agenda takes, for a concept
+ *   with an agenda sheet; one when omitted
  * @returns {number}
  */
-export function conceptSheetCount (conceptId) {
-  return hasConceptGraphic(conceptId) ? CONCEPT_GRAPHICS[conceptId].length : 0
+export function conceptSheetCount (conceptId, agendaPages) {
+  if (!hasConceptGraphic(conceptId)) { return 0 }
+  const drawn = CONCEPT_GRAPHICS[conceptId].length
+  return Object.prototype.hasOwnProperty.call(CONCEPT_AGENDA_SHEET, conceptId)
+    ? drawn + Math.max(1, agendaPages || 1) - 1
+    : drawn
+}
+
+/**
+ * Which drawing a sheet shows, and which agenda page if it is an agenda sheet.
+ *
+ * @param {string} conceptId
+ * @param {number} sheet from 0, as the screens loop it
+ * @returns {{drawing: number, agendaPage: number}} agendaPage is 0 off the agenda sheet
+ */
+export function conceptSheetAt (conceptId, sheet) {
+  const at = CONCEPT_AGENDA_SHEET[conceptId]
+  if (at === undefined || sheet < at) { return { drawing: sheet, agendaPage: 0 } }
+  return { drawing: at, agendaPage: sheet - at }
 }
 
 /**

@@ -33,11 +33,21 @@
   the component replaces them with the session's steps. Everything outside that group
   is fixed artwork, copied span for span.
 
-  ⚠ `scripts/build-concept-graphics.js` TODAY PARAMETERISES ONLY THE FIRM MARK. This
-  is the first drawing needing a second dynamic region, so the generator has to learn
-  this one group. It is marked with a class for exactly that reason, and the default
-  content inside it is real so the drawing reads correctly on its own — which is what
-  an approval is given against.
+  `scripts/build-concept-graphics.js` turns that group into the live agenda; the default
+  content inside it is real so the drawing reads correctly on its own — which is what an
+  approval is given against.
+
+  ── TWO SHEETS SINCE 2026-09-26 (item 15.26) ─────────────────────────────────────
+  Mike, on seeing the agenda outgrow this page: "session objective needs to be on its own
+  page - it frames the session and establisges permission boundaries - page 2 is the
+  agenda layout is over to you", then "the agenda page needs to show the step/stage as a
+  parent - the name of the concept as a child hierarchy please". Approved to build the
+  same day from design/mockups/strategy-session-objective-two-sheets.html.
+    SHEET 1  his page as below, less the "Agenda:" heading and its rows. Nothing moved.
+    SHEET 2  the agenda alone: the frame and mark are sheet 1's, the title "Agenda" is in
+             his title style, and his four lines are moved up as one block to y 184.09.
+             In the app each step prints with its concepts beneath it, placed by
+             utils/agendaLayout.js — the approved drawing's rules, in one place.
 
   ── HOW IT WAS READ (Brief §0, "HOW A CONCEPT IS DRAWN", all five steps) ─────────
     1. The page was OPENED and looked at first. That is not a formality here: an
@@ -139,15 +149,17 @@
 <main>
   <h1>Our Session Objective</h1>
   <p class="sub">
-    Strategic Orientation 1, page 2 &mdash; the framing page, drawn from his own slide.
-    The <strong>Agenda</strong> block is a live slot: it shows the session&rsquo;s steps.
+    Strategic Orientation 1, page 2 &mdash; the framing page, drawn from his own slide, and
+    its agenda on a sheet of its own (item 15.26). The <strong>Agenda</strong> block is a
+    live slot: it shows the session&rsquo;s steps.
   </p>
 
   <p class="note">
-    <strong>The four agenda lines below are his, shown as the default.</strong> In the app
-    that block is replaced by the steps the advisor named in Build session, so the page a
-    client reads and the running order the app follows are always the same list. Everything
-    outside the dashed outline is fixed artwork, copied span for span from his page.
+    <strong>The four agenda lines on sheet 2 are his, shown as the default.</strong> In the
+    app that block is replaced by the steps the advisor named in Build session, each with
+    the concepts placed in it beneath it, so the page a client reads and the running order
+    the app follows are always the same list. Everything outside the dashed outline is
+    fixed artwork, copied span for span from his page.
   </p>
 
   <section class="controls">
@@ -215,15 +227,52 @@
           <text x="98.09" y="445.87" font-size="25" fill="#434343">&#9679;</text>
           <text x="150.69" y="445.87" font-size="25" fill="#434343"
                 textLength="405.7" lengthAdjust="spacing">Build an action plan going forward.</text>
+        </g>
 
-          <!-- The heading is his and is FIXED. Only the rows under it are the slot,
-               so the page still reads as his even when a session has its own steps. -->
-          <text x="75.69" y="538.26" font-size="25" fill="#434343"
-                textLength="94.4" lengthAdjust="spacing">Agenda:</text>
+        <!-- The firm's mark, standing exactly where advisor-e.com was burned in. -->
+        <g class="firm-mark">
+          <image class="fm-logo" x="103" y="778" width="240" height="44" preserveAspectRatio="xMinYMid meet" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20220%2040%22%3E%3Crect%20width%3D%22220%22%20height%3D%2240%22%20rx%3D%226%22%20fill%3D%22%230070c0%22%2F%3E%3Ctext%20x%3D%22110%22%20y%3D%2227%22%20font-family%3D%22Open%20Sans%2CSegoe%20UI%2Csans-serif%22%20font-size%3D%2217%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3EHARTLEY%20%26amp%3B%20CO%3C%2Ftext%3E%3C%2Fsvg%3E"></image>
+          <circle class="fm-disc" cx="125" cy="800" r="22" fill="#0070c0"></circle>
+          <text class="fm-init" x="125" y="808" text-anchor="middle" fill="#fff"
+                font-family="Open Sans, sans-serif" font-size="20" font-weight="700">H</text>
+          <text class="fm-name" x="159" y="807" fill="#002B64"
+                font-family="Open Sans, sans-serif" font-size="21" font-weight="600">Hartley &amp; Co</text>
+        </g>
+
+        <!-- His deck frame, returned in the firm's colour rather than #00B1E0.
+             Five bars inset from the edge with the foot broken in the lower left,
+             and the firm's mark standing in that break. -->
+        <rect class="firm-bar is-t" x="8.13" y="8.13" width="1483.74" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-l" x="8.13" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-r" x="1477.71" y="22.92" width="14.16" height="798.16" fill="#0070c0"></rect>
+        <rect class="firm-bar is-bl" x="8.13" y="821.07" width="95.01" height="14.8" fill="#0070c0"></rect>
+        <rect class="firm-bar is-brun" x="248.31" y="821.07" width="1243.56" height="14.8" fill="#0070c0"></rect>
+      </svg>
+    </div>
+    <figcaption>
+      Sheet 1 &mdash; drawn from Advance.2.Strategic Orientation.1.pdf page 2, every span at
+      his own x, y, size, weight and colour, every line pinned to its measured width; his
+      agenda is on sheet 2. His page number and the advisor-e.com logo are deliberately
+      absent.
+    </figcaption>
+  </figure>
+
+  <figure>
+    <div class="sheet">
+      <svg viewBox="0 0 1500 844" role="img"
+           aria-label="Agenda. The session's steps in order, each with the concepts it holds beneath it.">
+
+        <rect x="0" y="0" width="1500" height="844" fill="#ffffff"></rect>
+
+        <!-- Sheet 2's title, in his title style (sheet 1's: x 44.34, y 90.59, 50pt,
+             #002B64). His heading read "Agenda:"; as a page title the colon goes. -->
+        <g font-family="Open Sans, sans-serif">
+          <text x="44.34" y="90.59" font-size="50" fill="#002B64">Agenda</text>
         </g>
 
         <!-- ============================================================
-             THE AGENDA SLOT — Mike's ruling, 2026-09-23. In the app these
+             THE AGENDA SLOT — Mike's ruling, 2026-09-23; on its own sheet since
+             2026-09-26 (item 15.26), his four lines moved up as one block. In the app these
              rows are the SESSION'S OWN STEPS, the list the advisor named in
              Build session. His four lines are the shipped default and are
              what this drawing is approved against.
@@ -234,7 +283,7 @@
              rather than following it. Row 2 runs sentence, tag, sentence.
              ============================================================ -->
         <g class="agenda-slot" font-family="Open Sans, sans-serif">
-          <text x="98.09" y="584.41" font-size="25" fill="#434343">&#9679;</text>
+          <text x="98.09" y="184.09" font-size="25" fill="#434343">&#9679;</text>
           <!-- 🔴 xml:space="preserve" ON EVERY SPAN OF HIS THAT CARRIES A LEADING OR
                TRAILING SPACE. His "(section n)" tags interrupt the line, so the space
                before one lives at the END of the span before it and is part of that
@@ -243,27 +292,27 @@
                the drawing read "same page'.(section 1)" and "data(section 2)&". Caught
                by putting this beside his page, which is step 1 of the method and the
                only thing that could have caught it. -->
-          <text x="150.69" y="584.41" font-size="25" fill="#434343" xml:space="preserve"
+          <text x="150.69" y="184.09" font-size="25" fill="#434343" xml:space="preserve"
                 textLength="928.6" lengthAdjust="spacing">Review the Planning Process &amp; Language to ensure we&#8217;re all on the &#8216;same page&#8217;. </text>
-          <text x="1080.44" y="584.41" font-size="25" font-weight="700" fill="#002B64"
+          <text x="1080.44" y="184.09" font-size="25" font-weight="700" fill="#002B64"
                 textLength="128.05" lengthAdjust="spacing">(section 1)</text>
 
-          <text x="98.09" y="619.3" font-size="25" fill="#434343">&#9679;</text>
-          <text x="150.69" y="619.3" font-size="25" fill="#434343" xml:space="preserve"
+          <text x="98.09" y="218.98" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="218.98" font-size="25" fill="#434343" xml:space="preserve"
                 textLength="651.48" lengthAdjust="spacing">Assess current position by reviewing (pre-meeting) data </text>
-          <text x="803.01" y="619.3" font-size="25" font-weight="700" fill="#002B64"
+          <text x="803.01" y="218.98" font-size="25" font-weight="700" fill="#002B64"
                 textLength="128.05" lengthAdjust="spacing">(section 2)</text>
-          <text x="931.18" y="619.3" font-size="25" fill="#434343" xml:space="preserve"
+          <text x="931.18" y="218.98" font-size="25" fill="#434343" xml:space="preserve"
                 textLength="388.22" lengthAdjust="spacing"> &amp; Financial Performance Reports</text>
 
-          <text x="98.09" y="653.68" font-size="25" fill="#434343">&#9679;</text>
-          <text x="150.69" y="653.68" font-size="25" fill="#434343" xml:space="preserve"
+          <text x="98.09" y="253.36" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="253.36" font-size="25" fill="#434343" xml:space="preserve"
                 textLength="803.73" lengthAdjust="spacing">Determine the business Strategic Objective &amp; document the Strategy </text>
-          <text x="955.33" y="653.68" font-size="25" font-weight="700" fill="#002B64"
+          <text x="955.33" y="253.36" font-size="25" font-weight="700" fill="#002B64"
                 textLength="128.05" lengthAdjust="spacing">(section 3)</text>
 
-          <text x="98.09" y="688.05" font-size="25" fill="#434343">&#9679;</text>
-          <text x="150.69" y="688.05" font-size="25" fill="#434343"
+          <text x="98.09" y="287.73" font-size="25" fill="#434343">&#9679;</text>
+          <text x="150.69" y="287.73" font-size="25" fill="#434343"
                 textLength="1218" lengthAdjust="spacing">Brainstorm &amp; record Operational Objectives and Tactics (actions) in the Automated Action Plan Reminder</text>
         </g>
 
@@ -288,14 +337,15 @@
       </svg>
     </div>
     <figcaption>
-      Drawn from Advance.2.Strategic Orientation.1.pdf page 2 &mdash; 30 spans, each at his
-      own x, y, size, weight and colour, every line pinned to its measured width. His page
-      number and the advisor-e.com logo are deliberately absent.
+      Sheet 2 &mdash; the agenda on its own page (item 15.26, approved 2026-09-26). His four
+      lines are the default; in the app they are replaced by the session&rsquo;s steps, each
+      with its concepts beneath it, laid out as the approved drawing
+      strategy-session-objective-two-sheets.html shows.
     </figcaption>
   </figure>
 
   <p class="note">
-    <strong>Two of these four agenda lines are frameworks we are deleting.</strong>
+    <strong>Two of his four agenda lines were deleted as frameworks on 2026-09-23.</strong>
     <em>Review the Planning Process &amp; Language</em> and <em>Brainstorm &amp; record
     Operational Objectives</em> were only ever bullets on this page, lifted out and listed
     as separate frameworks an advisor could tick. The other two already have their own
