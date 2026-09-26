@@ -97,7 +97,7 @@
         "detail": "2026-09-25 - measured in a browser while wiring the agenda: line 7 ends at 799 against the mark's top at 778. Mike said yes to filing it."
       },
       "touches": "components/strategy/concepts/OurSessionObjective.vue (generated; its live agenda group comes from bindAgendaSlot in scripts/build-concept-graphics.js); the approved drawing design/mockups/strategy-concept-our-session-objective.html, which a fix must amend.",
-      "note": "RULED BY MIKE 2026-09-26, in his words: \"session objective needs to be on its own page - it frames the session and establisges permission boundaries - page 2 is the agenda layout is over to you\". So Our Session Objective becomes two sheets: sheet 1 his framing page without the agenda, sheet 2 the agenda, laid out by us. Drawn for his approval in design/mockups/strategy-session-objective-two-sheets.html. Measured 2026-09-25 on the one-sheet page: six steps fit, a seventh reaches the firm's mark.",
+      "note": "RULED BY MIKE 2026-09-26, in his words: \"session objective needs to be on its own page - it frames the session and establisges permission boundaries - page 2 is the agenda layout is over to you\". Then, on the drawing: \"much better - the agenda page needs to show the step/stage as a parent - the name of the concept as a child hierarchy please\". So: sheet 1 his framing page without the agenda; sheet 2 the agenda, each step with its concepts beneath it. Drawing: design/mockups/strategy-session-objective-two-sheets.html.",
       "comment": "2026-09-25 - filed on Mike's yes at shutdown, the day the agenda was wired."
     },
     {
