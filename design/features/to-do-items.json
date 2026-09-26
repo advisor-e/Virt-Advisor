@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "15.27",
-      "name": "A step's purpose never reaches the advisor - the approved tooltip was never built",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The approved Build session drawing says a step's purpose is written by the mentor and the advisor sees it as a tooltip. No tooltip exists, and the purpose is dropped before it reaches the session.",
-      "risk": "Invisible today because every purpose ships empty. The first time a mentor writes one, no advisor sees it and nothing says why - the words a mentor wrote to guide the session simply vanish.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-25 - found reading the step builder while scoping 15.25: its comment claimed a tooltip nobody had built. Mike said yes to filing it."
-      },
-      "touches": "components/strategy/StrategyStepBuilder.vue (shows purpose only on the manager screen); pages/strategy-planner.vue seedSteps and saves, which copy name and items only; server/utils/strategySessionStore.js normaliseStep, which keeps name and items only; design/mockups/strategy-session-process.html, the approved drawing.",
-      "note": "APPROVED DRAWING, NOT A NEW FEATURE: strategy-session-process.html (Mike, 2026-09-21) - 'Written by the mentor. The advisor sees it as a tooltip; the client never does.' Carry purpose from the handed-down process into the session's steps and show it to the advisor only, never in the client's plan. Measure nothing is lost for a session saved before the field travelled.",
-      "comment": "2026-09-25 - filed on Mike's yes at shutdown, and the step builder's comment corrected to point here."
-    },
-    {
       "ref": "15.26",
       "name": "The Our Session Objective agenda has room for six steps; a seventh prints over the logo",
       "rankedByMike": false,

@@ -353,6 +353,23 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.27 · A step's purpose never reached the advisor — the approved tooltip was never built.**
+✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he picked it up.
+
+- **Why it existed:** the approved drawing,
+  [`../mockups/strategy-session-process.html`](../mockups/strategy-session-process.html), says a
+  step's purpose is *"Written by the mentor. The advisor sees it as a tooltip; the client never
+  does."* The mentor's screen saved it; the seed, both saves and the session store dropped it.
+- **What proves it:** the purpose now travels from the handed-down step into the session, is saved
+  and reopened with it, and shows on Build session as a "?" beside the step's name — GlossaryTerm's
+  mark; the drawing's box was not followed, its own note was ([`strategy-planner.md`](strategy-planner.md)
+  §0). `tests/unit/strategyStepPurpose.test.js` pins the seed, the save, the mark, and that the
+  client's plan never carries it; the store test pins that a step without one keeps its old shape.
+  Walked in a browser with a test purpose written through the firm manager's route, then removed.
+  Commit: `git log --grep "(15.27)"`.
+- **Not proved here:** reopening a saved session in the browser — the saved data was checked, the
+  one reopen line was not driven. Nothing shows on screen for anyone until a purpose is written.
+
 **15.28 · Alignment Statements join Business Targets — taught and captured like every other concept.**
 ✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he asked for it, ruled the drawing and
 approved the build.

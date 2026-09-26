@@ -1272,7 +1272,7 @@ export default {
           body: JSON.stringify({
             domains: [],
             frameworks: this.chosen,
-            steps: this.planStepDefs.map(s => ({ name: s.name, items: s.items }))
+            steps: this.stepsToSave(this.planStepDefs)
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
@@ -1572,11 +1572,28 @@ export default {
       const inScope = {}
       this.placeableCards.forEach((c) => { inScope[c.key] = true })
 
+      // `purpose` travels with the step: the mentor's note on what it is for, which the
+      // advisor sees as a tooltip on Build session and the client never sees (item 15.27).
       this.planStepDefs = handedDown.steps.map((s, i) => ({
         key: 's' + (i + 1),
         name: s.name || '',
+        purpose: s.purpose || '',
         items: (s.items || []).filter(k => inScope[k])
       }))
+    },
+
+    /**
+     * The steps as the session saves them — the one shape both saves send.
+     *
+     * ⚠ `purpose` IS SENT EVEN THOUGH THE ADVISOR NEVER EDITS IT. It is the mentor's note,
+     * copied in when the steps were handed down; leaving it out here is exactly how it was
+     * lost before item 15.27, one save after it arrived.
+     *
+     * @param {Array<{name: string, items: string[], purpose?: string}>} steps
+     * @returns {Array<{name: string, items: string[], purpose: string}>}
+     */
+    stepsToSave (steps) {
+      return steps.map(s => ({ name: s.name, items: s.items, purpose: s.purpose || '' }))
     },
 
     /**
@@ -1643,7 +1660,7 @@ export default {
           body: JSON.stringify({
             domains: [],
             frameworks: this.chosen,
-            steps: next.map(s => ({ name: s.name, items: s.items }))
+            steps: this.stepsToSave(next)
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
@@ -1937,7 +1954,12 @@ export default {
         // no steps at all, and only then does the standard seed it.
         const savedSteps = Array.isArray(scope.steps) ? scope.steps : []
         this.planStepDefs = savedSteps.length
-          ? savedSteps.map((s, i) => ({ key: 's' + (i + 1), name: s.name || '', items: (s.items || []).slice() }))
+          ? savedSteps.map((s, i) => ({
+            key: 's' + (i + 1),
+            name: s.name || '',
+            purpose: s.purpose || '',
+            items: (s.items || []).slice()
+          }))
           : []
         if (!this.planStepDefs.length) { this.seedSteps() }
 

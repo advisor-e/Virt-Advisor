@@ -360,7 +360,7 @@ async function listSessions (req, res) {
  * rather than refusing the whole save.
  *
  * @route PUT /api/strategy/sessions/:id/scope
- * @param {object} req - firmAuth-verified; body `{ domains: string[], frameworks: string[], steps?: Array<{name: string, items: string[]}> }`
+ * @param {object} req - firmAuth-verified; body `{ domains: string[], frameworks: string[], steps?: Array<{name: string, items: string[], purpose?: string}> }`
  * @param {object} res
  * @returns {200} { success, timestamp }
  */

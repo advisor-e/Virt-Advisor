@@ -289,7 +289,14 @@ approved by Mike that day, its four decisions ruled the same day. **What is buil
    list of concepts each with one line of reason, which is the shape this panel needs. **The panel
    itself is still unbuilt** — what changed is that it is now a build rather than a blocked one.
 2. **Every step's `purpose` ships empty.** The field exists and the mentor's screen edits it; the
-   words are Mike's and he has not written them. An empty purpose is an unwritten one.
+   words are Mike's and he has not written them. An empty purpose is an unwritten one. Once
+   written, it travels with the handed-down step into the session, is saved and reopened with it,
+   and shows on Build session as a **"?" beside the step's name** whose hover text is the purpose
+   — GlossaryTerm's mark (item 15.27, 2026-09-26). **Named difference:** the drawing shows it as a
+   box inside the step, while its own note says *tooltip*; the note was followed, so the words do
+   not take up every advisor's step. It never reaches the client's plan, which builds its steps
+   without it — pinned by `tests/unit/strategyStepPurpose.test.js`. A step without one is saved
+   exactly as before, so a session saved earlier reopens unchanged.
 
 🔴 **THE FIVE STAGES ARE REACHED IN ANY ORDER, 2026-09-21.** Mike's request: *"enable me to be able
 to click on the step banner (scope, build etc) in any order i want to make it easier if i forget

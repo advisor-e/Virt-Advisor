@@ -546,6 +546,28 @@ describe('the scope screen 1 records', () => {
     expect(steps[0].items[0]).toHaveLength(128)
   })
 
+  it('🔴 keeps the mentor\'s note on what a step is for — item 15.27', async () => {
+    // It arrives with the handed-down step and the advisor never edits it, so a save that
+    // dropped it would erase a mentor's writing the first time the session was saved.
+    const id = await openSession()
+    await store.setScope(id, FIRM, {
+      frameworks: [],
+      steps: [
+        { name: 'Identify the Resistance', items: [], purpose: '  Find what is stopping growth.  ' },
+        { name: 'Do It & Review It', items: [], purpose: '' },
+        { name: 'Long', items: [], purpose: 'p'.repeat(900) }
+      ]
+    })
+
+    const { steps } = (await store.getSession(id, FIRM)).scope
+    expect(steps[0].purpose).toBe('Find what is stopping growth.')
+    // No note, no field: a step without one keeps exactly the shape every session saved
+    // before 15.27 already has.
+    expect(steps[1]).toEqual({ name: 'Do It & Review It', items: [] })
+    // The mentor's own screen refuses more than 600; a longer one posted here is cut to it.
+    expect(steps[2].purpose).toHaveLength(600)
+  })
+
   it('survives a step that is not an object at all', async () => {
     const id = await openSession()
     await store.setScope(id, FIRM, { frameworks: [], steps: [null, 'nope', 7] })

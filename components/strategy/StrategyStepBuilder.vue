@@ -73,6 +73,24 @@
             :aria-label="$t('strategyPlanner.steps.nameLabel', { n: i + 1 })"
             @input="rename(step.key, $event)"
           )
+          //- 🔴 THE MENTOR'S NOTE, TO THE ADVISOR ONLY — item 15.27, from the approved
+          //- drawing design/mockups/strategy-session-process.html: "Written by the mentor.
+          //- The advisor sees it as a tooltip; the client never does." The same mark and
+          //- tooltip as GlossaryTerm, so it reads as help rather than as something to do.
+          //- Nothing is drawn for a step without one, which today is every step.
+          b-tooltip.ssb-purpose(
+            v-if="!showPurpose && step.purpose"
+            :label="step.purpose"
+            multilined
+            position="is-bottom"
+            type="is-dark"
+            animated
+          )
+            button.ssb-purpose-mark(
+              type="button"
+              :aria-label="$t('strategyPlanner.steps.purposeLabel', { n: i + 1 }) + ': ' + step.purpose"
+              @click.prevent
+            ) ?
           //- The count the approved drawing puts on every step head, so a step's weight
           //- reads at a glance rather than by counting chips.
           span.ssb-step-count {{ $tc('strategyPlanner.steps.stepCount', cardsIn(step).length, { count: cardsIn(step).length }) }}
@@ -200,7 +218,8 @@ export default {
      * Show the "what this step is for" box on every step.
      *
      * 🔴 THE AUTHORING SCREEN ONLY. A manager writing the firm's standard session says
-     * what each step is for; the advisor running one reads it and does not edit it. Same
+     * what each step is for; the advisor running one reads it, as the "?" tooltip beside
+     * the step's name, and does not edit it (item 15.27). Same
      * component either way (Decision C's ladder is the only thing that differs), because
      * two step builders would drift the moment one gained a fix the other did not.
      */
@@ -332,9 +351,7 @@ export default {
 
     /**
      * What this step is for — the manager's note. Only the authoring screen edits it
-     * (`show-purpose`). ⚠ The approved drawing shows it to the advisor as a tooltip, never
-     * to the client; that tooltip is NOT BUILT and the session does not yet carry the
-     * field — item 15.27.
+     * (`show-purpose`); the advisor reads it as a tooltip and the client never sees it.
      * @param {string} stepKey
      * @param {string} purpose
      * @returns {void}
@@ -584,6 +601,25 @@ export default {
 }
 .ssb-step-name { flex: 1 1 auto; }
 .ssb-step-count { flex: 0 0 auto; font-size: 0.72rem; color: #5b6f8a; white-space: nowrap; }
+
+/* The mentor's note — GlossaryTerm's mark, so the advisor already knows it as help. */
+.ssb-purpose { flex: 0 0 auto; }
+.ssb-purpose-mark {
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: help;
+  color: #0070c0;
+  background: #0070c018;
+  border: 1px solid #0070c04d;
+}
+.ssb-purpose-mark:hover,
+.ssb-purpose-mark:focus { color: #ffffff; background: #0070c0; }
 
 /* The deck heading in the tray — the drawing's own treatment, so the left column reads
    as structure rather than as one long column of identical boxes. */
