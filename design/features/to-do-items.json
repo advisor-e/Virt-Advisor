@@ -76,31 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "15.28",
-      "name": "Alignment Statements join Business Targets - taught and captured like every other concept",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-26"
-      },
-      "why": "After the owners put numbers on what they want, nothing in the planner helps them turn those wishes into statements each party hears. Mike's L.Suppt.Alignment deck does exactly that and is not in the app.",
-      "risk": "Without it an advisor running Business Targets stops at the numbers, and the owners' expectations are never written as Vision, Purpose, Values, Mission and Strategy, or said to the team, customers and community. The deck sits in a PDF the planner cannot see. Counter-risk: six teaching sheets is the largest single drawing job yet, and each needs Mike's approval.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-26, his own words: \"i think it should be included - it can be placed in the 'business targets' section since often, in order to improve owner alignment, they need to define their expectations by calculating their wishes and communictaing them to each party\", and \"viewed and have responses captured in the same method/style as the oprientation and other sections\"."
-      },
-      "touches": "The deck read from Mike's own folder by scripts/read-deck-pages.py, as the five decks are; a concept row in data/strategy-frameworks.json under business-targets; drawings by the section 0 method in design/mockups/ and scripts/build-concept-graphics.js; the named-field-stack capture form for slide 8 and a rows-by-columns form for slide 10, both already built; the count guards in tests/unit/strategyConcepts.test.js and conceptGraphics.test.js.",
-      "note": "APPROVED TO BUILD BY MIKE 2026-09-26, BUILD ABOUT HALF DONE AND IN GIT STASH ON THE LAPTOP (\"15.28 BUILD IN PROGRESS\"), not on any branch. Drawing with his four rulings: design/mockups/strategy-concept-alignment-statements.html. In the stash: the concept third in Business Targets (source support-document, Page column a dash on his ruling), six drawings wired with page editing, both forms read off his p8 and p9 with a form per table. Left: count pins 47 to 48, new tests, the mockup subtitle, AGENDA-HELPS-LINES.md, the Brief, a browser check.",
-      "comment": "2026-09-26 - asked for by Mike in his own words and filed at once; drawn, ruled and approved the same day. His call at shutdown: proceed."
-    },
-    {
       "ref": "15.27",
       "name": "A step's purpose never reaches the advisor - the approved tooltip was never built",
       "rankedByMike": false,
@@ -202,7 +177,7 @@
         "detail": "2026-09-20 - found while wiring the first four drawings for 15.7: the mark is a prop and nothing above passes one in. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
       "touches": "components/strategy/StrategyConceptGraphic.vue and the 33 drawings, which already take firmName and firmColour; StrategyPlanDocument.vue and the strategy page, which pass nothing; DashboardReportCover.vue and DashboardReportPage.vue, which print the same placeholder string; and wherever a firm's brand is set, which under the hub-page rule starts at the mentor tier.",
-      "note": "🔴 OUR HALF IS COMPLETE; WHAT REMAINS IS THE MASTER TEAM'S. THE DATA IS ADVISOR-E'S AND WE BUILD NO SCREEN FOR IT - his words, \"Advisor-e already picks up the colour and brands the border to suit\": it lives on the firm profile page. Ours is firmBrand() in server/utils/firmsDirectory.js and seam Q-FIRM-BRAND in config/integration.js, question 8 of the integration email - inert until they name the two columns. Mike ruled the mark is the firm's REAL logo in a fixed-height box, initials disc only as fallback, border in the firm's colour. 2026-09-23 closed the last gap: the three SESSION screens were unwired while the plan document was. All four call sites now carry it - features/white-label.md section 4.",
+      "note": "🔴 OUR HALF IS NOT YET COMPLETE (found 2026-09-26): the four Strategy Planner call sites carry the firm's brand (features/white-label.md section 4), but DashboardReportCover.vue and DashboardReportPage.vue still print a fixed \"Firm logo\" placeholder and never call firmBrand(). THE DATA IS ADVISOR-E'S AND WE BUILD NO SCREEN FOR IT - his words, \"Advisor-e already picks up the colour and brands the border to suit\": it lives on the firm profile page. Ours is firmBrand() in server/utils/firmsDirectory.js and seam Q-FIRM-BRAND in config/integration.js, question 8 of the integration email - inert until they name the two columns. Mike ruled the mark is the firm's REAL logo in a fixed-height box, initials disc only as fallback, border in the firm's colour.",
       "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
     },
     {

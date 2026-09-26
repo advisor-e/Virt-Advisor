@@ -1220,11 +1220,11 @@ and is pinned by `tests/unit/strategyConcepts.test.js`.
 
 | | |
 |---|---|
-| Concepts | **47** — Business Targets 2 · Strategic Orientation 21 · Sales & Marketing 16 · Organisational Review 8 |
-| Carrying a Helps Your Client To… line | **All 47** — 34 read off his two Session Scope tables (three through a shared deck cell), and 13 drafted for him and approved word for word (12 on 2026-09-24, Business Owner Expectations on 2026-09-25), recorded on [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md) |
-| Rows that are not Session Scope rows | **13** — 10 agenda rows (8 carry his own agenda sub-line), 2 framing pages, and 1 deck-page row that runs a model (item 15.23) |
+| Concepts | **48** — Business Targets 3 · Strategic Orientation 21 · Sales & Marketing 16 · Organisational Review 8 |
+| Carrying a Helps Your Client To… line | **All 48** — 34 read off his two Session Scope tables (three through a shared deck cell), and 14 drafted for him and approved word for word (12 on 2026-09-24, Business Owner Expectations on 2026-09-25, Alignment Statements on 2026-09-26), recorded on [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md) |
+| Rows that are not Session Scope rows | **14** — 10 agenda rows (8 carry his own agenda sub-line), 2 framing pages, 1 deck-page row that runs a model (item 15.23), and 1 support-document row paged in its own document, `L.Suppt.Alignment.pdf`, so the menu prints a dash for its page (item 15.28) |
 | Teaching form named (census §3) | 32 |
-| Capture form **measured** against one of his fill-in templates | 22 |
+| Capture form **measured** against one of his fill-in templates | 36 |
 
 🔴 **EVERY WORD IS HIS, READ OFF THE DECKS BY MACHINE — never retyped, never summarised.**
 *"The menu is his table, word for word"*. Ligatures are normalised to ASCII and nothing else is

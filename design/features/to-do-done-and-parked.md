@@ -353,6 +353,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.28 · Alignment Statements join Business Targets — taught and captured like every other concept.**
+✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he asked for it, ruled the drawing and
+approved the build.
+
+- **Why it existed:** Mike, 2026-09-26 — *"i think it should be included - it can be placed in the
+  'business targets' section since often, in order to improve owner alignment, they need to define
+  their expectations by calculating their wishes and communictaing them to each party"*.
+- **What proves it:** built to the approved drawing,
+  [`../mockups/strategy-concept-alignment-statements.html`](../mockups/strategy-concept-alignment-statements.html),
+  with his four rulings written on it. Third in Business Targets, paged in `L.Suppt.Alignment.pdf`
+  so the menu prints a dash; six teaching sheets with page editing; the five statements as a stack
+  and the three-by-three table beneath, his p9 example as grey guide text. Walked in a browser on
+  the built app. The walk found the table's rows out of line against the drawing — fixed on his yes
+  the same day, every box in a row now one height. His menu line is recorded on
+  [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md). Full suite green, 13,822 tests. Commit:
+  `git log --grep "(15.28)"`.
+- **Not proved here:** a real MySQL database — the laptop has none; the card saves through the
+  same entries route every concept uses. UAT's check, not ours.
+
 **15.25 · An advisor could not edit a concept page's text before running the session.**
 ✅ **Closed 2026-09-25 by Mike ("done")**, the day he asked for it, tried the test and approved
 the build.

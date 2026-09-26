@@ -219,6 +219,48 @@ describe('a prefilled example is shown, and is not the client\'s answer', () => 
   })
 })
 
+describe('a card of two forms lays each out by its own — item 15.28', () => {
+  const captureForms = require('~/server/utils/strategyCaptureForms')
+  const sectionsOf = id => mountWithBuefy(StrategyConceptCapture, {
+    propsData: {
+      name: id,
+      capture: captureForms.captureForConcept(frameworksModule.getConcept(id)),
+      entries: {}
+    }
+  }).vm.sections
+
+  it('🔴 puts Alignment Statements\' five statements in a stack, then his table across', () => {
+    // Laid out by one form, either the statements flowed four across or the three-column
+    // table collapsed into a stack.
+    expect(sectionsOf('alignment-statements').map(s => s.stacked)).toEqual([true, false])
+  })
+
+  it('leaves every card of one form as the single section it always was', () => {
+    expect(sectionsOf('blue-ocean-strategy')).toHaveLength(1)
+  })
+
+  it('🔴 gives every box in a row of his table one height, tall enough for its longest example', () => {
+    // The blocks are columns, so sized one by one the rows drifted: "Our Community" came
+    // level with the second "What We Mean". A tester sees a misaligned table only if the
+    // examples happen to differ in length, which is why it is pinned here.
+    const capture = captureForms.captureForConcept(frameworksModule.getConcept('alignment-statements'))
+    const vm = mountWithBuefy(StrategyConceptCapture, {
+      propsData: { name: 'Alignment Statements', capture, entries: {} }
+    }).vm
+    const table = capture.fields.filter(f => f.key.startsWith('t1r'))
+    const rows = {}
+    table.forEach((f) => { (rows[f.key.replace(/c\d+$/, '')] = rows[f.key.replace(/c\d+$/, '')] || []).push(vm.rowsFor(f)) })
+    Object.values(rows).forEach(heights => expect(new Set(heights).size).toBe(1))
+    // Three across, a third of the width each: his longest example needs more than the
+    // four lines the old rule allowed any box.
+    expect(Math.max(...table.map(f => vm.rowsFor(f)))).toBeGreaterThan(4)
+    // The statements come one to a row, full width, and keep the rule they always had.
+    capture.fields.filter(f => f.key.startsWith('t0r')).forEach((f) => {
+      expect(vm.rowsFor(f)).toBeLessThanOrEqual(4)
+    })
+  })
+})
+
 describe('the session scope menu — item 15.1 Stage 1', () => {
   function mountMenu (chosen) {
     return mountWithBuefy(StrategyScopeMenu, {
@@ -236,11 +278,11 @@ describe('the session scope menu — item 15.1 Stage 1', () => {
       .toEqual(DECKS.map(d => d.name))
   })
 
-  it('🔴 offers every one of the 47 concepts, not a subset', () => {
+  it('🔴 offers every one of the 48 concepts, not a subset', () => {
     // The screen this replaced offered 5 of the 52, because it read a framework list
     // rather than Mike's concept index.
-    // 47 since 2026-09-25: 52 as Mike scoped it, less the eight agenda rows he deleted as the session's stage directions, plus two framing pages, plus Business Owner Expectations back as one row (item 15.23).
-    expect(mountMenu().findAll('tbody tr')).toHaveLength(47)
+    // 48 since 2026-09-26: 52 as Mike scoped it, less the eight agenda rows he deleted as the session's stage directions, plus two framing pages, plus Business Owner Expectations back as one row (item 15.23), plus Alignment Statements from its own document (item 15.28).
+    expect(mountMenu().findAll('tbody tr')).toHaveLength(48)
   })
 
   it('🔴 PRODUCES PIVOT — the acceptance test, across two decks', () => {
@@ -378,11 +420,24 @@ describe('the session scope menu — item 15.1 Stage 1', () => {
     expect(w.findAll('.ssm-shared')).toHaveLength(3)
   })
 
+  it('🔴 prints no page for a row paged in another document — item 15.28', () => {
+    // Alignment Statements' p3-9 count in L.Suppt.Alignment.pdf. Printed in the Business
+    // Targets panel they would send anyone checking to the wrong page of the wrong deck,
+    // and a tester has no way to see that. Mike's ruling, 2026-09-26: a dash.
+    const w = mountMenu()
+    const d = DECKS.findIndex(deck => deck.id === 'business-targets')
+    const page = id => w.findAll('.ssm-deck').at(d).findAll('tbody tr')
+      .at(DECKS[d].concepts.findIndex(c => c.id === id)).find('.ssm-pg').text()
+    expect(page('alignment-statements')).toBe('—')
+    // Its neighbour in the same panel is paged in that panel's own deck, and keeps its number.
+    expect(page('business-owner-expectations')).not.toBe('—')
+  })
+
   it('counts what is ticked, per panel and overall', () => {
     // The counts, not the sentence around them — `$t` is stubbed in these mounts, so
     // reading the rendered string would assert the stub's format rather than the maths.
     const w = mountMenu(PIVOT_CONCEPTS)
-    expect(w.vm.totalConcepts).toBe(47)
+    expect(w.vm.totalConcepts).toBe(48)
     // Strategic Orientation 2 is the third panel and holds nine of Pivot's eleven; Sales
     // & Marketing is the fourth and holds the other two.
     expect(w.vm.chosenInDeck(DECKS[2])).toBe(9)

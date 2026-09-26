@@ -246,8 +246,9 @@ describe('the firm frame is on every drawing, identically', () => {
     // number. 32 until 2026-09-23, then Our Session Objective and Collaborative
     // Thinking — which is ONE entry across its two sheets, because a concept either
     // titles itself or does not. Emitting it per drawing produced a duplicate key,
-    // which the lint caught and this count would not have.
-    expect((block.match(/: true/g) || []).length).toBe(34)
+    // which the lint caught and this count would not have. 35 from 2026-09-26: Alignment
+    // Statements, one entry across six sheets, each opening on its own 50px title (15.28).
+    expect((block.match(/: true/g) || []).length).toBe(35)
     expect(block).not.toContain('vertical-integration')
     expect(block).toContain('porters-5-forces')
   })

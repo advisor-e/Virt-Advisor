@@ -128,9 +128,14 @@ section.scc2
               )
 
   template(v-else)
-    .scc2-grid(:class="{ 'is-stack': isStackedForm }" :style="pinnedGridStyle")
+    .scc2-grid(
+      v-for="section in sections"
+      :key="section.key"
+      :class="{ 'is-stack': section.stacked }"
+      :style="pinnedGridStyle"
+    )
       .scc2-block(
-        v-for="block in blocks"
+        v-for="block in section.blocks"
         :key="block.key"
         :style="pinnedColumns ? { gridColumn: block.column + 1 } : null"
       )
@@ -247,6 +252,34 @@ const MODEL_SCREENS = {
  *   that caused the defect and is unreadable at phone width besides.
  */
 const STACKED_FORMS = ['named-field-stack', 'parallel-prompt-pair']
+
+/**
+ * The most blocks that sit side by side: `.scc2-grid`'s 260px minimum column in a card
+ * about 900px wide. A wider screen fits no more, because the card does not widen.
+ */
+const MAX_SIDE_BY_SIDE = 3
+
+/** Characters of guide text that fit one line of a box spanning the whole card. */
+const CHARS_PER_FULL_LINE = 100
+
+/**
+ * The rows a box needs for his example at a given number of columns across.
+ *
+ * At one column this is the rule the card has always used. Across columns it is also at
+ * least what the example needs at a third or a half of the width, because a box is a
+ * scroll bar otherwise — which is how his long "What We Mean" examples read on
+ * Alignment Statements (item 15.28) until the rows were sized together.
+ *
+ * @param {string} example
+ * @param {number} columns
+ * @returns {number}
+ */
+function linesForExample (example, columns) {
+  const length = (example || '').length
+  const base = length > 220 ? 4 : (length > 80 ? 3 : 2)
+  if (columns <= 1) { return base }
+  return Math.min(10, Math.max(base, Math.ceil(length / Math.floor(CHARS_PER_FULL_LINE / columns))))
+}
 
 export default {
   name: 'StrategyConceptCapture',
@@ -477,8 +510,65 @@ export default {
      *
      * @returns {boolean}
      */
-    isStackedForm () {
-      return this.capture.supplied && STACKED_FORMS.includes(this.capture.form)
+    /**
+     * The card's tables in reading order, one section per run of tables sharing a form,
+     * each laid out by that form.
+     *
+     * 🔴 ONE SECTION ON EVERY CARD BUT ONE. A table may name its own form (item 15.28):
+     * Alignment Statements puts five named statements, which come down the page, above a
+     * three-column table, which flows across. Every other template has one form throughout,
+     * so it is one section and renders exactly as it did.
+     *
+     * @returns {Array<{key: string, stacked: boolean, blocks: Array<object>}>}
+     */
+    sections () {
+      const forms = this.capture.tableForms || []
+      const runs = []
+      this.visitFields.forEach((f) => {
+        const form = forms[Number(f.key.split('r')[0].slice(1))] || this.capture.form
+        let run = runs[runs.length - 1]
+        if (!run || run.form !== form) {
+          run = { key: 's' + runs.length, form, fields: [] }
+          runs.push(run)
+        }
+        run.fields.push(f)
+      })
+      return runs.map(run => ({
+        key: run.key,
+        stacked: STACKED_FORMS.includes(run.form),
+        blocks: this.blocksOf(run.fields)
+      }))
+    },
+
+    /**
+     * Every box's rows, one height per row of his table.
+     *
+     * 🔴 THE BLOCKS ARE COLUMNS, SO A ROW IS ONLY A ROW IF ITS BOXES SHARE A HEIGHT. Sized
+     * one by one, a long example grew its own box and the column beside it did not: on
+     * Alignment Statements "Our Community" came level with the SECOND "What We Mean", and
+     * the approved drawing lays the table out row by row (item 15.28, Mike 2026-09-26).
+     * A row is the key without its column — `t1r2c0` and `t1r2c2` are one row.
+     *
+     * @returns {Object<string, number>}
+     */
+    rowsByKey () {
+      const out = {}
+      // The two-dimensional table sizes its own 430px columns; this is the blocks' rule.
+      if (this.isGrid) { return out }
+      this.sections.forEach((section) => {
+        const across = section.stacked
+          ? 1
+          : (this.pinnedColumns || Math.min(section.blocks.length, MAX_SIDE_BY_SIDE))
+        const byRow = {}
+        section.blocks.forEach(block => block.fields.forEach((f) => {
+          const row = f.key.replace(/c\d+$/, '')
+          byRow[row] = Math.max(byRow[row] || 0, linesForExample(f.example, across))
+        }))
+        section.blocks.forEach(block => block.fields.forEach((f) => {
+          out[f.key] = byRow[f.key.replace(/c\d+$/, '')]
+        }))
+      })
+      return out
     },
 
     /**
@@ -550,28 +640,6 @@ export default {
     },
 
     /**
-     * The fields grouped under their column heading, which is how the template itself
-     * bands them.
-     * @returns {Array<{key: string, label: string, fields: object[]}>}
-     */
-    blocks () {
-      const order = []
-      const byLabel = {}
-      this.visitFields.forEach((f) => {
-        const label = f.columnLabel || f.rowLabel || ''
-        // `columnHead` is set only where one heading spans two columns — Revenue
-        // Streams' two "Our Thoughts" lists — so those stay two blocks.
-        const id = label + '\u0000' + (f.columnHead || '')
-        if (!byLabel[id]) {
-          byLabel[id] = { key: 'b' + order.length, label, column: f.column, fields: [] }
-          order.push(byLabel[id])
-        }
-        byLabel[id].fields.push(f)
-      })
-      return order
-    },
-
-    /**
      * How many of his columns to pin blocks to, or 0 to let them flow as before.
      *
      * Only where a heading spans columns. Two blocks both headed "Our Thoughts to Support
@@ -611,6 +679,29 @@ export default {
   },
 
   methods: {
+    /**
+     * Fields grouped under their column heading, which is how the template itself
+     * bands them.
+     * @param {object[]} fields
+     * @returns {Array<{key: string, label: string, column: number, fields: object[]}>}
+     */
+    blocksOf (fields) {
+      const order = []
+      const byLabel = {}
+      fields.forEach((f) => {
+        const label = f.columnLabel || f.rowLabel || ''
+        // `columnHead` is set only where one heading spans two columns — Revenue
+        // Streams' two "Our Thoughts" lists — so those stay two blocks.
+        const id = label + '\u0000' + (f.columnHead || '')
+        if (!byLabel[id]) {
+          byLabel[id] = { key: 'b' + order.length, label, column: f.column, fields: [] }
+          order.push(byLabel[id])
+        }
+        byLabel[id].fields.push(f)
+      })
+      return order
+    },
+
     /**
      * One sheet's saved page edits.
      * @param {number} sheet
@@ -663,15 +754,13 @@ export default {
 
     /**
      * A ruled line gets one row; a prompt that Mike answered in a paragraph gets
-     * room for a paragraph. Taken from the length of his own example.
+     * room for a paragraph. Taken from the length of his own example — and, where the
+     * box sits in a row of columns, from the longest example in that row.
      * @param {object} field
      * @returns {number}
      */
     rowsFor (field) {
-      const example = field.example || ''
-      if (example.length > 220) { return 4 }
-      if (example.length > 80) { return 3 }
-      return 2
+      return this.rowsByKey[field.key] || linesForExample(field.example, 1)
     },
 
     /**

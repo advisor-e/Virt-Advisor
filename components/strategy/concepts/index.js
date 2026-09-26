@@ -229,6 +229,32 @@ export const CONCEPT_GRAPHICS = {
       /* webpackChunkName: 'concept-collaborative-thinking-sheet2' */
       '~/components/strategy/concepts/CollaborativeThinkingSheet2.vue'
     )
+  ],
+  'alignment-statements': [
+    () => import(
+      /* webpackChunkName: 'concept-alignment-statements' */
+      '~/components/strategy/concepts/AlignmentStatements.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-alignment-statements-sheet2' */
+      '~/components/strategy/concepts/AlignmentStatementsSheet2.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-alignment-statements-sheet3' */
+      '~/components/strategy/concepts/AlignmentStatementsSheet3.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-alignment-statements-sheet4' */
+      '~/components/strategy/concepts/AlignmentStatementsSheet4.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-alignment-statements-sheet5' */
+      '~/components/strategy/concepts/AlignmentStatementsSheet5.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-alignment-statements-sheet6' */
+      '~/components/strategy/concepts/AlignmentStatementsSheet6.vue'
+    )
   ]
 }
 
@@ -276,7 +302,8 @@ export const CONCEPT_TITLED = {
   'porters-5-forces': true,
   'technology-points': true,
   'our-session-objective': true,
-  'collaborative-thinking': true
+  'collaborative-thinking': true,
+  'alignment-statements': true
 }
 
 /**

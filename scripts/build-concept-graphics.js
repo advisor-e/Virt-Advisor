@@ -134,7 +134,15 @@ const DRAWINGS = [
   // which the method forbids because his sizes are READ off his page. Sheet 1 is
   // the story his p10 tells the advisor to draw; sheet 2 is that page's theory.
   { file: 'strategy-concept-collaborative-thinking.html', svg: 1, sheet: 1, conceptId: 'collaborative-thinking' },
-  { file: 'strategy-concept-collaborative-thinking.html', svg: 2, sheet: 2, conceptId: 'collaborative-thinking' }
+  { file: 'strategy-concept-collaborative-thinking.html', svg: 2, sheet: 2, conceptId: 'collaborative-thinking' },
+
+  // SIX SHEETS FROM A DOCUMENT OUTSIDE THE FIVE DECKS — L.Suppt.Alignment.pdf p3, p4, p5,
+  // p6, p7, p9, in his order. Approved by Mike 2026-09-26 with his four rulings written on
+  // the drawing (item 15.28). Sheet 2's E.R.G diagram is his own picture, so its labels are
+  // the one part of this concept the page editor cannot reach.
+  ...[1, 2, 3, 4, 5, 6].map(n => ({
+    file: 'strategy-concept-alignment-statements.html', svg: n, sheet: n, conceptId: 'alignment-statements'
+  }))
 ]
 
 /**
@@ -162,9 +170,7 @@ const DRAWINGS = [
  *
  * @type {Array<{file: string, svg: number, since: string, item: string}>}
  */
-const AWAITING_APPROVAL = [1, 2, 3, 4, 5, 6].map(svg => ({
-  file: 'strategy-concept-alignment-statements.html', svg, since: '2026-09-26', item: '15.28'
-}))
+const AWAITING_APPROVAL = []
 
 /**
  * Every concept a drawing serves, in registry order.
@@ -431,7 +437,12 @@ function bindAgendaSlot (svg) {
 function render (drawing, svg, hasSlot) {
   // A blank line stays blank rather than becoming four spaces — the lint forbids
   // trailing whitespace, and indenting nothing is not part of the drawing.
-  const indented = svg.split('\n').map(l => (l.trim() ? '    ' + l.replace(/\s+$/, '') : '')).join('\n')
+  // A non-breaking space from his PDF's text layer is written as its character reference:
+  // the lint refuses it raw (`no-irregular-whitespace`), and the compiler turns `&#160;`
+  // back into the same character, so the page renders his text exactly (item 15.28).
+  const indented = svg.split('\n')
+    .map(l => (l.trim() ? '    ' + l.replace(/\s+$/, '').replace(/ /g, '&#160;') : ''))
+    .join('\n')
   return `<template lang="pug">
   .scg.
 ${indented}

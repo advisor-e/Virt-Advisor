@@ -1980,6 +1980,196 @@
           ]
         }
       ]
+    },
+    "Alignment Statements": {
+      "file": "alignment deck, pages 8 and 9",
+      "format": "deck-page",
+      "deck": "alignment",
+      "page": 8,
+      "tables": [
+        {
+          "columns": 2,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Vision"
+                },
+                {
+                  "text": "Enter Vision statement here… Speaking to your stakeholders, where you see the business in future and when."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Purpose"
+                },
+                {
+                  "text": "Enter Purpose statement here… Speaking to both Customers & Stakeholders - Why you do what you do beyond economic requirement."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Values"
+                },
+                {
+                  "text": "Enter Values statement here… Speaking to both Customers & Stakeholders, - Recognising the social element; how your action (or inaction) affects others. What guides you in your decision making about the way you engage with people inside and out of your business."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Mission"
+                },
+                {
+                  "text": "Enter Mission statement here… Speaking to Stakeholders, what (milestone) needs to be achieved within a specified timeframe (mission period) in order to ensure the success of the (longer term) Vision."
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "",
+                  "blank": true
+                },
+                {
+                  "text": "",
+                  "blank": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Strategy"
+                },
+                {
+                  "text": "Enter Strategy statement here… Speaking to Board Members / Owners - The over-arching philosophy about HOW you intend to achieve the Vision."
+                }
+              ]
+            }
+          ],
+          "form": "named-field-stack"
+        },
+        {
+          "columns": 3,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Who We’re Talking To",
+                  "header": true
+                },
+                {
+                  "text": "What We Say",
+                  "header": true
+                },
+                {
+                  "text": "What We Mean",
+                  "header": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Our Team",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Good is Never Enough",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "It’s OK to make mistakes so long as we’re constantly striving to improve. Good enough was fine to get us started; but it won’t sustain us in our future.",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Our Customers",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "We’ll Be There.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Integrity matters: We tell the truth – even if it costs us money. We can be relied upon: If we say we’ll deliver – we mean it. Pride comes from within: Our name goes on everything we do. We serve: The Customer, The Business, The Team – come before myself.",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Our Community",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Together We Stand",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "We have no role, except in the service of others but we can’t do it on our own; we’re part of a greater team. We only win if everyone wins alongside us; our Suppliers, our Customers, Our Community.",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   }
 }
