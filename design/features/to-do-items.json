@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "15.24",
-      "name": "Business Owner Expectations plan page overflows past about 14 tasks",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The contrast page prints one row per task any named owner holds. It fits one A4 sheet with the workbook's ten tasks and room for about four more, but an owner may hold twenty.",
-      "risk": "A firm whose owners add their own tasks gets a table running under the page's running foot on the client's plan - the fault fixed once already on 2026-09-25 at ten tasks. Nothing is lost; the page just prints badly.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-25 - found measuring the 15.23 build: 76px spare below the table at ten tasks, about 17px a row. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "components/strategy/StrategyOwnerContrast.vue (the page), utils/ownerExpectationsPrint.js (which tasks print), design/mockups/strategy-concept-owner-expectations.html (the approved drawing a fix must amend).",
-      "note": "A DESIGN CHOICE FOR MIKE, NOT A PATCH: let the task rows continue onto a second sheet, print smaller type, or print only the tasks whose share changes between now and focus. Owners across does not affect it - six named owners fit on one sheet, measured 2026-09-25.",
-      "comment": "2026-09-25 - filed on Mike's yes while walking the 15.23 build in a browser."
-    },
-    {
       "ref": "15.2",
       "name": "The hundred questions behind the nine Growth Aspects",
       "rankedByMike": false,

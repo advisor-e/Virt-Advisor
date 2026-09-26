@@ -1990,7 +1990,7 @@
         "colNow": "Now %",
         "colHrs": "Hrs",
         "colFocus": "Focus %",
-        "footnote": "Both columns are priced at the owner's Stage 1 weekly hours, as the workbook does. Each column should add to 100%. Rename, remove or add this owner's tasks here; the other owners keep their own.",
+        "footnote": "Both columns are priced at the owner's Stage 1 weekly hours, as the workbook does. Each column should add to 100%. The ten tasks are shared by every owner — rename, remove or add one here and it changes for all of them.",
         "addTask": "+ Add task",
         "removeTask": "Remove this task",
         "taskPlaceholder": "Task name",
@@ -6246,7 +6246,7 @@
   },
   "ownerFocusTasks": {
     "tab": "Owner Focus Tasks",
-    "yoursLede": "This is your own starting list. Every owner on Business Owner Expectations begins with these tasks at every tier beneath you, and each owner may then rename, remove or add their own.",
+    "yoursLede": "This is your own starting list. Every owner on Business Owner Expectations begins with these tasks at every tier beneath you, and the owners share them as one list of up to ten that can be renamed, removed or added to.",
     "inheritedLede": "You are using the starting list set by {whose}. Change anything below and press Save to hold your own instead.",
     "shippedLede": "You are using the platform's starting list, taken from the Business Owner Expectations workbook. Change anything below and press Save to hold your own instead.",
     "shippedMentorLede": "This is the starting list taken from the Business Owner Expectations workbook. Change anything below and press Save, and every tier beneath you receives your list instead.",

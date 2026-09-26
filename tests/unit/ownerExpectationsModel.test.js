@@ -164,17 +164,25 @@ describe('Hostile and partial input', () => {
     expect(s.stages[0].markets).toHaveLength(200) // the saved-report store's ceiling
   })
 
-  it('carries each owner\'s own task names, in their order, capped', () => {
+  it('🔴 holds the owners together to ten different tasks, cutting a list from its end — item 15.24', () => {
+    // Mike, 2026-09-26: "no more than 10 tasks in the model, and table". The screen keeps one
+    // shared list; this is the ceiling behind it. A list is cut from its END because the
+    // screen matches each row to this answer by position.
     const r = computeOwnerExpectations({
       owners: [
         { stages: [{ weeklyHours: 40 }], duties: [{ task: '  Board work ', now: 0.5, focus: 0.25 }, { task: 'Hiring', now: 0.5, focus: 0.75 }] },
-        { stages: [{ weeklyHours: 50 }], duties: Array.from({ length: 30 }, (_, i) => ({ task: 'T' + i, now: 0 })) }
+        { stages: [{ weeklyHours: 50 }], duties: Array.from({ length: 30 }, (_, i) => ({ task: 'T' + i, now: 0 })) },
+        { stages: [{ weeklyHours: 50 }], duties: [{ task: 'Hiring', now: 1 }, { task: 'Yet another', now: 0 }] }
       ]
     })
+    expect(MAX_TASKS).toBe(10)
     expect(r.owners[0].duties.map(d => d.task)).toEqual(['Board work', 'Hiring'])
     expect(r.owners[0].duties[1].focusHours).toBeCloseTo(30, P)
     expect(r.owners[0].dutyTotals.now).toBeCloseTo(1, P)
-    expect(r.owners[1].duties).toHaveLength(MAX_TASKS)
+    // Two names already held, so eight more fit.
+    expect(r.owners[1].duties.map(d => d.task)).toEqual(['T0', 'T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'])
+    // A name already in the ten is kept; an eleventh ends the list there.
+    expect(r.owners[2].duties.map(d => d.task)).toEqual(['Hiring'])
   })
 
   it('starts every sample owner on the workbook\'s ten tasks, read from the shipped list', () => {

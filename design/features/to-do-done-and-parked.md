@@ -353,6 +353,23 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.24 · Business Owner Expectations plan page overflowed past about 14 tasks.**
+✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he ruled it.
+
+- **His rulings:** *"no the tasks are restricted in number - no more in number than original
+  doc"*, then *"1 list of 10 is what i asked for BUT those 10 can be edited"*, and the scope:
+  *"no more than 10 tasks in the model, and table - do not print onto an additional page"*.
+- **What proves it:** the model holds ten tasks at most; the screen keeps one list shared by every
+  owner, where a rename, an added task or a removed one changes it for all and each owner keeps
+  their own shares, and Add task stops at ten; the printed table never exceeds ten rows. A session
+  saved while owners kept their own lists is joined by task name. Tests in
+  `tests/unit/ownerExpectations*.test.js`; walked in a browser. The note under the table carries
+  his approved wording ([`../OWNER-EXPECTATIONS-WORDING.md`](../OWNER-EXPECTATIONS-WORDING.md)).
+  Found the same day and fixed on his word ("no - fix it now"): the managers' Owner Focus Tasks
+  tab still allowed 20 and said each owner kept their own list. It now holds ten, a list saved
+  with more keeps its first ten rather than falling back to the tier above, and its sentence is
+  his approved wording. Commit: `git log --grep "(15.24)"`.
+
 **15.26 · The Our Session Objective agenda had room for six steps; a seventh printed over the logo.**
 ✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he ruled it, approved it and it was built.
 

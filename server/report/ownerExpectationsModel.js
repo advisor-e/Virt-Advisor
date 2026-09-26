@@ -49,13 +49,15 @@ const STAGE_KEYS = ['current', 'stage1', 'stage2', 'stage3']
 const MAX_OWNERS = 6
 
 /**
- * 🔴 EACH OWNER HOLDS THEIR OWN TASK LIST — Mike's ruling, 2026-09-24: every owner starts
- * from the same list, cascaded down the tiers (`server/utils/ownerFocusTasks.js`), and may
- * then rename, delete and add their own. So a duty is `{ task, now, focus }` with the task's
- * NAME carried on it, not a fixed key. The workbook's ten rows (`D16:D25`) are the shipped
- * starting list in `data/owner-focus-tasks.json`, read here rather than copied.
+ * 🔴 ONE LIST OF UP TO TEN TASKS, SHARED BY EVERY OWNER — Mike, 2026-09-26 (item 15.24):
+ * *"1 list of 10 is what i asked for BUT those 10 can be edited"*, and *"no more than 10 tasks
+ * in the model, and table - do not print onto an additional page"*. His workbook has one task
+ * column of ten rows (`D16:D25`); the list starts from the one cascaded down the tiers
+ * (`server/utils/ownerFocusTasks.js`) and the screen renames, adds and removes a task for every
+ * owner at once. A duty is still `{ task, now, focus }` with the task's NAME carried on it, and
+ * each owner keeps their own shares. It was 20 per owner, which let the table run off its page.
  */
-const MAX_TASKS = 20
+const MAX_TASKS = 10
 
 /** A task is a short name — the same ceiling the starting-list tab enforces. */
 const MAX_TASK_NAME = 80
@@ -183,9 +185,27 @@ function readOwner (raw) {
   }
 }
 
+/**
+ * The owners, holding no more than MAX_TASKS different task names between them.
+ *
+ * ⚠ A LIST IS CUT FROM ITS END, NEVER ITS MIDDLE. The screen matches each of an owner's rows
+ * to this answer by position, so the first row that would name an eleventh different task
+ * ends that owner's list there. A row with no name is not a task name and does not count.
+ */
 function readOwners (inputs) {
   const raw = inputs && Array.isArray(inputs.owners) ? inputs.owners : DEFAULT_INPUTS.owners
-  return raw.slice(0, MAX_OWNERS).map(readOwner)
+  const named = new Set()
+  return raw.slice(0, MAX_OWNERS).map(readOwner).map((o) => {
+    const duties = []
+    for (const d of o.duties) {
+      if (d.task && !named.has(d.task)) {
+        if (named.size >= MAX_TASKS) { break }
+        named.add(d.task)
+      }
+      duties.push(d)
+    }
+    return Object.assign(o, { duties })
+  })
 }
 
 function readYears (inputs) {

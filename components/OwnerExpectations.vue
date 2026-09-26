@@ -149,13 +149,15 @@
                   th.r {{ $t('report.ownerExpectations.duties.colHrs') }}
                   th
               tbody
-                //- 🔴 THIS OWNER'S OWN TASKS — Mike's ruling, 2026-09-24. Every owner starts from
-                //- the firm's starting list and may rename, remove or add their own; the other
-                //- owners keep theirs. Rows are the FORM's, so a new row shows before the model
-                //- answers; its hours come from the model by position.
+                //- 🔴 ONE LIST OF UP TO TEN TASKS, SHARED BY EVERY OWNER — Mike, 2026-09-26
+                //- (item 15.24): "1 list of 10 is what i asked for BUT those 10 can be edited".
+                //- A rename, an added task or a removed one changes the list for every owner,
+                //- as his workbook's one task column does; each owner keeps their own shares.
+                //- Rows are the FORM's, so a new row shows before the model answers; its hours
+                //- come from the model by position.
                 tr(v-for="(d, i) in openForm.duties" :key="d.key")
                   td.oe-task
-                    b-input(v-model="d.task" size="is-small" :placeholder="$t('report.ownerExpectations.duties.taskPlaceholder')")
+                    b-input(:value="d.task" size="is-small" :placeholder="$t('report.ownerExpectations.duties.taskPlaceholder')" @input="renameTask(i, $event)")
                   td.r
                     b-input(v-model.number="d.nowPct" type="number" step="any" size="is-small")
                   td.r.oe-num {{ num(dutyResult(i, 'nowHours'), 2) }}
@@ -179,7 +181,7 @@
                   td
           b-button.oe-add(
             size="is-small"
-            :disabled="openForm.duties.length >= maxTasks"
+            :disabled="!canAddTask"
             @click="addTask") {{ $t('report.ownerExpectations.duties.addTask') }}
           p.oe-note {{ $t('report.ownerExpectations.duties.footnote') }}
           p.oe-note(v-if="startingFailed") {{ $t('report.ownerExpectations.duties.startingFailed') }}
@@ -301,8 +303,11 @@ const MODEL_ROUTE = '/owner-expectations'
 /** The workbook's ten tasks, in its order — the shipped starting list, one home. */
 const SHIPPED_TASKS = SHIPPED.tasks
 
-/** The backend's ceilings — `MAX_TASKS` / `MAX_TASK_NAME` in the maths module. */
-const MAX_TASKS = 20
+/**
+ * The backend's ceilings — `MAX_TASKS` / `MAX_TASK_NAME` in the maths module. Ten, and across
+ * all owners together: Mike, 2026-09-26 (item 15.24), "no more in number than original doc".
+ */
+const MAX_TASKS = 10
 const MAX_TASK_NAME = 80
 
 /** The saved-report store's ceiling for a piece of text (`savedReports.js` MAX_STRING). */
@@ -388,7 +393,6 @@ export default {
   data () {
     return {
       step: 1,
-      maxTasks: MAX_TASKS,
       // Set once a client's saved figures are on the screen, so a starting list arriving
       // late can never overwrite them — Multiple Property's `savedRulesApplied`.
       savedApplied: false,
@@ -473,6 +477,14 @@ export default {
     /** The open owner's FORM object, bound directly so its fields are editable. */
     openForm () {
       return this.form.owners[this.openOwner] || this.form.owners[0] || null
+    },
+
+    /**
+     * Can the shared list take another task? Not past the original workbook's ten (15.24).
+     * @returns {boolean}
+     */
+    canAddTask () {
+      return Boolean(this.openForm) && this.openForm.duties.length < MAX_TASKS
     },
 
     /** The open owner as the model returned them. */
@@ -575,18 +587,52 @@ export default {
       })
     },
 
-    /** Add a blank task to the open owner. */
+    /** Add a blank task to the shared list — on every owner, with no share yet. */
     addTask () {
-      const o = this.openForm
-      if (!o || o.duties.length >= MAX_TASKS) { return }
-      o.duties.push(taskRow('', null, null))
+      if (!this.canAddTask) { return }
+      this.form.owners.forEach((o) => { o.duties.push(taskRow('', null, null)) })
     },
 
-    /** Remove one of the open owner's tasks — never the last, or the split has nowhere to go. */
+    /**
+     * Rename the task at position `i` for every owner — the list is one list (item 15.24).
+     * @param {number} i
+     * @param {string} name
+     */
+    renameTask (i, name) {
+      this.form.owners.forEach((o) => { if (o.duties[i]) { o.duties[i].task = name } })
+    },
+
+    /**
+     * Remove the task at position `i` from every owner — never the last, or the split has
+     * nowhere to go.
+     * @param {number} i
+     */
     removeTask (i) {
-      const o = this.openForm
-      if (!o || o.duties.length <= 1) { return }
-      o.duties.splice(i, 1)
+      if (!this.openForm || this.openForm.duties.length <= 1) { return }
+      this.form.owners.forEach((o) => { o.duties.splice(i, 1) })
+    },
+
+    /**
+     * Make the owners' task lists one list — a record saved while each owner kept their own is
+     * joined by task name, in the order first met, up to ten, and each owner keeps their shares
+     * against the names they held. Lists that already agree are left exactly as they are.
+     */
+    shareTaskList () {
+      const owners = this.form.owners
+      const names = owners.map(o => o.duties.map(d => String(d.task || '').trim()).join('\u0000'))
+      if (names.every(n => n === names[0])) { return }
+      const shared = []
+      owners.forEach(o => o.duties.forEach((d) => {
+        const name = String(d.task || '').trim()
+        if (name && !shared.includes(name) && shared.length < MAX_TASKS) { shared.push(name) }
+      }))
+      if (!shared.length) { return }
+      owners.forEach((o) => {
+        o.duties = shared.map((name) => {
+          const d = o.duties.find(x => String(x.task || '').trim() === name)
+          return taskRow(name, d ? d.nowPct : null, d ? d.focusPct : null)
+        })
+      })
     },
 
     /** The model's figure for the open owner's task at position `i`, or 0 before it answers. */
@@ -671,6 +717,7 @@ export default {
           ))
         }
       })
+      this.shareTaskList()
 
       Object.keys(f.development).forEach((k) => {
         const v = list(inputs['dev.' + k], 4)
