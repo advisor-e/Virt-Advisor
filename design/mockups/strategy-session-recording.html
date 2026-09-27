@@ -163,6 +163,7 @@
   .decision h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
   .decision p { margin: 0 0 6px; }
   .rec { font-weight: 600; color: var(--ink); }
+  .later { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--warn); border: 1px dashed var(--warn); border-radius: 4px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
   .against { color: var(--eg); font-size: 13px; }
 
   /* timing (added 2026-09-28) */
@@ -198,12 +199,13 @@
 <body>
 <div class="wrap">
 
-  <p class="eyebrow">Strategy Planner · Run session · item 8.4 · drawn 2026-09-25 · timing added 2026-09-28 (screens 7–9) · not approved · not built</p>
+  <p class="eyebrow">Strategy Planner · Run session · item 8.4 · drawn 2026-09-25 · timing added 2026-09-28 (screens 7–9) · concept summaries added 2026-09-28 (screen 10) · not approved · not built</p>
   <h1>Recording a strategy session in sections</h1>
   <p class="lede">Each concept card in Run session becomes <b>its own short recording</b>. The advisor presses the card's
     record button, and pressing the next card's button closes the one before. Each section is turned into text
     <b>as soon as it closes</b> and its audio is deleted straight after. The words then land in <b>the box that
-    was open when they were spoken</b>. The advisor keeps, edits or rejects each one. At the end the sections join
+    was open when they were spoken</b>. The advisor keeps, edits or rejects each one.
+    <span class="later">second build — screen 4, not in the first build</span> At the end the sections join
     into one transcript, so Meeting Review's summary and coaching notes work as they do now.</p>
   <p class="lede">This joins two things you've already asked for: <b>Decisions 10 and 11</b> of the planner drawing
     (16 Sep), and <b>your option on 8.4</b> (24 Sep), <i>"clicking a section starts its own recording … saved per
@@ -334,7 +336,7 @@
         <div class="forces">
           <div class="field"><h5>Customers</h5><p class="q">Are customers likely to be motivated to pay premium prices…</p><div class="typed">Price-led; loyal to the brand but not to us</div></div>
           <div class="field open"><h5>Suppliers</h5><p class="q">Is there competition amongst your suppliers? Do they actively compete for your business, and if you had to shift to a new supplier, how easy would it be?</p><div class="typed empty"></div>
-            <p class="claim">● What's said now goes here</p></div>
+            <p class="claim">● What's said now goes here <span class="later">second build — screen 4, not in the first build</span></p></div>
           <div class="field"><h5>Substitutes</h5><p class="q">What are the alternatives to your product or service?…</p><div class="typed empty"></div></div>
         </div>
       </div>
@@ -352,7 +354,7 @@
     reaches OpenAI's limit. <span class="dec">Decision E</span></p>
 
   <!-- ───────────────────────────── SCREEN 4 ───────────────────────────── -->
-  <h2>4 · The words arrive in their boxes, and nothing goes in until the advisor keeps it</h2>
+  <h2>4 · The words arrive in their boxes, and nothing goes in until the advisor keeps it <span class="later">second build</span></h2>
   <p class="cap">Once a section has been turned into text, each passage appears <b>under the box that was open when it
     was spoken</b>. It shows what was actually said, with who said it, and beneath that the sentence an advisor would
     have typed. Nothing enters the box until the advisor presses <b>Keep</b>. This is Decision 11: the clock decides
@@ -422,7 +424,9 @@
       <span class="sec done">5 · Productive Habits</span>
     </div>
     <div class="banner ok"><b>Recording finished. 5 sections, 52 minutes, all turned into text, all audio deleted.</b>
-      Words still waiting in boxes: 7. <span class="btn small" style="margin-left:8px">Read my reports</span></div>
+      Summaries still waiting for approval: 1. <span class="btn small" style="margin-left:8px">Read my reports</span></div>
+    <p class="muted" style="margin:0 14px 14px">Second build adds: "Words still waiting in boxes: 7."
+      <span class="later">second build — screen 4, not in the first build</span></p>
   </div>
   <p class="cap">The five transcripts join in order, each shifted by its start time, into <b>one</b> meeting transcript.
     Meeting Review's Meeting Summary and My Coaching Notes read that one transcript exactly as they do today.
@@ -521,6 +525,55 @@
     </div>
   </div>
 
+  <!-- ═════════════════════ SCREEN 10 — added 2026-09-28 ═════════════════════ -->
+  <h2>10 · Each concept's summary, edited and approved by the advisor and client</h2>
+  <p class="cap"><b>Added 2026-09-28 on Mike's yes. Not approved.</b> His ruling: the advisor and client edit and
+    approve <b>each concept segment's short summary</b>, never its transcript, and the approved summaries are then
+    joined. Once a segment is turned into text, its summary appears under its card, written under the concept's
+    <b>own headings</b>: here Porter's capture table (<i>How Customers May Change</i>, <i>What Substitutes May
+    Emerge</i>, <i>How Suppliers May Change</i>, <i>What New Entrants May Emerge</i>). The client approves on the
+    advisor's screen; the app records the advisor's confirmation that they did, as the consent tick does. This is part
+    of the <b>first</b> build. <span class="dec">Decision J</span></p>
+  <div class="screen">
+    <div class="frame">
+      <p class="runhead">Choose Your Competition Fronts</p>
+      <div class="card">
+        <div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span>
+          <span class="sec done">section 3 · text ready · audio deleted</span></div>
+        <div style="padding:12px 14px">
+          <p class="lbl" style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--eg);margin:0 0 6px">Summary of this concept · draft</p>
+          <div class="field" style="margin:0 0 8px">
+            <h5>How Suppliers May Change</h5>
+            <div class="typed">Only two powder-coating suppliers are close enough to use, and one is full until March. If the other raises its price, the business has no alternative.</div>
+          </div>
+          <div class="field" style="margin:0 0 8px">
+            <h5>What Substitutes May Emerge</h5>
+            <div class="typed">A national hardware chain began stocking a flat-pack version last year.</div>
+          </div>
+          <div class="field" style="margin:0 0 8px">
+            <h5>What New Entrants May Emerge</h5>
+            <div class="typed">A local fabricator has started offering coating as well, though only for its own work so far.</div>
+          </div>
+          <div class="field" style="margin:0 0 10px">
+            <h5>How Customers May Change</h5>
+            <div class="typed empty">Nothing was said about this.</div>
+          </div>
+          <p style="margin:0 0 8px;font-size:13px"><span style="display:inline-block;width:14px;height:14px;border:1.5px solid var(--eg);border-radius:3px;vertical-align:-2px;margin-right:6px"></span>The client has read this summary and agrees with it</p>
+          <div class="acts"><span class="btn small">Approve summary</span><span class="btn ghost small">Edit</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="cardtop"><b>Business Owner Expectations</b><span class="grow"></span>
+          <span class="sec done">summary approved · 9:48 am</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap"><b>An edit clears an earlier approval</b>, exactly as Meeting Review's summary does today
+    (<code>saveSummaryEdit</code>): approved words that are then changed must never still read as approved. A heading
+    nobody spoke about says so rather than being filled in. <b>The word-for-word transcript is never shown here for
+    editing</b>; it stays exactly as spoken. The client's words in the sample are invented for the drawing, and the
+    chain's name is left out on purpose.</p>
+
   <!-- ───────────────────────────── HOW IT WORKS ───────────────────────────── -->
   <h2>How it works underneath</h2>
   <div class="flow">
@@ -580,7 +633,7 @@
     <p class="against">Against: asking at every section would be tiresome and would undercut the approved line, which
       already asks about the whole meeting.</p></div>
 
-  <div class="decision"><h3>Decision D · when the words arrive</h3>
+  <div class="decision"><h3>Decision D · when the words arrive <span class="later">second build</span></h3>
     <p class="rec">Recommended: as each section is turned into text, during the session.</p>
     <p>A failure shows within minutes (your point on 8.4), and an advisor can keep words during a natural pause instead
       of facing everything at the end.</p>
@@ -603,7 +656,7 @@
     <p class="against">Against: a warning asking the advisor to press something would keep them in control, but it asks
       for attention at exactly the moment they're listening to a client.</p></div>
 
-  <div class="decision"><h3>Decision F · how a kept suggestion enters the box</h3>
+  <div class="decision"><h3>Decision F · how a kept suggestion enters the box <span class="later">second build</span></h3>
     <p class="rec">Recommended: added beneath what's already typed, never replacing it. Nothing enters a box without Keep.</p>
     <p>What the advisor typed in the room is the most reliable record, and the AI's wording is only a suggestion.</p>
     <p class="against">Against: replacing would keep boxes shorter, but it would silently discard the advisor's own words.</p></div>
@@ -641,26 +694,38 @@
     <p class="against">Against: a Resource required box per concept would let the advisor prepare the room from the plan
       itself — the job that column does on his run sheet.</p></div>
 
+  <div class="decision"><h3>Decision J · a summary still unapproved when the recording ends (screen 10)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should the joined Meeting Summary be built only from the concept
+      summaries the client has approved, with any still waiting kept on their cards to finish later — instead of joining
+      every summary at the end with the unapproved ones marked as not approved?"</i></p>
+    <p class="rec">Recommended: the joined Meeting Summary is made only from approved concept summaries. One still
+      waiting stays on its card, so the advisor can finish it with the client later, and "Read my reports" says how many
+      are still waiting.</p>
+    <p>Nothing the client never agreed to reaches a document with the client's name on it.</p>
+    <p class="against">Against: joining every summary regardless, with unapproved ones marked, would give a complete
+      report at once, but a client could read words they never agreed.</p></div>
+
   <!-- ───────────────────────────── WORDING ───────────────────────────── -->
   <h2>Every new word on this page is ours, and needs your ruling</h2>
   <div class="tablewrap">
     <table class="m">
       <thead><tr><th>Where</th><th>Our wording</th></tr></thead>
       <tbody>
-        <tr><td>Card button</td><td>Record this section</td></tr>
-        <tr><td>The open box, while recording</td><td>● What's said now goes here</td></tr>
-        <tr><td>Strip</td><td>Recording · Section 3 · Porter's 5 Forces · 06:12</td></tr>
-        <tr><td>Strip buttons</td><td>End recording · Stop and delete everything</td></tr>
-        <tr><td>Section states</td><td>recording · turning into text… · text ready · audio deleted · couldn't be turned into text</td></tr>
-        <tr><td>Long section</td><td>Porter's 5 Forces (part 2)</td></tr>
-        <tr><td>Under a box</td><td>Heard · Suggested wording · Keep · Edit · Reject · Move to another box</td></tr>
-        <tr><td>Empty box note</td><td>Nothing was said while this box was open.</td></tr>
-        <tr><td>Tray</td><td>Said while no box was open (2) · Move to a box · Leave it in the transcript only</td></tr>
-        <tr><td>Failure banner</td><td>Section 2 (Blue Ocean Strategy) couldn't be turned into text. Its audio has been deleted, as it always is. Anything you typed in that card is safe. Recording carries on with this section.</td></tr>
-        <tr><td>Finished banner</td><td>Recording finished. 5 sections, 52 minutes, all turned into text, all audio deleted. Words still waiting in boxes: 7.</td></tr>
-        <tr><td>Timing · Build session</td><td>Session starts · min · + Add a break here · Break · Finishes 10:45 am · 90 min of concepts · 15 min of breaks</td></tr>
-        <tr><td>Timing · Run session</td><td>Today's agenda · 12:40 left · +3:10 over · Running 3 min behind · now finishing 11:18</td></tr>
-        <tr><td>Timing · a second day (Decision H)</td><td>Day 2 starts</td></tr>
+        <tr><td>Card button</td><td>Record this section <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>The open box, while recording <span class="later">second build</span></td><td>● What's said now goes here</td></tr>
+        <tr><td>Strip</td><td>Recording · Section 3 · Porter's 5 Forces · 06:12 <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Strip buttons</td><td>End recording <b>— ✅ approved by Mike 2026-09-28</b> · Stop and delete everything <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Section states</td><td>recording · turning into text… · text ready · audio deleted · couldn't be turned into text <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Long section</td><td>Porter's 5 Forces (part 2) <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Under a box <span class="later">second build</span></td><td>Heard · Suggested wording · Keep · Edit · Reject · Move to another box</td></tr>
+        <tr><td>Empty box note <span class="later">second build</span></td><td>Nothing was said while this box was open.</td></tr>
+        <tr><td>Tray <span class="later">second build</span></td><td>Said while no box was open (2) · Move to a box · Leave it in the transcript only</td></tr>
+        <tr><td>Failure banner</td><td>Section 2 (Blue Ocean Strategy) couldn't be turned into text. Its audio has been deleted, as it always is. Anything you typed in that card is safe. Recording carries on with this section. <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Finished banner</td><td>Recording finished. 5 sections, 52 minutes, all turned into text, all audio deleted. Summaries still waiting for approval: 1. <b>— ✅ approved by Mike 2026-09-28</b> <i>(Second build adds: Words still waiting in boxes: 7.)</i></td></tr>
+        <tr><td>Timing · Build session</td><td>Session starts <b>— ✅ approved by Mike 2026-09-28</b> · min <b>— ✅ approved</b> · + Add a break here · Break <b>— ✅ approved</b> · Finishes 10:45 am · 90 min of concepts · 15 min of breaks <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Timing · Run session</td><td>Today's agenda <b>— ✅ approved</b> · 12:40 left · +3:10 over <b>— ✅ approved</b> · Running 3 min behind · now finishing 11:18 <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Timing · a second day (Decision H)</td><td>Day 2 starts (Day 3 starts, and so on) <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Concept summary (screen 10)</td><td>Summary of this concept · draft <b>— ✅ approved</b> · Nothing was said about this. <b>— ✅ approved</b> · The client has read this summary and agrees with it <b>— ✅ approved</b> · Approve summary · Edit <b>— ✅ approved</b> · summary approved · 9:48 am <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
       </tbody>
     </table>
   </div>
@@ -681,8 +746,9 @@
         nothing here may be described as covered by it.</li>
       <li><b>Live proof needs a real browser, the OpenAI key and a database</b>, which means the desktop or UAT. The laptop
         can build and test it, but it can't record a real session.</li>
-      <li><b>The strategy meeting type's name</b> is yours to word. It sits at mentor level with the other eleven and
-        cascades as they do.</li>
+      <li><b>The strategy meeting type's name — RULED BY MIKE 2026-09-28: "Strategy Session".</b> It sits at mentor
+        level with the other eleven and cascades as they do, and it is the name the Meeting Summary is told the meeting
+        was.</li>
     </ul>
   </div>
 

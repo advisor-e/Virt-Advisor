@@ -1519,7 +1519,12 @@ paragraphs take 19–273 more characters; circle labels about 7.
 
 Items **8.4** (recording) and **15.14** (Wordsmith). Drawing:
 [`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html), not
-approved — Decisions A, B, C and E are ruled; the countdown below is open. **Nothing here is built.** Every ruling below
+approved as a whole. **Every decision for the first build is ruled** (A, B, C, E; timing G, H, I;
+summaries J), and **every first-build label in its wording table was approved by Mike, one at a
+time, on 2026-09-28**. Screen 4 and its wording are marked "second build" on the page. **The
+Meeting Review meeting type is named "Strategy Session"** (Mike, 2026-09-28) — a twelfth type at
+mentor level, cascading as the other eleven do; its name is what the Meeting Summary is told the
+meeting was. **Nothing here is built.** Every ruling below
 is Mike's, 2026-09-28.
 
 **Order.** *"perhaps the ability to record the session and summarise would be first place to
@@ -1540,7 +1545,11 @@ word-for-word transcript stays exactly as spoken, for two reasons in the code:
 `clientCopyRequests.js` stores a client's correction *beside* the transcript and never in it, and
 My Coaching Notes check every quote against the transcript (`meetingReports.js`). The advisor and
 client approve each segment's short summary in the room. The client approves on the advisor's
-screen, because this app has no client login. The approved summaries are then joined.
+screen, because this app has no client login. The approved summaries are then joined. **Drawn
+2026-09-28 as screen 10, not approved**: each summary is written under the concept's own capture
+headings, and an edit clears an earlier approval, as `saveSummaryEdit` does today. **Decision J
+RULED (his yes):** the joined Meeting Summary is built only from summaries the client approved; any
+still waiting stay on their cards to finish later.
 
 **A segment starts only when the advisor presses (Decision B).** Mike's yes to: each concept segment
 starts recording only when the advisor presses that card's "Record this section" button, and
