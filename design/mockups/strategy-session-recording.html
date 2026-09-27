@@ -164,12 +164,41 @@
   .decision p { margin: 0 0 6px; }
   .rec { font-weight: 600; color: var(--ink); }
   .against { color: var(--eg); font-size: 13px; }
+
+  /* timing (added 2026-09-28) */
+  .tbody { padding: 14px; display: grid; gap: 12px; }
+  .startrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13.5px; }
+  .startrow b { color: var(--ink); }
+  .inp { display: inline-block; border: 1px solid var(--line); border-radius: 5px; padding: 2px 8px; min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; background: var(--bg); color: var(--ink); font-weight: 600; }
+  .tstep { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .tstephead { background: var(--wash); padding: 8px 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13.5px; }
+  .tstephead b { color: var(--ink); }
+  .sub { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 700; font-size: 12.5px; }
+  .trow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 7px 12px; border-top: 1px solid var(--line); font-size: 13px; }
+  .trow .when { font-variant-numeric: tabular-nums; color: var(--eg); font-size: 12.5px; white-space: nowrap; }
+  .trow.brk { background: repeating-linear-gradient(135deg, var(--wash) 0 8px, var(--bg) 8px 16px); color: var(--eg); }
+  .trow.live { box-shadow: inset 4px 0 0 var(--rec); }
+  .trow.past { color: var(--eg); }
+  .trow.past .when { text-decoration: line-through; }
+  .addbrk { font-size: 12px; color: var(--accent); padding: 5px 12px; border-top: 1px dashed var(--line); }
+  .total { font-size: 13px; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .runwrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  @media (min-width: 760px) { .runwrap { grid-template-columns: minmax(0, 1fr) 260px; } }
+  .agenda { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; align-self: start; }
+  .agenda h5 { margin: 0; padding: 8px 12px; background: var(--wash); color: var(--ink); font-size: 13px; }
+  .side { display: grid; gap: 10px; align-content: start; }
+  .count { justify-self: end; background: var(--bg); border: 2px solid var(--accent); border-radius: 10px; padding: 6px 12px; text-align: center; box-shadow: var(--shadow); }
+  .count .big { font-size: 22px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .count .what { font-size: 11px; color: var(--eg); }
+  .count.over { border-color: var(--crit); }
+  .count.over .big { color: var(--crit); }
+  .behind { font-size: 12.5px; color: var(--crit); font-weight: 700; padding: 7px 12px; border-top: 1px solid var(--line); background: var(--critwash); }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <p class="eyebrow">Strategy Planner · Run session · item 8.4 · drawn 2026-09-25 · not approved · not built</p>
+  <p class="eyebrow">Strategy Planner · Run session · item 8.4 · drawn 2026-09-25 · timing added 2026-09-28 (screens 7–9) · not approved · not built</p>
   <h1>Recording a strategy session in sections</h1>
   <p class="lede">Each concept card in Run session becomes <b>its own short recording</b>. The advisor presses the card's
     record button, and pressing the next card's button closes the one before. Each section is turned into text
@@ -400,6 +429,98 @@
     <b>"Read my reports"</b> is the label you approved on 7 Sep, reused, not new. Words not yet kept stay offered in
     their boxes afterwards, so the advisor can finish sorting them after the client leaves.</p>
 
+  <!-- ═════════════════════════ TIMING — added 2026-09-28 ═════════════════════════ -->
+  <h2>7 · Build session: minutes beside each concept, and every clock time worked out</h2>
+  <p class="cap"><b>Added 2026-09-28 on Mike's yes. Not approved.</b> His rulings: a time allowance on each
+    <b>concept</b>; a step shows the <b>subtotal</b> of its concepts; every clock time <b>works itself out</b> from one start
+    time; a <b>break</b> can sit between any two concepts, even mid-step. Modelled on his <i>Team Workshop Run Sheet</i>:
+    one typed start, minutes per row, each row starting when the one before finishes. The step names, "Build the
+    session's steps", "The session's steps" and "Add a step" are the screen's own words today.
+    <span class="dec">Decision H</span> <span class="dec">Decision I</span></p>
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span class="on">2 · Build session</span><span>3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="tbody">
+      <div class="startrow"><b>Build the session's steps</b><span class="grow"></span>
+        Session starts <span class="inp">9:00 am</span></div>
+      <div class="tstep">
+        <div class="tstephead"><b>1 · Set the scene</b><span class="grow"></span><span class="muted">1 concept</span>
+          <span class="sub">20 min · 9:00–9:20</span></div>
+        <div class="trow"><span>Our Session Objective <span class="muted">(framing and agenda — recording segment 1)</span></span>
+          <span class="inp">20</span><span class="when">9:00–9:20</span></div>
+        <div class="addbrk">+ Add a break here</div>
+      </div>
+      <div class="tstep">
+        <div class="tstephead"><b>2 · Choose Your Competition Fronts</b><span class="grow"></span><span class="muted">2 concepts</span>
+          <span class="sub">70 min · 9:20–10:45</span></div>
+        <div class="trow"><span>Business Owner Expectations</span><span class="inp">30</span><span class="when">9:20–9:50</span></div>
+        <div class="trow brk"><span>Break</span><span class="inp">15</span><span class="when">9:50–10:05</span></div>
+        <div class="trow"><span>Porter's 5 Forces</span><span class="inp">40</span><span class="when">10:05–10:45</span></div>
+        <div class="addbrk">+ Add a break here</div>
+      </div>
+      <div class="startrow"><span class="btn ghost small">Add a step</span><span class="grow"></span>
+        <span class="total">Finishes 10:45 am · 90 min of concepts · 15 min of breaks</span></div>
+    </div>
+  </div>
+  <p class="cap">The advisor types <b>only the start time and the minutes</b>; every other time is worked out. The break
+    in step 2 runs the clock (step 2 spans 9:20–10:45) but is <b>not</b> in its subtotal of 70 minutes, as ruled. A break
+    closes the recording; the next card's button starts a fresh segment under the same consent. Sample steps and
+    minutes are invented for the drawing.</p>
+
+  <h2>8 · Run session: the timed agenda, and the countdown in the corner</h2>
+  <p class="cap">The countdown counts down <b>the live concept's own minutes</b>, which is the same unit as a recording
+    segment, so the two always agree. The agenda beside the cards shows every item with its time. Items already done are
+    struck through.</p>
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span>2 · Build session</span><span class="on">3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="strip"><span class="dot"></span><b>Recording</b><span>Section 4 · Porter's 5 Forces (part 2)</span>
+      <span class="clock">02:20</span><span class="grow"></span>
+      <span class="btn ghost small">End recording</span><span class="btn danger small">Stop and delete everything</span></div>
+    <div class="frame">
+      <div class="runwrap">
+        <div>
+          <p class="runhead">Choose Your Competition Fronts</p>
+          <div class="card live"><div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span>
+            <span class="clock" style="color:var(--rec)">● 27:20</span></div>
+            <p class="muted" style="margin:10px 14px">…the card as on screen 3…</p></div>
+        </div>
+        <div class="side"><div class="count"><div class="big">12:40</div><div class="what">left · Porter's 5 Forces</div></div>
+        <div class="agenda">
+          <h5>Today's agenda</h5>
+          <div class="trow past"><span>Our Session Objective</span><span></span><span class="when">9:00–9:20</span></div>
+          <div class="trow past"><span>Business Owner Expectations</span><span></span><span class="when">9:20–9:50</span></div>
+          <div class="trow past brk"><span>Break</span><span></span><span class="when">9:50–10:05</span></div>
+          <div class="trow live"><span><b>Porter's 5 Forces</b></span><span></span><span class="when">10:05–10:45</span></div>
+          <div class="trow"><span>Blue Ocean Strategy</span><span></span><span class="when">10:45–11:15</span></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">The countdown is small and sits in the corner, as asked. It never stops a recording and never moves
+    the advisor on. The 25-minute / 20 MB split (Decision E) still happens underneath, and nothing about the countdown
+    changes when it does: the segment becomes "part 2" and the countdown keeps counting the concept.</p>
+
+  <h2>9 · A concept runs over</h2>
+  <p class="cap">What happens at zero is Decision G. Drawn here as recommended: the countdown turns red and counts the
+    overrun, the recording carries on, and the agenda says how far behind the session is and when it will now finish.
+    The times the advisor planned in Build session are <b>not</b> changed. <span class="dec">Decision G</span></p>
+  <div class="screen">
+    <div class="frame">
+      <div class="runwrap">
+        <div><p class="runhead">Choose Your Competition Fronts</p>
+          <div class="card live"><div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span>
+            <span class="clock" style="color:var(--rec)">● 43:10</span></div>
+            <p class="muted" style="margin:10px 14px">…the card as on screen 3…</p></div></div>
+        <div class="side"><div class="count over"><div class="big">+3:10</div><div class="what">over · Porter's 5 Forces</div></div>
+        <div class="agenda">
+          <h5>Today's agenda</h5>
+          <div class="trow live"><span><b>Porter's 5 Forces</b></span><span></span><span class="when">10:05–10:45</span></div>
+          <div class="trow"><span>Blue Ocean Strategy</span><span></span><span class="when">10:45–11:15</span></div>
+          <div class="behind">Running 3 min behind · now finishing 11:18</div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ───────────────────────────── HOW IT WORKS ───────────────────────────── -->
   <h2>How it works underneath</h2>
   <div class="flow">
@@ -428,6 +549,11 @@
     words, and the recommendation stays beneath it.</p>
 
   <div class="decision"><h3>Decision A · what one section is</h3>
+    <p><b>RULED BY MIKE 2026-09-28:</b> <i>"we can split the recording sessions into a prompt per content piece added.
+      framing the session and running the agenda can be 1 piece but after that, owners expectations vs porters 5 forces
+      as examples, would each be their own 'concept segment' - recordings can then be combine once edited/approved by
+      advisor and client"</i>. The same day he ruled the first build to be screens 1, 2, 3, 5 and 6, with screen 4
+      second (item 15.14).</p>
     <p class="rec">Recommended: one concept card.</p>
     <p>That matches your "each presentation has a response section". One concept's discussion fits comfortably under
       the 25-minute limit, and a failure loses one concept, not a whole step.</p>
@@ -435,6 +561,9 @@
       past 27 minutes, and one failure would then lose all four.</p></div>
 
   <div class="decision"><h3>Decision B · how a section starts</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should each concept segment start recording only when the advisor
+      presses that card's 'Record this section' button, with pressing the next card's button closing the one before —
+      instead of recording starting by itself when the advisor opens a box in a new card?"</i></p>
     <p class="rec">Recommended: the advisor presses the card's button, as your option says. Pressing another card's
       button closes the one before.</p>
     <p>It's deliberate, so a recording never starts because the advisor clicked into a box to type.</p>
@@ -442,6 +571,9 @@
       all. But it would also start recording when an advisor only meant to type, with the client unaware.</p></div>
 
   <div class="decision"><h3>Decision C · consent</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should the advisor read the consent line once, in the first
+      framing-and-agenda segment, with that one consent covering every later concept segment of the same session —
+      instead of reading the consent line again at the start of every concept segment?"</i></p>
     <p class="rec">Recommended: consent once per session, spoken into the first section, covering every section after it.</p>
     <p>It's one meeting under the approved wording, "I'd like to record our meeting", and you confirmed on 16 Sep that
       a planning session counts as a meeting.</p>
@@ -456,6 +588,16 @@
       They only appear in cards the conversation has already moved past, but that is the risk.</p></div>
 
   <div class="decision"><h3>Decision E · a section that runs long</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should a concept segment close by itself and carry on as 'part 2' of
+      the same card when it reaches 25 minutes or 20 MB, whichever comes first — instead of relying on the advisor to
+      press a button when a warning appears?"</i> — with <i>"good thinking - perhaps a small count-down time in the
+      corner of the screen will help people stay focused??"</i> What it counts from, his words the same day: <i>"the build
+      section should have a time allowance next to each content in the agenda. this way, when pushed thru to 'run
+      session' the agenda show the items and time allowance per section, as well as the count down"</i> — with his run
+      sheet (start and stop times, lunch breaks) as the example. Then, declining a time per step: <i>"make it fit each
+      concept - almost like sub totals of time per section but yes, the numbers should auto calculate from a start time
+      and time per concept"</i>. And yes to a break row, with its own minutes, between any two concepts, even
+      mid-step. Drawn as screens 7–9, with Decisions G, H and I.</p>
     <p class="rec">Recommended: at 25 minutes it closes by itself and carries on as "part 2" of the same card, with no gap.</p>
     <p>No file can reach OpenAI's 25 MB limit, whatever the advisor forgets to press.</p>
     <p class="against">Against: a warning asking the advisor to press something would keep them in control, but it asks
@@ -465,6 +607,39 @@
     <p class="rec">Recommended: added beneath what's already typed, never replacing it. Nothing enters a box without Keep.</p>
     <p>What the advisor typed in the room is the most reliable record, and the AI's wording is only a suggestion.</p>
     <p class="against">Against: replacing would keep boxes shorter, but it would silently discard the advisor's own words.</p></div>
+
+  <div class="decision"><h3>Decision G · a concept that runs over (timing, screen 9)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should a concept that runs over show a red '+ minutes over' countdown
+      and a 'Running … behind · now finishing …' line on the agenda, while the planned times from Build session stay
+      unchanged — instead of every later start time on the agenda moving to match the overrun?"</i></p>
+    <p class="rec">Recommended: at zero the countdown turns red and counts the overrun. The recording carries on. The
+      agenda says how far behind the session is and when it will now finish. The planned times stay as the advisor set
+      them.</p>
+    <p>The advisor sees the cost of staying on a concept while the client is still talking, and decides. Nothing is
+      taken out of their hands mid-conversation.</p>
+    <p class="against">Against: moving every later start time to match would keep the agenda "true", but the client
+      would watch the plan they agreed to rewrite itself, and the record of what was planned would be lost.</p></div>
+
+  <div class="decision"><h3>Decision H · a session that runs over two days (timing, screen 7)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should the advisor be able to add a 'Day 2 starts' row between any two
+      concepts, with that day's own start time, so a two-day workshop stays one session and one plan — instead of each
+      day having to be a separate session with its own plan?"</i></p>
+    <p class="rec">Recommended: a "Day 2 starts" row the advisor can add between any two concepts, carrying that day's own
+      start time, inside the same session — as his run sheet has one sheet per day, each with its own start.</p>
+    <p>One session stays one plan and one client document, however many days it takes.</p>
+    <p class="against">Against: making each day its own session would need nothing new, but the plan would then be split
+      across two documents that have to be joined by hand.</p></div>
+
+  <div class="decision"><h3>Decision I · the run sheet's Purpose and Resource required columns (timing, screen 7)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should the first build use Build session's existing step purpose box
+      for the run sheet's Purpose column, and add a Resource required column later once the timing is in use — instead
+      of adding a Purpose box and a Resource required box beside every concept now?"</i></p>
+    <p class="rec">Recommended: add neither for now.</p>
+    <p>Build session already gives each <b>step</b> a purpose ("What this step is for (the advisor sees it; the client never
+      does)"), and each concept already carries its own "helps your client to" line. Nothing in the planner yet reads a
+      list of resources.</p>
+    <p class="against">Against: a Resource required box per concept would let the advisor prepare the room from the plan
+      itself — the job that column does on his run sheet.</p></div>
 
   <!-- ───────────────────────────── WORDING ───────────────────────────── -->
   <h2>Every new word on this page is ours, and needs your ruling</h2>
@@ -483,6 +658,9 @@
         <tr><td>Tray</td><td>Said while no box was open (2) · Move to a box · Leave it in the transcript only</td></tr>
         <tr><td>Failure banner</td><td>Section 2 (Blue Ocean Strategy) couldn't be turned into text. Its audio has been deleted, as it always is. Anything you typed in that card is safe. Recording carries on with this section.</td></tr>
         <tr><td>Finished banner</td><td>Recording finished. 5 sections, 52 minutes, all turned into text, all audio deleted. Words still waiting in boxes: 7.</td></tr>
+        <tr><td>Timing · Build session</td><td>Session starts · min · + Add a break here · Break · Finishes 10:45 am · 90 min of concepts · 15 min of breaks</td></tr>
+        <tr><td>Timing · Run session</td><td>Today's agenda · 12:40 left · +3:10 over · Running 3 min behind · now finishing 11:18</td></tr>
+        <tr><td>Timing · a second day (Decision H)</td><td>Day 2 starts</td></tr>
       </tbody>
     </table>
   </div>
