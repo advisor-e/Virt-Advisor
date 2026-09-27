@@ -481,6 +481,8 @@ const DEFAULTS = {
     // a nine-month lead, and whatever is not landed simply stays a deposit at the year end.
     landing: zeroes()
   },
+  // "Currencies you trade in" (13.5). Empty: nothing converts. See `resolveInputs`.
+  currencies: [],
   // [same month, +1, +2, +3, +4] — the workbook validates these to 100%.
   debtorCollection: [0.1, 0.55, 0.3, 0.05, 0],
   creditorPayment: [0, 0.9, 0.1, 0, 0],
@@ -693,7 +695,7 @@ function resolveInputs (raw, fallback) {
     // trades overseas this year. EMPTY WHEN ABSENT, so nothing is converted and every forecast
     // saved before 13.5 reads in the firm's own currency. A later year inherits the year
     // before's table through `d`, like every other input.
-    currencies: resolveCurrencies(Array.isArray(i.currencies) ? i.currencies : (d.currencies || [])),
+    currencies: resolveCurrencies(Array.isArray(i.currencies) ? i.currencies : d.currencies),
     sales: pickSeries(i.sales, d.sales),
     purchases: pickSeries(i.purchases, d.purchases),
     markup: pick(i.markup, d.markup),

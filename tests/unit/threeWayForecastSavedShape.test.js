@@ -96,10 +96,14 @@ function filledForm () {
   f.sales = ramp(12, 80000)
   f.salesSource = 'seeded'
   f.purchases = ramp(12, 40000)
-  f.stockInTransit = { balanceOwing: 84000, landing: ramp(12, 100) }
+  // 13.5: a table with two currencies and a row left empty, and every choice exercised.
+  f.currencies = [{ code: 'USD', rate: 0.6 }, { code: 'CNY', rate: 4.2 }, { code: '', rate: null }]
+  f.stockInTransit = { balanceOwing: 84000, balanceCurrency: 'USD', landing: ramp(12, 100) }
 
   f.overseas.enabled = true
   f.overseas.importedPurchases = ramp(12, 30000)
+  f.overseas.importedPurchasesCurrency = 'CNY'
+  f.overseas.overseasSalesCurrency = 'USD'
   f.overseas.depositPct = 55
   f.overseas.depositLeadMonths = 3
   f.overseas.balancePayment = [10, 80, 10, 0, 0]
@@ -115,8 +119,8 @@ function filledForm () {
   f.overseas.salesFxAllowancePct = 12
   f.overseas.overseasMarkup = 74
   f.overseas.shipments = [
-    { description: 'Container 1', cost: 120000, orderDate: '2026-05-01', depositPct: 60, speed: 'Sea' },
-    { description: 'Air freight top-up', cost: 18000, orderDate: '2026-07-15', depositPct: 50, speed: 'Air' }
+    { description: 'Container 1', currency: 'USD', cost: 120000, orderDate: '2026-05-01', depositPct: 60, speed: 'Sea' },
+    { description: 'Air freight top-up', currency: '', cost: 18000, orderDate: '2026-07-15', depositPct: 50, speed: 'Air' }
   ]
 
   f.capital = [
@@ -218,6 +222,33 @@ describe('a hostile row is refused a block at a time, never half a block', () =>
     const { form } = applySavedForecast(before, LEVERS, row)
     expect(form.markup).toBe(before.markup)
     expect(form.sales).toEqual(before.sales)
+  })
+
+  // 13.5. A zero rate would divide every foreign amount by nothing; a rate for no currency
+  // converts nothing and would reappear against the next currency chosen.
+  test('🔴 a currency table with a zero rate is refused whole', () => {
+    const row = flattenForecast(filledForm(), LEVERS, 'summary')
+    row['currencies.rate'] = [0.6, 0, null]
+    const before = freshForm()
+    const { form, applied } = applySavedForecast(before, LEVERS, row)
+    expect(applied).not.toContain('currencies')
+    expect(form.currencies).toEqual(before.currencies)
+  })
+})
+
+describe('a forecast saved before 13.5 reopens in the firm’s own currency', () => {
+  // Every figure in it was computed unconverted, so reopening it must not convert anything.
+  test('🔴 no currency fields means no conversion, and every other block still loads', () => {
+    const row = flattenForecast(filledForm(), LEVERS, 'summary')
+    ;['currencies.code', 'currencies.rate', 'transit.balanceCurrency', 'os.importedPurchasesCurrency',
+      'os.overseasSalesCurrency', 'os.ships.currency'].forEach((k) => { delete row[k] })
+    const { form, applied } = applySavedForecast(freshForm(), LEVERS, row)
+    expect(form.currencies.every(c => c.code === '')).toBe(true)
+    expect(form.stockInTransit.balanceCurrency).toBe('')
+    expect(form.overseas.importedPurchasesCurrency).toBe('')
+    expect(form.overseas.shipments.map(s => s.currency)).toEqual(['', ''])
+    expect(applied).toContain('stockInTransit')
+    expect(applied).toContain('os.shipments')
   })
 })
 
