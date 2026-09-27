@@ -200,3 +200,23 @@ describe('firm console page', () => {
     expect(w.vm.cappedNote).toBe('console.crossOrg.capped')
   })
 })
+
+// A reply that arrives without its figures must leave the tiles empty, not crash the panel
+// while drawing. Found 2026-09-28 in the push output; fixed on Mike's yes.
+describe('a console reply with no figures', () => {
+  afterEach(() => { delete global.fetch })
+
+  test('draws empty tiles instead of failing to render', async () => {
+    const noStats = Object.assign({}, CONSOLE)
+    delete noStats.stats
+    global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(noStats) }))
+    const errors = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const w = factory()
+    await flush(); await w.vm.$nextTick()
+    expect(errors).not.toHaveBeenCalled()
+    expect(w.vm.tiles.every(t => t.value === undefined)).toBe(true)
+    expect(w.vm.postureOpen).toBe(false)
+    expect(w.text()).toContain('Mike Barnes')
+    errors.mockRestore()
+  })
+})
