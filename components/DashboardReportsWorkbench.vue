@@ -297,10 +297,12 @@ export default {
     },
     /**
      * The page resolves the sign-in's token in ITS mounted(), which runs after this
-     * one's — so the brand read at mount can go out with the placeholder token and be
-     * refused. Read it again with the real one.
+     * one's — so the figures and the brand read at mount can go out with the placeholder
+     * token and be refused. Outside a loopback host the refused figures raised the stale
+     * banner the moment the report opened. Read both again with the real token.
      */
     token () {
+      this.recompute()
       this.loadFirmBrand({ Authorization: 'Bearer ' + this.token })
     }
   },

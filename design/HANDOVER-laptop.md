@@ -9,21 +9,23 @@
 
 ---
 
-## 2026-09-26 · Laptop · branch `feat/advisor-progress`
+## 2026-09-27 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed. 6 ahead of master, 0 behind (PR threshold 10). Green at push: 634 suites /
-13,809 tests.**
+**Clean and pushed. 11 ahead of master, 0 behind — all of it in PR #136 (open, not merged).
+Green: 636 suites / 13,810 tests.**
 
-**Closed today on Mike's word:** 15.28 Alignment Statements (built; table rows now one height per
-row), 15.27 (a step's purpose reaches the advisor as a tooltip on Build session), 15.26 (Our
-Session Objective is two sheets; the agenda lists each step with its concepts beneath, rules in
-`utils/agendaLayout.js`), 15.24 (Owner Expectations holds ONE shared, editable list of up to ten
-tasks — model, screen, printed table and the managers' Owner Focus Tasks tab).
+**Closed on Mike's word:** 16 — the Business Performance Report carries the advisor's firm on its
+cover and every footer, through `mixins/firmBrand.js` (shared with the Strategy Planner).
+**Worked:** 15.2 — drawing approved ([`mockups/growth-aspect-questions.html`](mockups/growth-aspect-questions.html)),
+first part built: the 98 questions in `data/growth-fundamentals.json` and the wheel's button. His
+call: proceed. **Fixed at shutdown:** the report opened with the stale banner outside loopback,
+because its first figures call went out before the sign-in was read.
 
 **FOR THE DESKTOP:**
-- Owner Expectations tasks are now one list of ten shared by all owners (Mike, 2026-09-26), not a
-  list per owner. Anything reading duties should expect identical names across owners, at most ten.
-- `utils/agendaLayout.js` is new; `conceptSheetCount` now takes an agenda page count.
-- The generator writes a non-breaking space as `&#160;` (`scripts/build-concept-graphics.js`).
+- Merging #134 and #136: item 16 ends DONE — keep #136's closure, drop #134's parked entry. Keep
+  #134's closures of 16.1 and 13.2, and #136's of 15.24.
+- `growthAspects` now carry `questions`, and the Process Improvement and Governance descriptions
+  changed on Mike's rulings. They reach the Virtual Advisor's prompt.
+- 15.2's Mentor Hub tab needs `FirmManagerHub.vue` — not started; it waits for #134.
 
 **In hand, not touched today:** 15.17, 15.20, 8.4.
