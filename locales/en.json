@@ -3656,6 +3656,18 @@
         "startAgain": "Start again",
         "privacy": "Nothing is saved. Nothing about this client leaves the app.",
         "caution": "This is a forecast. Actual results are likely to differ from it, and the differences may be material.",
+        "whatIf": {
+          "heading": "What if the exchange rate moves",
+          "falls": "If the {currency} falls {pct}%",
+          "rises": "If the {currency} rises {pct}%",
+          "morePaid": "more paid for stock from overseas: 1 {home} buys {rates}",
+          "lessReceived": "less received from overseas customers: 1 {home} buys {rates}",
+          "rate": "{moved} {code}",
+          "lowest": "Lowest bank balance {with} with the move, {without} without it.",
+          "shownNotCharged": "Shown, not charged. The forecast itself uses the rates entered.",
+          "whyHeading": "Why it works this way",
+          "whyBody": "Each payment to a supplier is converted at the rate on the day it is paid, and money paid before the goods arrive becomes part of what the stock cost. A rate move only matters for money not yet paid or collected, which is what the tiles above show."
+        },
         "overseasDeposits": "Deposits paid overseas",
         "overseasFreight": "Freight and shipping",
         "overseasDuty": "Duty and clearance",

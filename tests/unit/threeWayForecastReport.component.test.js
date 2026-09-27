@@ -133,6 +133,67 @@ describe('Three-Way Forecast screen — the itemised P&L adds up to cost of sale
   test('the drawing\'s importing example adds up too', async () => {
     expect(await gapsIn(IMPORTING)).toEqual(new Array(12).fill(0))
   })
+
+  // 13.5, Mike's ruling of 2026-09-26: hidden at zero, its own line the moment it is not.
+  test('the exchange line is hidden while it is zero, and listed when it is not', async () => {
+    const w = await mountWithResult(IMPORTING)
+    w.setData({ detail: 'every' })
+    expect(w.vm.profitRowsFor(w.vm.data).some(r => r.key === 'pl-os-fx')).toBe(false)
+    const moved = JSON.parse(JSON.stringify(IMPORTING))
+    moved.profitAndLoss.exchangeMovement[5] = 250
+    expect(w.vm.profitRowsFor(moved).some(r => r.key === 'pl-os-fx')).toBe(true)
+  })
+})
+
+/**
+ * 13.5 — "What if the exchange rate moves", from the backend's own second runs. The tiles
+ * must carry the engine's figures with the right sign: dearer stock is money OUT, weaker
+ * receipts money NOT IN. Built on the drawing's two orders and AUD sales, through the real
+ * engine, so the screen is held to what the route actually returns.
+ */
+describe('Three-Way Forecast screen — the exchange-rate what-if (13.5)', () => {
+  const { computeThreeYearForecast, exchangeRateWhatIf } = require('~/server/report/threeWayForecastModel')
+  const { computeImportShipments } = require('~/server/report/importShipmentModel')
+  const TABLE = [{ code: 'USD', rate: 0.6 }, { code: 'CNY', rate: 4.2 }, { code: 'AUD', rate: 0.9 }]
+  const orders = computeImportShipments({
+    startDate: '2026-01-01',
+    currencies: TABLE,
+    shipments: [
+      { cost: 64585.8, currency: 'USD', orderDate: '2026-01-01', depositPct: 0.6, speed: 'Sea' },
+      { cost: 252000, currency: 'CNY', orderDate: '2026-02-01', depositPct: 0.6, speed: 'Sea' }
+    ]
+  })
+  const year = {
+    startDateSerial: (Date.UTC(2026, 0, 1) - Date.UTC(1899, 11, 30)) / 86400000,
+    currencies: TABLE,
+    overseas: {
+      enabled: true,
+      landings: orders.landings,
+      overseasSales: [36000, 49500, 31500, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      overseasSalesCurrency: 'AUD'
+    }
+  }
+  const inputs = { yearCount: 1, years: [year] }
+  const withWhatIf = (function () {
+    const r = computeThreeYearForecast(inputs)
+    r.whatIf = exchangeRateWhatIf(inputs, r)
+    return r
+  })()
+
+  test('🔴 two tiles: +21,906.59 more paid, and -11,818.18 not received', async () => {
+    const w = await mountWithResult(withWhatIf)
+    const tiles = w.vm.whatIf.tiles
+    expect(tiles.map(t => t.key)).toEqual(['buy', 'sell'])
+    expect(tiles[0].value).toBeCloseTo(21906.59, 2)
+    expect(tiles[1].value).toBeCloseTo(-11818.18, 2)
+  })
+
+  test('a forecast in the firm’s own currency shows no what-if block', async () => {
+    const home = computeThreeYearForecast({ yearCount: 1, years: [{}] })
+    home.whatIf = exchangeRateWhatIf({ yearCount: 1, years: [{}] }, home)
+    const w = await mountWithResult(home)
+    expect(w.vm.whatIf).toBeNull()
+  })
 })
 
 describe('Three-Way Forecast screen — the five overseas cash rows (4.64)', () => {

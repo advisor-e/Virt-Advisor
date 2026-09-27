@@ -195,6 +195,13 @@ describe('what if the exchange rate moves — shown, not charged', () => {
     expect(what.sales.lessReceived).toBeCloseTo(11818.18, 2)
   })
 
+  test('each tile names only its own side’s currencies, before and after the move', () => {
+    // The drawing: USD and CNY for the orders, AUD for the customers.
+    expect(what.purchases.rates.map(r => r.code)).toEqual(['USD', 'CNY'])
+    expect(what.purchases.rates[0].moved).toBeCloseTo(0.54, 10)
+    expect(what.sales.rates).toEqual([{ code: 'AUD', rate: 0.9, moved: 0.9 * 1.1 }])
+  })
+
   test('the lowest bank balance is reported with and without each move', () => {
     expect(what.purchases.lowestCash.with.value).toBeLessThan(what.purchases.lowestCash.without.value)
     expect(what.sales.lowestCash.with.value).toBeLessThanOrEqual(what.sales.lowestCash.without.value)
@@ -338,5 +345,27 @@ describe('the workbook’s twelve months of orders', () => {
         expect(v).toBeCloseTo(base.balanceSheet.months.balanceCheck[m], 6)
       })
     })
+  })
+})
+
+describe('POST /api/report/three-way-forecast/three-years carries the what-if (13.5)', () => {
+  const { threeYearForecast } = require('../../server/routes/report')
+  const send = (body) => {
+    const res = { send (status, payload) { res.status = status; res.body = payload } }
+    threeYearForecast({ body }, res, () => {})
+    return res
+  }
+
+  test('the reply holds the forecast and its what-if, in the standard envelope', () => {
+    const res = send({ yearCount: 1, years: [DRAWING] })
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.years).toHaveLength(1)
+    expect(res.body.data.whatIf.applies).toBe(true)
+    expect(res.body.data.whatIf.purchases.extraPaid).toBeCloseTo(21906.59, 2)
+  })
+
+  test('a domestic forecast says there is nothing to move', () => {
+    expect(send({ yearCount: 1, years: [{}] }).body.data.whatIf.applies).toBe(false)
   })
 })

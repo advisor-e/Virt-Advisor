@@ -2453,31 +2453,48 @@ function receivedOverseas (forecast) {
  * zero on both sides, and `applies` says there was nothing to move.
  *
  * @param {object} rawInputs the same shape `computeThreeYearForecast` takes
+ * @param {object} [computed] that forecast, when the caller has already built it — the
+ *   route has, and building it a second time would only cost a third run.
  * @returns {{applies: boolean,
  *   purchases: {move: number, extraPaid: number, lowestCash: {without: object, with: object}},
  *   sales: {move: number, lessReceived: number, lowestCash: {without: object, with: object}}}}
  *   `move` is the share each rate moved by: negative is the NZ dollar falling.
  */
-function exchangeRateWhatIf (rawInputs) {
+function exchangeRateWhatIf (rawInputs, computed) {
   const supplied = (rawInputs && typeof rawInputs === 'object') ? rawInputs : {}
   const first = Array.isArray(supplied.years) ? (supplied.years[0] || {}) : supplied
   const I = resolveInputs(first)
   const buyMove = -I.overseas.fxAllowancePct
   const sellMove = I.overseas.salesFxAllowancePct
+  const applies = I.currencies.length > 0
 
-  const base = computeThreeYearForecast(rawInputs)
-  const dearer = computeThreeYearForecast(rawInputs, { fxMove: { purchases: buyMove } })
-  const weaker = computeThreeYearForecast(rawInputs, { fxMove: { sales: sellMove } })
+  const base = computed || computeThreeYearForecast(rawInputs)
+  // Nothing in a foreign currency, nothing to move — and no reason to run it twice more.
+  const dearer = applies ? computeThreeYearForecast(rawInputs, { fxMove: { purchases: buyMove } }) : base
+  const weaker = applies ? computeThreeYearForecast(rawInputs, { fxMove: { sales: sellMove } }) : base
+
+  // The currencies each side actually uses, as the drawing's tiles name them — the orders'
+  // currencies on one, the customers' on the other — each with its rate before and after.
+  const buyingIn = landingsOf(I.overseas).map(function (L) { return L.currency })
+  if (I.stockInTransit.balanceOwing) { buyingIn.push(I.stockInTransit.balanceCurrency) }
+  const sellingIn = I.overseas.overseasSales.some(function (v) { return v }) ? [I.overseas.overseasSalesCurrency] : []
+  const ratesFor = function (codes, move) {
+    return I.currencies
+      .filter(function (c) { return codes.includes(c.code) })
+      .map(function (c) { return { code: c.code, rate: c.rate, moved: c.rate * (1 + move) } })
+  }
 
   return {
-    applies: I.currencies.length > 0,
+    applies,
     purchases: {
       move: buyMove,
+      rates: ratesFor(buyingIn, buyMove),
       extraPaid: paidOverseas(dearer) - paidOverseas(base),
       lowestCash: { without: base.summary.lowestCash, with: dearer.summary.lowestCash }
     },
     sales: {
       move: sellMove,
+      rates: ratesFor(sellingIn, sellMove),
       lessReceived: receivedOverseas(base) - receivedOverseas(weaker),
       lowestCash: { without: base.summary.lowestCash, with: weaker.summary.lowestCash }
     }
