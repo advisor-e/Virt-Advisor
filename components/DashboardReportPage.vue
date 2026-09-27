@@ -7,7 +7,7 @@ section.drd-page(:class="{ 'is-dark': dark }")
     slot(name="sub")
   slot
   .drd-foot
-    span.drd-logo {{ $t('report.dashboardReports.doc.firmLogo') }}
+    dashboard-report-mark(:name="brand.name || ''" :logo="brand.logo || ''" :colour="brand.colour || '#0070c0'")
     span {{ clientName }} · {{ $t('report.dashboardReports.title') }} · {{ period }}
     span(v-if="footNote") · {{ footNote }}
   span.drd-pno {{ number }}
@@ -21,11 +21,20 @@ section.drd-page(:class="{ 'is-dark': dark }")
  * approved drawing is `design/mockups/business-performance-report.html`; every page of it
  * shares this frame, so the frame is one component.
  *
- * The logo is a marked place, not an image: no firm-logo setting exists yet, and the
- * drawing itself shows the place (Brief P6, "leave room for the firm's logo").
+ * The footer's mark is the advisor firm's (item 16), injected by `DashboardReport` rather
+ * than passed as a prop: fourteen section components render this frame, and a value that
+ * must travel through every one of them stops wherever one forgets to pass it on — the
+ * failure recorded in design/features/white-label.md §4.
  */
+import DashboardReportMark from '~/components/DashboardReportMark.vue'
+
 export default {
   name: 'DashboardReportPage',
+
+  components: { DashboardReportMark },
+
+  /** `drdBrand()` → `{ name, logo, colour }`, from `DashboardReport`. Empty outside it. */
+  inject: { drdBrand: { default: () => () => ({}) } },
 
   props: {
     title: { type: String, required: true },
@@ -37,6 +46,10 @@ export default {
     footNote: { type: String, default: '' },
     /** The navy page (next steps). */
     dark: { type: Boolean, default: false }
+  },
+
+  computed: {
+    brand () { return this.drdBrand() || {} }
   }
 }
 </script>
@@ -64,7 +77,6 @@ export default {
 .drd-foot { position: absolute; left: 56px; right: 110px; bottom: 18px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; color: var(--drd-muted); font-size: 11.5px; }
 .drd-page.is-dark .drd-foot, .drd-page.is-dark .drd-pno { color: var(--drd-sky); }
 .drd-pno { position: absolute; right: 56px; bottom: 18px; font-weight: 700; color: var(--drd-blue); font-size: 13px; }
-.drd-logo { display: inline-grid; place-items: center; width: 88px; height: 24px; border: 1px dashed var(--drd-sky); border-radius: 4px; color: var(--drd-blue); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; background: var(--drd-tint-sky); }
 /* Shared page furniture */
 .drd-h3 { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: var(--drd-ink); }
 .drd-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 16px; }

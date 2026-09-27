@@ -44,10 +44,11 @@ const CONFIG_KEY = 'owner-focus-tasks'
 const DEV_FILE = path.resolve(__dirname, '../../data/dev-owner-focus-tasks.json')
 
 /**
- * The most tasks one list may hold. The workbook has ten rows; twenty leaves room for a
- * firm's own and is still one screen. The model enforces the same ceiling per owner.
+ * The most tasks one list may hold — the workbook's ten rows. Mike, 2026-09-26 (item 15.24):
+ * *"1 list of 10 is what i asked for BUT those 10 can be edited"*, and he had this tab brought
+ * into line the same day. The model and the Owner Expectations screen hold the same ten.
  */
-const MAX_TASKS = 20
+const MAX_TASKS = 10
 
 /** A task is a short name — the workbook's longest is 27 characters. */
 const MAX_NAME = 80
@@ -122,7 +123,11 @@ async function readOwnTasks (scopeId, loadFirmConfig) {
     stored = _readDevMap()[scopeId] || null
   }
   if (!stored) { return null }
-  const checked = validateTasks(stored)
+  // ⚠ A LIST SAVED WHILE THE CEILING WAS TWENTY keeps its first ten rather than failing as
+  // malformed — failing would silently hand this tier the list from above instead of its own.
+  const checked = validateTasks(stored && Array.isArray(stored.tasks)
+    ? Object.assign({}, stored, { tasks: stored.tasks.filter(t => typeof t !== 'string' || t.trim()).slice(0, MAX_TASKS) })
+    : stored)
   if (!checked.ok) {
     console.error(`[owner-focus-tasks] stored list at ${scopeId} is malformed: ${checked.error}`)
     return null

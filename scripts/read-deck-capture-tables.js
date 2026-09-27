@@ -90,7 +90,22 @@ const PAGES = [
   // Two tables stacked on one page. `region` is the band of the page each occupies,
   // in the reader's 1500px space; the second one's title sits in the gap between.
   { template: 'Price For Problem Solving', deck: 'strategic-orientation-2', page: 21, region: [110, 400], grid: { headerRows: 2, labelColumns: [] } },
-  { template: 'Price For Delivery Medium', deck: 'strategic-orientation-2', page: 21, region: [480, 780], grid: { headerRows: 2, labelColumns: [] } }
+  { template: 'Price For Delivery Medium', deck: 'strategic-orientation-2', page: 21, region: [480, 780], grid: { headerRows: 2, labelColumns: [] } },
+  // 🔴 ONE CONCEPT, TWO FORMS OF DIFFERENT SHAPES — item 15.28, drawing approved by Mike
+  // 2026-09-26. Alignment Statements captures five named statements (p8) AND a three-column
+  // table (p10), so each part names its own form and the table carries it. `gapRows` reads
+  // p8's gap between two bands as the gap his Productive Habits ruling describes, never as
+  // a row. p9 is read for the table because it IS p10 with his worked example written in —
+  // the same rules at the same x, and the same three rows — which is Decision B: his example
+  // shown as grey guide text in the client's empty boxes.
+  {
+    template: 'Alignment Statements',
+    deck: 'alignment',
+    parts: [
+      { page: 8, gapRows: true, form: 'named-field-stack' },
+      { page: 9, grid: { headerRows: 1, labelColumns: [] } }
+    ]
+  }
 ]
 
 /**
@@ -237,7 +252,14 @@ function gridOfPage (pageJson, options) {
   }
 
   if (!opts.grid) {
-    const rows = cells.map(row => ({ cells: row.map(spans => ({ text: textOf(spans) })) }))
+    const rows = cells.map((row) => {
+      const out = row.map(spans => ({ text: textOf(spans) }))
+      // A row with no words at all, between two ruled bands, is the gap between two
+      // named fields. Marked as his blank lines are, so the named-field stack reads the
+      // names DOWN the first column and skips the gap — never offering it as a box.
+      if (opts.gapRows && out.every(c => !c.text)) { return { cells: out.map(() => ({ text: '', blank: true })) } }
+      return { cells: out }
+    })
     return { columns, rows }
   }
   return linesGrid(cells, xs, ys, drawings.filter(isHorizontalRule), opts.grid, textOf)
@@ -344,13 +366,20 @@ function linesGrid (cells, xs, ys, hRules, grid, textOf) {
 function build (pagesDir) {
   const templates = {}
   PAGES.forEach((p) => {
-    const pages = p.pages || [p.page]
-    const tables = pages.map((n) => {
-      const file = path.join(pagesDir, `${p.deck}-p${n}.json`)
+    // `parts` gives each page its own reading and its own form; otherwise every page
+    // shares the entry's.
+    const parts = p.parts || (p.pages || [p.page]).map(page => ({ page, region: p.region, grid: p.grid }))
+    const pages = parts.map(part => part.page)
+    const tables = parts.map((part) => {
+      const n = part.page
+      const file = path.join(pagesDir, `${p.deck}-p${String(n).padStart(2, '0')}.json`)
       if (!fs.existsSync(file)) {
         throw new Error(`missing ${file} — run: python scripts/read-deck-pages.py ${p.deck} ${n} --out ${pagesDir}`)
       }
-      return gridOfPage(JSON.parse(fs.readFileSync(file, 'utf8')), { region: p.region, grid: p.grid })
+      const table = gridOfPage(JSON.parse(fs.readFileSync(file, 'utf8')),
+        { region: part.region, grid: part.grid, gapRows: part.gapRows })
+      if (part.form) { table.form = part.form }
+      return table
     })
     templates[p.template] = {
       // Provenance, so the table can be found again on his page rather than trusted.

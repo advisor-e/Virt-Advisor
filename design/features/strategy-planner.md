@@ -289,7 +289,14 @@ approved by Mike that day, its four decisions ruled the same day. **What is buil
    list of concepts each with one line of reason, which is the shape this panel needs. **The panel
    itself is still unbuilt** — what changed is that it is now a build rather than a blocked one.
 2. **Every step's `purpose` ships empty.** The field exists and the mentor's screen edits it; the
-   words are Mike's and he has not written them. An empty purpose is an unwritten one.
+   words are Mike's and he has not written them. An empty purpose is an unwritten one. Once
+   written, it travels with the handed-down step into the session, is saved and reopened with it,
+   and shows on Build session as a **"?" beside the step's name** whose hover text is the purpose
+   — GlossaryTerm's mark (item 15.27, 2026-09-26). **Named difference:** the drawing shows it as a
+   box inside the step, while its own note says *tooltip*; the note was followed, so the words do
+   not take up every advisor's step. It never reaches the client's plan, which builds its steps
+   without it — pinned by `tests/unit/strategyStepPurpose.test.js`. A step without one is saved
+   exactly as before, so a session saved earlier reopens unchanged.
 
 🔴 **THE FIVE STAGES ARE REACHED IN ANY ORDER, 2026-09-21.** Mike's request: *"enable me to be able
 to click on the step banner (scope, build etc) in any order i want to make it easier if i forget
@@ -804,7 +811,17 @@ approved by Mike 2026-09-23. 🔴 **ITS AGENDA IS A LIVE SLOT, AND IT IS THE SES
 LIST** — his ruling the same day, so the page a client reads and the running order the app
 follows can never be two different lists. His four lines are the shipped default and are what
 the drawing was approved against; `bindAgendaSlot` keeps his group WHOLE under `v-if` and adds a
-sibling under `v-else`. ⚠ One fault, caught only by the side-by-side: his *(section n)* tags
+sibling under `v-else`. 🔴 **TWO SHEETS SINCE 2026-09-26 (item 15.26).** Mike: *"session
+objective needs to be on its own page - it frames the session and establisges permission
+boundaries - page 2 is the agenda layout is over to you"*, then *"the agenda page needs to show
+the step/stage as a parent - the name of the concept as a child hierarchy"*. Sheet 1 is his
+framing page without the agenda; sheet 2 is the agenda, each step in his bold row with its
+concepts beneath it at 21pt, in the fewest columns up to three, continuing on another sheet past
+three — approved drawing
+[`../mockups/strategy-session-objective-two-sheets.html`](../mockups/strategy-session-objective-two-sheets.html).
+The rules live once, in `utils/agendaLayout.js`, which the sheet draws from and the Run screen and
+the plan count sheets from; `tests/unit/agendaLayout.test.js` holds every size a session can take
+to the firm's mark and the frame. The page never lists itself. ⚠ One fault, caught only by the side-by-side: his *(section n)* tags
 interrupt the line, so the space before each one lives at the END of the span before it and is
 inside that span's measured width — SVG collapses edge whitespace, so the glyphs stretched to
 fill the pinned width and closed the gap. Four spans now carry `xml:space="preserve"`.
@@ -1123,7 +1140,7 @@ from a list of the nine**, and the wheel counts those. No model reads an objecti
 | **The three objective tests** — *"Can a failing objective reach the plan"* (the session an advisor runs) | Ruled *"flag it, never block"* and drawn as Yes/No badges. Not in the build. |
 | **The Mentor Hub authoring tab** | Needs `FirmManagerHub.vue`, active on the desktop. |
 | **Voice recording** | A strategy session is a **Meeting Review meeting type** (*"Voice recording the session"*, the session an advisor runs) — the Planner builds no recorder. It inherits that feature's gates: **a firm records nothing until it has made the Compliance declaration** (built 2026-09-10), and **a first real recording waits on OpenAI switching ZDR on** — signed 2026-09-23, approved 2026-09-24. A lawyer and staff consultation are the firm's own, never gates (Mike's rulings; [`meeting-review.md`](meeting-review.md) §4). **The typed capture must stand alone until ZDR is on.** Sections, item 8.4: [`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html), drawn 2026-09-25, not approved. |
-| **The ~100 Growth Aspect questions** | Item **15.2**, filed on Mike's yes. |
+| **The 98 Growth Aspect questions — the Mentor Hub tab and the AI's suggestions** | Item **15.2**, drawn and approved 2026-09-27: [`../mockups/growth-aspect-questions.html`](../mockups/growth-aspect-questions.html). **Built:** all 98 stored word for word in `data/growth-fundamentals.json`, opened per aspect from the coverage wheel, pinned by `tests/unit/growthAspectQuestions.test.js`. **Not built:** the Mentor Hub tab, which waits for PR #134 because both change `FirmManagerHub.vue`; and the AI naming the aspect as a recorded section closes, which stands on item 8.4. |
 | **The aspect descriptions on the wheel labels** | Mike's own deferral, 2026-09-16. |
 | **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down). **None of this is designed. Do not assume it from the September drawing.** *(One thing has LEFT this row: the document's assembly ORDER is Pivot's anatomy, census §1. And one thing has left the FEATURE: the "Where To Start??" routing flow, withdrawn by Mike on 2026-09-17 — see the box at the top.)* |
 
@@ -1220,11 +1237,11 @@ and is pinned by `tests/unit/strategyConcepts.test.js`.
 
 | | |
 |---|---|
-| Concepts | **47** — Business Targets 2 · Strategic Orientation 21 · Sales & Marketing 16 · Organisational Review 8 |
-| Carrying a Helps Your Client To… line | **All 47** — 34 read off his two Session Scope tables (three through a shared deck cell), and 13 drafted for him and approved word for word (12 on 2026-09-24, Business Owner Expectations on 2026-09-25), recorded on [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md) |
-| Rows that are not Session Scope rows | **13** — 10 agenda rows (8 carry his own agenda sub-line), 2 framing pages, and 1 deck-page row that runs a model (item 15.23) |
+| Concepts | **48** — Business Targets 3 · Strategic Orientation 21 · Sales & Marketing 16 · Organisational Review 8 |
+| Carrying a Helps Your Client To… line | **All 48** — 34 read off his two Session Scope tables (three through a shared deck cell), and 14 drafted for him and approved word for word (12 on 2026-09-24, Business Owner Expectations on 2026-09-25, Alignment Statements on 2026-09-26), recorded on [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md) |
+| Rows that are not Session Scope rows | **14** — 10 agenda rows (8 carry his own agenda sub-line), 2 framing pages, 1 deck-page row that runs a model (item 15.23), and 1 support-document row paged in its own document, `L.Suppt.Alignment.pdf`, so the menu prints a dash for its page (item 15.28) |
 | Teaching form named (census §3) | 32 |
-| Capture form **measured** against one of his fill-in templates | 22 |
+| Capture form **measured** against one of his fill-in templates | 36 |
 
 🔴 **EVERY WORD IS HIS, READ OFF THE DECKS BY MACHINE — never retyped, never summarised.**
 *"The menu is his table, word for word"*. Ligatures are normalised to ASCII and nothing else is

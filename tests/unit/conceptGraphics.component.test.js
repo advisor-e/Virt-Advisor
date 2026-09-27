@@ -144,27 +144,55 @@ describe('the framing page\'s agenda is the session\'s own steps', () => {
   const settle = async (wrapper) => {
     for (let i = 0; i < 6; i++) { await new Promise(resolve => setTimeout(resolve, 0)); await wrapper.vm.$nextTick() }
   }
-  const STEPS = ['Identify the Resistance', 'Choose Your Competition Fronts']
+  // Since 2026-09-26 the agenda is SHEET 2, each step with its concepts beneath it (15.26).
+  const STEPS = [
+    { name: 'Identify the Resistance', children: ['Porter\'s 5 Forces', 'Market Diffusion Theory'] },
+    { name: 'Choose Your Competition Fronts', children: [] }
+  ]
+  const STEP_NAMES = ['Identify the Resistance', 'Choose Your Competition Fronts']
+  const agendaSheet = (agendaItems, sheet) => mountWithBuefy(StrategyConceptGraphic, {
+    propsData: { conceptId: 'our-session-objective', sheet: sheet === undefined ? 1 : sheet, agendaItems }
+  })
 
-  test('the step names the advisor typed are the agenda the client reads', async () => {
-    const wrapper = mountWithBuefy(StrategyConceptGraphic, {
-      propsData: { conceptId: 'our-session-objective', agendaItems: STEPS }
-    })
+  test('the steps the advisor named, and the concepts in them, are the agenda the client reads', async () => {
+    const wrapper = agendaSheet(STEPS)
     await settle(wrapper)
 
     const live = wrapper.find('.agenda-slot.is-live')
     expect(live.exists()).toBe(true)
-    STEPS.forEach(name => expect(live.text()).toContain(name))
+    STEP_NAMES.forEach(name => expect(live.text()).toContain(name))
+    expect(live.text()).toContain('Market Diffusion Theory')
   })
 
   test('with no steps named, the page shows Mike\'s own agenda as approved', async () => {
-    const wrapper = mountWithBuefy(StrategyConceptGraphic, {
-      propsData: { conceptId: 'our-session-objective', agendaItems: [] }
-    })
+    const wrapper = agendaSheet([])
     await settle(wrapper)
 
     expect(wrapper.find('.agenda-slot.is-live').exists()).toBe(false)
     expect(wrapper.find('.agenda-slot').exists()).toBe(true)
+  })
+
+  test('🔴 the framing page carries no agenda at all — Mike: "on its own page"', async () => {
+    const wrapper = agendaSheet(STEPS, 0)
+    await settle(wrapper)
+
+    expect(wrapper.find('svg').exists()).toBe(true)
+    expect(wrapper.find('.agenda-slot').exists()).toBe(false)
+    expect(wrapper.html()).not.toContain('Identify the Resistance')
+  })
+
+  test('an agenda past three columns shows its later steps on the next sheet, not the first', async () => {
+    const many = Array.from({ length: 14 }, (_, i) => ({
+      name: 'Step ' + (i + 1), children: ['Concept A' + i, 'Concept B' + i, 'Concept C' + i, 'Concept D' + i]
+    }))
+    const first = agendaSheet(many, 1)
+    const second = agendaSheet(many, 2)
+    await settle(first)
+    await settle(second)
+
+    expect(first.find('.agenda-slot.is-live').text()).toContain('Step 1')
+    expect(second.find('.agenda-slot.is-live').text()).toContain('Step 14')
+    expect(second.find('.agenda-slot.is-live').text()).not.toContain('Concept A0')
   })
 
   test('a page with no agenda slot is never handed the steps', async () => {

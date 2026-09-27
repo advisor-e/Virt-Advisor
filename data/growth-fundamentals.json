@@ -86,15 +86,158 @@
     }
   ],
   "growthAspects": [
-    { "name": "Process Improvement", "description": "Operations, Work In Progress, Transactional Volume, Quality Control, Internal Statistics & Data Collection." },
-    { "name": "Customer Focus", "description": "Their Experience, (Our) Product / Service Delivery & Development." },
-    { "name": "Sales (Process)", "description": "Achieving Critical Revenue Objectives (consistently), Securing Resource, Managing Critical External Relations." },
-    { "name": "Authenticity", "description": "Values (Cultural), Marketing (Outbound Messaging), Aesthetics, ‘Feel’ (Vibe/Morale), Packaging." },
-    { "name": "Inventory & Equipment", "description": "Consumable Stock, Materials or Supplies, Tools, Machinery, Vehicles, Non-Consumable Working Assets." },
-    { "name": "Team Focus", "description": "Skills Development, Internal Communication, Change Management, Recruitment, Knowledge Management, Rewards/ Incentives." },
-    { "name": "Innovation", "description": "Technology, Disruption, (External) Research & Development, Re-Invention." },
-    { "name": "Governance", "description": "Vision, Strategic Planning, Sound Decision (Financial) Making Process, Leadership, Communication Lines, Financial Management, Risk Management." },
-    { "name": "Harmony / Balance", "description": "Removing Distractions, Health & Fitness, ‘Well-Being’, Recovering (Financial also)." }
+    {
+      "name": "Process Improvement",
+      "description": "Operations, Work In Progress, Transactional Volume, Quality Control, Internal Statistics & Data Collection, Systems Theory.",
+      "questions": [
+        "Have you identified your key processes that directly relate to either new client acquisition or existing client delivery?",
+        "Have you identified your peak transactional volume? (Do you know what you’re numerically capable of?)",
+        "Does your review of systems allow for inherent toxicity? (All systems/process have associated ‘downsides’ – have you identified the logical ‘negative by-products’ of the system in question?)",
+        "Could you define your philosophy towards business systems improvement as ‘Six Sigma’, ‘Lean Thinking’, ‘Constraint Theory’ or Other?(refer to systems comparison chart if needed)",
+        "What are the logical ‘Bottleneck’ points in the system in question and do these correlate with the communication ‘hand-over’ points?",
+        "What are the activity numerics or key performance data being collected to assess the system and how is this data being captured?",
+        "What are the issues within your business/system that could distort your data?",
+        "How is your process being communicated to relevant members and is there a ‘feedback-loop’ to ensure that even minor improvements are still being sought?",
+        "How is your quality measured and what is the reasonable ‘tolerance allowance’ for these measures?"
+      ]
+    },
+    {
+      "name": "Customer Focus",
+      "description": "Their Experience, (Our) Product / Service Delivery & Development.",
+      "questions": [
+        "When reviewing the (Joseph Pine) Progression of Economic Value template (green folder) where would you place the business in terms of customer experience?",
+        "What is the profile of your ideal client?(Is this reflected in your Positioning Statement?)",
+        "Are you keeping a database of preferred existing clients? (Is it mostly hard fact or soft fact records?)",
+        "When was the last time you conducted a formal / informal client survey? (What did you learn?)",
+        "What are the methods of communication currently used to keep in contact with your clients / customers or to prospect for new ones?",
+        "What are the common problems that your clients / customers face, which require them to seek your service?",
+        "What are the legitimate purchasing constraints that make it difficult for customers to buy from you?",
+        "What is it about your product / service for which you could charge a premium?",
+        "What are your current plans for Service or Product improvement?"
+      ]
+    },
+    {
+      "name": "Sales (Process)",
+      "description": "Achieving Critical Revenue Objectives (consistently), Securing Resource, Managing Critical External Relations.",
+      "questions": [
+        "Does a formal sales process exist? If so, how is it recorded for training purposes? How is it monitored? Does the process correctly relate to your industry? (Retail, Consultative or Territory style) Has the sales process been scripted in relation to ‘impact areas’? (What are the sales aids used to help keep people on track?)",
+        "Are the sales targets clearly defined and broken down into time segments? (i.e., Monthly, Weekly, Daily) and do these target allows for seasonal fluctuations?",
+        "Who are the people responsible for sales? Have they had sufficient training, do they receive ongoing training and do they practice in role play situations regularly? (Are they consciously aware of the 4 step sales process, 4 processing styles & the 2 reasons people don’t buy?)",
+        "Assuming your top ten (repeat) clients have been identified, do you have an allocated budget for entertainment and an entertainment schedule? (Do you have a ‘range of entertainment’ options list? Is it kept up-to-date? Does it include pricing options? & have you identified those clients most compatible with each other for entertainment purposes?)",
+        "Who are the 3-5 centres of influence, most likely to refer new clients to you? (Why would they?) Who is responsible for developing the relationships and how much time and resource has been allocated to this area?",
+        "What are your current plans for creating an alliance? (Is this sales – penetration / distribution based or manufacture / cost based)",
+        "Have all cross - selling opportunities been explored? Does the possibility exist to introduce compatible C.O.I to each other and hold regular network meetings?",
+        "Has the business maximised its earning potential from existing clients? (Cross selling opportunities etc.)"
+      ]
+    },
+    {
+      "name": "Authenticity",
+      "description": "Values (Cultural), Marketing (Outbound Messaging), Aesthetics, ‘Feel’ (Vibe/Morale), Packaging.",
+      "questions": [
+        "As a business owner, do the daily activities (required of you personally) allow you to enjoy a quality lifestyle? – do they allow you to contribute or interact with others in a positive way? – do they allow you to feel valued and appreciated? (Do you even like what you do?)",
+        "What are the ‘Conflict Values’ that matter to you most? (If you take two values – honesty and caring for others and put them in conflict – being honest vs. hurting someone’s feelings – which do you hold highest?)",
+        "Are you clear in terms of how your business adds value to others? (Is this reflected in your Value Proposition Statement?)",
+        "How would your ‘culture’ be described by your Team? – Your Customers? – Your Suppliers?",
+        "Who sets the tone for Beliefs, Behaviour and Belongingness?",
+        "As a team, what are you seeking to become?",
+        "What is the consistent message that you’re trying to send – Local, National and International? (Who do you wish to receive your message, how will you know when they've heard it?)",
+        "Does it relate to your Positioning and Value Proposition statements?",
+        "What are the mediums of communication being used, which works best, what else could you try that's different?",
+        "What are the \"tools\" that support your positioning statement and corporate image?",
+        "Does the packaging support your ‘Authentic Views’?",
+        "What do you do, as a leader, to contribute to the ‘Vibe’ of the team and your business?"
+      ]
+    },
+    {
+      "name": "Inventory & Equipment",
+      "description": "Consumable Stock, Materials or Supplies, Tools, Machinery, Vehicles, Non-Consumable Working Assets.",
+      "questions": [
+        "Are the people who use material / stock / supplies accountable for their consumption? (Could this be included as a component for bonus?)",
+        "Does your business use technology to measure consumption rates or turnaround times (days on hand) of stock / supplies? (Is it considered trivial by production staff, if so, why?)",
+        "Who are the suppliers that would be happy to make stock / supplies available on consignment?",
+        "Do you provide good feedback to your suppliers as well as bad?",
+        "Do you invite suppliers to come up with ideas to help you improve your product /service or make it more efficient? (They may have an alternative stock / supply but assumed you would not be interested, further, they may have ideas about the application of their product that you haven't already considered or be witnessing a trend that affects your business!)",
+        "Would your suppliers be interested in joint marketing initiatives? (Identify those most complimentary and ask them!)",
+        "Do you regularly check the market for pricing differential on key items? (Not to suggest that you do so at the risk of breaking loyalty, but you need to know if your supplier is still competitive.)",
+        "What are the future pieces of equipment/tools/technology that you believe could give your business an advantage or at the very least, allow you to remain competitive?",
+        "Do you have equipment listed on the balance sheet as being of value which is not in current regular use? (Should the figure be written down or could the asset be sold?)",
+        "If using a transportation / freight company, to transport your product, do they have electronic tracking, coordination and transaction technology? (Do they have anyone who could provide advice on how to best use their service?)",
+        "If using own vehicles / drivers to transport goods / materials, have you \"crunched the numbers\" on ownership vs lease of business vehicles? (Are you aware that some lease companies can provide a lease option on any vehicle, new or second hand?)"
+      ]
+    },
+    {
+      "name": "Team Focus",
+      "description": "Skills Development, Internal Communication, Change Management, Recruitment, Knowledge Management, Rewards/ Incentives.",
+      "questions": [
+        "What are the required skill sets of the business and what are they likely to be in 24-36 months’ time?",
+        "Does a ‘Competency Map’ exist that allows staff to see the natural progression of skills required for their job, over time? (Has this been illustrated to the staff concerned?)",
+        "Is there a regular feedback forum for staff to hear of the issues affecting them and to provide input to achieve a solution? (Are staff actively encouraged to develop ideas to help the business grow? Are these ideas acknowledged in front of other staff and is there an area for recording ideas and brainstorming)",
+        "How often do the staff and their partners mix socially? Can the social club be assisted by the business by way of a bonus system?",
+        "How well do you know your staff and their families? (Background, likes / dislikes, D.O.B, hobbies / interests, family problems, etc.)",
+        "Do you acknowledge staff on special occasions? (Birthdays, birth of a child, shifting house, Christmas or other religious holidays, engagement / marriage, major sporting success?)",
+        "Does ‘division’ exist between departments; if so, how often is a forum created for feedback or shared problem solving / teamwork?",
+        "Is there a forum / occasion where different divisions are brought together in a friendly competition? Could it be better if divisions were mixed?",
+        "When was the last time you worked in the ‘coal face’ of your business, alongside your team?",
+        "What personality group is prevalent in the existing staff?",
+        "Which personality type would complement best in the business going forward?"
+      ]
+    },
+    {
+      "name": "Innovation",
+      "description": "Technology, Disruption, (External) Research & Development, Re-Invention.",
+      "questions": [
+        "What are the areas within your business that are most under threat, or require development, in order to keep pace with technology?",
+        "Is information relating to these areas available overseas? (What would be the financial cost vs opportunity, of traveling to have a look?)",
+        "Have you calculated the cost/opportunity of developing your product/service with formal research? (Does the possibility exist of approaching a University for assistance, or for a student to complete a \"499\" on an aspect of your business/product?)",
+        "What percentage of turnover does your business allocate towards Research and Development?",
+        "Who could you head-hunt in order to speed up the process of development for your product or service?",
+        "Who sets the limitations of your product/service? (Are they willing to negotiate?)",
+        "Do you have a technology advantage over your competitors? (How easily could it be copied, how could you protect against this or maximise profits until the competition ‘catches up’?)",
+        "Is the existing technology within your business being fully utilised at present? (If not, what are the current plans for dealing with this?)",
+        "Who is in charge of the maintenance/improvement of current technology?",
+        "Is there technology that could be borrowed and adapted, which is in current use by competitors or even other industries?",
+        "Who could be contacted to provide technology advice that does not have a financial interest in its outcome?",
+        "Does an emergency plan exist to deal with existing technology failure? (Who within the business is aware of its existence?)",
+        "What is the current life-span of technology within your industry? (What can be done about extending or increasing the life or re-sale of technology within your business?)"
+      ]
+    },
+    {
+      "name": "Governance",
+      "description": "Vision, Strategic Planning, Sound Decision (Financial) Making Process, Leadership, Communication Lines, Financial Management, Risk Management, Revenue Model.",
+      "questions": [
+        "Have you examined a formal board or advisory board structure to assist with business growth and decision making? (If you’ve elected to run with an advisory board, have written terms of reference been established?)",
+        "What were the key considerations made (or ought to be made) in the selection of board or advisory board members?",
+        "Are you (as the business owner) clear in your understanding of directors obligations with respect to solvency?",
+        "What are the relevant Acts with which your business must comply? (Including but not limited to OSH and trading laws pertaining to your industry - what is the procedure used by a Court of Law to determine your compliance?)",
+        "Who can best advise you of the compliance methods needed to reduce or avoid prosecution?",
+        "How many of the management team (Incl Board/Advisory Board) exhibit a high understanding of financial reporting and/or are members of the Institute of Directors",
+        "Does the business have a written plan for improvement? (Strategic or Business/Marketing) Where is it? How often is it reviewed and by whom?",
+        "Has a revenue model, exploring Capacity, Capability (Premium price service offers) and Opportunity (Alternate revenue sources and Scalable products or services) ever been developed for the business?",
+        "Who prepares the financial statements of the business? Does anyone external of the business contribute to their accuracy on a regular (mthly or quarterly) basis?",
+        "Where does planning ‘sit’ as a priority when compared to other tasks required to operate the business successfully? (Where should it be placed?)",
+        "Does the business structure provide sufficient estate protection for owners / managers from potential creditors? (If not, has the use of family trusts been examined?)",
+        "Does the business use a prudent (formal) risk management process to identify, eliminate, reduce or transfer financial loss as a result of an event occurring?",
+        "Has the business ever had a formal audit or ‘in-formal-systems-review’ conducted by an independent audit team? (Should this be considered?)",
+        "Does the business have an emergency plan to provide direction in the event of death or serious illness of a director / shareholder, or a key person of the business?"
+      ]
+    },
+    {
+      "name": "Harmony / Balance",
+      "description": "Removing Distractions, Health & Fitness, ‘Well-Being’, Recovering (Financial also).",
+      "questions": [
+        "When faced with an obstacle or difficult situation, what is the mental process that you go through in order to maintain or build confidence?",
+        "What are the dominant thoughts or questions that you ask of yourself and your business on a day to day basis, how can you better learn to control them?",
+        "Which would create more profit for your business; increased output – doing more the same way vs. Creativity – doing more with less effort?",
+        "How does personal health and fitness rate, as a priority, for the owners / management of your business? (How much time is allocated by the same individuals, for their own weekly exercise routine?)",
+        "Is the personal health / fitness of staff encouraged by your business? (If so, how?)",
+        "What are the consequences of long hours and lack of physical fitness of staff, to your business? (Could the potential dollar loss be calculated?)",
+        "How do the statistics relating to your staff’s annual leave and sick days compare to your own ideals?",
+        "What are the benefits of bringing in a nutritionist or health practitioner to address staff lifestyle habits? Would it improve staff morale and feelings of appreciation?",
+        "Does the expectation to perform long hours come from the top as a necessity to perform, or is the focus on quality and efficiency?",
+        "What can be done to improve the health quality of food consumed in the cafeteria or lunchroom? (ie, Set up an account and delivery service with a cafe or food bar specialising in low fat healthy food!)",
+        "Instead of just coffee / tea and biscuits, could fresh fruit be provided for staff? (Could this be arranged through a local grower who needs to sell produce in excess of export requirements?)"
+      ]
+    }
   ],
   "keyConceptsForAdvisors": {
     "devilsToilet": "The most dangerous transition on the Growth Curve is Lifestyle to Leverage. Like a rapid on the Zambezi river, it will suck the business owner backwards if they're not careful. High complacency (from achieving Lifestyle) combined with fatigue creates a dangerous pulling force. Advisors must encourage clients to bank profits and improve systems BEFORE attempting the Leverage transition.",

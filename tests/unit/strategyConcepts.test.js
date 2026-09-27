@@ -27,7 +27,7 @@ const frameworks = require('../../server/utils/strategyFrameworks')
 const data = require('../../data/strategy-frameworks.json')
 
 describe('the 52 concepts load', () => {
-  it('holds exactly 47 - 52 as scoped, less the eight Mike deleted, plus two framing pages and Owner Expectations', () => {
+  it('holds exactly 48 - 52 as scoped, less the eight Mike deleted, plus two framing pages, Owner Expectations and Alignment Statements', () => {
     // 🔴 IT WAS 52, AND THE 52 WAS NEVER WRONG. Mike's scoping ruling of 2026-09-17
     // counted the five decks' own contents tables and agendas, which is where 52 comes
     // from - never ADV.0's index, which says 45 and has drifted four concepts.
@@ -38,8 +38,9 @@ describe('the 52 concepts load', () => {
     // them: 'then just delete the rest - they are likely to be repeats'. Two FRAMING
     // PAGES came in the other way on the same ruling: Our Session Objective and
     // Collaborative Thinking, both real pages that no index had ever pointed at. On
-    // 2026-09-25 Business Owner Expectations came back as one row running its model (15.23).
-    expect(frameworks.listConcepts()).toHaveLength(47)
+    // 2026-09-25 Business Owner Expectations came back as one row running its model (15.23),
+    // and on 2026-09-26 Alignment Statements joined from its own document (15.28).
+    expect(frameworks.listConcepts()).toHaveLength(48)
   })
 
   it('splits across the four Planning Domains exactly as the census counts them', () => {
@@ -53,8 +54,9 @@ describe('the 52 concepts load', () => {
     }).toEqual({
       // Collaborative Thinking - his Christchurch page, p3 - and Business Owner
       // Expectations, pp5-6, which runs the model those two pages became (item 15.23,
-      // approved 2026-09-25). All five agenda rows went on 2026-09-23.
-      'business-targets': 2,
+      // approved 2026-09-25), then Alignment Statements (item 15.28, 2026-09-26). All five
+      // agenda rows went on 2026-09-23.
+      'business-targets': 3,
       // 22 less the two stage directions deleted, plus Our Session Objective.
       'strategic-orientation': 21,
       'sales-marketing-review': 16,
@@ -77,7 +79,11 @@ describe('the 52 concepts load', () => {
     // one of his Session Scope tables. 18 agenda rows became 10, and framing-page is a
     // third kind: a page that IS its own concept, not a row pointing at one. `deck-page` is
     // an agenda line pointed at its own real pages - Business Owner Expectations, 15.23.
-    expect(bySource).toEqual({ 'session-scope-table': 34, agenda: 10, 'framing-page': 2, 'deck-page': 1 })
+    // `support-document` is paged in a document outside the five decks - Alignment
+    // Statements, 15.28.
+    expect(bySource).toEqual({
+      'session-scope-table': 34, agenda: 10, 'framing-page': 2, 'deck-page': 1, 'support-document': 1
+    })
   })
 
   it('points every concept at a page in a real deck', () => {
@@ -377,6 +383,18 @@ describe('a malformed concept fails at load, not in a client meeting', () => {
     expect(() => frameworks.buildConcept(Object.assign({}, good, {
       model: '/owner-expectations', captureTemplate: 'Org Chart'
     }), known)).toThrow(/model/)
+  })
+
+  it('🔴 names a document exactly when the row comes from one — item 15.28', () => {
+    // Its page counts in that document. Without it, Alignment Statements' p3 reads as
+    // Business Targets' p3; on any other row, a stray `document` silently re-pages it.
+    expect(() => frameworks.buildConcept(
+      Object.assign({}, good, { source: 'support-document' }), known)).toThrow(/document/)
+    expect(() => frameworks.buildConcept(
+      Object.assign({}, good, { document: 'alignment' }), known)).toThrow(/document/)
+    expect(frameworks.buildConcept(Object.assign({}, good, {
+      source: 'support-document', document: 'alignment'
+    }), known).document).toBe('alignment')
   })
 
   it('rejects a last page that does not follow the first', () => {

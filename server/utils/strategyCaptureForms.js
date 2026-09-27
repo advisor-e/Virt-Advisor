@@ -661,9 +661,14 @@ function captureForConcept (concept) {
     }
   }
 
+  // 🔴 A TABLE MAY NAME ITS OWN FORM, and then it is read and laid out by that form rather
+  // than the concept's. Alignment Statements (item 15.28) captures five named statements and
+  // a three-column table on one card; read by one form, either the statements flow four
+  // across or the table becomes a stack. `tableForms` tells the screen which is which.
   const fields = []
+  const tableForms = template.tables.map(table => table.form || concept.captureForm || '')
   template.tables.forEach((table, i) => {
-    fieldsOfTable(table, i, concept.captureForm).forEach(f => fields.push(f))
+    fieldsOfTable(table, i, tableForms[i]).forEach(f => fields.push(f))
   })
 
   return {
@@ -671,6 +676,7 @@ function captureForConcept (concept) {
     template: concept.captureTemplate,
     file: template.file,
     form: concept.captureForm || '',
+    tableForms,
     fields
   }
 }

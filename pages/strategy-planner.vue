@@ -254,7 +254,7 @@
             :firm-colour="firmBrand.colour || undefined"
             :firm-logo="firmBrand.logo || ''"
             :text-edits="textEdits"
-            :agenda-items="agendaNames"
+            :agenda-items="agendaGroups"
             editable
             @text-edited="onTextEdited"
             @field-opened="onVisitFieldOpened(card.visit, $event)"
@@ -352,6 +352,8 @@ import { isDevHost } from '~/utils/devHost'
 import { rolesFrom, namedRoles } from '~/utils/orgChart'
 import { getSavedReport } from '~/utils/clientReports'
 import { requestFromSaved, contrastFrom } from '~/utils/ownerExpectationsPrint'
+import { agendaGroups as groupsOfSteps } from '~/utils/agendaLayout'
+import firmBrand from '~/mixins/firmBrand'
 
 /** Where the master app leaves the advisor's token before our pages load. */
 const TOKEN_KEY = 'advisor_e_token'
@@ -394,6 +396,9 @@ export default {
 
   components: { StrategyScopeMenu, StrategyStepBuilder, StrategyCaptureCard, StrategyConceptCapture, StrategyGrowthWheel, StrategyPlanDocument, StrategyPlanMark },
 
+  /** `firmBrand` and `loadFirmBrand` — the advisor firm's brand for the plan (item 16). */
+  mixins: [firmBrand],
+
   data () {
     return {
       /**
@@ -407,15 +412,6 @@ export default {
       step: 'scope',
       loading: true,
       error: '',
-      /**
-       * The advisor firm's brand for the printed plan — item 16.2. Fetched once on
-       * mount from `GET /api/report/firm/brand`. Nulls are the honest resting state:
-       * `firmLogo` null means the firm holds no logo and the initials disc shows
-       * (Mike's ruling, 2026-09-22), and `firmColour` null means the page border
-       * falls back to the platform colour. The route answers 200 with nulls on any
-       * failure, so a plan always prints.
-       */
-      firmBrand: { name: null, logo: null, colour: null },
       planningDomains: [],
       /** The five panels of the session scope menu, in Mike's order. */
       decks: [],
@@ -916,13 +912,19 @@ export default {
     },
 
     /**
-     * The step names, in order, for the agenda on Our Session Objective — Mike's ruling of
-     * 2026-09-23 that the framing page's agenda IS the session's step list. A step not yet
-     * named is left out rather than printed as an empty bullet.
-     * @returns {string[]}
+     * The steps, in order, each with the concepts placed in it, for the agenda on Our
+     * Session Objective — Mike's ruling of 2026-09-23 that the framing page's agenda IS the
+     * session's step list, and of 2026-09-26 that each step is a parent with its concepts
+     * as children (item 15.26).
+     *
+     * 🔴 BUILT FROM `planSteps`, THE LIST THE CLIENT'S PLAN PRINTS — Mike, 2026-09-26. This
+     * screen used to leave an unnamed step off while the plan printed it as "Step 3", so the
+     * advisor checked one agenda and the client read another, and the unnamed step's concepts
+     * vanished from the screen's copy.
+     * @returns {Array<{name: string, children: string[]}>}
      */
-    agendaNames () {
-      return this.planStepDefs.map(s => String(s.name || '').trim()).filter(Boolean)
+    agendaGroups () {
+      return groupsOfSteps(this.planSteps)
     },
 
     /**
@@ -1121,7 +1123,7 @@ export default {
   async mounted () {
     this.apiToken = this.resolveApiToken()
     await Promise.all([
-      this.loadFrameworks(), this.loadClients(), this.loadSessionProcess(), this.loadFirmBrand()
+      this.loadFrameworks(), this.loadClients(), this.loadSessionProcess(), this.loadFirmBrand(this.headers())
     ])
 
     // 🔴 A REFRESH COMES BACK TO THE SESSION — stage 7. `loadClients` has already set
@@ -1134,33 +1136,6 @@ export default {
   },
 
   methods: {
-    /**
-     * The advisor firm's brand for the printed plan — item 16.2.
-     *
-     * ⚠ IT NEVER BLOCKS THE PAGE. A brand is decoration on a screen whose figures
-     * matter, so a failure leaves the nulls in place and the plan prints with the
-     * initials disc and the platform border colour. There is no error message and no
-     * retry: a logo that did not load is not something an advisor can act on.
-     *
-     * @returns {Promise<void>} resolves once `firmBrand` holds whatever could be read.
-     */
-    async loadFirmBrand () {
-      try {
-        const res = await fetch('/api/report/firm/brand', {
-          credentials: 'same-origin', headers: this.headers()
-        })
-        if (!res.ok) { return }
-        const body = await res.json()
-        this.firmBrand = {
-          name: typeof body.name === 'string' ? body.name : null,
-          logo: typeof body.logo === 'string' ? body.logo : null,
-          colour: typeof body.colour === 'string' ? body.colour : null
-        }
-      } catch (e) {
-        // Deliberately silent — see the note above.
-      }
-    },
-
     /**
      * Same resolution as pages/dashboard-reports.vue: a loopback host always uses the dev
      * bypass; otherwise the token the master app stored. With no token the backend
@@ -1272,7 +1247,7 @@ export default {
           body: JSON.stringify({
             domains: [],
             frameworks: this.chosen,
-            steps: this.planStepDefs.map(s => ({ name: s.name, items: s.items }))
+            steps: this.stepsToSave(this.planStepDefs)
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
@@ -1572,11 +1547,28 @@ export default {
       const inScope = {}
       this.placeableCards.forEach((c) => { inScope[c.key] = true })
 
+      // `purpose` travels with the step: the mentor's note on what it is for, which the
+      // advisor sees as a tooltip on Build session and the client never sees (item 15.27).
       this.planStepDefs = handedDown.steps.map((s, i) => ({
         key: 's' + (i + 1),
         name: s.name || '',
+        purpose: s.purpose || '',
         items: (s.items || []).filter(k => inScope[k])
       }))
+    },
+
+    /**
+     * The steps as the session saves them — the one shape both saves send.
+     *
+     * ⚠ `purpose` IS SENT EVEN THOUGH THE ADVISOR NEVER EDITS IT. It is the mentor's note,
+     * copied in when the steps were handed down; leaving it out here is exactly how it was
+     * lost before item 15.27, one save after it arrived.
+     *
+     * @param {Array<{name: string, items: string[], purpose?: string}>} steps
+     * @returns {Array<{name: string, items: string[], purpose: string}>}
+     */
+    stepsToSave (steps) {
+      return steps.map(s => ({ name: s.name, items: s.items, purpose: s.purpose || '' }))
     },
 
     /**
@@ -1643,7 +1635,7 @@ export default {
           body: JSON.stringify({
             domains: [],
             frameworks: this.chosen,
-            steps: next.map(s => ({ name: s.name, items: s.items }))
+            steps: this.stepsToSave(next)
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
@@ -1937,7 +1929,12 @@ export default {
         // no steps at all, and only then does the standard seed it.
         const savedSteps = Array.isArray(scope.steps) ? scope.steps : []
         this.planStepDefs = savedSteps.length
-          ? savedSteps.map((s, i) => ({ key: 's' + (i + 1), name: s.name || '', items: (s.items || []).slice() }))
+          ? savedSteps.map((s, i) => ({
+            key: 's' + (i + 1),
+            name: s.name || '',
+            purpose: s.purpose || '',
+            items: (s.items || []).slice()
+          }))
           : []
         if (!this.planStepDefs.length) { this.seedSteps() }
 

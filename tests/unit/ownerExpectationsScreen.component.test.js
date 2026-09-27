@@ -67,31 +67,48 @@ describe('OwnerExpectations screen — the payload', () => {
   })
 })
 
-describe('OwnerExpectations screen — each owner\'s own tasks', () => {
-  it('rename, add and remove change the open owner and no other', async () => {
+describe('OwnerExpectations screen — one list of up to ten tasks, shared by every owner', () => {
+  // 🔴 Mike, 2026-09-26 (item 15.24): "1 list of 10 is what i asked for BUT those 10 can be
+  // edited". A tester editing one owner sees one owner; only this shows the others follow.
+  it('rename, add and remove change the list for every owner; each keeps their own shares', async () => {
     const wrapper = await mountWith(SHIPPED)
     wrapper.vm.openOwner = 3
     await wrapper.vm.$nextTick()
-    wrapper.vm.openForm.duties[8].task = 'Board meetings'
+    wrapper.vm.renameTask(8, 'Board meetings')
     wrapper.vm.removeTask(9)
     wrapper.vm.addTask()
-    wrapper.vm.openForm.duties[9].task = 'Hiring'
+    wrapper.vm.renameTask(9, 'Hiring')
     wrapper.vm.openForm.duties[9].focusPct = 15
 
     const body = wrapper.vm.recomputeRequest().body
-    expect(body.owners[3].duties.map(d => d.task).slice(8)).toEqual(['Board meetings', 'Hiring'])
+    const expected = SHIPPED.slice(0, 8).concat(['Board meetings', 'Hiring'])
+    body.owners.forEach(o => expect(o.duties.map(d => d.task)).toEqual(expected))
     expect(body.owners[3].duties[9].focus).toBeCloseTo(0.15, 10)
-    expect(body.owners[0].duties.map(d => d.task)).toEqual(SHIPPED)
+    expect(body.owners[0].duties[9].focus).toBe(0)
   })
 
-  it('never removes an owner\'s last task, and never adds past the model\'s ceiling', async () => {
+  it('never removes the last task, and never holds more than the workbook\'s ten', async () => {
     const wrapper = await mountWith(SHIPPED)
     const o = wrapper.vm.openForm
     while (o.duties.length > 1) { wrapper.vm.removeTask(0) }
     wrapper.vm.removeTask(0)
     expect(o.duties).toHaveLength(1)
     for (let i = 0; i < 40; i++) { wrapper.vm.addTask() }
-    expect(o.duties).toHaveLength(wrapper.vm.maxTasks)
+    wrapper.vm.form.owners.forEach(owner => expect(owner.duties).toHaveLength(10))
+    expect(wrapper.vm.canAddTask).toBe(false)
+  })
+
+  it('joins a record saved while each owner kept their own list, keeping every share by name', async () => {
+    const wrapper = await mountWith(SHIPPED)
+    const [a, b] = wrapper.vm.form.owners
+    a.duties = [{ key: 'x1', task: 'Sales', nowPct: 60, focusPct: 40 }, { key: 'x2', task: 'Admin', nowPct: 40, focusPct: 60 }]
+    b.duties = [{ key: 'x3', task: 'Admin', nowPct: 100, focusPct: 50 }, { key: 'x4', task: 'Hiring', nowPct: 0, focusPct: 50 }]
+    wrapper.vm.form.owners.slice(2).forEach((o) => { o.duties = [] })
+    wrapper.vm.shareTaskList()
+
+    wrapper.vm.form.owners.forEach(o => expect(o.duties.map(d => d.task)).toEqual(['Sales', 'Admin', 'Hiring']))
+    expect(wrapper.vm.form.owners[1].duties.map(d => d.nowPct)).toEqual([null, 100, 0])
+    expect(wrapper.vm.form.owners[0].duties.map(d => d.focusPct)).toEqual([40, 60, null])
   })
 })
 
@@ -115,14 +132,19 @@ describe('OwnerExpectations screen — the starting list handed down', () => {
     const wrapper = await mountWith(SHIPPED)
     wrapper.vm.applyReportInputs({ 'o1.tasks': ['Own task'], 'o1.now': [100], 'o1.focus': [100] })
     wrapper.vm.applyStartingTasks(['Board', 'Sales'])
-    expect(wrapper.vm.form.owners[0].duties.map(d => d.task)).toEqual(['Own task'])
+    // The saved task and its share survive, joined into the one shared list (item 15.24);
+    // the late list is not applied.
+    const tasks = wrapper.vm.form.owners[0].duties.map(d => d.task)
+    expect(tasks[0]).toBe('Own task')
+    expect(wrapper.vm.form.owners[0].duties[0].nowPct).toBe(100)
+    expect(tasks).not.toContain('Board')
   })
 })
 
 describe('OwnerExpectations screen — saved against the client', () => {
   it('🔴 what it saves is accepted by the saved-report store, and loads back to the same model', async () => {
     const wrapper = await mountWith(SHIPPED)
-    wrapper.vm.openForm.duties[0].task = 'Renamed'
+    wrapper.vm.renameTask(0, 'Renamed')
     wrapper.vm.form.development.markets[2] = 'x'.repeat(900)
     const saved = wrapper.vm.reportInputs()
 

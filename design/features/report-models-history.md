@@ -147,6 +147,7 @@ Levers, so advisors saw the literal word `true` for a day. → Brief §4, trap 3
 | Collapse breakpoint | **860px** (Eight Levers had 900px) | 2026-07-27 |
 | Shell-and-guard, or hand-edit each screen? | **Shell + guard.** Values in a document still rely on remembering. | 2026-07-27 |
 | Are the teaching models "reports"? | **No — they are teaching tools.** See below. | 2026-07-13 |
+| Owner Expectations: each owner's own task list, or one? | **One list of up to ten, shared by every owner and editable** — *"1 list of 10 is what i asked for BUT those 10 can be edited"* (item 15.24). It replaced, in the Brief: *"EACH OWNER HOLDS THEIR OWN TASKS … Each owner's own list is edited on step 1: rename, remove (never the last), add (up to 20)."* Twenty per owner let the plan's contrast table run off its page. | 2026-09-26 |
 
 ### Why the classification exists
 

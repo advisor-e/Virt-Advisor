@@ -9,23 +9,23 @@
 
 ---
 
-## 2026-09-26 · Laptop · branch `feat/advisor-progress`
+## 2026-09-27 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed; PR #135 open (11 commits: 15.25, 15.17's agenda, the 15.28 drawing). Green at
-push: 632 suites / 13,808 tests.**
+**Clean and pushed. 11 ahead of master, 0 behind — all of it in PR #136 (open, not merged).
+Green: 636 suites / 13,810 tests.**
 
-🔴 **START HERE: `git stash list`.** Item **15.28 — Alignment Statements** was approved to build
-by Mike and is **about half built in `stash@{0}`** ("15.28 BUILD IN PROGRESS"), not on any branch,
-10 tests red. Stashed so PR #135 stayed green. `git stash pop`, then: count pins 47→48, tests for
-`gapRows` / `tableForms` / `support-document`, the mockup subtitle, `AGENDA-HELPS-LINES.md`, the
-Brief, and a browser walk of the card. The item's note lists the same.
+**Closed on Mike's word:** 16 — the Business Performance Report carries the advisor's firm on its
+cover and every footer, through `mixins/firmBrand.js` (shared with the Strategy Planner).
+**Worked:** 15.2 — drawing approved ([`mockups/growth-aspect-questions.html`](mockups/growth-aspect-questions.html)),
+first part built: the 98 questions in `data/growth-fundamentals.json` and the wheel's button. His
+call: proceed. **Fixed at shutdown:** the report opened with the stale banner outside loopback,
+because its first figures call went out before the sign-in was read.
 
-**Ruled today (written on the drawing):** the logo box stays on the Maslow sheet; long firm names
-accepted ("majority rules"); p9 as grey guide text; the menu line; third in Business Targets; a
-dash in the Page column.
+**FOR THE DESKTOP:**
+- Merging #134 and #136: item 16 ends DONE — keep #136's closure, drop #134's parked entry. Keep
+  #134's closures of 16.1 and 13.2, and #136's of 15.24.
+- `growthAspects` now carry `questions`, and the Process Improvement and Governance descriptions
+  changed on Mike's rulings. They reach the Virtual Advisor's prompt.
+- 15.2's Mentor Hub tab needs `FirmManagerHub.vue` — not started; it waits for #134.
 
-**FOR THE DESKTOP, once 15.28 lands:** `StrategyConceptCapture.vue` gets `sections`/`blocksOf`
-(a form per table), `strategyFrameworks.js` a `support-document` source, and
-`read-deck-pages.py` an `alignment` document. Nothing of it is on the branch yet.
-
-**In hand:** 15.28, 15.17, 15.20, 8.4.
+**In hand, not touched today:** 15.17, 15.20, 8.4.

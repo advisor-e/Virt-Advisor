@@ -128,6 +128,22 @@ describe('validateTasks — the trust boundary', () => {
     const many = Array.from({ length: ownerFocusTasks.MAX_TASKS + 1 }, (_, i) => 'Task ' + i)
     expect(ownerFocusTasks.validateTasks({ tasks: many }).ok).toBe(false)
   })
+
+  it('🔴 holds a list to the workbook\'s ten — Mike, 2026-09-26 (item 15.24)', () => {
+    expect(ownerFocusTasks.MAX_TASKS).toBe(10)
+    const eleven = Array.from({ length: 11 }, (_, i) => 'Task ' + i)
+    expect(ownerFocusTasks.validateTasks({ tasks: eleven }).ok).toBe(false)
+  })
+
+  it('a list saved while the ceiling was twenty keeps its first ten, never falling back to the tier above', async () => {
+    // Failing it as malformed would quietly hand this firm another tier's list instead of its own.
+    const twelve = Array.from({ length: 12 }, (_, i) => 'Firm task ' + i)
+    const r = await ownerFocusTasks.resolveTasks('firm-1', storedAt({
+      'firm-1': { tasks: twelve }, [PLATFORM_SCOPE]: { tasks: ['Mentor'] }
+    }))
+    expect(r.tasks).toEqual(twelve.slice(0, 10))
+    expect(r.inherited).toBe(false)
+  })
 })
 
 describe('the routes', () => {

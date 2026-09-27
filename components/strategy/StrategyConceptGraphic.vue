@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { CONCEPT_GRAPHICS } from '~/components/strategy/concepts'
+import { CONCEPT_GRAPHICS, conceptSheetAt } from '~/components/strategy/concepts'
 import StrategyTextEditPanel from '~/components/strategy/StrategyTextEditPanel.vue'
 import { normaliseWords } from '~/utils/conceptTextBlocks'
 import { readBlocks, drawBlock, checkFit, markHit, blockAt } from '~/utils/conceptTextDom'
@@ -134,7 +134,8 @@ export default {
     },
 
     /**
-     * The session's step names, in order — for a page whose agenda IS the step list.
+     * The session's steps, in order, each with the concepts placed in it — for a page
+     * whose agenda IS the step list. `{ name, children }`, from `agendaGroups`.
      *
      * 🔴 Mike's ruling, 2026-09-23, on Our Session Objective: *"make sure the AGENDA
      * section is editable"* — and the same day, the agenda is the session's own step
@@ -181,7 +182,10 @@ export default {
         firmColour: this.firmColour,
         firmLogo: this.firmLogo
       }
-      if (this.takesAgenda) { props.agendaItems = this.agendaItems }
+      if (this.takesAgenda) {
+        props.agendaItems = this.agendaItems
+        props.agendaPage = conceptSheetAt(this.conceptId, this.sheet).agendaPage
+      }
       return props
     },
 
@@ -190,13 +194,14 @@ export default {
      *
      * ⚠ The registry holds a LIST per concept since 2026-09-23. An out-of-range
      * sheet renders nothing rather than throwing — the same safe state as a
-     * concept with no drawing at all.
+     * concept with no drawing at all. A sheet past the agenda sheet is a further
+     * page of the same agenda drawing (item 15.26).
      *
      * @returns {(function(): Promise<object>)|null}
      */
     drawing () {
       const sheets = CONCEPT_GRAPHICS[this.conceptId]
-      return (sheets && sheets[this.sheet]) || null
+      return (sheets && sheets[conceptSheetAt(this.conceptId, this.sheet).drawing]) || null
     },
 
     /**

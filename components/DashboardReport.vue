@@ -119,6 +119,14 @@ export default {
     DashboardReportSalesVolatility
   },
 
+  /**
+   * The advisor firm's brand, for the cover and every page's footer (item 16). Provided as
+   * a getter so the pages follow `brand` when it arrives after they have rendered.
+   */
+  provide () {
+    return { drdBrand: () => this.brand }
+  },
+
   props: {
     /** The pages route's answer, or null while it is on its way. */
     figures: { type: Object, default: null },
@@ -126,6 +134,8 @@ export default {
     state: { type: Object, required: true },
     clientName: { type: String, default: '' },
     period: { type: String, default: '' },
+    /** The advisor firm's `{ name, logo, colour }` — `mixins/firmBrand.js`. Nulls fall back. */
+    brand: { type: Object, default: () => ({}) },
     /** `{ [key]: { available, reason } }` for the optional pages. */
     availability: { type: Object, default: () => ({}) },
     /** The advisor's toolbar. A client reads the document alone. */

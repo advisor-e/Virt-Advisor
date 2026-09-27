@@ -80,6 +80,8 @@ describe('GET /api/strategy/frameworks', () => {
     expect(res._body.frameworks.some(f => f.closesTheSession)).toBe(false)
     // The nine Growth Aspects for the coverage check, from growth-fundamentals.json.
     expect(res._body.growthAspects).toHaveLength(9)
+    // Item 15.2: each carries its questions to the wheel — all 98 reach the screen.
+    expect(res._body.growthAspects.reduce((n, a) => n + a.questions.length, 0)).toBe(98)
   })
 
   it('filters to one Planning Domain when asked', () => {
@@ -99,15 +101,15 @@ describe('GET /api/strategy/frameworks', () => {
 })
 
 describe('GET /api/strategy/concepts — the session scope menu', () => {
-  it('returns the five panels, in Mike\'s order, holding all 47 concepts', () => {
+  it('returns the five panels, in Mike\'s order, holding all 48 concepts', () => {
     const res = makeRes()
     routes.getConcepts(req(), res)
 
     expect(res._status).toBe(200)
     expect(res._body.decks).toHaveLength(5)
-    // 47 since 2026-09-25: 52 as Mike scoped it, less the eight agenda rows he deleted as the session's stage directions, plus two framing pages, plus Business Owner Expectations back as one row (item 15.23).
-    expect(res._body.conceptCount).toBe(47)
-    expect(res._body.decks.reduce((n, d) => n + d.concepts.length, 0)).toBe(47)
+    // 48 since 2026-09-26: 52 as Mike scoped it, less the eight agenda rows he deleted as the session's stage directions, plus two framing pages, plus Business Owner Expectations back as one row (item 15.23), plus Alignment Statements from its own document (item 15.28).
+    expect(res._body.conceptCount).toBe(48)
+    expect(res._body.decks.reduce((n, d) => n + d.concepts.length, 0)).toBe(48)
   })
 
   it('🔴 groups by DECK, so Pivot\'s eleven are reachable in one pass', () => {

@@ -74,6 +74,9 @@ DECKS = {
     'strategic-orientation-2': 'Advance.2B.Strategic Orientation.2.pdf',
     'sales-marketing': 'Advance.5.Sales & Mktg Review.pdf',
     'organisational-review': 'Advance.6.Organisational Review.pdf',
+    # Not a deck with a menu panel of its own: a supporting document whose concept sits
+    # in Business Targets (item 15.28). A concept carrying `document` is read from here.
+    'alignment': 'L.Suppt.Alignment.pdf',
 }
 
 # A concept whose page came from an agenda slide has no page of its own.
@@ -720,10 +723,12 @@ def register_pages():
         data = json.load(f)
     pages = set()
     for c in data['concepts']:
+        # A concept from a supporting document is paged in that document, not its panel's deck.
+        source = c.get('document') or c['deck']
         if c.get('source') != AGENDA:
-            pages.add((c['deck'], c['page']))
+            pages.add((source, c['page']))
         if c.get('responsePage'):
-            pages.add((c['deck'], c['responsePage']))
+            pages.add((source, c['responsePage']))
     return sorted(pages)
 
 

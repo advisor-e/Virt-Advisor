@@ -1438,19 +1438,22 @@ and [`components/OwnerExpectations.vue`](../../components/OwnerExpectations.vue)
 from the first sheet's owner totals, so the owners' incomes are typed once and carry straight
 through. Two catalogue cards would have the advisor type them twice and let them disagree.
 
-🔴 **EACH OWNER HOLDS THEIR OWN TASKS, AND THE STARTING LIST CASCADES** (Mike, 2026-09-24):
-*"they all start with the same (as it cascades down from mentor thru the levels to firm manager
-and now - client/entity level) - BUT each owner may record different tasks"*. Three parts:
+🔴 **ONE LIST OF UP TO TEN TASKS, SHARED BY EVERY OWNER, AND THE STARTING LIST CASCADES** (Mike,
+2026-09-24; one list of ten, 2026-09-26, item 15.24): *"1 list of 10 is what i asked for BUT
+those 10 can be edited"* — his workbook's one task column. Three parts:
 
 - **The starting list** is the hub's **Owner Focus Tasks** tab, under Model Inputs, on all four
-  managing tiers — inherit-or-own the whole list, the Session Processes shape
+  managing tiers — inherit-or-own the whole list of at most ten, the Session Processes shape
   ([`server/utils/ownerFocusTasks.js`](../../server/utils/ownerFocusTasks.js),
   `GET/PUT/DELETE /api/owner-focus-tasks`, history and restore). The shipped list is the
   workbook's ten, in [`data/owner-focus-tasks.json`](../../data/owner-focus-tasks.json), which the
   maths model also reads — one home.
-- **Each owner's own list** is edited on step 1: rename, remove (never the last), add (up to 20).
-  A tier's own starting list arrives with a **blank** split; the workbook's sample split stays on
-  the workbook's own tasks and is never carried across by position.
+- **The owners' one list** is edited on step 1: renaming a task, removing one (never the last) or
+  adding one (up to ten) changes it for every owner, and each owner keeps their own now and focus
+  shares. A record saved while owners kept their own lists is joined by task name. The model and
+  the plan's contrast table hold the same ten. A tier's own starting list arrives with a **blank**
+  split; the workbook's sample split stays on the workbook's own tasks and is never carried across
+  by position.
 - **The client/entity level** is the shared `savedReport` store: the figures, each owner's tasks
   included, are saved against the client, flattened to `o1.*` … `o6.*` keys because the store
   takes flat values. Free text is cut to the store's 200-character ceiling on the screen **and**

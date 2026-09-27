@@ -21,6 +21,13 @@
 /** Six owner blocks, as the workbook has (`MAX_OWNERS` in the maths module). */
 const OWNERS = 6
 
+/**
+ * Ten task rows at most, as the workbook's one task column has (`MAX_TASKS` in the maths
+ * module). Mike, 2026-09-26 (item 15.24): "no more than 10 tasks in the model, and table -
+ * do not print onto an additional page". Ten fit the page with room to spare.
+ */
+const TASK_ROWS = 10
+
 /** A saved figure, or blank — the screen's own rule. */
 function figureOrBlank (v) {
   return typeof v === 'number' && Number.isFinite(v) ? v : null
@@ -121,6 +128,7 @@ export function contrastFrom (result) {
       })
     }))
     .filter(t => t.cells.some(c => c && (c.now > 0 || c.focus > 0)))
+    .slice(0, TASK_ROWS)
 
   return {
     years: Array.isArray(r.years) ? r.years.slice(0, 4) : [],

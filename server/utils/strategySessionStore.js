@@ -43,6 +43,7 @@ const fs = require('fs')
 const path = require('path')
 const db = require('./db')
 const { devFallbackAllowed } = require('./dbFailure')
+const { MAX_PURPOSE } = require('./sessionProcess')
 
 /**
  * Dev-only stand-in for a machine with no MySQL — the affordance every store here carries.
@@ -158,16 +159,24 @@ function requireSessionId (value) {
  * Pivot's step 5 "Do It & Review It" has no slides behind it at all. Anything here that
  * dropped an empty `items` array would silently delete that step on the next save.
  *
+ * `purpose` is the mentor's note on what the step is for, handed down with it and shown to
+ * the advisor as a tooltip, never to the client (item 15.27). It is kept only when it holds
+ * text, so a step without one — every session saved before it travelled — stays exactly
+ * the shape it was.
+ *
  * @param {*} raw
- * @returns {{name: string, items: string[]}}
+ * @returns {{name: string, items: string[], purpose?: string}}
  */
 function normaliseStep (raw) {
   const step = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {}
   const items = Array.isArray(step.items) ? step.items : []
-  return {
+  const out = {
     name: String(isNil(step.name) ? '' : step.name).slice(0, MAX_NAME),
     items: items.slice(0, MAX_SCOPE_ENTRIES).map(k => String(k).slice(0, MAX_KEY))
   }
+  const purpose = isNil(step.purpose) ? '' : String(step.purpose).trim()
+  if (purpose) { out.purpose = purpose.slice(0, MAX_PURPOSE) }
+  return out
 }
 
 /**
@@ -278,7 +287,7 @@ function normaliseSuggestion (raw) {
  * mysql2 returns a JSON column already parsed on some driver versions and as a string on
  * others. Accept both rather than letting a driver upgrade change what callers receive.
  * @param {*} raw
- * @returns {{domains: string[], frameworks: string[], steps: Array<{name: string, items: string[]}>}}
+ * @returns {{domains: string[], frameworks: string[], steps: Array<{name: string, items: string[], purpose?: string}>}}
  */
 function decodeScope (raw) {
   // ⚠ `steps: []` IS THE RIGHT EMPTY, AND IT IS NOT THE SAME AS "ONE STEP". A session
