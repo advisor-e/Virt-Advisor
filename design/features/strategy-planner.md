@@ -1519,7 +1519,8 @@ paragraphs take 19–273 more characters; circle labels about 7.
 
 Items **8.4** (recording) and **15.14** (Wordsmith). Drawing:
 [`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html), not
-approved as a whole. **Every decision for the first build is ruled** (A, B, C, E; timing G, H, I;
+**APPROVED FOR BUILD by Mike on 2026-09-28** — *"i approve the drawing to build"* — as committed in
+`976533c2`; before shipping, open it beside the build and name every difference. **Every decision for the first build is ruled** (A, B, C, E; timing G, H, I;
 summaries J), and **every first-build label in its wording table was approved by Mike, one at a
 time, on 2026-09-28**. Screen 4 and its wording are marked "second build" on the page. **The
 Meeting Review meeting type is named "Strategy Session"** (Mike, 2026-09-28) — a twelfth type at
