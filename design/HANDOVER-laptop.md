@@ -11,8 +11,8 @@
 
 ## 2026-09-27 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed. 11 ahead of master, 0 behind — all of it in PR #136 (open, not merged).
-Green: 636 suites / 13,810 tests.**
+**Clean and pushed. PR #136 MERGED into master 2026-09-27 on Mike's instruction (`d84db396`) —
+all of today's work is on master. Green: 636 suites / 13,810 tests.**
 
 **Closed on Mike's word:** 16 — the Business Performance Report carries the advisor's firm on its
 cover and every footer, through `mixins/firmBrand.js` (shared with the Strategy Planner).
