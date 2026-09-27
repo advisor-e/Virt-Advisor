@@ -40,6 +40,15 @@
       span.sgw-name {{ seg.name }}
       span.sgw-desc {{ seg.description }}
       span.sgw-state {{ seg.covered ? $tc('strategyPlanner.wheel.objectives', seg.count, { count: seg.count }) : $t('strategyPlanner.wheel.nothingYet') }}
+      template(v-if="seg.questions.length")
+        b-button.sgw-toggle(
+          size="is-small"
+          type="is-text"
+          :aria-expanded="String(isOpen(seg.name))"
+          @click="toggle(seg.name)"
+        ) {{ isOpen(seg.name) ? $t('strategyPlanner.wheel.hideQuestions') : $t('strategyPlanner.wheel.showQuestions', { n: seg.questions.length }) }}
+        ol.sgw-questions(v-if="isOpen(seg.name)")
+          li(v-for="(q, i) in seg.questions" :key="i") {{ q }}
 </template>
 
 <script>
@@ -92,14 +101,28 @@ export default {
   name: 'StrategyGrowthWheel',
 
   props: {
-    /** `{ name, description }` from the backend — data/growth-fundamentals.json. */
+    /**
+     * `{ name, description, questions }` from the backend — data/growth-fundamentals.json.
+     * `questions` are Mike's own, from his 9 Growth Aspect Questions deck (item 15.2).
+     */
     aspects: { type: Array, default: () => [] },
     /** How many objectives name each aspect, keyed by aspect name. */
     counts: { type: Object, default: () => ({}) }
   },
 
+  data () {
+    return {
+      /**
+       * Which aspects have their questions showing, keyed by name. Screen state only:
+       * item 15.2 Decision A (Mike, 2026-09-27) — the advisor opens an aspect's questions
+       * from here, recorded session or not. `design/mockups/growth-aspect-questions.html`.
+       */
+      open: {}
+    }
+  },
+
   computed: {
-    /** @returns {object[]} the nine, each with its count and description */
+    /** @returns {object[]} the nine, each with its count, description and questions */
     segments () {
       return SEGMENTS.map((s) => {
         const count = Number(this.counts[s.name]) || 0
@@ -107,7 +130,8 @@ export default {
         return Object.assign({}, s, {
           count,
           covered: count > 0,
-          description: described ? described.description : ''
+          description: described ? described.description : '',
+          questions: described && Array.isArray(described.questions) ? described.questions : []
         })
       })
     },
@@ -129,6 +153,17 @@ export default {
         count: this.coveredCount,
         names: covered.length ? covered.join(', ') : '—'
       })
+    }
+  },
+
+  methods: {
+    /** @param {string} name @returns {boolean} */
+    isOpen (name) {
+      return this.open[name] === true
+    },
+    /** @param {string} name */
+    toggle (name) {
+      this.$set(this.open, name, !this.isOpen(name))
     }
   }
 }
@@ -158,9 +193,14 @@ export default {
 .sgw-item.is-covered { background: #eefaf0; border-color: #a8dcb4; }
 .sgw-sw { width: 11px; height: 11px; border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0.13); }
 .sgw-name { font-weight: 600; color: #002b64; }
-.sgw-state { font-weight: 600; color: #5b6f8a; white-space: nowrap; }
+/* Pinned to the name's row. Left to auto-placement it fell into the 14px swatch column
+   under the description, which went unseen until item 15.2 put a button on that row. */
+.sgw-state { grid-column: 3; grid-row: 1; font-weight: 600; color: #5b6f8a; white-space: nowrap; }
 .sgw-item.is-covered .sgw-state { color: #2f7d32; }
 .sgw-desc { grid-column: 2 / 4; color: #5b6f8a; font-size: 0.74rem; }
+.sgw-toggle { grid-column: 2 / 4; justify-self: start; padding-left: 0; font-size: 0.74rem; }
+.sgw-questions { grid-column: 2 / 4; margin: 0 0 0.2rem 1.1rem; padding: 0; color: #23405f; font-size: 0.78rem; }
+.sgw-questions li { margin: 0 0 0.3rem; }
 
 @media (max-width: 860px) {
   .sgw-wrap { grid-template-columns: 1fr; }

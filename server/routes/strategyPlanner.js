@@ -52,12 +52,12 @@ const { sendError } = require('../utils/sendError')
 const MAX_ENTRIES_PER_SAVE = 60
 
 /**
- * The nine Growth Aspects, already authored in `data/growth-fundamentals.json` — names and
- * one-line descriptions. The ~100 probing questions behind them are NOT here and are item
- * 15.2, filed on Mike's yes rather than quietly deferred.
+ * The nine Growth Aspects from `data/growth-fundamentals.json` — name, one-line description,
+ * and Mike's 98 questions behind them (item 15.2), which the coverage wheel opens per aspect.
+ * Sent to the screen only; nothing here reaches a model.
  */
 const GROWTH_ASPECTS = (require('../../data/growth-fundamentals.json').growthAspects || [])
-  .map(a => ({ name: a.name, description: a.description }))
+  .map(a => ({ name: a.name, description: a.description, questions: a.questions || [] }))
 
 /**
  * The caller's firm, or null when the token carried none.

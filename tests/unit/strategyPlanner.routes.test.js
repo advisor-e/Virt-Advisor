@@ -80,6 +80,8 @@ describe('GET /api/strategy/frameworks', () => {
     expect(res._body.frameworks.some(f => f.closesTheSession)).toBe(false)
     // The nine Growth Aspects for the coverage check, from growth-fundamentals.json.
     expect(res._body.growthAspects).toHaveLength(9)
+    // Item 15.2: each carries its questions to the wheel — all 98 reach the screen.
+    expect(res._body.growthAspects.reduce((n, a) => n + a.questions.length, 0)).toBe(98)
   })
 
   it('filters to one Planning Domain when asked', () => {

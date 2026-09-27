@@ -6171,7 +6171,9 @@
       "ofNine": "OF 9 COVERED",
       "nothingYet": "Nothing yet",
       "objectives": "{count} objective | {count} objectives",
-      "aria": "The nine Growth Aspects. {count} are covered by an objective: {names}."
+      "aria": "The nine Growth Aspects. {count} are covered by an objective: {names}.",
+      "showQuestions": "Show the {n} questions",
+      "hideQuestions": "Hide the questions"
     },
     "plan": {
       "untitled": "Draft session",
