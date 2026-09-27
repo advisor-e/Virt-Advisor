@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Growth Aspect Questions</title>
+<!--
+================================================================================
+  THE 98 GROWTH ASPECT QUESTIONS — item 15.2, in the Strategy Planner and the
+  Mentor Hub. Drawn 2026-09-27 on Mike's yes. NOT APPROVED. NOTHING IS BUILT.
+
+  It is the artefact the build will be measured against, per CLAUDE.md's
+  Save-the-Artefact rule: open it beside the build and name every difference.
+
+  WHAT MIKE ASKED FOR. Split out of 15.1 on his yes, 2026-09-16 (Decision 7 of
+  design/mockups/strategy-planner.html). His direction, 2026-09-25: the questions
+  are INCLUDED IN THE BUILD, and in the session he PREFERS THE AI TO PUT THEM
+  FORWARD when the conversation turns to an aspect, over a deep-dive button.
+
+  WHERE THE WORDS COME FROM.
+  - The 98 questions: his "9 Growth Aspect Questions hyperlinked.pdf", read with
+    pdftotext and split on its bullets; 9 · 9 · 8 · 12 · 11 · 11 · 13 · 14 · 11.
+    Generated into this page by a script, never retyped.
+  - The aspect names, descriptions and colours: data/growth-fundamentals.json and
+    components/strategy/StrategyGrowthWheel.vue, as shipped.
+  - Porter's 5 Forces on screen 2: data/strategy-frameworks.json, as shipped.
+  - EVERY OTHER WORD ON THIS PAGE IS OURS and is listed in the wording table.
+
+  WHAT IT STANDS ON. Item 8.4's section recording
+  (design/mockups/strategy-session-recording.html, drawn 2026-09-25, not approved):
+  screen 2 happens only once a recorded section closes and becomes text.
+================================================================================
+-->
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --bright: #00b1e0; --eg: #6b7f99; --bg: #fff;
+    --good: #2e7d32; --crit: #c0392b; --warn: #b36b00; --rec: #d32f2f;
+    --goodwash: #edf7ee; --critwash: #fdeeee; --recwash: #fff1f1;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+      --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+      --good: #7fcf85; --crit: #ff8a80; --warn: #ffb74d; --rec: #ff6b6b;
+      --goodwash: #16301c; --critwash: #3a1c1c; --recwash: #3a1a1f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+    --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+    --good: #7fcf85; --crit: #ff8a80; --warn: #ffb74d; --rec: #ff6b6b;
+    --goodwash: #16301c; --critwash: #3a1c1c; --recwash: #3a1a1f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    color: var(--body); background: var(--bg); margin: 0;
+    padding-block: 32px 80px; padding-inline: 16px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: clamp(24px, 4vw, 30px); margin: 0 0 6px; text-wrap: balance; }
+  h2 { color: var(--ink); font-size: clamp(18px, 3vw, 21px); margin: 40px 0 4px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 78ch; }
+  .lede b { color: var(--ink); }
+  .cap { color: var(--eg); font-size: 12.5px; margin: 8px 0 0; max-width: 82ch; }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 18px 0 0; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul, .note ol { margin: 6px 0 0; padding-left: 20px; }
+  .note li { margin: 0 0 5px; }
+  code { font-size: 12.5px; }
+  .tablewrap { overflow-x: auto; }
+  table.m { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+  table.m th, table.m td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.m th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  .dec { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px dashed var(--accent); border-radius: 4px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+
+  /* The screen, drawn */
+  .screen { border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); background: var(--bg); overflow: hidden; margin: 14px 0 0; }
+  .rail { display: flex; gap: 4px; padding: 10px 14px; background: var(--wash); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .rail span { font-size: 12.5px; padding: 4px 10px; border-radius: 6px; color: var(--eg); }
+  .rail span.on { background: #0070c0; color: #fff; font-weight: 700; }
+  .frame { border: 10px solid #0070c0; margin: 14px; padding: 18px 20px; }
+  .runhead { color: var(--ink); font-weight: 700; margin: 0 0 10px; font-size: 15px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 0 0 14px; }
+  .card.live { border: 2px solid var(--rec); }
+  .cardtop { background: var(--wash); padding: 10px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .cardtop b { color: var(--ink); }
+  .grow { flex: 1; }
+  .muted { color: var(--eg); font-size: 12.5px; }
+  .btn { display: inline-block; background: var(--accent); color: #fff; border-radius: 6px; padding: 6px 13px; font-weight: 600; font-size: 13.5px; white-space: nowrap; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .btn.recbtn { background: transparent; color: var(--rec); border: 1px solid var(--rec); }
+  .btn.recbtn::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--rec); margin-right: 7px; vertical-align: 0; }
+  .btn.danger { background: transparent; color: var(--crit); border: 1px solid var(--crit); }
+  .btn.small { padding: 3px 10px; font-size: 12.5px; }
+  .forces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 10px; padding: 14px; }
+  .field { border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; }
+  .field.open { border: 2px solid var(--accent); box-shadow: 0 0 0 3px #0070c022; }
+  .field h5 { margin: 0 0 3px; color: var(--ink); font-size: 13.5px; }
+  .field p.q { margin: 0 0 7px; font-size: 12px; color: var(--eg); }
+  .field .typed { border: 1px solid var(--line); border-radius: 5px; min-height: 38px; padding: 6px 8px; font-size: 13px; }
+  .field .typed.empty { color: var(--eg); font-style: italic; }
+  .claim { font-size: 11.5px; color: var(--accent); font-weight: 700; margin: 6px 0 0; }
+
+  /* the recording strip */
+  .strip { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--recwash); border-bottom: 1px solid var(--line); padding: 10px 14px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--rec); display: inline-block; }
+  .strip b { color: var(--rec); }
+  .clock { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
+  .secs { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .sec { font-size: 12px; border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; }
+  .sec.done { border-color: var(--good); color: var(--good); background: var(--goodwash); }
+  .sec.now { border-color: var(--rec); color: var(--rec); background: var(--recwash); font-weight: 700; }
+  .sec.work { border-color: var(--warn); color: var(--warn); }
+  .sec.fail { border-color: var(--crit); color: var(--crit); background: var(--critwash); }
+
+  /* consent */
+  .consent { padding: 18px 20px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+  .cstep { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .cstep h4 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .said { border-left: 4px solid var(--accent); background: var(--wash); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 14px; margin: 8px 0; }
+  .said small { display: block; color: var(--eg); font-size: 11.5px; margin: 0 0 4px; font-weight: 700; letter-spacing: .04em; }
+  .recbar { background: var(--recwash); color: var(--rec); font-weight: 700; padding: 7px 10px; border-radius: 6px; font-size: 13px; margin: 0 0 8px; }
+
+  /* words arriving */
+  .heard { margin: 8px 0 0; border: 1px dashed var(--accent); border-radius: 7px; padding: 8px 10px; font-size: 12.5px; }
+  .heard .lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--eg); margin: 0 0 3px; }
+  .heard .raw { color: var(--eg); margin: 0 0 7px; }
+  .heard .raw i { font-style: normal; font-weight: 700; }
+  .heard .tidy { color: var(--ink); margin: 0 0 7px; font-size: 13px; }
+  .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tray { margin: 0 14px 14px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--wash); }
+  .tray h5 { margin: 0 0 6px; color: var(--ink); font-size: 13.5px; }
+  .tray p { margin: 0 0 6px; font-size: 12.5px; }
+
+  .banner { margin: 14px; padding: 10px 14px; border-radius: 8px; font-size: 13.5px; }
+  .banner.fail { background: var(--critwash); border-left: 4px solid var(--crit); }
+  .banner.fail b { color: var(--crit); }
+  .banner.ok { background: var(--goodwash); border-left: 4px solid var(--good); }
+  .banner.ok b { color: var(--good); }
+
+  /* how it works */
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 10px; margin: 14px 0 0; counter-reset: s; }
+  .flow div { border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; font-size: 13px; background: var(--bg); position: relative; }
+  .flow div::before { counter-increment: s; content: counter(s); display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; margin: 0 0 6px; }
+  .flow b { color: var(--ink); display: block; }
+
+  .decision { border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 15px; margin: 12px 0; background: var(--bg); }
+  .decision h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
+  .decision p { margin: 0 0 6px; }
+  .rec { font-weight: 600; color: var(--ink); }
+  .against { color: var(--eg); font-size: 13px; }
+</style>
+<style>
+  .asp { border-top: 1px solid var(--line); padding: 9px 4px; display: grid; grid-template-columns: 14px 1fr auto auto; gap: 6px 12px; align-items: center; }
+  .asp:first-child { border-top: 0; }
+  .asp b { color: var(--ink); font-size: 14px; }
+  .asp .st { color: var(--eg); font-size: 12.5px; }
+  .asp.open { background: var(--wash); border-radius: 8px; }
+  .qpanel { grid-column: 2 / -1; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+  .asp .sw { margin: 0; }
+  ol.qs { margin: 4px 0 4px; padding-left: 22px; font-size: 13.5px; max-width: 86ch; }
+  ol.qs li { margin: 0 0 5px; }
+  .suggest { margin: 0 14px 14px; border: 1px solid var(--accent); border-radius: 9px; background: var(--wash); padding: 10px 14px; }
+  .suggest h5 { margin: 0 0 4px; color: var(--ink); font-size: 14px; }
+  .suggest .why { font-size: 12.5px; color: var(--eg); margin: 0 0 6px; }
+  .hub { display: grid; grid-template-columns: minmax(180px, 230px) 1fr; }
+  .hubnav { border-right: 1px solid var(--line); background: var(--wash); padding: 12px; display: grid; gap: 4px; align-content: start; font-size: 13px; }
+  .hubnav .tab { color: var(--eg); padding: 3px 6px; }
+  .hubnav .tab.on { color: #fff; background: #0070c0; border-radius: 6px; font-weight: 700; }
+  .hubmain { padding: 14px 18px; }
+  .aspects { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+  .hubasp { border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; font-size: 12.5px; }
+  .hubasp.on { border: 2px solid var(--accent); font-weight: 700; color: var(--ink); }
+  .hubasp em { font-style: normal; color: var(--eg); margin-left: 4px; }
+  .hq { display: flex; gap: 8px; align-items: flex-start; border-top: 1px solid var(--line); padding: 7px 0; font-size: 13.5px; }
+  .editbox { border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; font-size: 13.5px; margin: 4px 0 12px; }
+  .lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--eg); }
+  .app-asp { border-top: 1px solid var(--line); padding: 12px 0 4px; }
+  .app-asp h3 { margin: 0 0 4px; color: var(--ink); font-size: 16px; }
+  .app-asp .n { font-size: 12px; color: var(--eg); font-weight: 600; margin-left: 4px; }
+  .desc { margin: 0 0 6px; font-size: 13px; color: var(--eg); max-width: 86ch; }
+  .tag { font-size: 10.5px; font-weight: 700; border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; padding: 0 5px; margin-right: 4px; }
+  .tag.alt { border-color: var(--eg); color: var(--eg); }
+  @media (max-width: 700px) {
+    .hub { grid-template-columns: 1fr; }
+    .hubnav { border-right: 0; border-bottom: 1px solid var(--line); }
+    .asp { grid-template-columns: 14px 1fr; }
+    .asp .st, .asp .btn { grid-column: 2; justify-self: start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Strategy Planner · Mentor Hub · item 15.2 · drawn 2026-09-27 · not approved · not built</p>
+  <h1>The 98 Growth Aspect questions</h1>
+  <p class="lede">Your <b>98 questions</b> from the <i>9 Growth Aspect Questions</i> deck come into the app, word for word.
+    They reach the advisor in two ways. <b>In a recorded session</b>, as each section closes, the AI reads what was said,
+    names the aspect the talk turned to, and puts <b>that aspect's questions</b> in front of the advisor. <b>At any
+    time</b>, the advisor can open an aspect's questions from the coverage wheel. You see and edit all 98 on a new
+    <b>Mentor Hub</b> tab.</p>
+  <p class="lede">This is your direction of 25 Sep: <i>the questions are included in the build, and the AI puts them
+    forward when the conversation turns to an aspect, over a deep-dive button.</i></p>
+
+  <div class="note">
+    <h3>The impact test, stated before the design</h3>
+    <ul>
+      <li><b>The problem.</b> The coverage wheel shows which aspects the plan hasn't reached, and gives the advisor
+        nothing to ask about them. Your 98 questions exist in your deck. <b>None are in the app.</b></li>
+      <li><b>How we'll know.</b>
+        <ul>
+          <li>In the built app, every aspect on the wheel opens its own questions: <b>0 of 9 today, 9 of 9 after</b>.
+            All 98 are checked word for word against your deck by a test that counts them per aspect.</li>
+          <li>Before the AI half is switched on, a bench of <b>18 short session passages</b>, two per aspect, is run.
+            We count how often the AI names the right aspect, and how often it names one when the talk touched none.</li>
+        </ul></li>
+      <li><b>What already does part of this, and why it isn't enough.</b> The wheel names the gap but gives no
+        question. The Virtual Advisor chat knows the nine names and descriptions but not the questions, and it's a
+        different screen. The planner's <i>Suggest for this client</i> button pre-ticks concepts from past summaries
+        and never names an aspect.</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>Checked against the OpenAI rules (<code>OPENAI-ZDR-CONSTRAINTS.md</code>) and the privacy exception</h3>
+    <ul>
+      <li><b>Privacy:</b> a strategy session is a Meeting Review meeting type (Decision 10), so a recorded section's
+        text is inside Meeting Review's consent and the one exception in <code>CLAUDE.md</code>. It opens no second
+        one. No ID of any kind is sent.</li>
+      <li><b>Decision 11:</b> the AI may suggest <b>what to discuss</b>, never <b>where spoken words belong</b>. Naming
+        an aspect is the first. It never moves words into a box.</li>
+      <li><b>Z1:</b> <code>/v1/chat/completions</code>, as the planner's other AI call uses.</li>
+      <li><b>Z3:</b> the section's text passes the moderation check first, as <code>moderate:</code> spoken text. That is
+        one more moderation call per closed section, inside the account's 20,000-tokens-a-minute allowance.</li>
+      <li><b>Z4, Z5:</b> bound to one session, behind the advisor's login.</li>
+      <li><b>Never trusted as data:</b> the AI answers with aspect <b>names</b>. Anything that isn't one of the nine is
+        thrown away. The questions shown are always your stored wording, never words the AI wrote.</li>
+    </ul>
+  </div>
+
+  <h2>How it works</h2>
+  <div class="flow">
+    <div><b>A section closes</b>The advisor presses the next card's record button, which closes this one (item 8.4).</div>
+    <div><b>It becomes text</b>Meeting Review's transcription turns the section into text. The audio is deleted.</div>
+    <div><b>The AI names an aspect</b>It is sent that text and the nine names with their descriptions, and answers with at most two names, or none.<span class="dec">Decision B</span></div>
+    <div><b>The app checks the answer</b>Only the nine names count. Anything else is dropped and nothing is shown.</div>
+    <div><b>The questions appear</b>Under the card that just closed, in your wording and your order.<span class="dec">Decision C</span></div>
+  </div>
+
+  <!-- ───────────────────────────── SCREEN 1 ───────────────────────────── -->
+  <h2>1 · The coverage wheel opens an aspect's questions</h2>
+  <p class="cap">On <b>Objectives &amp; actions</b> and <b>Produce plan</b>, where the wheel already shows. Each aspect in
+    the list beside the wheel gains one button. The wheel itself is unchanged. This works whether or not the session
+    was recorded. <span class="dec">Decision A</span> <span class="dec">Decision D</span></p>
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span>2 · Build session</span><span>3 · Run session</span><span class="on">4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="frame">
+      <p class="runhead">Growth Aspects this plan has reached</p>
+      <p class="muted" style="margin:0 0 8px">…the wheel as it is today, then its list…</p>
+      <div class="asp"><span class="sw" style="background:#00b1e0"></span><b>Process Improvement</b><span class="st">Nothing yet</span><span class="btn small ghost">Show the 9 questions</span></div><div class="asp open"><span class="sw" style="background:#5b9bd5"></span><b>Customer Focus</b><span class="st">Nothing yet</span><span class="btn small ghost">Hide the questions</span><div class="qpanel"><ol class="qs"><li>When reviewing the (Joseph Pine) Progression of Economic Value template (green folder) where would you place the business in terms of customer experience?</li><li>What is the profile of your ideal client?(Is this reflected in your Positioning Statement?)</li><li>Are you keeping a database of preferred existing clients? (Is it mostly hard fact or soft fact records?)</li><li>When was the last time you conducted a formal / informal client survey? (What did you learn?)</li><li>What are the methods of communication currently used to keep in contact with your clients / customers or to prospect for new ones?</li><li>What are the common problems that your clients / customers face, which require them to seek your service?</li><li>What are the legitimate purchasing constraints that make it difficult for customers to buy from you?</li><li>What is it about your product / service for which you could charge a premium?</li><li>What are your current plans for Service or Product improvement?</li></ol></div></div><div class="asp"><span class="sw" style="background:#ff0000"></span><b>Sales (Process)</b><span class="st">1 objective</span><span class="btn small ghost">Show the 8 questions</span></div><div class="asp"><span class="sw" style="background:#548135"></span><b>Authenticity</b><span class="st">Nothing yet</span><span class="btn small ghost">Show the 12 questions</span></div><div class="asp"><span class="sw" style="background:#7030a0"></span><b>Inventory &amp; Equipment</b><span class="st">Nothing yet</span><span class="btn small ghost">Show the 11 questions</span></div><div class="asp"><span class="sw" style="background:#1f3864"></span><b>Team Focus</b><span class="st">Nothing yet</span><span class="btn small ghost">Show the 11 questions</span></div><div class="asp"><span class="sw" style="background:#ec5012"></span><b>Innovation</b><span class="st">Nothing yet</span><span class="btn small ghost">Show the 13 questions</span></div><div class="asp"><span class="sw" style="background:#002b64"></span><b>Governance</b><span class="st">1 objective</span><span class="btn small ghost">Show the 14 questions</span></div><div class="asp"><span class="sw" style="background:#00b050"></span><b>Harmony / Balance</b><span class="st">Nothing yet</span><span class="btn small ghost">Show the 11 questions</span></div>
+    </div>
+  </div>
+  <p class="cap">Sample state: two aspects reached, Customer Focus opened. The questions shown are Customer Focus's
+    nine, exactly as extracted.</p>
+
+  <!-- ───────────────────────────── SCREEN 2 ───────────────────────────── -->
+  <h2>2 · A recorded section closes, and the AI puts questions forward</h2>
+  <p class="cap">Run session, with item 8.4's section recording. Nothing here appears in a typed-only session, because
+    the AI hears only a recorded section. <span class="dec">Decision B</span> <span class="dec">Decision C</span></p>
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span>2 · Build session</span><span class="on">3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="secs"><span class="sec done">Porter's 5 Forces · 6 min</span><span class="sec now">Blue Ocean Strategy · recording</span></div>
+    <div class="frame">
+      <div class="card">
+        <div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span><span class="muted">Section closed · turned into text</span></div>
+        <div class="forces">
+          <div class="field"><h5>Customers</h5><p class="q">Are customers likely to be motivated to pay premium prices in return for latest style or fashion, technology or prestige? Are they concerned about your business safety, environment or ethical impact?</p>
+            <div class="heard"><p class="lbl">Heard in this section (sample)</p><p class="raw">"Most of our repeat work comes from about twenty clients, and honestly we don't know why the others drift off. We haven't asked anyone in a couple of years."</p></div></div>
+        </div>
+        <div class="suggest">
+          <h5><span class="sw" style="background:#5b9bd5"></span>Questions you could ask · Customer Focus</h5>
+          <p class="why">The talk in this section turned to Customer Focus.</p>
+          <ol class="qs"><li>When reviewing the (Joseph Pine) Progression of Economic Value template (green folder) where would you place the business in terms of customer experience?</li><li>What is the profile of your ideal client?(Is this reflected in your Positioning Statement?)</li><li>Are you keeping a database of preferred existing clients? (Is it mostly hard fact or soft fact records?)</li><li>When was the last time you conducted a formal / informal client survey? (What did you learn?)</li><li>What are the methods of communication currently used to keep in contact with your clients / customers or to prospect for new ones?</li><li>What are the common problems that your clients / customers face, which require them to seek your service?</li><li>What are the legitimate purchasing constraints that make it difficult for customers to buy from you?</li><li>What is it about your product / service for which you could charge a premium?</li><li>What are your current plans for Service or Product improvement?</li></ol>
+          <div class="acts"><span class="btn small ghost">Hide</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">The passage is an invented sample. The questions are the stored ones; the AI chose only the aspect.
+    Hiding them hides them for this section only.</p>
+
+  <!-- ───────────────────────────── SCREEN 3 ───────────────────────────── -->
+  <h2>3 · The Mentor Hub: see and edit all 98</h2>
+  <p class="cap">A new tab in the Mentor Hub, on the hub-page rule: the AI reads the names and descriptions to choose an
+    aspect, so somebody must be able to see and change them. <b>Mentor tier alone</b>: these are your questions, the
+    same for every firm. It cascades to a lower tier only when a firm needs its own. Every save keeps a version you
+    can go back to, as the other hub tabs do.</p>
+  <div class="screen">
+    <div class="hub">
+      <div class="hubnav"><span class="tab">AI Prompts</span><span class="tab">Template Library</span><span class="tab on">Growth Aspect Questions</span><span class="tab">…</span></div>
+      <div class="hubmain">
+        <div class="aspects"><span class="hubasp"><span class="sw" style="background:#00b1e0"></span>Process Improvement <em>9</em></span><span class="hubasp on"><span class="sw" style="background:#5b9bd5"></span>Customer Focus <em>9</em></span><span class="hubasp"><span class="sw" style="background:#ff0000"></span>Sales (Process) <em>8</em></span><span class="hubasp"><span class="sw" style="background:#548135"></span>Authenticity <em>12</em></span><span class="hubasp"><span class="sw" style="background:#7030a0"></span>Inventory &amp; Equipment <em>11</em></span><span class="hubasp"><span class="sw" style="background:#1f3864"></span>Team Focus <em>11</em></span><span class="hubasp"><span class="sw" style="background:#ec5012"></span>Innovation <em>13</em></span><span class="hubasp"><span class="sw" style="background:#002b64"></span>Governance <em>14</em></span><span class="hubasp"><span class="sw" style="background:#00b050"></span>Harmony / Balance <em>11</em></span></div>
+        <p class="lbl">Description</p>
+        <div class="editbox">Their Experience, (Our) Product / Service Delivery &amp; Development.</div>
+        <p class="lbl">Questions, in the order the advisor sees them</p>
+        <div class="hq"><span class="grow">When reviewing the (Joseph Pine) Progression of Economic Value template (green folder) where would you place the business in terms of customer experience?</span><span class="btn small ghost">Edit</span><span class="btn small danger">Remove</span></div><div class="hq"><span class="grow">What is the profile of your ideal client?(Is this reflected in your Positioning Statement?)</span><span class="btn small ghost">Edit</span><span class="btn small danger">Remove</span></div><div class="hq"><span class="grow">Are you keeping a database of preferred existing clients? (Is it mostly hard fact or soft fact records?)</span><span class="btn small ghost">Edit</span><span class="btn small danger">Remove</span></div><div class="hq"><span class="grow">When was the last time you conducted a formal / informal client survey? (What did you learn?)</span><span class="btn small ghost">Edit</span><span class="btn small danger">Remove</span></div><div class="hq"><span class="grow">What are the methods of communication currently used to keep in contact with your clients / customers or to prospect for new ones?</span><span class="btn small ghost">Edit</span><span class="btn small danger">Remove</span></div><div class="hq"><span class="grow">What are the common problems that your clients / customers face, which require them to seek your service?</span><span class="btn small ghost">Edit</span><span class="btn small danger">Remove</span></div><div class="hq"><span class="grow">What are the legitimate purchasing constraints that make it difficult for customers to buy from you?</span><span class="btn small ghost">Edit</span><span class="btn small danger">Remove</span></div><div class="hq"><span class="grow">What is it about your product / service for which you could charge a premium?</span><span class="btn small ghost">Edit</span><span class="btn small danger">Remove</span></div><div class="hq"><span class="grow">What are your current plans for Service or Product improvement?</span><span class="btn small ghost">Edit</span><span class="btn small danger">Remove</span></div>
+        <div class="acts" style="margin-top:10px"><span class="btn small ghost">Add a question</span><span class="grow"></span><span class="btn">Save</span></div>
+        <p class="muted" style="margin-top:8px">Saved 27 Sep by the mentor · Earlier versions</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────── DECISIONS ───────────────────────────── -->
+  <h2>4 · Four decisions for you, asked one at a time</h2>
+  <div class="decision">
+    <h3>A · Can the advisor open an aspect's questions from the wheel, without the AI?</h3>
+    <p class="rec">✅ RULED BY MIKE 2026-09-27: yes. A button beside each aspect in the wheel's list, on Objectives &amp;
+      actions and Produce plan, opens that aspect's questions.</p>
+    <p class="rec">Recommended: yes, on both screens where the wheel shows.</p>
+    <p>A session that isn't recorded gets no AI suggestions at all. The planner's Brief says the typed session must stand
+      alone until recording is live. Without this, a typed session would never see a single question.</p>
+    <p class="against">Against: it is the deep-dive button you said you like less. It sits beside the AI, never instead of it.</p>
+  </div>
+  <div class="decision">
+    <h3>B · Does the AI name only the aspect, with the app showing your stored questions?</h3>
+    <p class="rec">✅ RULED BY MIKE 2026-09-27: yes. The AI only names the aspect the talk turned to, at most two or
+      none, and the app shows his stored questions for it. The AI never chooses or writes a question.</p>
+    <p class="rec">Recommended: yes. At most two aspects per section, or none.</p>
+    <p>Your wording can never be changed by the AI, and the answer can be checked completely: it is one of nine names or
+      it is dropped. A section that touched no aspect shows nothing.</p>
+    <p class="against">Against: the AI can't point at the one question that fits best. The advisor reads the aspect's list.</p>
+  </div>
+  <div class="decision">
+    <h3>C · Does a suggestion show all of that aspect's questions?</h3>
+    <p class="rec">✅ RULED BY MIKE 2026-09-27: yes. All of the aspect's questions appear, in his order, with a Hide
+      button.</p>
+    <p class="rec">Recommended: yes, all of them in your order, with a Hide button.</p>
+    <p>Nothing of yours is hidden or reordered by a guess. The longest list is Governance's 14.</p>
+    <p class="against">Against: 14 lines is a lot to glance at mid-session.</p>
+  </div>
+  <div class="decision">
+    <h3>D · Which description does each aspect carry?</h3>
+    <p class="rec">Asked as two questions, one per aspect, on Mike's instruction 2026-09-27.</p>
+    <p class="rec">✅ D1 RULED BY MIKE 2026-09-27: Process Improvement gains "Systems Theory" — <i>"yes - include
+      systems theory"</i>. Its description becomes: Operations, Work In Progress, Transactional Volume, Quality Control,
+      Internal Statistics &amp; Data Collection, Systems Theory.</p>
+    <p class="rec">✅ D2 RULED BY MIKE 2026-09-27: Governance gains "Revenue Model" and not "Exit Strategy" —
+      <i>"keep the revenue model - drop exit"</i>. His first ruling that day included both; he revised it after the
+      deck was checked: Governance question 8 asks about a revenue model, and none of the 98 questions is about an
+      exit. Its description becomes: Vision, Strategic Planning, Sound Decision (Financial) Making Process, Leadership,
+      Communication Lines, Financial Management, Risk Management, Revenue Model.</p>
+    <p class="rec">These two descriptions are used everywhere the app shows or uses one: the wheel, the Mentor Hub tab,
+      the AI's aspect-naming call and the Virtual Advisor's prompt.</p>
+    <p class="rec">Recommended when first drawn: the Questions deck's, everywhere the app shows or uses one. Withdrawn for
+      Governance on 2026-09-27: the reason given (that "Exit Strategy" would help the AI) was a guess, none of the 14
+      Governance questions is about an exit, and "Revenue Model" could pull talk about revenue towards Governance and
+      away from Sales.</p>
+    <p>Your two decks differ on two aspects. The Questions deck adds <i>Systems Theory</i> to Process Improvement and
+      <i>Revenue Model, Exit Strategy</i> to Governance, and otherwise says the same. The app uses the Graphic deck's
+      shorter wording today, on the wheel and in the Virtual Advisor's prompt. The longer wording helps the AI recognise a
+      talk about exit or revenue as Governance.</p>
+    <p class="against">Against: it changes wording the wheel and the Virtual Advisor already show.</p>
+  </div>
+
+  <!-- ───────────────────────────── WORDING ───────────────────────────── -->
+  <h2>5 · Our words, for you to rule on</h2>
+  <p class="cap">✅ <b>APPROVED BY MIKE 2026-09-27, every row exactly as written</b> ("yes"). They are his words now,
+    not proposals.</p>
+  <div class="tablewrap"><table class="m">
+    <tr><th>Where</th><th>Our words</th></tr>
+    <tr><td>Wheel list, button</td><td>Show the 9 questions · Hide the questions</td></tr>
+    <tr><td>Run session, heading</td><td>Questions you could ask · Customer Focus</td></tr>
+    <tr><td>Run session, reason line</td><td>The talk in this section turned to Customer Focus.</td></tr>
+    <tr><td>Run session, button</td><td>Hide</td></tr>
+    <tr><td>Mentor Hub, tab</td><td>Growth Aspect Questions</td></tr>
+    <tr><td>Mentor Hub, labels</td><td>Description · Questions, in the order the advisor sees them</td></tr>
+    <tr><td>Mentor Hub, buttons</td><td>Add a question · Edit · Remove · Save</td></tr>
+  </table></div>
+
+  <!-- ───────────────────────────── BUILD ───────────────────────────── -->
+  <h2>6 · What gets built, and what waits</h2>
+  <div class="note">
+    <ul>
+      <li><b>Buildable now:</b> the 98 questions stored with the nine aspects in <code>data/growth-fundamentals.json</code>;
+        the Mentor Hub tab, saved through the existing version-history store; screen 1; a test that the stored
+        questions match this page's 98.</li>
+      <li><b>After PR #134 merges:</b> the Mentor Hub tab. The desktop's open PR also changes
+        <code>FirmManagerHub.vue</code>.</li>
+      <li><b>Waits on item 8.4:</b> screen 2 and the AI call behind it, with the bench run before it is switched on.</li>
+    </ul>
+  </div>
+
+  <!-- ───────────────────────────── APPENDIX ───────────────────────────── -->
+  <h2>7 · All 98, as they would be stored</h2>
+  <p class="cap">Read from your deck by a script, never retyped. Where the two decks' descriptions differ, both are
+    shown. Check any question against the deck; if one is wrong, the extraction is wrong.</p>
+  <section class="app-asp"><h3><span class="sw" style="background:#00b1e0"></span>Process Improvement <span class="n">9</span></h3><p class="desc"><span class="tag">Questions deck</span> Operations, Work In Progress, Transactional Volume, Quality Control, Internal Statistics &amp; Data Collection, Systems Theory.</p><p class="desc"><span class="tag alt">In the app today</span> Operations, Work In Progress, Transactional Volume, Quality Control, Internal Statistics &amp; Data Collection.</p><ol class="qs"><li>Have you identified your key processes that directly relate to either new client acquisition or existing client delivery?</li><li>Have you identified your peak transactional volume? (Do you know what you're numerically capable of?)</li><li>Does your review of systems allow for inherent toxicity? (All systems/process have associated 'downsides' - have you identified the logical 'negative by-products' of the system in question?)</li><li>Could you define your philosophy towards business systems improvement as 'Six Sigma', 'Lean Thinking', 'Constraint Theory' or Other?(refer to systems comparison chart if needed)</li><li>What are the logical 'Bottleneck' points in the system in question and do these correlate with the communication 'hand-over' points?</li><li>What are the activity numerics or key performance data being collected to assess the system and how is this data being captured?</li><li>What are the issues within your business/system that could distort your data?</li><li>How is your process being communicated to relevant members and is there a 'feedback-loop' to ensure that even minor improvements are still being sought?</li><li>How is your quality measured and what is the reasonable 'tolerance allowance' for these measures?</li></ol></section><section class="app-asp"><h3><span class="sw" style="background:#5b9bd5"></span>Customer Focus <span class="n">9</span></h3><p class="desc">Their Experience, (Our) Product / Service Delivery &amp; Development.</p><ol class="qs"><li>When reviewing the (Joseph Pine) Progression of Economic Value template (green folder) where would you place the business in terms of customer experience?</li><li>What is the profile of your ideal client?(Is this reflected in your Positioning Statement?)</li><li>Are you keeping a database of preferred existing clients? (Is it mostly hard fact or soft fact records?)</li><li>When was the last time you conducted a formal / informal client survey? (What did you learn?)</li><li>What are the methods of communication currently used to keep in contact with your clients / customers or to prospect for new ones?</li><li>What are the common problems that your clients / customers face, which require them to seek your service?</li><li>What are the legitimate purchasing constraints that make it difficult for customers to buy from you?</li><li>What is it about your product / service for which you could charge a premium?</li><li>What are your current plans for Service or Product improvement?</li></ol></section><section class="app-asp"><h3><span class="sw" style="background:#ff0000"></span>Sales (Process) <span class="n">8</span></h3><p class="desc">Achieving Critical Revenue Objectives (consistently), Securing Resource, Managing Critical External Relations.</p><ol class="qs"><li>Does a formal sales process exist? If so, how is it recorded for training purposes? How is it monitored? Does the process correctly relate to your industry? (Retail, Consultative or Territory style) Has the sales process been scripted in relation to 'impact areas'? (What are the sales aids used to help keep people on track?)</li><li>Are the sales targets clearly defined and broken down into time segments? (i.e., Monthly, Weekly, Daily) and do these target allows for seasonal fluctuations?</li><li>Who are the people responsible for sales? Have they had sufficient training, do they receive ongoing training and do they practice in role play situations regularly? (Are they consciously aware of the 4 step sales process, 4 processing styles &amp; the 2 reasons people don't buy?)</li><li>Assuming your top ten (repeat) clients have been identified, do you have an allocated budget for entertainment and an entertainment schedule? (Do you have a 'range of entertainment' options list? Is it kept up-to-date? Does it include pricing options? &amp; have you identified those clients most compatible with each other for entertainment purposes?)</li><li>Who are the 3-5 centres of influence, most likely to refer new clients to you? (Why would they?) Who is responsible for developing the relationships and how much time and resource has been allocated to this area?</li><li>What are your current plans for creating an alliance? (Is this sales - penetration / distribution based or manufacture / cost based)</li><li>Have all cross - selling opportunities been explored? Does the possibility exist to introduce compatible C.O.I to each other and hold regular network meetings?</li><li>Has the business maximised its earning potential from existing clients? (Cross selling opportunities etc.)</li></ol></section><section class="app-asp"><h3><span class="sw" style="background:#548135"></span>Authenticity <span class="n">12</span></h3><p class="desc">Values (Cultural), Marketing (Outbound Messaging), Aesthetics, ‘Feel’ (Vibe/Morale), Packaging.</p><ol class="qs"><li>As a business owner, do the daily activities (required of you personally) allow you to enjoy a quality lifestyle? - do they allow you to contribute or interact with others in a positive way? - do they allow you to feel valued and appreciated? (Do you even like what you do?)</li><li>What are the 'Conflict Values' that matter to you most? (If you take two values - honesty and caring for others and put them in conflict - being honest vs. hurting someone's feelings - which do you hold highest?)</li><li>Are you clear in terms of how your business adds value to others? (Is this reflected in your Value Proposition Statement?)</li><li>How would your 'culture' be described by your Team? - Your Customers? - Your Suppliers?</li><li>Who sets the tone for Beliefs, Behaviour and Belongingness?</li><li>As a team, what are you seeking to become?</li><li>What is the consistent message that you're trying to send - Local, National and International? (Who do you wish to receive your message, how will you know when they've heard it?)</li><li>Does it relate to your Positioning and Value Proposition statements?</li><li>What are the mediums of communication being used, which works best, what else could you try that's different?</li><li>What are the &quot;tools&quot; that support your positioning statement and corporate image?</li><li>Does the packaging support your 'Authentic Views'?</li><li>What do you do, as a leader, to contribute to the 'Vibe' of the team and your business?</li></ol></section><section class="app-asp"><h3><span class="sw" style="background:#7030a0"></span>Inventory &amp; Equipment <span class="n">11</span></h3><p class="desc">Consumable Stock, Materials or Supplies, Tools, Machinery, Vehicles, Non-Consumable Working Assets.</p><ol class="qs"><li>Are the people who use material / stock / supplies accountable for their consumption? (Could this be included as a component for bonus?)</li><li>Does your business use technology to measure consumption rates or turnaround times (days on hand) of stock / supplies? (Is it considered trivial by production staff, if so, why?)</li><li>Who are the suppliers that would be happy to make stock / supplies available on consignment?</li><li>Do you provide good feedback to your suppliers as well as bad?</li><li>Do you invite suppliers to come up with ideas to help you improve your product /service or make it more efficient? (They may have an alternative stock / supply but assumed you would not be interested, further, they may have ideas about the application of their product that you haven't already considered or be witnessing a trend that affects your business!)</li><li>Would your suppliers be interested in joint marketing initiatives? (Identify those most complimentary and ask them!)</li><li>Do you regularly check the market for pricing differential on key items? (Not to suggest that you do so at the risk of breaking loyalty, but you need to know if your supplier is still competitive.)</li><li>What are the future pieces of equipment/tools/technology that you believe could give your business an advantage or at the very least, allow you to remain competitive?</li><li>Do you have equipment listed on the balance sheet as being of value which is not in current regular use? (Should the figure be written down or could the asset be sold?)</li><li>If using a transportation / freight company, to transport your product, do they have electronic tracking, coordination and transaction technology? (Do they have anyone who could provide advice on how to best use their service?)</li><li>If using own vehicles / drivers to transport goods / materials, have you &quot;crunched the numbers&quot; on ownership vs lease of business vehicles? (Are you aware that some lease companies can provide a lease option on any vehicle, new or second hand?)</li></ol></section><section class="app-asp"><h3><span class="sw" style="background:#1f3864"></span>Team Focus <span class="n">11</span></h3><p class="desc">Skills Development, Internal Communication, Change Management, Recruitment, Knowledge Management, Rewards/ Incentives.</p><ol class="qs"><li>What are the required skill sets of the business and what are they likely to be in 24-36 months' time?</li><li>Does a 'Competency Map' exist that allows staff to see the natural progression of skills required for their job, over time? (Has this been illustrated to the staff concerned?)</li><li>Is there a regular feedback forum for staff to hear of the issues affecting them and to provide input to achieve a solution? (Are staff actively encouraged to develop ideas to help the business grow? Are these ideas acknowledged in front of other staff and is there an area for recording ideas and brainstorming)</li><li>How often do the staff and their partners mix socially? Can the social club be assisted by the business by way of a bonus system?</li><li>How well do you know your staff and their families? (Background, likes / dislikes, D.O.B, hobbies / interests, family problems, etc.)</li><li>Do you acknowledge staff on special occasions? (Birthdays, birth of a child, shifting house, Christmas or other religious holidays, engagement / marriage, major sporting success?)</li><li>Does 'division' exist between departments; if so, how often is a forum created for feedback or shared problem solving / teamwork?</li><li>Is there a forum / occasion where different divisions are brought together in a friendly competition? Could it be better if divisions were mixed?</li><li>When was the last time you worked in the 'coal face' of your business, alongside your team?</li><li>What personality group is prevalent in the existing staff?</li><li>Which personality type would complement best in the business going forward?</li></ol></section><section class="app-asp"><h3><span class="sw" style="background:#ec5012"></span>Innovation <span class="n">13</span></h3><p class="desc">Technology, Disruption, (External) Research &amp; Development, Re-Invention.</p><ol class="qs"><li>What are the areas within your business that are most under threat, or require development, in order to keep pace with technology?</li><li>Is information relating to these areas available overseas? (What would be the financial cost vs opportunity, of traveling to have a look?)</li><li>Have you calculated the cost/opportunity of developing your product/service with formal research? (Does the possibility exist of approaching a University for assistance, or for a student to complete a &quot;499&quot; on an aspect of your business/product?)</li><li>What percentage of turnover does your business allocate towards Research and Development?</li><li>Who could you head-hunt in order to speed up the process of development for your product or service?</li><li>Who sets the limitations of your product/service? (Are they willing to negotiate?)</li><li>Do you have a technology advantage over your competitors? (How easily could it be copied, how could you protect against this or maximise profits until the competition 'catches up'?)</li><li>Is the existing technology within your business being fully utilised at present? (If not, what are the current plans for dealing with this?)</li><li>Who is in charge of the maintenance/improvement of current technology?</li><li>Is there technology that could be borrowed and adapted, which is in current use by competitors or even other industries?</li><li>Who could be contacted to provide technology advice that does not have a financial interest in its outcome?</li><li>Does an emergency plan exist to deal with existing technology failure? (Who within the business is aware of its existence?)</li><li>What is the current life-span of technology within your industry? (What can be done about extending or increasing the life or re-sale of technology within your business?)</li></ol></section><section class="app-asp"><h3><span class="sw" style="background:#002b64"></span>Governance <span class="n">14</span></h3><p class="desc"><span class="tag">Questions deck</span> Vision, Strategic Planning, Sound Decision (Financial) Making Process, Leadership, Communication Lines, Financial Management, Risk Management, Revenue Model, Exit Strategy.</p><p class="desc"><span class="tag alt">In the app today</span> Vision, Strategic Planning, Sound Decision (Financial) Making Process, Leadership, Communication Lines, Financial Management, Risk Management.</p><ol class="qs"><li>Have you examined a formal board or advisory board structure to assist with business growth and decision making? (If you've elected to run with an advisory board, have written terms of reference been established?)</li><li>What were the key considerations made (or ought to be made) in the selection of board or advisory board members?</li><li>Are you (as the business owner) clear in your understanding of directors obligations with respect to solvency?</li><li>What are the relevant Acts with which your business must comply? (Including but not limited to OSH and trading laws pertaining to your industry - what is the procedure used by a Court of Law to determine your compliance?)</li><li>Who can best advise you of the compliance methods needed to reduce or avoid prosecution?</li><li>How many of the management team (Incl Board/Advisory Board) exhibit a high understanding of financial reporting and/or are members of the Institute of Directors</li><li>Does the business have a written plan for improvement? (Strategic or Business/Marketing) Where is it? How often is it reviewed and by whom?</li><li>Has a revenue model, exploring Capacity, Capability (Premium price service offers) and Opportunity (Alternate revenue sources and Scalable products or services) ever been developed for the business?</li><li>Who prepares the financial statements of the business? Does anyone external of the business contribute to their accuracy on a regular (mthly or quarterly) basis?</li><li>Where does planning 'sit' as a priority when compared to other tasks required to operate the business successfully? (Where should it be placed?)</li><li>Does the business structure provide sufficient estate protection for owners / managers from potential creditors? (If not, has the use of family trusts been examined?)</li><li>Does the business use a prudent (formal) risk management process to identify, eliminate, reduce or transfer financial loss as a result of an event occurring?</li><li>Has the business ever had a formal audit or 'in-formal-systems-review' conducted by an independent audit team? (Should this be considered?)</li><li>Does the business have an emergency plan to provide direction in the event of death or serious illness of a director / shareholder, or a key person of the business?</li></ol></section><section class="app-asp"><h3><span class="sw" style="background:#00b050"></span>Harmony / Balance <span class="n">11</span></h3><p class="desc">Removing Distractions, Health &amp; Fitness, ‘Well-Being’, Recovering (Financial also).</p><ol class="qs"><li>When faced with an obstacle or difficult situation, what is the mental process that you go through in order to maintain or build confidence?</li><li>What are the dominant thoughts or questions that you ask of yourself and your business on a day to day basis, how can you better learn to control them?</li><li>Which would create more profit for your business; increased output - doing more the same way vs. Creativity - doing more with less effort?</li><li>How does personal health and fitness rate, as a priority, for the owners / management of your business? (How much time is allocated by the same individuals, for their own weekly exercise routine?)</li><li>Is the personal health / fitness of staff encouraged by your business? (If so, how?)</li><li>What are the consequences of long hours and lack of physical fitness of staff, to your business? (Could the potential dollar loss be calculated?)</li><li>How do the statistics relating to your staff's annual leave and sick days compare to your own ideals?</li><li>What are the benefits of bringing in a nutritionist or health practitioner to address staff lifestyle habits? Would it improve staff morale and feelings of appreciation?</li><li>Does the expectation to perform long hours come from the top as a necessity to perform, or is the focus on quality and efficiency?</li><li>What can be done to improve the health quality of food consumed in the cafeteria or lunchroom? (ie, Set up an account and delivery service with a cafe or food bar specialising in low fat healthy food!)</li><li>Instead of just coffee / tea and biscuits, could fresh fruit be provided for staff? (Could this be arranged through a local grower who needs to sell produce in excess of export requirements?)</li></ol></section>
+
+</div>
+</body>
+</html>

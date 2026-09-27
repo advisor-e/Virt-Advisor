@@ -85,6 +85,10 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-27"
+      },
       "why": "The coverage wheel can say an aspect is untouched but cannot help the advisor ask anything about it. The hundred questions behind the nine aspects are what make the check useful in the room.",
       "risk": "Without them an advisor sees a hatched segment and has nothing to say next, so the coverage check names a gap it cannot help close. The counter-risk is scale: a hundred questions authored onto a screen is a real content job, and folding it into 15.1 is how that build stops ending.",
       "askedBy": {
@@ -93,7 +97,7 @@
         "detail": "2026-09-16 - the 9 Growth Aspect Questions deck is one of the fourteen he supplied for the Strategy Planner; split out of 15.1 on his yes, as Decision 7 of the drawing. Not a new idea of ours."
       },
       "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
-      "note": "PROCEED ON MIKE'S WORD 2026-09-25, WITH HIS DIRECTION: the questions are INCLUDED IN THE BUILD, and in the session he PREFERS THE AI TO PUT THEM FORWARD when the conversation turns to an aspect, over a deep-dive button. The live half depends on 8.4: the AI hears a session only once section recording turns each section into text as it closes. SCOPED 2026-09-25: his 9 Growth Aspect Questions hyperlinked.pdf holds 98 questions - Process Improvement 9, Customer Focus 9, Sales 8, Authenticity 12, Inventory & Equipment 11, Team Focus 11, Innovation 13, Governance 14, Harmony / Balance 11. Impact test: 0 of 98 in the app today. Draw before building; the mentor-tier screen touches FirmManagerHub.vue.",
+      "note": "PROCEED ON MIKE'S WORD 2026-09-25: the questions are in the build, and the AI puts them forward as the talk turns to an aspect. His 9 Growth Aspect Questions hyperlinked.pdf holds 98; 0 are in the app. DRAWN 2026-09-27: design/mockups/growth-aspect-questions.html - decisions A-D and its wording ruled by Mike that day, written on the drawing; the drawing itself NOT YET APPROVED. The AI half stands on 8.4 alone: a strategy session is a Meeting Review meeting type (Decision 10), so no new privacy ruling is needed. The Mentor Hub tab touches FirmManagerHub.vue, which the desktop's PR #134 also changes: build it after that merges.",
       "comment": "2026-09-25 - Mike: proceed, with the direction above. First split out of 15.1 on his yes, 2026-09-16, as Decision 7 of the drawing."
     },
     {
