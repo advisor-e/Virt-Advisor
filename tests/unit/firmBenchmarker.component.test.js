@@ -6,7 +6,7 @@
 /**
  * The mentor's Industry Benchmarks tab (item 4.70 stage 3). What UAT cannot see: the two
  * files posted under the wrong field names, a single file posted at all, or a restore
- * sent without the version it names — each of which the backend would refuse in a way that
+ * sent without the version it names â€” each of which the backend would refuse in a way that
  * reads as "the upload is broken" rather than as the screen's own fault.
  */
 
@@ -41,7 +41,7 @@ describe('the Industry Benchmarks tab', () => {
     expect(wrapper.text()).toContain('6,111')
   })
 
-  test('🔴 THE UPLOAD POSTS BOTH FILES UNDER THE FIELD NAMES THE ROUTE READS, and never one alone', async () => {
+  test('ðŸ”´ THE UPLOAD POSTS BOTH FILES UNDER THE FIELD NAMES THE ROUTE READS, and never one alone', async () => {
     global.fetch = fetchMock({ 'GET /api/firm-manager/benchmarker': SUMMARY, 'POST /api/firm-manager/benchmarker': { saved: true, dataset: SUMMARY.dataset } })
     const wrapper = mountWithBuefy(FirmBenchmarker, { propsData: { apiToken: 'tok-1' } })
     wrapper.vm.$buefy = { toast: { open: jest.fn() } }

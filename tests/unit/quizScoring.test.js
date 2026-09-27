@@ -30,6 +30,14 @@ describe('quizScoring (CB-03)', () => {
         answer: 'my answer'
       })
     })
+
+    // Load-bearing: Mike approved this wording (2026-07-15), and Course Builder recognises a
+    // saved ungraded result by this EXACT text to show it in the reader's language. The
+    // wording file's copy must be the same sentence, or English readers see a different one.
+    test('the wording file holds the approved sentence word for word', () => {
+      const en = require('../../locales/en.json')
+      expect(en.courseBuilder.quiz.ungradedFeedback).toBe(UNGRADED_FEEDBACK)
+    })
   })
 
   describe('gradedResults', () => {

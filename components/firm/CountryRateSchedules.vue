@@ -2,17 +2,12 @@
 .crs
   .notification.is-info.is-light.mb-4
     p.is-size-7
-      | A country's #[b whole published schedule], stored once and searched by every firm
-      |  beneath you. New Zealand's IR265 publishes about 2,800 asset classes; a firm's class
-      |  picker searches this table instead of the first few hundred of one uploaded document.
-      | #[b Nothing here changes any firm's rates by itself] — approving a schedule makes it
-      |  searchable, and a firm's own six rates still change only when that firm's manager
-      |  approves them.
+      | {{ $t('countryRateSchedules.intro.lead') }} #[b {{ $t('countryRateSchedules.intro.leadBold') }}]{{ $t('countryRateSchedules.intro.body') }}
+      | #[b {{ $t('countryRateSchedules.intro.noChangeBold') }}] {{ $t('countryRateSchedules.intro.noChange') }}
 
   .notification.is-warning.is-light.mb-4(v-if="!mayLoad")
     p.is-size-7
-      | Country schedules are loaded and approved by the #[b global group manager]. You can see
-      |  what is held here and search it; loading a new one is not yours to do.
+      | {{ $t('countryRateSchedules.notLoader.lead') }} #[b {{ $t('countryRateSchedules.notLoader.bold') }}]{{ $t('countryRateSchedules.notLoader.tail') }}
 
   .has-text-centered.py-5(v-if="loading")
     b-loading(:is-full-page="false" :active="true")
@@ -22,18 +17,17 @@
 
     //- ── The library ────────────────────────────────────────────────────
     .box.mb-4
-      h3.is-size-6.has-text-weight-semibold.mb-3 Schedules held
+      h3.is-size-6.has-text-weight-semibold.mb-3 {{ $t('countryRateSchedules.library.heading') }}
       p.is-size-7.has-text-grey(v-if="!schedules.length")
-        | No country schedule has been loaded yet. Every firm beneath you is using the app's own
-        |  six rates, or whatever their own manager has approved from a document of their own.
+        | {{ $t('countryRateSchedules.library.empty') }}
       table.table.is-fullwidth.is-narrow.is-size-7(v-else)
         thead
           tr
-            th Country
-            th Schedule in force
-            th Edition
-            th.has-text-right Classes
-            th Approved
+            th {{ $t('countryRateSchedules.country') }}
+            th {{ $t('countryRateSchedules.table.inForce') }}
+            th {{ $t('countryRateSchedules.table.edition') }}
+            th.has-text-right {{ $t('countryRateSchedules.table.classes') }}
+            th {{ $t('countryRateSchedules.table.approved') }}
         tbody
           tr(v-for="s in schedules" :key="s.country")
             td.has-text-weight-semibold {{ s.country }}
@@ -41,8 +35,7 @@
               | {{ s.document }}
               p.has-text-grey.mt-1(v-if="s.unreadNote") {{ s.unreadNote }}
               p.has-text-grey.mt-1(v-else-if="s.unresolved")
-                | {{ s.unresolved }} {{ s.unresolved === 1 ? 'entry' : 'entries' }} the document
-                |  could not settle, left out and listed.
+                | {{ $tc('countryRateSchedules.library.unresolved', s.unresolved, { count: s.unresolved }) }}
             td {{ s.published }}
             td.has-text-right {{ s.classes }}
             td
@@ -55,7 +48,7 @@
       .is-flex.is-justify-content-space-between.is-align-items-flex-start.mb-2
         div
           h3.is-size-6.has-text-weight-semibold {{ r.documentName }} — {{ r.country }}
-          p.is-size-7.has-text-grey {{ r.filename }} · loaded by {{ r.loadedBy }}
+          p.is-size-7.has-text-grey {{ $t('countryRateSchedules.reads.loadedBy', { filename: r.filename, who: r.loadedBy }) }}
         b-tag(:type="stateType(r)") {{ stateLabel(r) }}
 
       //- Reading, and still alive
@@ -69,34 +62,31 @@
         )
         p.is-size-7.has-text-grey
           template(v-if="r.passesPlanned")
-            | Pass {{ r.passesDone }} of {{ r.passesPlanned }} · {{ r.classesSoFar }} classes so far.
-          template(v-else) Looking over the document to see how far it runs.
-          |  You can leave this page — the reading carries on.
+            | {{ $t('countryRateSchedules.reads.passProgress', { done: r.passesDone, planned: r.passesPlanned, classes: r.classesSoFar }) }}
+          template(v-else) {{ $t('countryRateSchedules.reads.surveying') }}
+          |  {{ $t('countryRateSchedules.reads.canLeave') }}
 
       //- Reading, and gone quiet
       .notification.is-warning.is-light.py-2(v-else-if="r.status === 'reading' && r.stale")
         p.is-size-7
-          | This reading has not reported anything for a while and has probably stopped. Nothing
-          |  has been stored. Reject it to clear it, then load the schedule again.
+          | {{ $t('countryRateSchedules.reads.stale') }}
 
       //- Read, and it produced nothing
       .notification.is-danger.is-light.py-2(v-else-if="r.status === 'failed'")
-        p.is-size-7 {{ moderationMessageFrom(r.error) || (r.error && r.error.message) || 'The schedule could not be read.' }}
+        p.is-size-7 {{ moderationMessageFrom(r.error) || (r.error && r.error.message) || $t('countryRateSchedules.reads.failed') }}
 
       //- Read, and waiting for a decision
       template(v-else-if="r.status === 'pending'")
         p.is-size-7.mb-2
-          | Read: #[b {{ r.classesSoFar }} classes] from {{ r.documentName }},
-          |  edition {{ r.published }}, {{ r.totalPages }} pages.
+          | {{ $t('countryRateSchedules.reads.pendingLead') }} #[b {{ $t('countryRateSchedules.reads.pendingClasses', { count: r.classesSoFar }) }}] {{ $t('countryRateSchedules.reads.pendingTail', { document: r.documentName, published: r.published, pages: r.totalPages }) }}
         p.is-size-7.has-text-danger.mb-2(v-if="detail(r).unreadNote") {{ detail(r).unreadNote }}
         details.mb-2(v-if="detail(r).unresolved && detail(r).unresolved.length")
           summary.is-size-7
-            | {{ detail(r).unresolved.length }} {{ detail(r).unresolved.length === 1 ? 'entry' : 'entries' }}
-            |  the document could not settle
+            | {{ $tc('countryRateSchedules.reads.unresolvedSummary', detail(r).unresolved.length, { count: detail(r).unresolved.length }) }}
           ul.is-size-7.has-text-grey.mt-2
             li(v-for="(u, i) in detail(r).unresolved" :key="i")
               b {{ u.label }}
-              template(v-if="u.pages")  — pages {{ u.pages }}
+              template(v-if="u.pages")  {{ $t('countryRateSchedules.reads.unresolvedPages', { pages: u.pages }) }}
               template(v-if="u.differs") : {{ u.differs }}
 
       .buttons.mt-3(v-if="mayLoad")
@@ -106,28 +96,26 @@
           size="is-small"
           :loading="deciding === r.country"
           @click="approve(r.country)"
-        ) Approve this schedule
+        ) {{ $t('countryRateSchedules.reads.approve') }}
         b-button(
           size="is-small"
           :loading="deciding === r.country"
           @click="reject(r.country)"
-        ) {{ r.status === 'pending' ? 'Reject' : 'Clear this' }}
+        ) {{ r.status === 'pending' ? $t('countryRateSchedules.reads.reject') : $t('countryRateSchedules.reads.clear') }}
 
     //- ── Loading one ────────────────────────────────────────────────────
     .box(v-if="mayLoad")
-      h3.is-size-6.has-text-weight-semibold.mb-3 Load a country's schedule
+      h3.is-size-6.has-text-weight-semibold.mb-3 {{ $t('countryRateSchedules.load.heading') }}
       p.is-size-7.has-text-grey.mb-3
-        | PDF, up to 20 MB. Name the country first — a document published for another country is
-        |  refused rather than filed under the wrong flag. A long schedule is read a few pages at
-        |  a time and takes several minutes.
+        | {{ $t('countryRateSchedules.load.hint') }}
       .field.is-grouped.is-align-items-center
         .control
-          b-field(label="Country" label-position="on-border")
+          b-field(:label="$t('countryRateSchedules.country')" label-position="on-border")
             b-input(v-model="countryInput" placeholder="NZ" maxlength="2" size="is-small" style="width: 7rem")
         .control
           b-upload(v-model="file" accept="application/pdf" size="is-small")
             a.button.is-small
-              span {{ file ? file.name : 'Choose a PDF' }}
+              span {{ file ? file.name : $t('countryRateSchedules.load.choosePdf') }}
         .control
           b-button(
             type="is-primary"
@@ -135,7 +123,7 @@
             :disabled="!canLoad"
             :loading="uploading"
             @click="load"
-          ) Read it
+          ) {{ $t('countryRateSchedules.load.readIt') }}
       b-message.mt-3(v-if="uploadMessage" :type="uploadType" size="is-small" :closable="false") {{ uploadMessage }}
 </template>
 
@@ -168,12 +156,6 @@
  * ⚠ A READ THAT HAS GONE QUIET IS SAID TO HAVE GONE QUIET. A restart loses the passes and the
  * allowance was already spent; shown as an ordinary progress bar it is a manager watching
  * something that will never move. `stale` comes from the backend and this screen names it.
- *
- * ⚠ STRINGS ARE HARDCODED ENGLISH, WHICH DEVIATES FROM THE i18n STANDARD IN `CLAUDE.md`, AND
- * THIS NOTE IS THE RECORD RATHER THAN A SILENT CHOICE. Every sibling in this folder except
- * `FirmAiPrompts` does the same; matching them keeps the folder to two styles rather than
- * three, and converting them is one job rather than six. Raised with Mike on 2026-09-09 and
- * unchanged since.
  */
 import moderationMessage from '~/mixins/moderationMessage'
 
@@ -250,7 +232,7 @@ export default {
       } catch (err) {
         // Reported, never shown as an empty library: a manager told they hold no schedules
         // when the truth is that we could not look would go and load ones they already have.
-        this.error = err.message || 'The schedules held here could not be read.'
+        this.error = err.message || this.$t('countryRateSchedules.errors.libraryFailed')
       } finally {
         this.loading = false
         this.syncPolling()
@@ -290,10 +272,12 @@ export default {
       const d = this.details[r.country] || {}
       return {
         unresolved: d.unresolved || [],
-        // The unread pages, as the sentence the backend composes. It is not rebuilt here: one
-        // sentence, one home, so the wording cannot drift between this screen and the picker.
+        // Built here from the page ranges so it translates. The depreciation picker shows the
+        // backend's own English sentence (`scheduleUnreadNote`), so the two are worded separately.
         unreadNote: d.pagesUnread && d.pagesUnread.length
-          ? `Some of this schedule could not be read — ${d.pagesUnread.map(p => (p.from === p.to ? p.from : p.from + '–' + p.to)).join(', ')} — so a class printed there is missing.`
+          ? this.$t('countryRateSchedules.reads.unreadNote', {
+            pages: d.pagesUnread.map(p => (p.from === p.to ? p.from : p.from + '–' + p.to)).join(', ')
+          })
           : ''
       }
     },
@@ -337,12 +321,12 @@ export default {
           throw new Error((body.error && body.error.message) || res.statusText)
         }
         this.uploadType = 'is-info'
-        this.uploadMessage = 'Reading started. It takes several minutes — you can leave this page.'
+        this.uploadMessage = this.$t('countryRateSchedules.load.started')
         this.file = null
         await this.refresh()
       } catch (err) {
         this.uploadType = 'is-danger'
-        this.uploadMessage = err.message || 'That schedule could not be sent for reading.'
+        this.uploadMessage = err.message || this.$t('countryRateSchedules.load.sendFailed')
       } finally {
         this.uploading = false
       }
@@ -360,7 +344,7 @@ export default {
         this.error = ''
         await this.refresh()
       } catch (err) {
-        this.error = err.message || 'That schedule could not be approved.'
+        this.error = err.message || this.$t('countryRateSchedules.errors.approveFailed')
       } finally {
         this.deciding = ''
       }
@@ -378,7 +362,7 @@ export default {
         this.error = ''
         await this.refresh()
       } catch (err) {
-        this.error = err.message || 'That read could not be rejected.'
+        this.error = err.message || this.$t('countryRateSchedules.errors.rejectFailed')
       } finally {
         this.deciding = ''
       }
@@ -390,11 +374,13 @@ export default {
      * @returns {string}
      */
     stateLabel (r) {
-      if (r.status === 'reading') { return r.stale ? 'Stopped' : 'Reading' }
-      if (r.status === 'pending') { return 'Needs your approval' }
-      if (r.status === 'failed') { return 'Could not be read' }
-      if (r.status === 'approved') { return 'In use' }
-      return 'Rejected'
+      if (r.status === 'reading') {
+        return r.stale ? this.$t('countryRateSchedules.state.stopped') : this.$t('countryRateSchedules.state.reading')
+      }
+      if (r.status === 'pending') { return this.$t('countryRateSchedules.state.pending') }
+      if (r.status === 'failed') { return this.$t('countryRateSchedules.state.failed') }
+      if (r.status === 'approved') { return this.$t('countryRateSchedules.state.approved') }
+      return this.$t('countryRateSchedules.state.rejected')
     },
 
     /**

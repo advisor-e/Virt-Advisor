@@ -669,8 +669,9 @@ advisor's own drafts. A fourth card on `/sales-tracker` opens it. Model output i
 
 ⚠ **Opening it found what the suite did not**: the doorway's icon chain ended in a bare `v-else`,
 so the fourth card silently wore the dashboard's bar chart. Fixed, and pinned by a test asserting
-every card draws a **different** icon. One defect was recorded rather than fixed — `is-primary` and
-`is-info` on two adjacent buttons, an instance of item **16.1**.
+every card draws a **different** icon. The two adjacent main buttons are `is-primary` (the brand
+blue since item 16.1) and `is-info` (Bulma's lighter blue) — two blues, approved as seen on
+2026-09-25.
 
 #### What changed from the source, and why
 

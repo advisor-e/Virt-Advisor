@@ -689,10 +689,12 @@ function build (outPath, options) {
     '<!--BUILT-->': escapeHtml(built.text)
   }
 
+  // The Artifact publisher refuses a page carrying a raw U+FFFD, reading it as a lost
+  // character. The 10.1 closure quotes one on purpose, so it is written as its entity.
   const html = PLACEHOLDERS.reduce(
     (shell, placeholder) => substitute(shell, placeholder, values[placeholder]),
     fs.readFileSync(SHELL_PATH, 'utf8')
-  )
+  ).replace(/�/g, '&#xFFFD;')
 
   fs.writeFileSync(outPath, html, 'utf8')
 

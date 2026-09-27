@@ -1875,6 +1875,15 @@ function computeThreeWayForecast (rawInputs, options) {
       otherDirectTwo,
       commissions,
       purchases: I.purchases.slice(),
+      // The four overseas lines inside cost of sales, each on its own so the itemised P&L adds
+      // up to costOfSales (item 13.2's finding, 2026-09-25): without them a forecast trading
+      // overseas listed lines that fell short of the total beneath them. Mike's ruling of
+      // 2026-09-04 made the exchange movement its own direct-cost line; all four are zero with
+      // the overseas tick off.
+      importedStock: addSeries(importedPurchases, OS.transitLanded),
+      overseasFreight: OS.freight,
+      overseasDuty: OS.duty,
+      exchangeMovement: addSeries(OS.fxOnPurchases, OS.fxOnSales),
       costOfSalesSubtotal,
       closingInventory: invClosing,
       costOfSales,

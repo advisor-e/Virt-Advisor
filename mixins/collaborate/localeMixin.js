@@ -1,35 +1,8 @@
 import { LANGUAGES } from '~/data/collaborate/languages'
+import { loadUiLocale, rememberReaderLocale } from '~/utils/uiLocaleLoader'
 
-const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
-
-function flattenObj (obj, prefix = '') {
-  return Object.keys(obj).reduce((acc, k) => {
-    if (FORBIDDEN_KEYS.has(k)) { return acc }
-    const key = prefix ? `${prefix}.${k}` : k
-    if (typeof obj[k] === 'object' && obj[k] !== null) {
-      Object.assign(acc, flattenObj(obj[k], key))
-    } else {
-      acc[key] = obj[k]
-    }
-    return acc
-  }, {})
-}
-
-function unflattenObj (flat) {
-  const result = {}
-  for (const key of Object.keys(flat)) {
-    const parts = key.split('.')
-    if (parts.some(p => FORBIDDEN_KEYS.has(p))) { continue }
-    let cur = result
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (!cur[parts[i]]) { cur[parts[i]] = {} }
-      cur = cur[parts[i]]
-    }
-    cur[parts[parts.length - 1]] = flat[key]
-  }
-  return result
-}
-
+// Collaborate's header picker. The wording comes from the same backend translation as the
+// main picker (mixins/localeMixin.js explains the behaviour); only the language list differs.
 export default {
   data () {
     return {
@@ -85,45 +58,24 @@ export default {
     async changeLocale (lang) {
       if (this.loadingLang) { return }
       if (this.$i18n.locale === lang.code) { this.closeLangPicker(); return }
-      if (!this.$i18n.messages[lang.code]) {
+      if (lang.code !== 'en') {
         this.loadingLang = lang.code
         this.langError = null
         try {
-          await this.loadDynamicLocale(lang)
+          this.$i18n.setLocaleMessage(lang.code, await loadUiLocale(lang.code))
         } catch (e) {
-          this.langError = 'Translation failed — please try again.'
-          this.loadingLang = null
-          return
+          // A shipped partial file still beats refusing the language outright.
+          if (!this.$i18n.messages[lang.code]) {
+            this.langError = 'Translation failed — please try again.'
+            this.loadingLang = null
+            return
+          }
         }
         this.loadingLang = null
       }
       this.$i18n.locale = lang.code
+      rememberReaderLocale(lang.code)
       this.closeLangPicker()
-    },
-
-    async loadDynamicLocale (lang) {
-      const cacheKey = `va_locale_${lang.code}`
-      const cached = localStorage.getItem(cacheKey)
-      if (cached) {
-        this.$i18n.setLocaleMessage(lang.code, JSON.parse(cached))
-        return
-      }
-      const flat = flattenObj(this.$i18n.messages.en)
-      const res = await fetch('/api/translate/locale', {
-        method: 'POST',
-        // The route is firmAuth-guarded (2026-09-22). See the sibling mixin.
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + ((process.client && window.localStorage.getItem('advisor_e_token')) || 'dev-local-bypass')
-        },
-        body: JSON.stringify({ texts: flat, langCode: lang.code })
-      })
-      if (!res.ok) { throw new Error(`HTTP ${res.status}`) }
-      const translated = await res.json()
-      if (translated.error) { throw new Error(translated.error.message || String(translated.error)) }
-      const nested = unflattenObj(translated)
-      this.$i18n.setLocaleMessage(lang.code, nested)
-      localStorage.setItem(cacheKey, JSON.stringify(nested))
     }
   }
 }

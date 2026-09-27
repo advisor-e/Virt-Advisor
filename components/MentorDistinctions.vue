@@ -8,7 +8,7 @@
           b-menu-item(
             v-for="d in distinctionDomains"
             :key="d.id"
-            :label="d.label"
+            :label="$t(d.labelKey)"
             :active="selectedDistinctionDomain === d.id"
             @click="selectedDistinctionDomain = d.id; closeDistinctionForm()"
           )
@@ -130,7 +130,7 @@
 
         b-field(:label="$t('mentorDistinctions.fieldDomain')")
           b-select(v-model="distinctionForm.domain" expanded)
-            option(v-for="d in distinctionDomains" :key="d.id" :value="d.id") {{ d.label }}
+            option(v-for="d in distinctionDomains" :key="d.id" :value="d.id") {{ $t(d.labelKey) }}
 
         b-field(:label="$t('mentorDistinctions.fieldDescription')" :message="$t('mentorDistinctions.fieldDescriptionHelp')")
           b-input(
@@ -220,6 +220,8 @@
 
 <script>
 import DOMPurify from 'isomorphic-dompurify'
+// One list for the mentor's screen and the firm hub's, names in locales/en.json.
+import { DISTINCTION_DOMAINS } from '~/components/FirmManagerHub.vue'
 
 /**
  * MentorDistinctions — the mentor authoring surface for Advisory Distinctions
@@ -249,23 +251,6 @@ const ALL_CLIENT_TEMPLATES = require('~/data/templates.json')
   .sort((a, b) => a.title.localeCompare(b.title))
 
 const TEMPLATE_SUBSECTIONS = [...new Set(ALL_CLIENT_TEMPLATES.map(t => t.subSection))].sort()
-
-const DISTINCTION_DOMAINS = [
-  { id: 'conflict', label: 'Conflict & Dispute' },
-  { id: 'profit', label: 'Profitability & Feasibility' },
-  { id: 'staff', label: 'Staff & Team' },
-  { id: 'data-systems', label: 'Data & Financial Systems' },
-  { id: 'sales-marketing', label: 'Sales & Marketing' },
-  { id: 'forecasting', label: 'Financial Management' },
-  { id: 'governance', label: 'Governance & Leadership' },
-  { id: 'strategy', label: 'Strategy & Planning' },
-  { id: 'systems', label: 'Business Systems' },
-  { id: 'valuation', label: 'Business Valuation' },
-  { id: 'risk', label: 'Risk Management' },
-  { id: 'succession', label: 'Succession & Exit Planning' },
-  { id: 'eoy', label: 'End of Year' },
-  { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
-]
 
 export default {
   name: 'MentorDistinctions',
@@ -336,7 +321,7 @@ export default {
 
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
-      return d ? d.label : ''
+      return d ? this.$t(d.labelKey) : ''
     },
     // The mentor's rows for the selected domain (plain list — no cascade kinds).
     domainDistinctions () {

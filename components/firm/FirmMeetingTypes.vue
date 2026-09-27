@@ -6,9 +6,9 @@
 //- 2026-09-08 on Mike's instruction, the same day slice 3 spread it to three more tiers.
 .mtypes(v-if="visible || loadError")
   .box.mb-4
-    h4.title.is-6.mb-1 The kinds of meeting
+    h4.title.is-6.mb-1 {{ $t('firmMeetingTypes.section.heading') }}
     p.is-size-7.has-text-grey.mb-4
-      | The meetings your advisors have. Each one holds its own list of checks.
+      | {{ $t('firmMeetingTypes.section.intro') }}
 
     b-message(v-if="loadError" type="is-danger" size="is-small") {{ loadError }}
     b-message(v-if="saveError" type="is-danger" size="is-small") {{ saveError }}
@@ -18,54 +18,54 @@
     //- list is empty because nothing could be READ, and saying it is empty because none
     //- exist invites a manager to re-create meetings the firm already has.
     p.is-size-7.has-text-grey.py-4(v-if="!loading && !loadError && !types.length")
-      | No kinds of meeting yet. Add the first one below.
+      | {{ $t('firmMeetingTypes.section.empty') }}
 
     table.table.is-fullwidth.is-narrow.mtypes-table(v-if="types.length")
       tbody
         tr(v-for="(t, i) in types" :key="t.id")
           td.mtypes-name
             template(v-if="editingId === t.id")
-              b-field(label="What this meeting is called" label-position="on-border")
-                b-input(v-model="editName" :maxlength="maxNameLength" placeholder="Bad news conversation")
-              b-field(label="Coaching material for this meeting (optional)" label-position="on-border")
+              b-field(:label="$t('firmMeetingTypes.form.nameLabel')" label-position="on-border")
+                b-input(v-model="editName" :maxlength="maxNameLength" :placeholder="$t('firmMeetingTypes.form.namePlaceholder')")
+              b-field(:label="$t('firmMeetingTypes.form.treeLabel')" label-position="on-border")
                 b-input(v-model="editTree" placeholder="eoy_meeting")
               .buttons.mt-2
-                b-button(type="is-primary" size="is-small" :loading="saving" @click="saveEdit(t)") Save
-                b-button(type="is-light" size="is-small" @click="cancelEdit") Cancel
+                b-button(type="is-primary" size="is-small" :loading="saving" @click="saveEdit(t)") {{ $t('firmMeetingTypes.actions.save') }}
+                b-button(type="is-light" size="is-small" @click="cancelEdit") {{ $t('firmMeetingTypes.actions.cancel') }}
             template(v-else)
               span {{ t.name }}
-              b-tag.ml-2(v-if="t.source === 'added-here'" type="is-success is-light" size="is-small") Added here
-              b-tag.ml-2(v-else-if="t.source === 'edited-here'" type="is-info is-light" size="is-small") Edited here
+              b-tag.ml-2(v-if="t.source === 'added-here'" type="is-success is-light" size="is-small") {{ $t('firmMeetingTypes.badges.addedHere') }}
+              b-tag.ml-2(v-else-if="t.source === 'edited-here'" type="is-info is-light" size="is-small") {{ $t('firmMeetingTypes.badges.editedHere') }}
           td.mtypes-actions.has-text-right(v-if="editingId !== t.id")
-            b-button(size="is-small" type="is-text" :disabled="i === 0" @click="move(i, -1)") Move up
-            b-button(size="is-small" type="is-text" :disabled="i === types.length - 1" @click="move(i, 1)") Move down
-            b-button(size="is-small" type="is-text" @click="startEdit(t)") Rename
+            b-button(size="is-small" type="is-text" :disabled="i === 0" @click="move(i, -1)") {{ $t('firmMeetingTypes.actions.moveUp') }}
+            b-button(size="is-small" type="is-text" :disabled="i === types.length - 1" @click="move(i, 1)") {{ $t('firmMeetingTypes.actions.moveDown') }}
+            b-button(size="is-small" type="is-text" @click="startEdit(t)") {{ $t('firmMeetingTypes.actions.rename') }}
             b-button(
               v-if="t.source === 'added-here'"
               size="is-small" type="is-text" :loading="saving" @click="confirmRemove(t)"
-            ) Remove
+            ) {{ $t('firmMeetingTypes.actions.remove') }}
             b-button(
               v-else
               size="is-small" type="is-text" :loading="saving" @click="decline(t, true)"
-            ) Not used here
+            ) {{ $t('firmMeetingTypes.actions.notUsedHere') }}
 
     .mtypes-off.mt-4(v-if="declinedHere.length")
       p.is-size-7.has-text-grey.mb-2
-        | Not used here. Your advisors will not see these.
+        | {{ $t('firmMeetingTypes.declined.intro') }}
       .mtypes-offrow(v-for="d in declinedHere" :key="d")
         span.is-size-7 {{ nameFor(d) }}
-        b-button(size="is-small" type="is-text" :loading="saving" @click="declineById(d, false)") Use it again
+        b-button(size="is-small" type="is-text" :loading="saving" @click="declineById(d, false)") {{ $t('firmMeetingTypes.declined.useAgain') }}
 
     .mtypes-add.mt-5(v-if="!loadError")
       template(v-if="adding")
-        b-field(label="What this meeting is called" label-position="on-border")
-          b-input(v-model="newName" :maxlength="maxNameLength" placeholder="Bad news conversation")
-        b-field(label="Coaching material for this meeting (optional)" label-position="on-border")
+        b-field(:label="$t('firmMeetingTypes.form.nameLabel')" label-position="on-border")
+          b-input(v-model="newName" :maxlength="maxNameLength" :placeholder="$t('firmMeetingTypes.form.namePlaceholder')")
+        b-field(:label="$t('firmMeetingTypes.form.treeLabel')" label-position="on-border")
           b-input(v-model="newTree" placeholder="eoy_meeting")
         .buttons.mt-2
-          b-button(type="is-primary" :loading="saving" @click="addType") Save
-          b-button(type="is-light" @click="cancelAdd") Cancel
-      b-button(v-else type="is-light" @click="startAdd") A new kind of meeting
+          b-button(type="is-primary" :loading="saving" @click="addType") {{ $t('firmMeetingTypes.actions.save') }}
+          b-button(type="is-light" @click="cancelAdd") {{ $t('firmMeetingTypes.actions.cancel') }}
+      b-button(v-else type="is-light" @click="startAdd") {{ $t('firmMeetingTypes.actions.addNew') }}
 </template>
 
 <script>
@@ -183,7 +183,7 @@ export default {
         this.inherited = data.inherited || []
         this.maxNameLength = data.maxNameLength || 120
       } catch (e) {
-        this.loadError = 'The kinds of meeting could not be loaded: ' + e.message
+        this.loadError = this.$t('firmMeetingTypes.errors.loadFailed', { message: e.message })
       }
       this.loading = false
     },
@@ -277,10 +277,9 @@ export default {
      */
     confirmRemove (type) {
       this.$buefy.dialog.confirm({
-        title: 'Remove this kind of meeting',
-        message: 'This removes it for everyone below you. Any meetings already recorded ' +
-          'against it stay readable.',
-        confirmText: 'Remove',
+        title: this.$t('firmMeetingTypes.removeDialog.title'),
+        message: this.$t('firmMeetingTypes.removeDialog.message'),
+        confirmText: this.$t('firmMeetingTypes.actions.remove'),
         type: 'is-danger',
         onConfirm: () => this.mutate(
           'DELETE',
@@ -361,11 +360,11 @@ export default {
           body: body ? JSON.stringify(body) : undefined
         })
       } catch (e) {
-        throw new Error('The server could not be reached. Check your connection and try again.')
+        throw new Error(this.$t('firmMeetingTypes.errors.unreachable'))
       }
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        throw new Error((data.error && data.error.message) || 'That could not be saved.')
+        throw new Error((data.error && data.error.message) || this.$t('firmMeetingTypes.errors.notSaved'))
       }
       return data
     }

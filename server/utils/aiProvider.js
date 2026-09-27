@@ -31,7 +31,7 @@ const { AI } = require('../../config/integration')
 const { createOpenAIClient } = require('./openaiClient')
 
 /** Roles a call site may ask for. A role names WHAT the call does, not which model runs it. */
-const ROLES = ['classify', 'narrative', 'course', 'report', 'reading', 'review', 'compliance', 'draft', 'research', 'extract']
+const ROLES = ['classify', 'narrative', 'course', 'report', 'reading', 'review', 'compliance', 'draft', 'research', 'extract', 'translate']
 
 /** What happened to the fallback on one call, for the log line. */
 const FALLBACK_NONE = 'none'

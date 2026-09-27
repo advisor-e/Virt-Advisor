@@ -447,7 +447,12 @@ describe('hub tab matrix — the shape that stops the next silent switch-on', ()
   })
 
   it('the two new titles are Mike\'s own words', () => {
-    expect(HUB_TITLES.global).toBe('Global Group Manager Hub')
-    expect(HUB_TITLES.group).toBe('Group Manager Hub')
+    // The titles are locale keys since the hub's English moved into locales/en.json
+    // (item 10.1); the words themselves are pinned there, unchanged.
+    const EN = require('../../locales/en.json')
+    expect(HUB_TITLES.global).toBe('firmManagerHub.title.global')
+    expect(HUB_TITLES.group).toBe('firmManagerHub.title.group')
+    expect(EN.firmManagerHub.title.global).toBe('Global Group Manager Hub')
+    expect(EN.firmManagerHub.title.group).toBe('Group Manager Hub')
   })
 })

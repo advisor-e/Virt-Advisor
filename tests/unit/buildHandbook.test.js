@@ -451,6 +451,12 @@ describe('the Handbook', () => {
     it('strips the leading heading, because the shell renders its own', () => {
       expect(builder.body('# Quizzes — the Brief\n\nText.\n')).toBe('\nText.\n')
     })
+
+    // A raw U+FFFD makes the Artifact publisher refuse the whole page, so startup's
+    // publish step fails. The closures page quotes one deliberately (item 10.1).
+    it('carries no raw replacement character, so the page can be published', () => {
+      expect(html).not.toMatch(/�/)
+    })
   })
 
   // 🔴 The whole point of the control is that Mike's ranking is a thing he can

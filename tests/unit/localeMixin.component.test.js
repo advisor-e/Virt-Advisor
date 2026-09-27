@@ -4,17 +4,13 @@
 'use strict'
 
 /**
- * localeMixin — the language picker, and the on-demand AI translation of the whole UI.
+ * localeMixin — the language picker, and switching the reader to the translated wording.
  *
- * Untested until 2026-07-30 (design/COVERAGE-DEBT.md), and it carries two things worth
- * more than the coverage number:
+ * How the wording is fetched, cached and cleaned of prototype-polluting keys is
+ * utils/uiLocaleLoader.js, tested in uiLocaleLoader.test.js. What is pinned here:
  *
- *   1. PROTOTYPE-POLLUTION GUARDS. `loadDynamicLocale` sends the flattened English
- *      messages to an LLM route and turns the reply back into a nested object. Building
- *      an object from keys you did not author is the classic pollution path — a returned
- *      key of `__proto__.x` or `constructor.prototype.x` would otherwise write onto every
- *      object in the page. The mixin filters FORBIDDEN_KEYS on both the flatten and the
- *      unflatten side; nothing was checking that it still does.
+ *   1. WHEN THE LANGUAGE CHANGES — only after a successful load, except a shipped language
+ *      whose own file still beats refusing it when the backend cannot help.
  *   2. A DOCUMENT-LEVEL CLICK LISTENER added in mounted() and removed in beforeDestroy().
  *      That is the same teardown class as the microphone defect recorded in
  *      speechMixin.component.test.js — a listener that outlives its component keeps
@@ -152,6 +148,9 @@ describe('localeMixin — opening and closing', () => {
 })
 
 describe('localeMixin — changing language', () => {
+  const READY = { success: true, status: 'ready', version: 'v1', english: 0, total: 1, messages: { hello: 'Bonjour' } }
+  const ok = body => ({ ok: true, json: () => Promise.resolve(body) })
+
   test('does nothing while another language is still loading', async () => {
     const i18n = makeI18n()
     const wrapper = mountHost(i18n)
@@ -174,35 +173,49 @@ describe('localeMixin — changing language', () => {
     expect(global.fetch).not.toHaveBeenCalled()
   })
 
-  test('an already-loaded language switches with no translation call', async () => {
-    const i18n = makeI18n({ messages: { en: { hello: 'Hello' }, fr: { hello: 'Bonjour' } } })
+  test('English switches with no translation call', async () => {
+    const i18n = makeI18n({ locale: 'fr' })
     const wrapper = mountHost(i18n)
 
-    await wrapper.vm.changeLocale(FR)
+    await wrapper.vm.changeLocale(LANGUAGES.find(l => l.code === 'en'))
 
-    expect(i18n.locale).toBe('fr')
+    expect(i18n.locale).toBe('en')
     expect(global.fetch).not.toHaveBeenCalled()
   })
 
-  test('an unloaded language is translated first, then applied', async () => {
-    global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ hello: 'Bonjour' }) })
+  test('a language is loaded from the backend, then applied', async () => {
+    global.fetch.mockResolvedValue(ok(READY))
     const i18n = makeI18n()
     const wrapper = mountHost(i18n)
 
     await wrapper.vm.changeLocale(FR)
 
+    expect(global.fetch.mock.calls[0][0]).toBe('/api/ui-translation/fr')
     expect(i18n.setLocaleMessage).toHaveBeenCalledWith('fr', { hello: 'Bonjour' })
     expect(i18n.locale).toBe('fr')
     expect(wrapper.vm.loadingLang).toBeNull()
     expect(wrapper.vm.langPickerOpen).toBe(false)
+    // Remembered, so the next page opens in it.
+    expect(window.localStorage.getItem('va_reader_locale')).toBe('fr')
   })
 
-  test('a failed translation shows an error and leaves the language alone', async () => {
+  test('a SHIPPED language still asks the backend — that is what fills in the rest of it', async () => {
+    global.fetch.mockResolvedValue(ok(READY))
+    const i18n = makeI18n({ messages: { en: { hello: 'Hello' }, fr: { other: 'Autre' } } })
+    const wrapper = mountHost(i18n)
+
+    await wrapper.vm.changeLocale(FR)
+
+    expect(global.fetch).toHaveBeenCalled()
+    expect(i18n.setLocaleMessage).toHaveBeenCalledWith('fr', { hello: 'Bonjour' })
+  })
+
+  test('a failed load with no shipped file shows an error and leaves the language alone', async () => {
     global.fetch.mockResolvedValue({ ok: false, status: 502 })
     const i18n = makeI18n()
     const wrapper = mountHost(i18n)
 
-    await wrapper.vm.changeLocale(FR)
+    await wrapper.vm.changeLocale(ES)
 
     expect(wrapper.vm.langError).toBe('Translation failed — please try again.')
     expect(wrapper.vm.loadingLang).toBeNull()
@@ -210,111 +223,15 @@ describe('localeMixin — changing language', () => {
     expect(i18n.setLocaleMessage).not.toHaveBeenCalled()
   })
 
-  test("the route's error envelope is treated as a failure, not as translations", async () => {
-    global.fetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ error: { code: 'TRANSLATE_FAILED', message: 'upstream refused' } })
-    })
-    const i18n = makeI18n()
+  test('a failed load for a shipped language still switches, on its own file', async () => {
+    global.fetch.mockResolvedValue({ ok: false, status: 502 })
+    const i18n = makeI18n({ messages: { en: { hello: 'Hello' }, fr: { hello: 'Bonjour' } } })
     const wrapper = mountHost(i18n)
 
     await wrapper.vm.changeLocale(FR)
 
-    expect(wrapper.vm.langError).toBe('Translation failed — please try again.')
+    expect(i18n.locale).toBe('fr')
+    expect(wrapper.vm.langError).toBeNull()
     expect(i18n.setLocaleMessage).not.toHaveBeenCalled()
-  })
-})
-
-describe('localeMixin — the translation cache', () => {
-  test('sends the flattened English messages and the target code', async () => {
-    global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ hello: 'Bonjour' }) })
-    const wrapper = mountHost()
-
-    await wrapper.vm.loadDynamicLocale(FR)
-
-    const [url, opts] = global.fetch.mock.calls[0]
-    expect(url).toBe('/api/translate/locale')
-    expect(opts.method).toBe('POST')
-    const body = JSON.parse(opts.body)
-    expect(body.langCode).toBe('fr')
-    // Nested keys are sent flattened, dot-joined.
-    expect(body.texts['nested.deep']).toBe('Deep')
-  })
-
-  test('caches the result, and a second load never calls the route again', async () => {
-    global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({ hello: 'Bonjour' }) })
-    const i18n = makeI18n()
-    const wrapper = mountHost(i18n)
-
-    await wrapper.vm.loadDynamicLocale(FR)
-    expect(window.localStorage.getItem('va_locale_fr')).toBe(JSON.stringify({ hello: 'Bonjour' }))
-
-    global.fetch.mockClear()
-    await wrapper.vm.loadDynamicLocale(FR)
-
-    expect(global.fetch).not.toHaveBeenCalled()
-    expect(i18n.setLocaleMessage).toHaveBeenCalledTimes(2)
-  })
-
-  test('rebuilds nested structure from the flat reply', async () => {
-    global.fetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ 'nested.deep': 'Profond', hello: 'Bonjour' })
-    })
-    const i18n = makeI18n()
-    const wrapper = mountHost(i18n)
-
-    await wrapper.vm.loadDynamicLocale(FR)
-
-    expect(i18n.setLocaleMessage).toHaveBeenCalledWith('fr', {
-      hello: 'Bonjour',
-      nested: { deep: 'Profond' }
-    })
-  })
-})
-
-// The reply is built by an LLM. Anything that turns keys it chose into an object must
-// refuse the ones that write onto every object in the page.
-describe('localeMixin — a translation reply cannot pollute the prototype', () => {
-  test('a __proto__ key in the reply is dropped, and Object.prototype is untouched', async () => {
-    global.fetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ '__proto__.polluted': 'yes', hello: 'Bonjour' })
-    })
-    const i18n = makeI18n()
-    const wrapper = mountHost(i18n)
-
-    await wrapper.vm.loadDynamicLocale(FR)
-
-    expect({}.polluted).toBeUndefined()
-    const applied = i18n.setLocaleMessage.mock.calls[0][1]
-    expect(applied).toEqual({ hello: 'Bonjour' })
-  })
-
-  test('a constructor.prototype key in the reply is dropped too', async () => {
-    global.fetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ 'constructor.prototype.owned': 'yes', hello: 'Bonjour' })
-    })
-    const i18n = makeI18n()
-    const wrapper = mountHost(i18n)
-
-    await wrapper.vm.loadDynamicLocale(FR)
-
-    expect({}.owned).toBeUndefined()
-    expect(i18n.setLocaleMessage.mock.calls[0][1]).toEqual({ hello: 'Bonjour' })
-  })
-
-  test('a forbidden key in the SOURCE messages is never sent for translation', async () => {
-    global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({}) })
-    const messages = { en: { hello: 'Hello' } }
-    // Assigned rather than written as a literal, which would set the real prototype.
-    Object.defineProperty(messages.en, 'constructor', { value: { bad: 'x' }, enumerable: true, configurable: true })
-    const wrapper = mountHost(makeI18n({ messages }))
-
-    await wrapper.vm.loadDynamicLocale(ES)
-
-    const body = JSON.parse(global.fetch.mock.calls[0][1].body)
-    expect(Object.keys(body.texts)).toEqual(['hello'])
   })
 })

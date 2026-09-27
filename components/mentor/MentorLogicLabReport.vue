@@ -326,7 +326,7 @@ export default {
     /** @param {string} id @returns {string} the domain's display name. */
     domainLabel (id) {
       const d = DISTINCTION_DOMAINS.find(x => x.id === id)
-      return d ? d.label : (id || this.$t('logicLabReport.noDomain'))
+      return d ? this.$t(d.labelKey) : (id || this.$t('logicLabReport.noDomain'))
     },
 
     /**

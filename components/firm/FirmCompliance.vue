@@ -13,27 +13,22 @@
     //- checks whether a firm took it, which is his ruling: "we can't dictate or make
     //- it a condition for firms to seek legal advice".
     .box.fcm-note(v-if="!isMentor")
-      h5.is-size-7.has-text-weight-semibold.mb-2 WHAT THIS PAGE IS, AND WHAT IT IS NOT
+      h5.is-size-7.has-text-weight-semibold.mb-2 {{ $t('firmCompliance.firmNote.heading') }}
       p.is-size-7
-        | Advisor-e supplies this software on an all-care basis. We identify best practice
-        |  and set out our assessment below.
-        b  You remain responsible for meeting your own legal obligations and for what you do with the information here.
-        |  Nothing on this page is legal advice, and it is not a statement that your firm is
-        |  compliant.
-        b  We strongly suggest taking your own legal advice on it
-        |  — we do not require it, and nothing here checks whether you have.
+        i18n(path="firmCompliance.firmNote.body" tag="span")
+          template(#responsible)
+            b {{ $t('firmCompliance.firmNote.responsible') }}
+          template(#suggest)
+            b {{ $t('firmCompliance.firmNote.suggest') }}
 
     .box.fcm-note.fcm-note-mentor(v-else)
-      h5.is-size-7.has-text-weight-semibold.mb-2 THIS IS WHERE YOU SHARE NEW INFORMATION DOWNWARDS
-      p.is-size-7
-        | Publish an item here and every tier beneath you receives it and is told it is new.
-        |  A global group manager or group manager can add items of their own for their country
-        |  or brand — those cascade down from that level, never sideways and never up.
+      h5.is-size-7.has-text-weight-semibold.mb-2 {{ $t('firmCompliance.mentorNote.heading') }}
+      p.is-size-7 {{ $t('firmCompliance.mentorNote.body') }}
 
     //- ── Where each item came from ────────────────────────────────────────────
     .fcm-cascade.mb-4(v-if="cascadeCounts.length")
       span.fcm-cascade-item(v-for="c in cascadeCounts" :key="c.tier")
-        | {{ c.count }} {{ c.count === 1 ? 'item' : 'items' }} from {{ c.label }}
+        | {{ $tc('firmCompliance.cascade.fromTier', c.count, { count: c.count, label: c.label }) }}
 
     //- ── Published to you ─────────────────────────────────────────────────────
     //- 🔴 READ-ONLY, AND THERE IS DELIBERATELY NO EDIT CONTROL AND NO HIDE CONTROL.
@@ -42,30 +37,26 @@
     //- edit / switch off / add; this one must not, and the backend refuses it as well
     //- as this screen omitting it (server/routes/compliance.js).
     .box(v-if="inheritedItems.length")
-      h4.title.is-6.mb-1 Published to you
-      p.is-size-7.has-text-grey.mb-4
-        | You can read anything published to you and add your own material beside it. You
-        |  cannot change or remove what a tier above you published — it carries their name,
-        |  not yours.
+      h4.title.is-6.mb-1 {{ $t('firmCompliance.published.heading') }}
+      p.is-size-7.has-text-grey.mb-4 {{ $t('firmCompliance.published.intro') }}
 
       .fcm-doc(v-for="item in inheritedItems" :key="item.ref")
         .fcm-doc-main
           .fcm-doc-title
-            span.fcm-dot(v-if="isNew(item)" title="New since you last declared")
-            span.is-sr-only(v-if="isNew(item)") New.
+            span.fcm-dot(v-if="isNew(item)" :title="$t('firmCompliance.published.newDotTitle')")
+            span.is-sr-only(v-if="isNew(item)") {{ $t('firmCompliance.published.newSr') }}
             | {{ item.title }}
           .fcm-doc-sub
-            | Version {{ item.version }} · published {{ dateWords(item.publishedAt) }}
-            |  by {{ item.originTierLabel }}
+            | {{ $t('firmCompliance.itemMeta', { version: item.version, date: dateWords(item.publishedAt), by: item.originTierLabel }) }}
           p.is-size-7.has-text-grey.mt-1(v-if="item.summary") {{ item.summary }}
-        b-tag(v-if="isNew(item)" type="is-warning") New
+        b-tag(v-if="isNew(item)" type="is-warning") {{ $t('firmCompliance.published.newTag') }}
         b-button.fcm-read(size="is-small" outlined @click="toggle(item.ref)")
-          | {{ open[item.ref] ? 'Close' : 'Read it' }}
+          | {{ open[item.ref] ? $t('firmCompliance.close') : $t('firmCompliance.readIt') }}
 
         .fcm-body(v-if="open[item.ref]") {{ item.body }}
 
     p.is-size-7.has-text-grey.mb-4(v-else-if="!isMentor")
-      | Nothing has been published to your firm yet.
+      | {{ $t('firmCompliance.published.empty') }}
 
     //- ── The firm's own compliance evidence ───────────────────────────────────
     //- 🔴 THE FIRM TIER ALONE, AND THAT IS A JUDGEMENT STATED RATHER THAN ASSUMED.
@@ -78,49 +69,45 @@
     //- software in the place of their lawyer.
     .box(v-if="isFirm")
       .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
-        h4.title.is-6.mb-0 Your firm's compliance evidence
-        b-tag(type="is-success" size="is-small") Held by your firm only
+        h4.title.is-6.mb-0 {{ $t('firmCompliance.evidence.heading') }}
+        b-tag(type="is-success" size="is-small") {{ $t('firmCompliance.evidence.heldTag') }}
 
       p.is-size-7.has-text-grey.mb-4
-        | These are your documents — what you did, and the advice you took. Advisor-e can see
-        |  that a document exists and when it was added;
-        b  we do not read them and they are never shown to another firm.
+        i18n(path="firmCompliance.evidence.intro" tag="span")
+          template(#notRead)
+            b {{ $t('firmCompliance.evidence.notRead') }}
 
       .fcm-drop
         b-upload(v-model="evidenceFile" accept="application/pdf" drag-drop expanded)
           .has-text-centered.py-5
-            p.is-size-6.has-text-weight-semibold Drop a compliance document here
-            p.is-size-7.has-text-grey
-              | Your lawyer's opinion · your privacy statement · client engagement terms ·
-              |  staff consultation record · your breach process
-            p.is-size-7.has-text-grey.mt-2 PDF, up to {{ maxFileMb }} MB
+            p.is-size-6.has-text-weight-semibold {{ $t('firmCompliance.evidence.dropHeading') }}
+            p.is-size-7.has-text-grey {{ $t('firmCompliance.evidence.dropExamples') }}
+            p.is-size-7.has-text-grey.mt-2 {{ $t('firmCompliance.evidence.dropLimit', { mb: maxFileMb }) }}
 
         .mt-3(v-if="evidenceFile")
           p.is-size-7.mb-2 {{ evidenceFile.name }}
           .buttons
-            b-button(type="is-primary" size="is-small" :loading="uploading" @click="addEvidence") Add it
-            b-button(size="is-small" @click="evidenceFile = null") Cancel
+            b-button(type="is-primary" size="is-small" :loading="uploading" @click="addEvidence") {{ $t('firmCompliance.evidence.add') }}
+            b-button(size="is-small" @click="evidenceFile = null") {{ $t('firmCompliance.cancel') }}
 
       b-message.mt-3(v-if="evidenceError" type="is-danger" size="is-small") {{ evidenceError }}
 
       .mt-4
         p.is-size-7.has-text-grey.py-3(v-if="!evidence.length")
-          | Your pack is empty. Nothing is blocked by that — an empty pack stops nothing, and
-          |  Advisor-e does not judge whether your firm is compliant.
+          | {{ $t('firmCompliance.evidence.empty') }}
 
         .fcm-doc(v-for="doc in evidence" :key="doc.fileId")
           .fcm-doc-main
             .fcm-doc-title {{ doc.name }}
             .fcm-doc-sub
-              | Added {{ dateWords(doc.addedAt) }}
-              |  by {{ doc.addedBy || 'someone at your firm' }} · {{ sizeWords(doc.sizeBytes) }}
-          b-button.fcm-read(size="is-small" outlined @click="openEvidence(doc)") Open
+              | {{ $t('firmCompliance.evidence.meta', { date: dateWords(doc.addedAt), by: doc.addedBy || $t('firmCompliance.evidence.someoneAtFirm'), size: sizeWords(doc.sizeBytes) }) }}
+          b-button.fcm-read(size="is-small" outlined @click="openEvidence(doc)") {{ $t('firmCompliance.evidence.open') }}
           b-button.fcm-read(
             size="is-small"
             outlined
             type="is-danger"
             :loading="removing === doc.fileId"
-            @click="removeEvidence(doc)") Remove
+            @click="removeEvidence(doc)") {{ $t('firmCompliance.evidence.remove') }}
 
     //- ── What is missing from your pack ───────────────────────────────────────
     //- 🔴 A COMPLETENESS CHECK, NOT A LEGAL OPINION, AND IT GATES NOTHING. If an
@@ -132,19 +119,17 @@
     //- on load would have undone that ruling.
     .box(v-if="isFirm")
       .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
-        h4.title.is-6.mb-0 What is missing from your pack
+        h4.title.is-6.mb-0 {{ $t('firmCompliance.missing.heading') }}
         span.is-size-7.has-text-grey(v-if="check")
-          | Checked {{ dateWords(check.checkedAt) }} · {{ check.covered }} of {{ check.total }} covered
+          | {{ $t('firmCompliance.missing.checked', { date: dateWords(check.checkedAt), covered: check.covered, total: check.total }) }}
 
       .fcm-note.mb-4
         p.is-size-7
-          b This is a completeness check, not a legal opinion.
-          |  We look at what your documents are called and say which of the eight points each
-          |  one appears to address.
-          b  We do not tell you what the law requires, we do not read your documents, and
-          b  nothing inside one is ever sent anywhere.
-          |  A tick means a document appears to address that point, never that it addresses it
-          |  adequately. Only your lawyer can say that.
+          i18n(path="firmCompliance.missing.note" tag="span")
+            template(#notOpinion)
+              b {{ $t('firmCompliance.missing.notOpinion') }}
+            template(#weDoNot)
+              b {{ $t('firmCompliance.missing.weDoNot') }}
 
       b-message(v-if="checkError" type="is-danger" size="is-small") {{ checkError }}
 
@@ -153,26 +138,24 @@
           span.fcm-chk-mark(:class="p.covered ? 'is-yes' : 'is-no'") {{ p.covered ? '✓' : '!' }}
           span.fcm-chk-text
             span(:class="{ 'has-text-weight-semibold': !p.covered }") {{ p.title }}
-            .fcm-chk-why(v-if="p.covered") Covered by: {{ p.coveredBy.join('; ') }}
+            .fcm-chk-why(v-if="p.covered") {{ $t('firmCompliance.missing.coveredBy', { docs: p.coveredBy.join('; ') }) }}
             .fcm-chk-why(v-else) {{ p.why }}
 
       p.is-size-7.has-text-grey.py-3(v-else)
-        | Your pack has not been checked yet.
+        | {{ $t('firmCompliance.missing.notChecked') }}
 
       .fcm-note.mt-4
         p.is-size-7
-          b The ninth point is not on this list, and that is deliberate.
-          |  That the firm has read and understands the law as it applies to it is the
-          |  declaration below, not a document.
-          b  It is the only one we ask for, and the only one that changes anything.
-          |  Nothing in this software checks whether you took legal advice.
+          i18n(path="firmCompliance.missing.ninth" tag="span")
+            template(#notOnList)
+              b {{ $t('firmCompliance.missing.notOnList') }}
+            template(#onlyOne)
+              b {{ $t('firmCompliance.missing.onlyOne') }}
 
       .buttons.mt-4
         b-button(type="is-primary" :loading="checking" @click="runCheck")
-          | {{ check ? 'Check my pack again' : 'Check my pack' }}
-      p.is-size-7.has-text-grey
-        | This sends the names of your documents — never the documents — to be matched against
-        |  the eight points. It runs only when you press the button.
+          | {{ check ? $t('firmCompliance.missing.checkAgain') : $t('firmCompliance.missing.check') }}
+      p.is-size-7.has-text-grey {{ $t('firmCompliance.missing.sendsNames') }}
 
     //- ── The declaration ──────────────────────────────────────────────────────
     //- 🔴 THE TICK IS THE GATE — Mike's ruling, 2026-09-10: "they have to tick a box
@@ -187,36 +170,32 @@
     //- opens Meeting Review — that is the only tier whose advisors record anything.
     .box(v-if="!isMentor")
       .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
-        h4.title.is-6.mb-0 Your firm's declaration
+        h4.title.is-6.mb-0 {{ $t('firmCompliance.declaration.heading') }}
         b-tag(v-if="isFirm" :type="declaration ? 'is-success' : 'is-danger'")
-          | {{ declaration ? 'Meeting Review is active for your firm' : 'Meeting Review is not active' }}
+          | {{ declaration ? $t('firmCompliance.declaration.active') : $t('firmCompliance.declaration.notActive') }}
 
       .fcm-note.mb-4(v-if="isFirm")
         p.is-size-7
-          b Meeting Review does not switch on until this is recorded.
-          |  Until a firm manager records the declaration below, no advisor at your firm can
-          |  open the meeting recorder.
-          b  This is the only thing that gates it.
-          |  Your evidence pack above is for your own benefit — an empty pack blocks nothing,
-          |  and Advisor-e does not judge whether your firm is compliant.
+          i18n(path="firmCompliance.declaration.gate" tag="span")
+            template(#notUntil)
+              b {{ $t('firmCompliance.declaration.notUntil') }}
+            template(#onlyGate)
+              b {{ $t('firmCompliance.declaration.onlyGate') }}
 
       .fcm-ack
         .fcm-ack-line
           b-checkbox(v-model="ticked" :disabled="saving")
             b {{ declarationWording }}
 
-        p.is-size-7.has-text-grey.mt-2.mb-3
-          | We strongly suggest taking your own legal advice before recording a client. We do
-          |  not require it and we do not ask you to tell us whether you have.
+        p.is-size-7.has-text-grey.mt-2.mb-3 {{ $t('firmCompliance.declaration.adviceSuggested') }}
 
         //- A published update NOTIFIES and never suspends — his ruling of 2026-09-10. The
         //- advisors keep recording; this asks the manager to read and declare again.
         b-message(v-if="declaration && newCount" type="is-warning" size="is-small")
-          | {{ newCount === 1 ? 'One published item is' : newCount + ' published items are' }}
-          |  new since you last declared.
-          b  Your advisors can keep recording
-          |  — this is a notification, not a suspension. Read it and record your declaration
-          |  again, and the dot clears.
+          i18n(path="firmCompliance.declaration.newNotice" tag="span")
+            template(#items) {{ $tc('firmCompliance.declaration.newItems', newCount, { count: newCount }) }}
+            template(#keepRecording)
+              b {{ $t('firmCompliance.declaration.keepRecording') }}
 
         b-message(v-if="declareError" type="is-danger" size="is-small") {{ declareError }}
 
@@ -224,66 +203,61 @@
           type="is-primary"
           :disabled="!ticked"
           :loading="saving"
-          @click="recordDeclaration") Record this declaration
+          @click="recordDeclaration") {{ $t('firmCompliance.declaration.record') }}
 
         p.is-size-7.has-text-grey.mt-3(v-if="declaration")
-          b Recorded by:
-          |  {{ declaration.declaredBy }} · {{ dateWords(declaration.declaredAt) }}
-          |  · against {{ declaration.against.length }}
-          |  {{ declaration.against.length === 1 ? 'published item' : 'published items' }}
+          b {{ $t('firmCompliance.declaration.recordedByLabel') }}
+          |  {{ $tc('firmCompliance.declaration.recordedByDetail', declaration.against.length, { by: declaration.declaredBy, date: dateWords(declaration.declaredAt), count: declaration.against.length }) }}
 
     //- ── What you publish ─────────────────────────────────────────────────────
     .box
       .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
-        h4.title.is-6.mb-0 What you publish
+        h4.title.is-6.mb-0 {{ $t('firmCompliance.publish.heading') }}
         b-button(
           v-if="!publishing"
           size="is-small"
           type="is-primary"
-          @click="startNew") Publish a new item
+          @click="startNew") {{ $t('firmCompliance.publish.newItem') }}
 
-      p.is-size-7.has-text-grey.mb-4
-        | Everything here is sent down to every tier beneath you. Publishing again as a new
-        |  version tells them there is something to re-read.
+      p.is-size-7.has-text-grey.mb-4 {{ $t('firmCompliance.publish.intro') }}
 
       p.is-size-7.has-text-grey.py-3(v-if="!ownItems.length && !publishing")
-        | You have published nothing yet.
+        | {{ $t('firmCompliance.publish.empty') }}
 
       .fcm-doc(v-for="item in ownItems" :key="item.ref")
         .fcm-doc-main
           .fcm-doc-title {{ item.title }}
           .fcm-doc-sub
-            | Version {{ item.version }} · published {{ dateWords(item.publishedAt) }}
-            |  by {{ item.publishedBy || 'your firm' }}
+            | {{ $t('firmCompliance.itemMeta', { version: item.version, date: dateWords(item.publishedAt), by: item.publishedBy || $t('firmCompliance.publish.yourFirm') }) }}
           p.is-size-7.has-text-grey.mt-1(v-if="item.summary") {{ item.summary }}
         b-button.fcm-read(size="is-small" outlined @click="toggle(item.ref)")
-          | {{ open[item.ref] ? 'Close' : 'Read it' }}
-        b-button.fcm-read(size="is-small" outlined @click="startEdit(item)") Publish a new version
+          | {{ open[item.ref] ? $t('firmCompliance.close') : $t('firmCompliance.readIt') }}
+        b-button.fcm-read(size="is-small" outlined @click="startEdit(item)") {{ $t('firmCompliance.publish.newVersion') }}
 
         .fcm-body(v-if="open[item.ref]") {{ item.body }}
 
       //- ── Publishing one ─────────────────────────────────────────────────────
       .fcm-form.mt-4(v-if="publishing")
         p.is-size-7.has-text-grey.mb-3(v-if="form.id")
-          | This replaces
-          b  {{ form.title }}
-          |  with a new version. Everyone beneath you is told it has changed.
+          i18n(path="firmCompliance.publish.replaces" tag="span")
+            template(#title)
+              b {{ form.title }}
 
-        b-field(label="What is it called?" label-position="on-border")
+        b-field(:label="$t('firmCompliance.publish.form.titleLabel')" label-position="on-border")
           b-input(v-model="form.title" :maxlength="limits.title")
 
-        b-field(label="What is it, in one line?" label-position="on-border")
+        b-field(:label="$t('firmCompliance.publish.form.summaryLabel')" label-position="on-border")
           b-input(v-model="form.summary" :maxlength="limits.summary")
 
-        b-field(label="The material itself" label-position="on-border")
+        b-field(:label="$t('firmCompliance.publish.form.bodyLabel')" label-position="on-border")
           b-input(v-model="form.body" type="textarea" rows="12" :maxlength="limits.body")
 
         b-message(v-if="formError" type="is-danger" size="is-small") {{ formError }}
 
         .buttons
           b-button(type="is-primary" :loading="saving" @click="submit")
-            | {{ form.id ? 'Publish this version' : 'Publish it' }}
-          b-button(@click="cancel") Cancel
+            | {{ form.id ? $t('firmCompliance.publish.form.publishVersion') : $t('firmCompliance.publish.form.publishIt') }}
+          b-button(@click="cancel") {{ $t('firmCompliance.cancel') }}
 
     //- ── Who has recorded what ────────────────────────────────────────────────
     //- 🔴 STATUS ONLY, NEVER THEIR DOCUMENTS. A firm's legal opinion and its policies are
@@ -293,38 +267,38 @@
     //- declared — never because its pack is thin. The drawing states it in terms.
     .box(v-if="!isFirm && firms.length")
       .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
-        h4.title.is-6.mb-0 Who has recorded what
-        b-tag(type="is-info" size="is-small") Status only — never their documents
+        h4.title.is-6.mb-0 {{ $t('firmCompliance.firms.heading') }}
+        b-tag(type="is-info" size="is-small") {{ $t('firmCompliance.firms.statusTag') }}
 
       p.is-size-7.has-text-grey.mb-4
-        | You see whether a firm has done it, never what they wrote.
-        b  Neither the AI nor anyone at Advisor-e reads their documents.
+        i18n(path="firmCompliance.firms.intro" tag="span")
+          template(#nobodyReads)
+            b {{ $t('firmCompliance.firms.nobodyReads') }}
 
       table.table.is-fullwidth.is-narrow
         thead
           tr
-            th Firm
-            th Declaration
-            th Meeting Review
-            th Documents held
+            th {{ $t('firmCompliance.firms.table.firm') }}
+            th {{ $t('firmCompliance.firms.table.declaration') }}
+            th {{ $t('firmCompliance.firms.table.meetingReview') }}
+            th {{ $t('firmCompliance.firms.table.documentsHeld') }}
         tbody
           tr(v-for="f in firms" :key="f.id")
             td {{ f.name || f.id }}
             td
               template(v-if="f.declaredAt")
                 | {{ dateWords(f.declaredAt) }} · {{ f.declaredBy }}
-              b(v-else) Never recorded
+              b(v-else) {{ $t('firmCompliance.firms.neverRecorded') }}
             td
               b-tag(:type="f.active ? 'is-success' : 'is-danger'")
-                | {{ f.active ? 'Active' : 'Not active' }}
+                | {{ f.active ? $t('firmCompliance.firms.active') : $t('firmCompliance.firms.notActive') }}
             td {{ f.documentsHeld }}
 
       b-message(type="is-warning" size="is-small" v-if="blockedFirms.length")
-        | {{ blockedNames }}
-        |  cannot record a client meeting, and this is the only reason:
-        b  the declaration has not been made.
-        |  An empty evidence pack is not why — a firm records on an empty pack. If they ask
-        |  why the recorder is closed to them, the answer is one tick by a firm manager.
+        i18n(path="firmCompliance.firms.blocked" tag="span")
+          template(#names) {{ blockedNames }}
+          template(#notMade)
+            b {{ $t('firmCompliance.firms.notMade') }}
 </template>
 
 <script>
@@ -443,7 +417,10 @@ export default {
     blockedNames () {
       const names = this.blockedFirms.map(f => f.name || f.id)
       if (names.length === 1) { return names[0] }
-      return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
+      return this.$t('firmCompliance.firms.namesAnd', {
+        list: names.slice(0, -1).join(', '),
+        last: names[names.length - 1]
+      })
     },
 
     /** @returns {number} the per-file limit in whole megabytes, as the platform sets it */
@@ -475,7 +452,7 @@ export default {
       this.items.forEach((item) => {
         const key = item.originScopeId
         if (!by[key]) {
-          by[key] = { tier: key, label: item.isOwn ? 'you' : item.originTierLabel, count: 0 }
+          by[key] = { tier: key, label: item.isOwn ? this.$t('firmCompliance.cascade.you') : item.originTierLabel, count: 0 }
           seen.push(by[key])
         }
         by[key].count += 1
@@ -606,7 +583,7 @@ export default {
         const data = await this.api('GET', '/api/firm-manager/compliance/evidence')
         this.evidence = data.documents || []
       } catch (e) {
-        this.evidenceError = 'Your compliance documents could not be loaded: ' + e.message
+        this.evidenceError = this.$t('firmCompliance.errors.evidenceLoad', { message: e.message })
       }
     },
 
@@ -629,7 +606,7 @@ export default {
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) {
-          throw new Error((data.error && data.error.message) || 'That document could not be added.')
+          throw new Error((data.error && data.error.message) || this.$t('firmCompliance.errors.addFailed'))
         }
         this.evidenceFile = null
         await this.loadEvidence()
@@ -681,7 +658,7 @@ export default {
         const res = await fetch(`/api/firm-manager/documents/download?${params.toString()}`, {
           headers: { Authorization: `Bearer ${this.apiToken}` }
         })
-        if (!res.ok) { throw new Error('That document could not be opened.') }
+        if (!res.ok) { throw new Error(this.$t('firmCompliance.errors.openFailed')) }
         const url = URL.createObjectURL(await res.blob())
         const a = document.createElement('a')
         a.href = url
@@ -703,7 +680,9 @@ export default {
     sizeWords (bytes) {
       const kb = Number(bytes) / 1024
       if (!Number.isFinite(kb) || kb <= 0) { return '' }
-      return kb < 1024 ? `${Math.round(kb)} KB` : `${(kb / 1024).toFixed(1)} MB`
+      return kb < 1024
+        ? this.$t('firmCompliance.units.kb', { n: Math.round(kb) })
+        : this.$t('firmCompliance.units.mb', { n: (kb / 1024).toFixed(1) })
     },
 
     /**
@@ -767,11 +746,11 @@ export default {
     async submit () {
       this.formError = ''
       if (!this.form.title.trim()) {
-        this.formError = 'Give it a name first.'
+        this.formError = this.$t('firmCompliance.errors.needName')
         return
       }
       if (!this.form.body.trim()) {
-        this.formError = 'There is nothing to publish yet — add the material itself.'
+        this.formError = this.$t('firmCompliance.errors.needBody')
         return
       }
 
@@ -824,11 +803,11 @@ export default {
           body: body ? JSON.stringify(body) : undefined
         })
       } catch (e) {
-        throw new Error('The server could not be reached. Check your connection and try again.')
+        throw new Error(this.$t('firmCompliance.errors.unreachable'))
       }
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        const err = new Error((data.error && data.error.message) || 'That could not be done.')
+        const err = new Error((data.error && data.error.message) || this.$t('firmCompliance.errors.generic'))
         err.status = res.status
         // The reply travels with the error so a caller can read a moderation report (item 8.2).
         err.body = data
