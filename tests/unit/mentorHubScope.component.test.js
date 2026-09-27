@@ -333,7 +333,12 @@ describe('the two tiers are recognisably the same screen', () => {
   // force and the two-file upload that replaces it (Mike, 2026-09-08, item 4.70 stage 3; the
   // tab's name is the approved drawing's). Under "Model Inputs" beside the two above. Mentor-only
   // by DESIGN rather than by default: one national table, and no firm has a different Stats NZ.
-  const MENTOR_ONLY = ['firmManagerHub.tabs.forecastTrendThresholds', 'firmManagerHub.tabs.importedStockPrices', 'firmManagerHub.tabs.industryBenchmarks'].concat(MENTOR_ONLY_TAIL)
+  //
+  // ⚠ AMENDED 2026-09-28: `Growth Aspect Questions` joins it — the nine aspects' descriptions
+  // and Mike's 98 questions (item 15.2, screen 3 of design/mockups/growth-aspect-questions.html,
+  // approved 2026-09-27 with the tab's name). Under "Your AI coach", appended at its end.
+  // Mentor-only per the default of 2026-08-24.
+  const MENTOR_ONLY = ['firmManagerHub.tabs.forecastTrendThresholds', 'firmManagerHub.tabs.importedStockPrices', 'firmManagerHub.tabs.industryBenchmarks', 'firmManagerHub.tabs.growthAspectQuestions'].concat(MENTOR_ONLY_TAIL)
 
   /**
    * A selector that matches nothing makes every comparison below succeed against an

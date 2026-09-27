@@ -235,7 +235,12 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   is the mentor's own figure and every tier below inherits it until it sets one. The
  *   reasoning in full is beside `FIRM_ADDED_SINCE` above.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks']
+/*
+ * - `growthAspectQuestions` — Mike, 2026-09-27 (item 15.2, screen 3 of
+ *   `design/mockups/growth-aspect-questions.html`, approved with its wording): the nine
+ *   aspects' descriptions and his 98 questions. ⚠ MENTOR ALONE, per the default of 2026-08-24.
+ */
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {

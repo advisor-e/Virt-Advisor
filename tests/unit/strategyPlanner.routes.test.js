@@ -37,6 +37,8 @@ jest.mock('../../server/utils/strategySessionStore', () => ({
 
 const store = require('../../server/utils/strategySessionStore')
 const routes = require('../../server/routes/strategyPlanner')
+const growthAspects = require('../../server/utils/growthAspects')
+const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
 
 // Mirrors modelChoices.routes.test.js — writeHead/end are not optional, because sendError
 // uses them and a stub with only send() throws on the one path the error envelope is for.
@@ -67,9 +69,11 @@ beforeEach(() => {
 })
 
 describe('GET /api/strategy/frameworks', () => {
-  it('returns the frameworks and the four Planning Domains', () => {
+  afterEach(() => { jest.restoreAllMocks() })
+
+  it('returns the frameworks and the four Planning Domains', async () => {
     const res = makeRes()
-    routes.getFrameworks(req(), res)
+    await routes.getFrameworks(req(), res)
 
     expect(res._status).toBe(200)
     expect(res._body.frameworks).toHaveLength(3)
@@ -84,19 +88,35 @@ describe('GET /api/strategy/frameworks', () => {
     expect(res._body.growthAspects.reduce((n, a) => n + a.questions.length, 0)).toBe(98)
   })
 
-  it('filters to one Planning Domain when asked', () => {
+  it('filters to one Planning Domain when asked', async () => {
     const res = makeRes()
-    routes.getFrameworks(req({ query: { planningDomain: 'business-targets' } }), res)
+    await routes.getFrameworks(req({ query: { planningDomain: 'business-targets' } }), res)
 
     expect(res._body.frameworks.map(f => f.id)).toEqual(['profit-levers'])
   })
 
-  it('answers an unknown domain with an empty list, not an error', () => {
+  it('answers an unknown domain with an empty list, not an error', async () => {
     const res = makeRes()
-    routes.getFrameworks(req({ query: { planningDomain: 'nope' } }), res)
+    await routes.getFrameworks(req({ query: { planningDomain: 'nope' } }), res)
 
     expect(res._status).toBe(200)
     expect(res._body.frameworks).toEqual([])
+  })
+
+  // Item 15.2. Without this the Mentor Hub tab would save and change nothing an advisor sees.
+  it('🔴 a question the mentor edited on the hub reaches the firm’s wheel, resolved for the token’s firm', async () => {
+    const seen = []
+    jest.spyOn(growthAspects, 'readScopeConfig').mockImplementation((scopeId) => {
+      seen.push(scopeId)
+      return Promise.resolve(scopeId === PLATFORM_SCOPE ? { Governance: { questions: ['Edited on the hub?'] } } : null)
+    })
+    const res = makeRes()
+    await routes.getFrameworks(req({ body: { firmId: 'firm-b' } }), res)
+
+    const gov = res._body.growthAspects.find(a => a.name === 'Governance')
+    expect(gov.questions).toEqual(['Edited on the hub?'])
+    expect(seen).toContain(FIRM)
+    expect(seen).not.toContain('firm-b')
   })
 })
 
@@ -479,13 +499,13 @@ describe('every route handles both kinds of failure', () => {
 
   afterEach(() => { jest.restoreAllMocks() })
 
-  it('reports a framework library that cannot be read, without leaking why', () => {
+  it('reports a framework library that cannot be read, without leaking why', async () => {
     jest.spyOn(frameworksModule, 'listFrameworks').mockImplementation(() => {
       throw new Error('ENOENT: data/strategy-frameworks.json')
     })
     const res = makeRes()
 
-    routes.getFrameworks(req(), res)
+    await routes.getFrameworks(req(), res)
 
     expect(res._status).toBe(500)
     expect(JSON.stringify(res._body)).not.toContain('ENOENT')

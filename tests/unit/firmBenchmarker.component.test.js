@@ -6,7 +6,7 @@
 /**
  * The mentor's Industry Benchmarks tab (item 4.70 stage 3). What UAT cannot see: the two
  * files posted under the wrong field names, a single file posted at all, or a restore
- * sent without the version it names â€” each of which the backend would refuse in a way that
+ * sent without the version it names — each of which the backend would refuse in a way that
  * reads as "the upload is broken" rather than as the screen's own fault.
  */
 
@@ -31,17 +31,21 @@ afterEach(() => { delete global.fetch })
 
 describe('the Industry Benchmarks tab', () => {
   test('shows the release in force, and its history, from the two mentor routes', async () => {
-    global.fetch = fetchMock({ 'GET /api/firm-manager/benchmarker': SUMMARY, 'GET /api/firm-manager/benchmarker/history': { history: [{ id: 7, version: 2, created_by: 'mentor@x', created_at: '2026-09-08' }] } })
+    global.fetch = fetchMock({ 'GET /api/firm-manager/benchmarker': SUMMARY, 'GET /api/firm-manager/benchmarker/history': { history: [{ id: 7, version: 2, saved_by: 'mentor@x', created_at: '2026-09-08' }] } })
     const wrapper = mountWithBuefy(FirmBenchmarker, { propsData: { apiToken: 'tok-1' } })
     await settle(wrapper)
     expect(global.fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer tok-1')
     expect(wrapper.vm.summary.year).toBe(2025)
     expect(wrapper.vm.history.length).toBe(1)
+    // Who saved the version, under the column name firmOverlay.getVersionHistory returns.
+    // This row once said created_by, matching a screen that read a field the store never
+    // sends — so the audit trail's "saved by" was blank on six tabs and no test noticed.
+    expect(wrapper.text()).toContain('mentor@x')
     expect(wrapper.text()).toContain('483')
     expect(wrapper.text()).toContain('6,111')
   })
 
-  test('ðŸ”´ THE UPLOAD POSTS BOTH FILES UNDER THE FIELD NAMES THE ROUTE READS, and never one alone', async () => {
+  test('🔴 THE UPLOAD POSTS BOTH FILES UNDER THE FIELD NAMES THE ROUTE READS, and never one alone', async () => {
     global.fetch = fetchMock({ 'GET /api/firm-manager/benchmarker': SUMMARY, 'POST /api/firm-manager/benchmarker': { saved: true, dataset: SUMMARY.dataset } })
     const wrapper = mountWithBuefy(FirmBenchmarker, { propsData: { apiToken: 'tok-1' } })
     wrapper.vm.$buefy = { toast: { open: jest.fn() } }

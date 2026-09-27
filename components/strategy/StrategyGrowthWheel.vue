@@ -52,6 +52,8 @@
 </template>
 
 <script>
+import { GROWTH_ASPECT_COLOURS } from '~/utils/growthAspectColours'
+
 /**
  * StrategyGrowthWheel — the nine Growth Aspects, and which ones the plan has reached.
  *
@@ -86,16 +88,16 @@
  * and a rounding difference between two renders would move a label.
  */
 const SEGMENTS = [
-  { name: 'Process Improvement', colour: '#00b1e0', d: 'M263.26 90.03 A170 170 0 0 1 366.75 127.70 L310.24 197.74 A80 80 0 0 0 261.54 180.01 Z', lx: 325.67, ly: 79.58, anchor: 'start' },
-  { name: 'Customer Focus', colour: '#5b9bd5', d: 'M371.75 131.89 A170 170 0 0 1 426.82 227.27 L338.50 244.60 A80 80 0 0 0 312.59 199.71 Z', lx: 426.28, ly: 164, anchor: 'start' },
-  { name: 'Sales (Process)', colour: '#ff0000', d: 'M427.95 233.70 A170 170 0 0 1 408.83 342.16 L330.04 298.66 A80 80 0 0 0 339.04 247.62 Z', lx: 449.08, ly: 293.34, anchor: 'start' },
-  { name: 'Authenticity', colour: '#548135', d: 'M405.57 347.81 A170 170 0 0 1 321.20 418.60 L288.80 334.64 A80 80 0 0 0 328.50 301.32 Z', lx: 383.42, ly: 407.08, anchor: 'start' },
-  { name: 'Inventory & Equipment', colour: '#7030a0', d: 'M315.07 420.83 A170 170 0 0 1 204.93 420.83 L234.09 335.69 A80 80 0 0 0 285.91 335.69 Z', lx: 260, ly: 452, anchor: 'middle' },
-  { name: 'Team Focus', colour: '#1f3864', d: 'M198.80 418.60 A170 170 0 0 1 114.43 347.81 L191.50 301.32 A80 80 0 0 0 231.20 334.64 Z', lx: 136.58, ly: 407.08, anchor: 'end' },
-  { name: 'Innovation', colour: '#ec5012', d: 'M111.17 342.16 A170 170 0 0 1 92.05 233.70 L180.96 247.62 A80 80 0 0 0 189.96 298.66 Z', lx: 70.92, ly: 293.34, anchor: 'end' },
-  { name: 'Governance', colour: '#002b64', d: 'M93.18 227.27 A170 170 0 0 1 148.25 131.89 L207.41 199.71 A80 80 0 0 0 181.50 244.60 Z', lx: 93.72, ly: 164, anchor: 'end' },
-  { name: 'Harmony / Balance', colour: '#00b050', d: 'M153.25 127.70 A170 170 0 0 1 256.74 90.03 L258.46 180.01 A80 80 0 0 0 209.76 197.74 Z', lx: 194.33, ly: 79.58, anchor: 'end' }
-]
+  { name: 'Process Improvement', d: 'M263.26 90.03 A170 170 0 0 1 366.75 127.70 L310.24 197.74 A80 80 0 0 0 261.54 180.01 Z', lx: 325.67, ly: 79.58, anchor: 'start' },
+  { name: 'Customer Focus', d: 'M371.75 131.89 A170 170 0 0 1 426.82 227.27 L338.50 244.60 A80 80 0 0 0 312.59 199.71 Z', lx: 426.28, ly: 164, anchor: 'start' },
+  { name: 'Sales (Process)', d: 'M427.95 233.70 A170 170 0 0 1 408.83 342.16 L330.04 298.66 A80 80 0 0 0 339.04 247.62 Z', lx: 449.08, ly: 293.34, anchor: 'start' },
+  { name: 'Authenticity', d: 'M405.57 347.81 A170 170 0 0 1 321.20 418.60 L288.80 334.64 A80 80 0 0 0 328.50 301.32 Z', lx: 383.42, ly: 407.08, anchor: 'start' },
+  { name: 'Inventory & Equipment', d: 'M315.07 420.83 A170 170 0 0 1 204.93 420.83 L234.09 335.69 A80 80 0 0 0 285.91 335.69 Z', lx: 260, ly: 452, anchor: 'middle' },
+  { name: 'Team Focus', d: 'M198.80 418.60 A170 170 0 0 1 114.43 347.81 L191.50 301.32 A80 80 0 0 0 231.20 334.64 Z', lx: 136.58, ly: 407.08, anchor: 'end' },
+  { name: 'Innovation', d: 'M111.17 342.16 A170 170 0 0 1 92.05 233.70 L180.96 247.62 A80 80 0 0 0 189.96 298.66 Z', lx: 70.92, ly: 293.34, anchor: 'end' },
+  { name: 'Governance', d: 'M93.18 227.27 A170 170 0 0 1 148.25 131.89 L207.41 199.71 A80 80 0 0 0 181.50 244.60 Z', lx: 93.72, ly: 164, anchor: 'end' },
+  { name: 'Harmony / Balance', d: 'M153.25 127.70 A170 170 0 0 1 256.74 90.03 L258.46 180.01 A80 80 0 0 0 209.76 197.74 Z', lx: 194.33, ly: 79.58, anchor: 'end' }
+].map(s => Object.assign({ colour: GROWTH_ASPECT_COLOURS[s.name] }, s))
 
 export default {
   name: 'StrategyGrowthWheel',

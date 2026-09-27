@@ -7323,6 +7323,7 @@
       "aiPrompts": "AI Prompts",
       "meetingReview": "Meeting Review",
       "clientCopyRequest": "Client Copy Request",
+      "growthAspectQuestions": "Growth Aspect Questions",
       "teamCaseStudies": "Team Case Studies",
       "sessionProcesses": "Session Processes",
       "teamPipeline": "Team Pipeline",
@@ -8061,6 +8062,24 @@
       "loadFailed": "The kinds of meeting could not be loaded: {message}",
       "unreachable": "The server could not be reached. Check your connection and try again.",
       "notSaved": "That could not be saved."
+    }
+  },
+  "growthAspectQuestions": {
+    "labels": {
+      "description": "Description",
+      "questions": "Questions, in the order the advisor sees them"
+    },
+    "buttons": {
+      "add": "Add a question",
+      "edit": "Edit",
+      "remove": "Remove",
+      "save": "Save"
+    },
+    "saved": "Saved {date} by {who}",
+    "earlierVersions": "Earlier versions",
+    "history": {
+      "version": "Version {version}",
+      "restore": "Restore"
     }
   }
 }

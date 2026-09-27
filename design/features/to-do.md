@@ -51,8 +51,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 14 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 15 | **10.2** Hub screens show English written by the backend, so it never translates ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 16 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 17 | **10.3** Depreciation Rates, Forecast Trend Thresholds and Property Tax Rules become one hub page ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Sixteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Seventeen live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
