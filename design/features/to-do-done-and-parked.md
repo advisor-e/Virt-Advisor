@@ -353,6 +353,26 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.2 · The hundred questions behind the nine Growth Aspects.**
+✅ **Closed 2026-09-28 by Mike ("done").**
+
+- **His rulings:** proceed, 2026-09-25; the drawing and its decisions A–D and wording, 2026-09-27;
+  and on 2026-09-28 *"i'd like to be able to add a question to a section via this hub page -
+  cascade down to other levels and available at each lower level - of course, anything they add
+  only affects them and levels BELOW them"*, on the standard rules (`tier-cascade.md` P3, P11).
+  Artefact: [`../mockups/growth-aspect-questions.html`](../mockups/growth-aspect-questions.html),
+  screens 1, 3 and 3b approved.
+- **What proves it:** all 98 of his questions stored word for word
+  (`growthAspectQuestions.test.js`); the wheel opens each aspect's questions; the Growth Aspect
+  Questions hub tab at all four tiers, where a tier adds, edits and switches off questions and
+  descriptions for itself and below, and a question rewritten above is offered as Use theirs /
+  Keep mine. The planner's wheel and the Virtual Advisor read each firm's resolved wording.
+  Tests in `tests/unit/growthAspects*.test.js`, `growthPrompt.test.js` and
+  `firmGrowthAspectQuestions.component.test.js`; walked live as mentor and firm manager.
+  Commit: `git log --grep "(15.2"`.
+- **Not built:** screen 2, the AI putting an aspect's questions forward as a recorded section
+  closes. It stands on item 8.4's section recording, and is carried on 8.4's note on Mike's yes.
+
 **16 · A client's document carries no firm, so the white-label promise has nothing behind it.**
 ✅ **Closed 2026-09-27 by Mike ("if its done, mark it done").** This supersedes the desktop's
 parking of 2026-09-25: that note said our half was built, and the Dashboard Report still printed

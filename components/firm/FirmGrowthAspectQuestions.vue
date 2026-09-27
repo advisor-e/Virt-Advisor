@@ -12,31 +12,83 @@
         :key="a.name"
         type="button"
         :class="{ 'is-on': a.name === selected }"
-        @click="selected = a.name")
+        @click="choose(a.name)")
         span.gaq-sw(:style="{ background: colourOf(a.name) }")
         | {{ a.name }}
         em {{ a.questions.length }}
 
     template(v-if="current")
       p.label.is-small {{ $t('growthAspectQuestions.labels.description') }}
-      b-input(v-model="current.description" type="textarea" rows="2" :maxlength="maxDescription")
+      .gaq-q(:class="{ 'is-changed': current.descriptionChangedAbove }")
+        template(v-if="editing && editing.kind === 'description'")
+          b-input.gaq-grow(v-model="editing.text" type="textarea" rows="2" :maxlength="limits.maxDescription")
+          b-button(size="is-small" type="is-primary" :loading="busy" @click="saveEdit") {{ $t('growthAspectQuestions.buttons.save') }}
+          b-button(size="is-small" type="is-light" @click="editing = null") {{ $t('growthAspectQuestions.buttons.cancel') }}
+        template(v-else)
+          .gaq-grow
+            span.tag.is-light.mr-2 {{ tagOf(current.descriptionSource) }}
+            | {{ current.description }}
+            template(v-if="current.descriptionChangedAbove")
+              p.is-size-7.mt-1
+                b {{ $t('growthAspectQuestions.changedAbove.line') }}
+                |  {{ $t('growthAspectQuestions.changedAbove.now', { text: current.descriptionAbove }) }}
+          template(v-if="current.descriptionChangedAbove")
+            b-button(size="is-small" type="is-primary" @click="send('POST', 'description/use-inherited', {})") {{ $t('growthAspectQuestions.buttons.useTheirs') }}
+            b-button(size="is-small" type="is-light" @click="send('POST', 'description/keep-mine', {})") {{ $t('growthAspectQuestions.buttons.keepMine') }}
+          template(v-else)
+            b-button(size="is-small" type="is-light" @click="startEdit('description', null, current.description)") {{ $t('growthAspectQuestions.buttons.edit') }}
+            b-button(
+              v-if="current.descriptionSource === 'edited-here'"
+              size="is-small"
+              type="is-light"
+              @click="send('POST', 'description/use-inherited', {})") {{ $t('growthAspectQuestions.buttons.useInherited') }}
 
       p.label.is-small.mt-4 {{ $t('growthAspectQuestions.labels.questions') }}
-      .gaq-q(v-for="(q, i) in current.questions" :key="q.key")
-        b-input.gaq-grow(v-if="q.editing" v-model="q.text" type="textarea" rows="2" :maxlength="maxQuestion")
-        span.gaq-grow(v-else) {{ q.text }}
-        b-button(size="is-small" type="is-light" @click="q.editing = !q.editing") {{ $t('growthAspectQuestions.buttons.edit') }}
-        b-button(
-          size="is-small"
-          type="is-danger is-light"
-          :disabled="current.questions.length === 1"
-          @click="current.questions.splice(i, 1)") {{ $t('growthAspectQuestions.buttons.remove') }}
+      .gaq-q(v-for="q in current.questions" :key="q.id" :class="{ 'is-changed': q.changedAbove }")
+        template(v-if="editing && editing.id === q.id")
+          b-input.gaq-grow(v-model="editing.text" type="textarea" rows="2" :maxlength="limits.maxQuestion")
+          b-button(size="is-small" type="is-primary" :loading="busy" @click="saveEdit") {{ $t('growthAspectQuestions.buttons.save') }}
+          b-button(size="is-small" type="is-light" @click="editing = null") {{ $t('growthAspectQuestions.buttons.cancel') }}
+        template(v-else)
+          .gaq-grow
+            span.tag.is-light.mr-2 {{ tagOf(q.source) }}
+            | {{ q.text }}
+            template(v-if="q.changedAbove")
+              p.is-size-7.mt-1
+                b {{ $t('growthAspectQuestions.changedAbove.line') }}
+                |  {{ $t('growthAspectQuestions.changedAbove.now', { text: q.above }) }}
+          template(v-if="q.changedAbove")
+            b-button(size="is-small" type="is-primary" @click="send('POST', 'questions/use-inherited', { id: q.id })") {{ $t('growthAspectQuestions.buttons.useTheirs') }}
+            b-button(size="is-small" type="is-light" @click="send('POST', 'questions/keep-mine', { id: q.id })") {{ $t('growthAspectQuestions.buttons.keepMine') }}
+          template(v-else)
+            b-button(size="is-small" type="is-light" @click="startEdit('question', q.id, q.text)") {{ $t('growthAspectQuestions.buttons.edit') }}
+            b-button(
+              v-if="q.source === 'edited-here'"
+              size="is-small"
+              type="is-light"
+              @click="send('POST', 'questions/use-inherited', { id: q.id })") {{ $t('growthAspectQuestions.buttons.useInherited') }}
+            b-button(
+              v-else
+              size="is-small"
+              type="is-danger is-light"
+              :disabled="current.questions.length === 1"
+              @click="send('POST', 'questions/off', { id: q.id, off: true })") {{ q.source === 'added-here' ? $t('growthAspectQuestions.buttons.remove') : $t('growthAspectQuestions.buttons.switchOff') }}
 
-      .gaq-acts
-        b-button(size="is-small" type="is-light" @click="addQuestion") {{ $t('growthAspectQuestions.buttons.add') }}
-        b-button(type="is-primary" :loading="saving" @click="save") {{ $t('growthAspectQuestions.buttons.save') }}
+      .gaq-q(v-if="editing && editing.kind === 'new'")
+        b-input.gaq-grow(v-model="editing.text" type="textarea" rows="2" :maxlength="limits.maxQuestion")
+        b-button(size="is-small" type="is-primary" :loading="busy" @click="saveEdit") {{ $t('growthAspectQuestions.buttons.save') }}
+        b-button(size="is-small" type="is-light" @click="editing = null") {{ $t('growthAspectQuestions.buttons.cancel') }}
+      b-button.mt-3(v-else size="is-small" type="is-light" @click="startEdit('new', null, '')") {{ $t('growthAspectQuestions.buttons.add') }}
 
-    p.is-size-7.has-text-grey.mt-3(v-if="history.length")
+      template(v-if="current.declined.length")
+        p.label.is-small.mt-4 {{ $t('growthAspectQuestions.switchedOffHeading') }}
+        .gaq-q(v-for="q in current.declined" :key="q.id")
+          .gaq-grow.has-text-grey
+            span.tag.is-light.mr-2 {{ $t('growthAspectQuestions.tags.off') }}
+            | {{ q.text }}
+          b-button(size="is-small" type="is-light" @click="send('POST', 'questions/off', { id: q.id, off: false })") {{ $t('growthAspectQuestions.buttons.switchBackOn') }}
+
+    p.is-size-7.has-text-grey.mt-4(v-if="history.length")
       | {{ $t('growthAspectQuestions.saved', { date: dateOf(history[0].created_at), who: history[0].saved_by }) }}
       | ·
       a(@click="showHistory = !showHistory") {{ $t('growthAspectQuestions.earlierVersions') }}
@@ -55,27 +107,26 @@
 import { GROWTH_ASPECT_COLOURS } from '~/utils/growthAspectColours'
 import { intlLocaleFor } from '~/utils/dateLocale'
 
-/** Mirrors the backend's limits in server/utils/growthAspects.js, so a box stops where a save would be refused. */
-const MAX_DESCRIPTION = 400
-const MAX_QUESTION = 1000
-
-let _key = 0
+const BASE = '/api/firm-manager/growth-aspects'
 
 /**
- * FirmGrowthAspectQuestions — the Mentor Hub tab where the nine Growth Aspects' descriptions
- * and Mike's 98 questions behind them are seen and edited. Item 15.2, screen 3 of
- * `design/mockups/growth-aspect-questions.html`, approved 2026-09-27 with its wording.
+ * FirmGrowthAspectQuestions — the hub tab where the nine Growth Aspects' descriptions and
+ * Mike's 98 questions are seen and changed. Item 15.2, screens 3 and 3b of
+ * `design/mockups/growth-aspect-questions.html`, approved 2026-09-27 and 2026-09-28 with
+ * their wording.
  *
- * The descriptions reach the Virtual Advisor's prompt and the questions reach the planner's
- * coverage wheel — the hub-page rule is why they are on a screen. MENTOR TIER ALONE today
- * (`TAB_TIERS.growthAspectQuestions`); the routes and resolver already carry every tier.
+ * The same screen at all four manager tiers, on the standard cascade (`tier-cascade.md` P3,
+ * P11): each row says whether it is inherited, edited here or added here; an inherited
+ * question can be edited or switched off, one added here edited or removed; an edited
+ * question the tier above has since rewritten is offered as Use theirs / Keep mine. Every
+ * action is saved when it is made, as on the Meeting Review tab, and each save is a version.
  *
- * One Save sends all nine as shown. The backend stores only what differs from the level
- * above, so an aspect left alone keeps inheriting the shipped wording.
+ * The backend decides every rule; this screen only draws what it returns and sends one
+ * action at a time. The disabled Switch off on an aspect's last question mirrors the
+ * backend's refusal so the button never offers what a save would refuse.
  *
- * ⚠ DIFFERENCES FROM THE DRAWING, deliberate: the saved date reads in full ("27 September
- * 2026") through the app's one date format rather than "27 Sep"; and "Earlier versions"
- * opens a list whose "Version n" and "Restore" wording the drawing does not show.
+ * ⚠ DIFFERENCES FROM THE DRAWING, deliberate: the tab sits in "Your AI coach" after Meeting
+ * Review; the saved date reads in full through the app's one date format.
  */
 export default {
   name: 'FirmGrowthAspectQuestions',
@@ -88,20 +139,21 @@ export default {
   data () {
     return {
       loading: true,
-      saving: false,
+      busy: false,
       error: '',
-      /** The nine as edited here: `{name, description, questions: [{key, text, editing}]}`. */
+      /** The nine as the backend resolved them for this tier — see growthAspects.resolveDetailed. */
       aspects: [],
+      limits: { maxQuestion: 1000, maxDescription: 400 },
       selected: '',
+      /** What is open for typing: `{ kind: 'question'|'description'|'new', id, text }`, or null. */
+      editing: null,
       history: [],
-      showHistory: false,
-      maxDescription: MAX_DESCRIPTION,
-      maxQuestion: MAX_QUESTION
+      showHistory: false
     }
   },
 
   computed: {
-    /** The aspect being edited. */
+    /** The aspect on screen. */
     current () {
       return this.aspects.find(a => a.name === this.selected) || null
     }
@@ -116,8 +168,7 @@ export default {
       this.loading = true
       this.error = ''
       try {
-        const data = await this.api('GET', '/api/firm-manager/growth-aspects')
-        this.applyToForm(data.aspects || [])
+        this.apply(await this.api('GET', BASE))
         await this.loadHistory()
       } catch (err) {
         this.error = err.message
@@ -126,55 +177,78 @@ export default {
       }
     },
 
-    /**
-     * Put the backend's aspects into the form, keeping the selected aspect where it was.
-     * @param {Array<{name: string, description: string, questions: string[]}>} aspects
-     */
-    applyToForm (aspects) {
-      this.aspects = aspects.map(a => ({
-        name: a.name,
-        description: a.description,
-        questions: a.questions.map(text => ({ key: ++_key, text, editing: false }))
-      }))
+    /** Take the backend's answer, keeping the selected aspect where it was. */
+    apply (data) {
+      this.aspects = data.aspects || []
+      if (data.limits) { this.limits = data.limits }
       if (!this.aspects.some(a => a.name === this.selected)) {
         this.selected = this.aspects.length ? this.aspects[0].name : ''
       }
     },
 
-    addQuestion () {
-      this.current.questions.push({ key: ++_key, text: '', editing: true })
+    /** @param {string} name */
+    choose (name) {
+      this.selected = name
+      this.editing = null
     },
 
-    async save () {
-      this.saving = true
+    /**
+     * @param {'question'|'description'|'new'} kind
+     * @param {string|null} id
+     * @param {string} text
+     */
+    startEdit (kind, id, text) {
+      this.editing = { kind, id, text }
+    },
+
+    saveEdit () {
+      const e = this.editing
+      if (e.kind === 'description') { return this.send('PUT', 'description', { text: e.text }) }
+      if (e.kind === 'new') { return this.send('POST', 'questions', { text: e.text }) }
+      return this.send('PUT', 'questions', { id: e.id, text: e.text })
+    },
+
+    /**
+     * One action on the selected aspect. The typing box stays open when a save is refused,
+     * so the manager's words are not lost with the error.
+     * @param {string} method
+     * @param {string} path - under /api/firm-manager/growth-aspects/
+     * @param {object} body - the action's fields; the aspect is added here
+     */
+    async send (method, path, body) {
+      this.busy = true
       this.error = ''
-      const body = {}
-      this.aspects.forEach((a) => {
-        body[a.name] = { description: a.description, questions: a.questions.map(q => q.text) }
-      })
       try {
-        const data = await this.api('POST', '/api/firm-manager/growth-aspects', { aspects: body })
-        this.applyToForm(data.aspects || [])
+        this.apply(await this.api(method, BASE + '/' + path, Object.assign({ aspect: this.selected }, body)))
+        this.editing = null
         await this.loadHistory()
       } catch (err) {
         this.error = err.message
       } finally {
-        this.saving = false
+        this.busy = false
       }
     },
 
     async loadHistory () {
-      const data = await this.api('GET', '/api/firm-manager/growth-aspects/history')
+      const data = await this.api('GET', BASE + '/history')
       this.history = data.history || []
     },
 
     async restore (versionId) {
+      this.error = ''
       try {
-        await this.api('POST', '/api/firm-manager/growth-aspects/restore', { versionId })
-        await this.load()
+        this.apply(await this.api('POST', BASE + '/restore', { versionId }))
+        await this.loadHistory()
       } catch (err) {
         this.error = err.message
       }
+    },
+
+    /** @param {string} source @returns {string} the row's tag, in the approved words */
+    tagOf (source) {
+      if (source === 'edited-here') { return this.$t('growthAspectQuestions.tags.editedHere') }
+      if (source === 'added-here') { return this.$t('growthAspectQuestions.tags.addedHere') }
+      return this.$t('growthAspectQuestions.tags.inherited')
     },
 
     /** @param {string} name @returns {string} the aspect's colour, as on the wheel */
@@ -224,8 +298,8 @@ export default {
 .gaq-sw { width: 0.7rem; height: 0.7rem; border-radius: 2px; display: inline-block; }
 .gaq-q {
   display: flex; align-items: flex-start; gap: 0.5rem;
-  padding: 0.45rem 0; border-bottom: 1px solid #f0f3f7;
+  padding: 0.45rem 0.25rem; border-bottom: 1px solid #f0f3f7;
 }
+.gaq-q.is-changed { background: #f1f6fb; }
 .gaq-grow { flex: 1; min-width: 0; }
-.gaq-acts { display: flex; justify-content: space-between; margin-top: 0.75rem; }
 </style>

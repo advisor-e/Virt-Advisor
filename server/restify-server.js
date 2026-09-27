@@ -710,11 +710,19 @@ server.get('/api/firm-manager/sell-down', ...fmGuard, sellDownRoute.getForManage
 server.post('/api/firm-manager/sell-down', ...fmGuard, sellDownRoute.save)
 server.get('/api/firm-manager/sell-down/history', ...fmGuard, sellDownRoute.history)
 server.post('/api/firm-manager/sell-down/restore', ...fmGuard, sellDownRoute.restore)
-// The nine Growth Aspects' descriptions and Mike's questions behind them (item 15.2). Same
-// shape and guard as the sell-down ladder above; advisors read the resolved wording through
+// The nine Growth Aspects' descriptions and Mike's questions behind them (item 15.2),
+// cascading through all four manager tiers on the standard rules. Same guard as the
+// sell-down ladder above; advisors read the resolved wording through
 // GET /api/strategy/frameworks, never through these.
 server.get('/api/firm-manager/growth-aspects', ...fmGuard, growthAspectsRoute.getForManager)
-server.post('/api/firm-manager/growth-aspects', ...fmGuard, growthAspectsRoute.save)
+server.post('/api/firm-manager/growth-aspects/questions', ...fmGuard, growthAspectsRoute.addQuestion)
+server.put('/api/firm-manager/growth-aspects/questions', ...fmGuard, growthAspectsRoute.editQuestion)
+server.post('/api/firm-manager/growth-aspects/questions/off', ...fmGuard, growthAspectsRoute.setQuestionOff)
+server.post('/api/firm-manager/growth-aspects/questions/use-inherited', ...fmGuard, growthAspectsRoute.useInheritedQuestion)
+server.post('/api/firm-manager/growth-aspects/questions/keep-mine', ...fmGuard, growthAspectsRoute.keepMineQuestion)
+server.put('/api/firm-manager/growth-aspects/description', ...fmGuard, growthAspectsRoute.editDescription)
+server.post('/api/firm-manager/growth-aspects/description/use-inherited', ...fmGuard, growthAspectsRoute.useInheritedDescription)
+server.post('/api/firm-manager/growth-aspects/description/keep-mine', ...fmGuard, growthAspectsRoute.keepMineDescription)
 server.get('/api/firm-manager/growth-aspects/history', ...fmGuard, growthAspectsRoute.history)
 server.post('/api/firm-manager/growth-aspects/restore', ...fmGuard, growthAspectsRoute.restore)
 // The instructions the AI is given when it builds a model, and the three settings a

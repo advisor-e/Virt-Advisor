@@ -8073,7 +8073,24 @@
       "add": "Add a question",
       "edit": "Edit",
       "remove": "Remove",
-      "save": "Save"
+      "save": "Save",
+      "cancel": "Cancel",
+      "switchOff": "Switch off",
+      "switchBackOn": "Switch back on",
+      "useInherited": "Use the inherited wording",
+      "useTheirs": "Use theirs",
+      "keepMine": "Keep mine"
+    },
+    "tags": {
+      "inherited": "inherited",
+      "editedHere": "edited here",
+      "addedHere": "added here",
+      "off": "off"
+    },
+    "switchedOffHeading": "Switched off here",
+    "changedAbove": {
+      "line": "This has been rewritten above you.",
+      "now": "Above you it now reads: \"{text}\""
     },
     "saved": "Saved {date} by {who}",
     "earlierVersions": "Earlier versions",

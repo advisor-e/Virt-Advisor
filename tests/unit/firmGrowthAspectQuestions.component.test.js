@@ -4,23 +4,43 @@
 'use strict'
 
 /**
- * The Mentor Hub's Growth Aspect Questions tab — item 15.2, screen 3.
+ * The Growth Aspect Questions hub tab — item 15.2, screens 3 and 3b.
  *
- * What UAT cannot see: the body the Save button sends. An edit made on one aspect that is
- * lost when another is selected, a question sent in the wrong order, or a save that goes out
- * without the aspects the mentor did not touch would all look like a successful save.
+ * What UAT cannot see: which request each button sends. A Switch off sent as a remove, a
+ * Keep mine sent as Use theirs, or an action filed against the wrong aspect all look like a
+ * button that worked. The backend decides every rule (tests/unit/growthAspects.routes.test.js);
+ * this proves the screen asks for the right one.
  */
 
 const { mountWithBuefy } = require('../helpers/mountComponent')
-const { BASE_ASPECTS } = require('../../server/utils/growthAspects')
 const FirmGrowthAspectQuestions = require('~/components/firm/FirmGrowthAspectQuestions.vue').default
 
-const ASPECTS = BASE_ASPECTS.map(a => ({ name: a.name, description: a.description, questions: a.questions.slice() }))
+/** One aspect holding one row of every kind, plus eight plain ones. */
+function aspects () {
+  const plain = ['Process Improvement', 'Customer Focus', 'Sales (Process)', 'Authenticity', 'Inventory & Equipment', 'Team Focus', 'Innovation', 'Harmony / Balance']
+    .map(name => ({ name, description: 'D', descriptionSource: 'inherited', descriptionChangedAbove: false, questions: [{ id: 'q', text: 'Q', source: 'inherited', changedAbove: false }], declined: [] }))
+  return [{
+    name: 'Governance',
+    description: 'Ours.',
+    descriptionSource: 'edited-here',
+    descriptionChangedAbove: true,
+    descriptionAbove: 'Theirs.',
+    questions: [
+      { id: 'ga-governance-1', text: 'Inherited?', source: 'inherited', changedAbove: false },
+      { id: 'ga-governance-2', text: 'Edited?', source: 'edited-here', changedAbove: false },
+      { id: 'ga-governance-3', text: 'Mine?', source: 'edited-here', changedAbove: true, above: 'Rewritten above?' },
+      { id: 'fq-1', text: 'Added?', source: 'added-here', changedAbove: false }
+    ],
+    declined: [{ id: 'ga-governance-5', text: 'Off?' }]
+  }].concat(plain)
+}
 
-function fetchMock (answers) {
+function fetchMock () {
   return jest.fn((url, opts) => {
-    const key = ((opts && opts.method) || 'GET') + ' ' + String(url)
-    const body = answers[key] || { history: [] }
+    const u = String(url)
+    const body = u.endsWith('/history')
+      ? { history: [{ id: 5, version: 2, saved_by: 'mentor@x', created_at: '2026-09-28T00:00:00Z' }] }
+      : { aspects: aspects() }
     return Promise.resolve({ ok: true, json: () => Promise.resolve(body) })
   })
 }
@@ -29,72 +49,95 @@ async function settle (wrapper) {
   for (let i = 0; i < 6; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
 }
 
+/** The one request the last click sent, as `METHOD path body`. */
+function lastSent () {
+  const call = global.fetch.mock.calls.filter(c => c[1] && c[1].method !== 'GET').pop()
+  return { method: call[1].method, path: String(call[0]), body: JSON.parse(call[1].body) }
+}
+
+/** Click the button on a row whose text contains `rowText` and whose label key ends `key`. */
+async function click (wrapper, rowText, key) {
+  const row = wrapper.findAll('.gaq-q').filter(r => r.text().includes(rowText)).at(0)
+  await row.findAll('button').filter(b => b.text() === 'growthAspectQuestions.buttons.' + key).at(0).trigger('click')
+  await settle(wrapper)
+}
+
+let wrapper
+beforeEach(async () => {
+  global.fetch = fetchMock()
+  wrapper = mountWithBuefy(FirmGrowthAspectQuestions, { propsData: { apiToken: 'tok-1' } })
+  await settle(wrapper)
+})
 afterEach(() => { delete global.fetch })
 
-describe('the Growth Aspect Questions tab', () => {
-  test('🔴 Save sends all nine, with edits made on two different aspects both kept', async () => {
-    global.fetch = fetchMock({
-      'GET /api/firm-manager/growth-aspects': { aspects: ASPECTS },
-      'POST /api/firm-manager/growth-aspects': { aspects: ASPECTS }
-    })
-    const wrapper = mountWithBuefy(FirmGrowthAspectQuestions, { propsData: { apiToken: 'tok-1' } })
-    await settle(wrapper)
+describe('the Growth Aspect Questions tab — which request each button sends', () => {
+  test('reads with the caller’s token and shows who saved each version', () => {
     expect(global.fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer tok-1')
-
-    wrapper.vm.selected = 'Governance'
-    wrapper.vm.current.description = 'Edited.'
-    wrapper.vm.selected = 'Innovation'
-    wrapper.vm.addQuestion()
-    wrapper.vm.current.questions[wrapper.vm.current.questions.length - 1].text = 'A new one?'
-    await wrapper.vm.save()
-
-    const post = global.fetch.mock.calls.find(c => c[1] && c[1].method === 'POST')
-    const sent = JSON.parse(post[1].body).aspects
-    expect(Object.keys(sent)).toEqual(ASPECTS.map(a => a.name))
-    expect(sent.Governance.description).toBe('Edited.')
-    expect(sent.Innovation.questions).toEqual(ASPECTS.find(a => a.name === 'Innovation').questions.concat(['A new one?']))
-  })
-
-  test('the last question of an aspect cannot be removed', async () => {
-    const one = ASPECTS.map(a => (a.name === 'Governance' ? Object.assign({}, a, { questions: ['Only?'] }) : a))
-    global.fetch = fetchMock({ 'GET /api/firm-manager/growth-aspects': { aspects: one } })
-    const wrapper = mountWithBuefy(FirmGrowthAspectQuestions, { propsData: { apiToken: 'tok-1' } })
-    await settle(wrapper)
-    wrapper.vm.selected = 'Governance'
-    await settle(wrapper)
-    const remove = wrapper.findAll('button').filter(b => b.text() === 'growthAspectQuestions.buttons.remove')
-    expect(remove).toHaveLength(1)
-    expect(remove.at(0).attributes('disabled')).toBe('disabled')
-  })
-
-  test('shows who saved each version, and restores the one chosen', async () => {
-    global.fetch = fetchMock({
-      'GET /api/firm-manager/growth-aspects': { aspects: ASPECTS },
-      'GET /api/firm-manager/growth-aspects/history': { history: [{ id: 5, version: 2, saved_by: 'mentor@x', created_at: '2026-09-28T00:00:00Z' }] },
-      'POST /api/firm-manager/growth-aspects/restore': { restored: true, aspects: ASPECTS }
-    })
-    const wrapper = mountWithBuefy(FirmGrowthAspectQuestions, { propsData: { apiToken: 'tok-1' } })
-    await settle(wrapper)
     expect(wrapper.text()).toContain('mentor@x')
-    await wrapper.vm.restore(5)
-    const post = global.fetch.mock.calls.find(c => c[1] && c[1].method === 'POST')
-    expect(JSON.parse(post[1].body)).toEqual({ versionId: 5 })
   })
 
-  test('a refused save shows the backend’s reason and keeps the mentor’s edits', async () => {
-    global.fetch = jest.fn((url, opts) => {
-      if (opts && opts.method === 'POST') {
-        return Promise.resolve({ ok: false, statusText: 'Bad Request', json: () => Promise.resolve({ error: { message: 'Governance: question 2 is blank' } }) })
-      }
-      const body = String(url).endsWith('/history') ? { history: [] } : { aspects: ASPECTS }
-      return Promise.resolve({ ok: true, json: () => Promise.resolve(body) })
-    })
-    const wrapper = mountWithBuefy(FirmGrowthAspectQuestions, { propsData: { apiToken: 'tok-1' } })
+  test('Switch off on an inherited question, and Remove on an added one, both send off: true', async () => {
+    await click(wrapper, 'Inherited?', 'switchOff')
+    expect(lastSent()).toEqual({ method: 'POST', path: '/api/firm-manager/growth-aspects/questions/off', body: { aspect: 'Governance', id: 'ga-governance-1', off: true } })
+    await click(wrapper, 'Added?', 'remove')
+    expect(lastSent().body).toEqual({ aspect: 'Governance', id: 'fq-1', off: true })
+  })
+
+  test('Switch back on sends off: false', async () => {
+    await click(wrapper, 'Off?', 'switchBackOn')
+    expect(lastSent().body).toEqual({ aspect: 'Governance', id: 'ga-governance-5', off: false })
+  })
+
+  test('🔴 on a question rewritten above, Keep mine and Use theirs send different requests', async () => {
+    await click(wrapper, 'Mine?', 'keepMine')
+    expect(lastSent()).toMatchObject({ path: '/api/firm-manager/growth-aspects/questions/keep-mine', body: { id: 'ga-governance-3' } })
+    await click(wrapper, 'Mine?', 'useTheirs')
+    expect(lastSent()).toMatchObject({ path: '/api/firm-manager/growth-aspects/questions/use-inherited', body: { id: 'ga-governance-3' } })
+  })
+
+  test('the same two on the description', async () => {
+    await click(wrapper, 'Ours.', 'keepMine')
+    expect(lastSent()).toMatchObject({ path: '/api/firm-manager/growth-aspects/description/keep-mine', body: { aspect: 'Governance' } })
+  })
+
+  test('Use the inherited wording on an edited question', async () => {
+    await click(wrapper, 'Edited?', 'useInherited')
+    expect(lastSent()).toMatchObject({ path: '/api/firm-manager/growth-aspects/questions/use-inherited', body: { id: 'ga-governance-2' } })
+  })
+
+  test('Edit then Save sends the new words for that question', async () => {
+    await click(wrapper, 'Inherited?', 'edit')
+    wrapper.vm.editing.text = 'Reworded?'
+    await wrapper.vm.saveEdit()
+    expect(lastSent()).toEqual({ method: 'PUT', path: '/api/firm-manager/growth-aspects/questions', body: { aspect: 'Governance', id: 'ga-governance-1', text: 'Reworded?' } })
+  })
+
+  test('Add a question then Save posts it to the aspect on screen', async () => {
+    wrapper.vm.choose('Innovation')
+    wrapper.vm.startEdit('new', null, '')
+    wrapper.vm.editing.text = 'New?'
+    await wrapper.vm.saveEdit()
+    expect(lastSent()).toEqual({ method: 'POST', path: '/api/firm-manager/growth-aspects/questions', body: { aspect: 'Innovation', text: 'New?' } })
+  })
+
+  test('the only question on an aspect cannot be switched off', async () => {
+    wrapper.vm.choose('Innovation')
     await settle(wrapper)
-    wrapper.vm.selected = 'Governance'
-    wrapper.vm.current.description = 'Kept.'
-    await wrapper.vm.save()
-    expect(wrapper.vm.error).toBe('Governance: question 2 is blank')
-    expect(wrapper.vm.current.description).toBe('Kept.')
+    const off = wrapper.findAll('button').filter(b => b.text() === 'growthAspectQuestions.buttons.switchOff')
+    expect(off).toHaveLength(1)
+    expect(off.at(0).attributes('disabled')).toBe('disabled')
+  })
+
+  test('a refused save keeps the typing box open with the manager’s words, and shows why', async () => {
+    wrapper.vm.startEdit('new', null, 'Kept?')
+    global.fetch = jest.fn(() => Promise.resolve({ ok: false, statusText: 'Bad Request', json: () => Promise.resolve({ error: { message: 'A question cannot be blank' } }) }))
+    await wrapper.vm.saveEdit()
+    expect(wrapper.vm.error).toBe('A question cannot be blank')
+    expect(wrapper.vm.editing.text).toBe('Kept?')
+  })
+
+  test('Restore names the version', async () => {
+    await wrapper.vm.restore(5)
+    expect(lastSent()).toEqual({ method: 'POST', path: '/api/firm-manager/growth-aspects/restore', body: { versionId: 5 } })
   })
 })

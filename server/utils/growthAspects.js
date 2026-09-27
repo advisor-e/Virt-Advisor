@@ -2,60 +2,81 @@
 
 /**
  * @file The nine Growth Aspects — each one's description and Mike's questions behind it —
- *   with each tier's own edits merged over the shipped wording.
+ *   as a scope works to them, resolved through every tier's own decisions.
  * @module server/utils/growthAspects
  *
- * Item 15.2, screen 3 of `design/mockups/growth-aspect-questions.html` (approved by Mike
- * 2026-09-27). The shipped wording is `data/growth-fundamentals.json`; the Mentor Hub's
- * Growth Aspect Questions tab stores changes over it. The descriptions reach the Virtual
- * Advisor's prompt and the questions reach the planner's coverage wheel, which is why this
- * is a screen and not a data file — the hub-page rule.
+ * Item 15.2. Screens 3 and 3b of `design/mockups/growth-aspect-questions.html`, approved by
+ * Mike 2026-09-27 and 2026-09-28. The shipped wording is `data/growth-fundamentals.json`.
  *
- * MENTOR TIER ALONE today (`TAB_TIERS.growthAspectQuestions`): the questions are Mike's and
- * the same for every firm. The resolver walks the whole tier chain regardless, exactly as
- * `forecastSellDown.js` does, so a firm that one day needs its own wording is one line there.
+ * 🔴 IT CASCADES ON THE STANDARD RULES, WHICH NEVER CHANGE (`tier-cascade.md` P3 and P11;
+ * Mike, 2026-09-28: "this is the same rules as every other cascade item"). All four manager
+ * tiers edit, switch off and add; what a tier does reaches it and the tiers below; a tier
+ * holds only its decisions; an inherited question a tier has edited is protected, and a
+ * later change above it is offered — Use theirs / Keep mine — never applied.
  *
- * ⚠ WHAT A TIER MAY CHANGE IS EACH ASPECT'S DESCRIPTION AND ITS QUESTION LIST — NEVER THE
- * NINE NAMES. The names are the key everything else joins on: the planner's actions table
- * offers them as a fixed list (`strategyFrameworks.js`), an objective saved against one is
- * counted on the wheel by it, and the AI's aspect-naming answer is checked against them.
- * A renamed aspect would orphan every objective already filed under the old name.
+ * ⚠ THE MECHANISM IS `resolveInheritedRows`, as Meeting Review's observation points use.
+ * Questions are LISTS OF ROWS where "switch this one off" and "add my own" both mean
+ * something. A whole-list save — what this file did for a day, mentor alone — lets a firm
+ * holding a one-question list blank the mentor's whole set for itself.
  *
- * ⚠ A TIER STORES ONLY WHAT DIFFERS FROM THE LEVEL ABOVE (`diffAgainst`). A save that
- * repeated the shipped wording would freeze it at this tier, and a later correction to the
- * data file — the questions are pinned word for word by `growthAspectQuestions.test.js` —
- * would then reach nobody.
+ * ⚠ THE NINE NAMES ARE NOT EDITABLE AT ANY TIER. They are the key everything joins on: the
+ * planner's actions table offers them as a fixed list, objectives are counted on the wheel
+ * by them, and the AI's aspect-naming answer is checked against them.
+ *
+ * WHAT ONE TIER STORES. One versioned record (`CONFIG_KEY`), so one Restore puts back every
+ * change on the tab together, as the drawing's single history shows:
+ *   { aspects: { [name]: {
+ *       declined:  [id],               inherited questions switched off here
+ *       overrides: { id: { text } },   inherited questions edited here
+ *       baselines: { id: text },       what each edited question said above when edited
+ *       own:       [{ id, text }],     questions added here
+ *       description, descriptionBaseline   the same two ideas for the description
+ *   } } }
+ * and, separately, `NEXT_SEQ_KEY` — a counter, not a decision, so restoring an earlier version
+ * can never wind it back and hand a removed question's id to a new one (the defect
+ * `meetingObservations.nextOwnPointId` records, item 4.72).
  */
 
 const fs = require('fs')
 const path = require('path')
 const { devFallbackAllowed } = require('./dbFailure')
-const { parentScopeOf } = require('./tierChain')
+const { parentScopeOf, tierOfScope } = require('./tierChain')
+const { resolveInheritedRows } = require('./resolveInheritedRows')
 
-/** The overlay address this content is stored under, at every tier. */
+/** The versioned record a tier's decisions are stored under. */
 const CONFIG_KEY = 'growth-aspect-questions'
 
-/** The shipped nine, in the deck's order: `{name, description, questions}`. */
-const BASE_ASPECTS = Object.freeze(
-  (require('../../data/growth-fundamentals.json').growthAspects || [])
-    .map(a => Object.freeze({
-      name: a.name,
-      description: a.description,
-      questions: Object.freeze((a.questions || []).slice())
-    }))
-)
+/** The per-aspect high-water mark of ids each tier has minted. Never restored. */
+const NEXT_SEQ_KEY = 'growth-aspect-questions-next-seq'
 
-/** The nine names — the only keys a stored change may carry. */
-const ASPECT_NAMES = BASE_ASPECTS.map(a => a.name)
+/** How a resolved question is badged for the screen. */
+const SOURCE_LABELS = { inherited: 'inherited', override: 'edited-here', own: 'added-here' }
 
 /**
- * Length limits. Generous against the real content — the longest shipped description is
- * under 200 characters and the longest question under 450 — and there so a pasted document
- * cannot be stored as one "question" and sent to the model on every client session.
+ * Own-question prefixes, one per tier, so two tiers can never mint the same id — the
+ * mentor's first added question and a firm's would otherwise both be `1`, and a firm
+ * switching off "its" question would drop the mentor's. `xq-` for the global tier, as the
+ * sibling blocks use `xm-`/`xc-`, to keep the two adjacent middle tiers visibly apart.
+ * @type {Object.<string, string>}
+ */
+const ID_PREFIX_BY_TIER = {
+  mentor: 'mq-',
+  global_group_manager: 'xq-',
+  group_manager: 'gq-',
+  firm_manager: 'fq-'
+}
+
+/** Prefix of a question shipped in the data file. */
+const SHIPPED_PREFIX = 'ga-'
+
+/**
+ * Length limits. Generous against the real content — the longest shipped description is 157
+ * characters and the longest question 358 — and there so a pasted document cannot be stored
+ * as one "question" and sent to the model on every client session.
  */
 const MAX_DESCRIPTION = 400
 const MAX_QUESTION = 1000
-const MAX_QUESTIONS = 40
+const MAX_OWN_PER_ASPECT = 40
 
 const DEV_FILE = path.resolve(__dirname, '../../data/dev-growth-aspect-questions.json')
 
@@ -68,220 +89,304 @@ function overlay () {
   return require('./firmOverlay')
 }
 
-/** Dev-only: this scope's own stored changes from the JSON fallback, or null. */
-function devRead (scopeId) {
-  try {
-    const own = JSON.parse(fs.readFileSync(DEV_FILE, 'utf8'))[scopeId]
-    return (own && typeof own === 'object' && !Array.isArray(own)) ? own : null
-  } catch (e) { return null }
-}
-
-/** Dev-only: persist this scope's own changes to the JSON fallback. */
-function devWrite (scopeId, value) {
-  let all = {}
-  try { all = JSON.parse(fs.readFileSync(DEV_FILE, 'utf8')) } catch (e) { all = {} }
-  all[scopeId] = value
-  fs.writeFileSync(DEV_FILE, JSON.stringify(all, null, 2))
+/** A slug of an aspect's name — `Sales (Process)` → `sales-process`. */
+function slugOf (name) {
+  return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
 /**
- * The overlay reader, falling back to the dev file so the cascade behaves the same with and
- * without a database. Shared by the hub routes, the planner route and the Virtual Advisor,
- * so all three see the same wording.
+ * The shipped nine, each question given its identity: `ga-<aspect>-<n>`, numbered in the
+ * data file's order. ⚠ THAT ORDER IS IDENTITY — every decline and edit below keys to it — and
+ * `growthAspectQuestions.test.js` pins it by fingerprint, so it cannot move unnoticed.
+ */
+const BASE_ASPECTS = Object.freeze(
+  (require('../../data/growth-fundamentals.json').growthAspects || [])
+    .map(a => Object.freeze({
+      name: a.name,
+      description: a.description,
+      questions: Object.freeze((a.questions || []).map((text, i) =>
+        Object.freeze({ id: SHIPPED_PREFIX + slugOf(a.name) + '-' + (i + 1), text })))
+    }))
+)
+
+/** The nine names — the only aspects a decision may name. */
+const ASPECT_NAMES = BASE_ASPECTS.map(a => a.name)
+
+// ── Storage ──────────────────────────────────────────────────────────────────────────
+
+function devReadAll () {
+  try { return JSON.parse(fs.readFileSync(DEV_FILE, 'utf8')) } catch (e) { return {} }
+}
+
+/**
+ * Read one scope's stored value, falling back to the dev file only when there is no
+ * database at all — never because a live one refused (`dbFailure.devFallbackAllowed`).
+ * Shared by the hub routes, the planner route and the Virtual Advisor.
  * @param {string} scopeId
  * @param {string} key
- * @returns {Promise<object|null>}
+ * @returns {Promise<*>}
  */
 async function readScopeConfig (scopeId, key) {
   try {
     return await overlay().loadFirmConfig(scopeId, key)
   } catch (err) {
-    if (devFallbackAllowed(err)) { return devRead(scopeId) }
-    throw err
+    if (!devFallbackAllowed(err)) { throw err }
+    const v = devReadAll()[scopeId + '::' + key]
+    return v === undefined ? null : v
   }
 }
 
 /**
- * Store this scope's own changes, falling back to the dev file.
+ * Write one scope's own value, under the same rule.
  * @param {string} scopeId - from the verified JWT, never a request body.
- * @param {object} value - already validated.
+ * @param {string} key
+ * @param {*} value
  * @param {string} savedBy
  * @returns {Promise<void>}
  */
-async function saveScopeConfig (scopeId, value, savedBy) {
+async function writeScopeConfig (scopeId, key, value, savedBy) {
   try {
-    await overlay().saveFirmConfig(scopeId, CONFIG_KEY, value, savedBy)
+    await overlay().saveFirmConfig(scopeId, key, value, savedBy)
   } catch (err) {
     if (!devFallbackAllowed(err)) { throw err }
-    devWrite(scopeId, value)
+    const all = devReadAll()
+    all[scopeId + '::' + key] = value
+    fs.writeFileSync(DEV_FILE, JSON.stringify(all, null, 2))
   }
 }
 
+// ── Validation ───────────────────────────────────────────────────────────────────────
+
 /**
- * Validate and sanitise a scope's OWN changes: `{ [aspectName]: {description?, questions?} }`.
- *
- * An absent aspect, or an absent field within one, is not an error — it means "keep taking
- * this from the level above". Everything present is checked:
- *   - an unknown aspect name or field is refused, never dropped: a change that vanishes
- *     quietly is wording somebody believes they set;
- *   - a description may not be blank — the AI is sent it to recognise the aspect;
- *   - a question list keeps at least one question, or the wheel would offer
- *     "Show the 0 questions" and the AI could name an aspect with nothing behind it;
- *   - a blank question is refused rather than stripped, so the saved count is the count
- *     the mentor saw.
- *
- * @param {*} value - the candidate object.
- * @returns {{ok: boolean, errors: string[], value: object}} `value` holds only the trimmed,
- *   recognised fields and is meaningful only when `ok` is true.
+ * One piece of question text as it arrives from a request.
+ * @param {*} raw
+ * @returns {{ok: boolean, value: string, error: (string|null)}}
  */
-function validateAspects (value) {
-  const errors = []
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return { ok: false, errors: ['the aspects must be a non-array JSON object'], value: {} }
+function checkQuestionText (raw) {
+  const text = typeof raw === 'string' ? raw.trim() : ''
+  if (!text) { return { ok: false, value: '', error: 'A question cannot be blank' } }
+  if (text.length > MAX_QUESTION) {
+    return { ok: false, value: '', error: `A question is ${MAX_QUESTION} characters at most` }
   }
-
-  const clean = {}
-  Object.keys(value).forEach((name) => {
-    if (!ASPECT_NAMES.includes(name)) {
-      errors.push(`${name} is not one of the nine Growth Aspects`)
-      return
-    }
-    const body = value[name]
-    if (!body || typeof body !== 'object' || Array.isArray(body)) {
-      errors.push(`${name} must be a non-array JSON object`)
-      return
-    }
-    const out = {}
-    Object.keys(body).forEach((field) => {
-      if (field !== 'description' && field !== 'questions') {
-        errors.push(`${name}: ${field} cannot be changed here`)
-      }
-    })
-
-    if (Object.prototype.hasOwnProperty.call(body, 'description')) {
-      const d = typeof body.description === 'string' ? body.description.trim() : null
-      if (!d) {
-        errors.push(`${name}: the description cannot be blank`)
-      } else if (d.length > MAX_DESCRIPTION) {
-        errors.push(`${name}: the description is longer than ${MAX_DESCRIPTION} characters`)
-      } else {
-        out.description = d
-      }
-    }
-
-    if (Object.prototype.hasOwnProperty.call(body, 'questions')) {
-      const qs = body.questions
-      if (!Array.isArray(qs)) {
-        errors.push(`${name}: the questions must be a list`)
-      } else if (qs.length === 0) {
-        errors.push(`${name}: keep at least one question`)
-      } else if (qs.length > MAX_QUESTIONS) {
-        errors.push(`${name}: no more than ${MAX_QUESTIONS} questions`)
-      } else {
-        const trimmed = qs.map(q => (typeof q === 'string' ? q.trim() : ''))
-        const blank = trimmed.findIndex(q => !q)
-        const long = trimmed.findIndex(q => q.length > MAX_QUESTION)
-        if (blank !== -1) {
-          errors.push(`${name}: question ${blank + 1} is blank`)
-        } else if (long !== -1) {
-          errors.push(`${name}: question ${long + 1} is longer than ${MAX_QUESTION} characters`)
-        } else {
-          out.questions = trimmed
-        }
-      }
-    }
-
-    if (Object.keys(out).length) { clean[name] = out }
-  })
-
-  return { ok: errors.length === 0, errors, value: clean }
+  return { ok: true, value: text, error: null }
 }
 
 /**
- * Lay a scope's validated changes over the aspects above it. Returns new objects; the
- * inputs are never mutated, so `BASE_ASPECTS` stays the shipped wording for every caller.
- * @param {Array<object>} base
- * @param {object} own - validated `{name: {description?, questions?}}`
- * @returns {Array<object>}
+ * One description as it arrives from a request.
+ * @param {*} raw
+ * @returns {{ok: boolean, value: string, error: (string|null)}}
  */
-function applyOwn (base, own) {
-  return base.map((a) => {
-    const mine = own[a.name]
-    if (!mine) { return a }
-    return {
-      name: a.name,
-      description: mine.description !== undefined ? mine.description : a.description,
-      questions: mine.questions !== undefined ? mine.questions.slice() : a.questions.slice()
-    }
-  })
+function checkDescriptionText (raw) {
+  const text = typeof raw === 'string' ? raw.trim() : ''
+  if (!text) { return { ok: false, value: '', error: 'A description cannot be blank' } }
+  if (text.length > MAX_DESCRIPTION) {
+    return { ok: false, value: '', error: `A description is ${MAX_DESCRIPTION} characters at most` }
+  }
+  return { ok: true, value: text, error: null }
 }
 
+const isText = v => typeof v === 'string' && v.trim().length > 0
+const asObject = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {})
+
 /**
- * Keep only what differs from the level above — see the file note on why a repeat of the
- * inherited wording is never stored.
- * @param {object} own - validated changes
- * @param {Array<object>} inherited - the resolved aspects of the level above
- * @returns {object}
+ * One scope's stored decisions, keeping only what is well-formed.
+ *
+ * NEVER THROWS AND NEVER DROPS A WHOLE SCOPE FOR ONE BAD ENTRY: malformed storage for one
+ * aspect must not stop a manager opening the tab or an advisor seeing the other eight.
+ *
+ * @param {*} stored - whatever came back from the overlay
+ * @returns {Object.<string, {declined: string[], overrides: object, baselines: object,
+ *   own: Array<{id: string, text: string}>, description: (string|undefined),
+ *   descriptionBaseline: (string|undefined)}>} keyed by aspect name; every name present
  */
-function diffAgainst (own, inherited) {
+function readState (stored) {
+  const aspects = asObject(asObject(stored).aspects)
   const out = {}
-  inherited.forEach((a) => {
-    const mine = own[a.name]
-    if (!mine) { return }
-    const kept = {}
-    if (mine.description !== undefined && mine.description !== a.description) {
-      kept.description = mine.description
+  ASPECT_NAMES.forEach((name) => {
+    const a = asObject(aspects[name])
+    const overrides = {}
+    Object.keys(asObject(a.overrides)).forEach((id) => {
+      const o = a.overrides[id]
+      if (o && isText(o.text)) { overrides[id] = { text: o.text } }
+    })
+    const baselines = {}
+    Object.keys(asObject(a.baselines)).forEach((id) => {
+      if (typeof a.baselines[id] === 'string') { baselines[id] = a.baselines[id] }
+    })
+    out[name] = {
+      declined: (Array.isArray(a.declined) ? a.declined : []).filter(isText),
+      overrides,
+      baselines,
+      own: (Array.isArray(a.own) ? a.own : [])
+        .filter(r => r && isText(r.id) && isText(r.text))
+        .map(r => ({ id: r.id, text: r.text })),
+      description: isText(a.description) ? a.description : undefined,
+      descriptionBaseline: typeof a.descriptionBaseline === 'string' ? a.descriptionBaseline : undefined
     }
-    if (mine.questions !== undefined &&
-        JSON.stringify(mine.questions) !== JSON.stringify(a.questions)) {
-      kept.questions = mine.questions
-    }
-    if (Object.keys(kept).length) { out[a.name] = kept }
   })
   return out
 }
 
+/** A state with every aspect present and empty — what a scope that decided nothing holds. */
+function emptyState () {
+  return readState(null)
+}
+
+/** The stored shape of a state — only aspects with a decision in them. */
+function toStored (state) {
+  const aspects = {}
+  Object.keys(state).forEach((name) => {
+    const a = state[name]
+    const kept = {}
+    if (a.declined.length) { kept.declined = a.declined }
+    if (Object.keys(a.overrides).length) { kept.overrides = a.overrides }
+    if (Object.keys(a.baselines).length) { kept.baselines = a.baselines }
+    if (a.own.length) { kept.own = a.own }
+    if (a.description !== undefined) {
+      kept.description = a.description
+      kept.descriptionBaseline = a.descriptionBaseline
+    }
+    if (Object.keys(kept).length) { aspects[name] = kept }
+  })
+  return { aspects }
+}
+
+// ── Resolution ───────────────────────────────────────────────────────────────────────
+
 /**
- * The aspects one scope works to, resolved through every tier above it.
+ * The nine as a scope's managers see them, with every badge and offer the screen draws.
  *
- * @param {string|null} scopeId - from the verified JWT and NEVER from a request body — a
- *   body-supplied id would let one firm read another's configuration (`tier-cascade.md` P6).
- * @param {function(string, string): Promise<Object|null>} loadConfig - the overlay reader,
- *   injected so tests need no database.
+ * Recurses up the tier chain: what a firm resolves against is its group's RESOLVED list,
+ * which is the mentor's resolved list with the group's decisions applied, and so on — the
+ * same mechanism applied at each level rather than a second rule for the tier above.
+ *
+ * @param {string|null} scopeId
+ * @param {function(string, string): Promise<*>} reader
+ * @returns {Promise<Array<object>>} per aspect: `{ name, description, descriptionSource,
+ *   descriptionChangedAbove, descriptionAbove, questions: [{id, text, source, changedAbove,
+ *   above}], declined: [{id, text}] }`
+ * @throws when the store cannot be read — callers that must not fail use
+ *   `loadResolvedAspects`, which never rejects.
+ */
+async function resolveDetailed (scopeId, reader) {
+  const inheritedList = await loadInherited(scopeId, reader)
+  const state = scopeId ? readState(await reader(scopeId, CONFIG_KEY)) : emptyState()
+
+  return inheritedList.map((above) => {
+    const mine = state[above.name]
+    const byId = {}
+    above.questions.forEach((q) => { byId[q.id] = q })
+
+    const questions = resolveInheritedRows(
+      above.questions.map(q => ({ id: q.id, text: q.text })),
+      { declinedIds: mine.declined, overrides: mine.overrides, ownRows: mine.own },
+      { sourceLabels: SOURCE_LABELS }
+    ).map((q) => {
+      const up = byId[q.id]
+      const changedAbove = q.source === SOURCE_LABELS.override && up !== undefined &&
+        mine.baselines[q.id] !== undefined && mine.baselines[q.id] !== up.text
+      return {
+        id: q.id,
+        text: q.text,
+        source: q.source,
+        changedAbove,
+        ...(changedAbove ? { above: up.text } : {})
+      }
+    })
+
+    const descriptionEdited = mine.description !== undefined
+    const descriptionChangedAbove = descriptionEdited &&
+      mine.descriptionBaseline !== undefined && mine.descriptionBaseline !== above.description
+
+    return {
+      name: above.name,
+      description: descriptionEdited ? mine.description : above.description,
+      descriptionSource: descriptionEdited ? SOURCE_LABELS.override : SOURCE_LABELS.inherited,
+      descriptionChangedAbove,
+      ...(descriptionChangedAbove ? { descriptionAbove: above.description } : {}),
+      questions,
+      declined: mine.declined
+        .filter(id => byId[id])
+        .map(id => ({ id, text: byId[id].text }))
+    }
+  })
+}
+
+/**
+ * What a scope inherits before its own decisions: the level above's resolved nine, or the
+ * shipped nine for the mentor.
+ * @param {string|null} scopeId
+ * @param {function(string, string): Promise<*>} reader
+ * @returns {Promise<Array<{name: string, description: string, questions: Array<{id, text}>}>>}
+ */
+async function loadInherited (scopeId, reader) {
+  const parent = scopeId ? parentScopeOf(scopeId) : null
+  if (parent === null) { return BASE_ASPECTS }
+  const detailed = await resolveDetailed(parent, reader)
+  return detailed.map(a => ({
+    name: a.name,
+    description: a.description,
+    questions: a.questions.map(q => ({ id: q.id, text: q.text }))
+  }))
+}
+
+/**
+ * The nine as an advisor under this scope is shown them — plain wording, no badges.
+ *
+ * @param {string|null} scopeId - from the verified JWT, never a request body.
+ * @param {function(string, string): Promise<*>} reader - injected so tests need no database.
  * @returns {Promise<Array<{name: string, description: string, questions: string[]}>>}
  *   NEVER REJECTS: the planner and the Virtual Advisor must not fail for it, and the worst
  *   case is the shipped wording — what every firm had before this tab existed.
  */
-async function loadResolvedAspects (scopeId, loadConfig) {
-  if (!scopeId) { return BASE_ASPECTS }
-
-  const parent = parentScopeOf(scopeId)
-  const base = parent === null ? BASE_ASPECTS : await loadResolvedAspects(parent, loadConfig)
-
-  let stored = null
+async function loadResolvedAspects (scopeId, reader) {
   try {
-    stored = await loadConfig(scopeId, CONFIG_KEY)
+    const detailed = await resolveDetailed(scopeId, reader)
+    return detailed.map(a => ({ name: a.name, description: a.description, questions: a.questions.map(q => q.text) }))
   } catch (err) {
     console.error('[growth-aspects] scope read failed:', err.message)
-    return base
+    return BASE_ASPECTS.map(a => ({ name: a.name, description: a.description, questions: a.questions.map(q => q.text) }))
   }
-  // Identity when nothing is stored, so "unchanged" is provable by reference.
-  const { ok, value } = validateAspects(stored)
-  if (!ok || Object.keys(value).length === 0) { return base }
-  return applyOwn(base, value)
+}
+
+/**
+ * The next id this scope mints for an aspect. It takes the stored high-water mark as well as
+ * the live rows: counting only the live rows hands the highest removed id straight back.
+ * @param {string} scopeId
+ * @param {Array<{id: string}>} ownRows
+ * @param {number} [lastSeq]
+ * @returns {{id: string, seq: number}}
+ */
+function nextOwnId (scopeId, ownRows, lastSeq) {
+  const prefix = ID_PREFIX_BY_TIER[tierOfScope(scopeId)] || ID_PREFIX_BY_TIER.firm_manager
+  const held = ownRows
+    .map(r => (r.id.indexOf(prefix) === 0 ? parseInt(r.id.slice(prefix.length), 10) : NaN))
+    .filter(n => Number.isInteger(n) && n > 0)
+  const mark = Number.isInteger(lastSeq) && lastSeq > 0 ? lastSeq : 0
+  const seq = Math.max(held.length ? Math.max(...held) : 0, mark) + 1
+  return { id: prefix + seq, seq }
 }
 
 module.exports = {
   CONFIG_KEY,
+  NEXT_SEQ_KEY,
+  SOURCE_LABELS,
+  ID_PREFIX_BY_TIER,
+  SHIPPED_PREFIX,
   BASE_ASPECTS,
   ASPECT_NAMES,
   MAX_DESCRIPTION,
   MAX_QUESTION,
-  MAX_QUESTIONS,
-  validateAspects,
-  applyOwn,
-  diffAgainst,
+  MAX_OWN_PER_ASPECT,
+  slugOf,
+  checkQuestionText,
+  checkDescriptionText,
+  readState,
+  toStored,
+  resolveDetailed,
+  loadInherited,
   loadResolvedAspects,
+  nextOwnId,
   readScopeConfig,
-  saveScopeConfig
+  writeScopeConfig
 }

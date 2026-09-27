@@ -266,9 +266,9 @@ section.firm-manager-hub.section
       div.hub-panel(v-if="showsTab('meetingObservations')" v-show="activeTab === 'meetingObservations'")
         firm-meeting-observations(:api-token="apiToken")
 
-      //- Growth Aspect Questions (item 15.2, screen 3) — the nine aspects' descriptions and
-      //- Mike's 98 questions. design/mockups/growth-aspect-questions.html, approved
-      //- 2026-09-27. Mentor only, stated in TAB_TIERS.
+      //- Growth Aspect Questions (item 15.2, screens 3 and 3b) — the nine aspects' descriptions
+      //- and Mike's 98 questions. design/mockups/growth-aspect-questions.html, approved
+      //- 2026-09-27 and 2026-09-28. All four tiers, stated in TAB_TIERS.
       div.hub-panel(v-if="showsTab('growthAspectQuestions')" v-show="activeTab === 'growthAspectQuestions'")
         firm-growth-aspect-questions(:api-token="apiToken")
 
@@ -1472,11 +1472,10 @@ const TAB_TIERS = {
   // object, and it is why the reason is written out rather than assumed.
   clientCopyRequests: ['firm'],
 
-  // MENTOR ALONE, per the default-is-mentor-alone ruling of 2026-08-24: the nine
-  // descriptions and Mike's 98 questions are the same for every firm, and no firm has asked
-  // for its own. `server/utils/growthAspects.js` already walks the tier chain, so a firm
-  // that one day does is one line here. Item 15.2.
-  growthAspectQuestions: ['mentor'],
+  // ALL FOUR MANAGER TIERS, in Mike's own words (2026-09-28): "cascade down to other levels
+  // and available at each lower level - of course, anything they add only affects them and
+  // levels BELOW them", on the standard cascade rules. Item 15.2, screen 3b.
+  growthAspectQuestions: ['mentor', 'global', 'group', 'firm'],
 
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-09-10): "i want these compliance
   // pages to show in the mentor, global manager, group manager and firm manager hubs - again,
@@ -1618,7 +1617,7 @@ const NAV_GROUPS = [
       // aiPrompts was: appending moves nothing already on a manager's screen.
       { key: 'clientCopyRequests', i18n: 'firmManagerHub.tabs.clientCopyRequest' },
       // Item 15.2. The drawing places it beside AI Prompts and Template Library, which is this
-      // group; appended at its end, as every line above was. Mentor-only; see TAB_TIERS.
+      // group; appended at its end, as every line above was. All four tiers; see TAB_TIERS.
       { key: 'growthAspectQuestions', i18n: 'firmManagerHub.tabs.growthAspectQuestions' }
     ]
   },

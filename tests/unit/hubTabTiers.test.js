@@ -169,8 +169,13 @@ const MENTOR_BEFORE = [
  *   period is spoken aloud to a client in approved consent wording, and one dial would let a
  *   manager change a promise made out loud while believing they were shortening how long
  *   staff data is kept.
+ * - `growthAspectQuestions` — Mike, 2026-09-28 (item 15.2, screen 3b), in his own words: *"i'd
+ *   like to be able to add a question to a section via this hub page - cascade down to other
+ *   levels and available at each lower level - of course, anything they add only affects them
+ *   and levels BELOW them"*. 🔴 **ALL FOUR TIERS, AND HE NAMED THE CASCADE** — built mentor-only
+ *   the same morning and widened on his word, on the standard rules (`tier-cascade.md` P3, P11).
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention', 'ownerFocusTasks']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -236,9 +241,8 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   reasoning in full is beside `FIRM_ADDED_SINCE` above.
  */
 /*
- * - `growthAspectQuestions` — Mike, 2026-09-27 (item 15.2, screen 3 of
- *   `design/mockups/growth-aspect-questions.html`, approved with its wording): the nine
- *   aspects' descriptions and his 98 questions. ⚠ MENTOR ALONE, per the default of 2026-08-24.
+ * - `growthAspectQuestions` — the same ruling as the firm's (Mike, 2026-09-28). The mentor is
+ *   where the cascade starts: the 98 arrive from his deck and every tier below inherits them.
  */
 const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions']
 
@@ -366,10 +370,14 @@ describe('hub tab matrix — the two new tiers', () => {
     // ⚠ SIXTEEN AND TWENTY-TWO SINCE 2026-09-24: `ownerFocusTasks` (item 5.4) is on all four
     // tiers in Mike's own words — the starting tasks "cascade down from mentor thru the levels
     // to firm manager". The reasoning is beside FIRM_ADDED_SINCE.
-    expect(conditional).toHaveLength(16)
+    //
+    // ⚠ SEVENTEEN AND TWENTY-THREE SINCE 2026-09-28: `growthAspectQuestions` (item 15.2) is on
+    // all four tiers in Mike's own words — "cascade down to other levels and available at each
+    // lower level". The reasoning is beside FIRM_ADDED_SINCE.
+    expect(conditional).toHaveLength(17)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(22)
-    expect(tabsAt('group')).toHaveLength(15)
+    expect(unconditional.concat(conditional)).toHaveLength(23)
+    expect(tabsAt('group')).toHaveLength(16)
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

@@ -104,17 +104,20 @@ describe('GET /api/strategy/frameworks', () => {
   })
 
   // Item 15.2. Without this the Mentor Hub tab would save and change nothing an advisor sees.
-  it('🔴 a question the mentor edited on the hub reaches the firm’s wheel, resolved for the token’s firm', async () => {
+  it('🔴 a question the mentor added on the hub reaches the firm’s wheel, resolved for the token’s firm', async () => {
     const seen = []
     jest.spyOn(growthAspects, 'readScopeConfig').mockImplementation((scopeId) => {
       seen.push(scopeId)
-      return Promise.resolve(scopeId === PLATFORM_SCOPE ? { Governance: { questions: ['Edited on the hub?'] } } : null)
+      return Promise.resolve(scopeId === PLATFORM_SCOPE
+        ? { aspects: { Governance: { own: [{ id: 'mq-1', text: 'Added on the hub?' }] } } }
+        : null)
     })
     const res = makeRes()
     await routes.getFrameworks(req({ body: { firmId: 'firm-b' } }), res)
 
     const gov = res._body.growthAspects.find(a => a.name === 'Governance')
-    expect(gov.questions).toEqual(['Edited on the hub?'])
+    expect(gov.questions).toHaveLength(15)
+    expect(gov.questions[14]).toBe('Added on the hub?')
     expect(seen).toContain(FIRM)
     expect(seen).not.toContain('firm-b')
   })
