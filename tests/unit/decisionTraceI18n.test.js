@@ -125,14 +125,14 @@ describe('the locale file carries the whole panel', () => {
 
 describe('the source of both components holds no English for this panel', () => {
   test.each([
-    ['components/VirtualAdvisor.vue', 394, 445],
-    ['components/FirmManagerHub.vue', 460, 530]
-  ])('%s trace panel', (file, from, to) => {
-    // Only the panel's own lines: both files are thousands of lines long and the
-    // rest of them is not this task.
-    const region = fs.readFileSync(file, 'utf8').split('\n').slice(from - 1, to)
+    ['components/VirtualAdvisor.vue'],
+    ['components/FirmManagerHub.vue']
+  ])('%s trace panel', (file) => {
+    // The WHOLE file, not a line range: a fixed range guarded nothing once the panel
+    // moved, which it had by 2026-09-25 in FirmManagerHub.vue.
+    const region = fs.readFileSync(file, 'utf8').split('\n')
       // Comments explain the history and legitimately quote the old wording.
-      .filter(line => !/^\s*\/\//.test(line))
+      .filter(line => !/^\s*(\/\/|\*|\/\*)/.test(line))
       .join('\n')
 
     const found = OLD_LITERALS.filter(phrase => region.includes(phrase))

@@ -5,8 +5,9 @@
  *
  * Methods/computed/hooks are invoked against a mock component `this`, with the
  * browser globals it touches (document, localStorage, fetch) stubbed per test.
- * Covers the picker open/close logic, locale switching (cached, fetched, and
- * failure paths), and the outside-click document handler.
+ * Covers the picker open/close logic, locale switching (loaded, and failure paths —
+ * the loading itself is utils/uiLocaleLoader.js, tested on its own), and the
+ * outside-click document handler.
  */
 
 import mixin from '../../mixins/collaborate/localeMixin'
@@ -78,88 +79,51 @@ describe('changeLocale', () => {
     expect(c.closeLangPicker).toHaveBeenCalled()
   })
 
-  test('switches directly when the locale is already loaded', async () => {
-    const c = {
-      loadingLang: null,
-      $i18n: { locale: 'en', messages: { en: {}, fr: {} } },
-      closeLangPicker: jest.fn()
-    }
-    await mixin.methods.changeLocale.call(c, { code: 'fr' })
-    expect(c.$i18n.locale).toBe('fr')
-    expect(c.closeLangPicker).toHaveBeenCalled()
+  test('English switches with no call to the backend', async () => {
+    global.fetch = jest.fn()
+    const c = { loadingLang: null, $i18n: { locale: 'fr', messages: { en: {} } }, closeLangPicker: jest.fn() }
+    await mixin.methods.changeLocale.call(c, { code: 'en' })
+    expect(c.$i18n.locale).toBe('en')
+    expect(global.fetch).not.toHaveBeenCalled()
+    delete global.fetch
   })
 
-  test('loads a missing locale, then switches', async () => {
-    const loadDynamicLocale = jest.fn(() => Promise.resolve())
+  test('loads the language from the backend — shipped or not — then switches', async () => {
+    global.fetch = jest.fn(() => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ success: true, status: 'ready', version: 'v', english: 0, total: 1, messages: { hi: 'Salut' } })
+    }))
+    const setLocaleMessage = jest.fn()
     const c = {
       loadingLang: null,
-      $i18n: { locale: 'en', messages: { en: {} } },
-      loadDynamicLocale,
+      $i18n: { locale: 'en', messages: { en: {}, fr: {} }, setLocaleMessage },
       closeLangPicker: jest.fn()
     }
     await mixin.methods.changeLocale.call(c, { code: 'fr' })
-    expect(loadDynamicLocale).toHaveBeenCalled()
+    expect(global.fetch.mock.calls[0][0]).toBe('/api/ui-translation/fr')
+    expect(setLocaleMessage).toHaveBeenCalledWith('fr', { hi: 'Salut' })
     expect(c.$i18n.locale).toBe('fr')
     expect(c.loadingLang).toBeNull()
+    delete global.fetch
   })
 
-  test('records an error and does not switch when the load fails', async () => {
-    const c = {
-      loadingLang: null,
-      $i18n: { locale: 'en', messages: { en: {} } },
-      loadDynamicLocale: jest.fn(() => Promise.reject(new Error('down'))),
-      closeLangPicker: jest.fn()
-    }
-    await mixin.methods.changeLocale.call(c, { code: 'fr' })
+  test('records an error and does not switch when the load fails and nothing is shipped', async () => {
+    global.fetch = jest.fn(() => Promise.resolve({ ok: false, status: 502 }))
+    const c = { loadingLang: null, $i18n: { locale: 'en', messages: { en: {} }, setLocaleMessage: jest.fn() }, closeLangPicker: jest.fn() }
+    await mixin.methods.changeLocale.call(c, { code: 'ja' })
     expect(c.$i18n.locale).toBe('en')
     expect(c.langError).toMatch(/failed/i)
     expect(c.loadingLang).toBeNull()
-  })
-})
-
-describe('loadDynamicLocale', () => {
-  afterEach(() => { delete global.localStorage; delete global.fetch })
-
-  test('uses the cached translation without calling the API', async () => {
-    const setLocaleMessage = jest.fn()
-    global.localStorage = { getItem: jest.fn(() => JSON.stringify({ a: { b: 'cached' } })), setItem: jest.fn() }
-    global.fetch = jest.fn()
-    const c = { $i18n: { setLocaleMessage, messages: { en: {} } } }
-
-    await mixin.methods.loadDynamicLocale.call(c, { code: 'fr' })
-
-    expect(setLocaleMessage).toHaveBeenCalledWith('fr', { a: { b: 'cached' } })
-    expect(global.fetch).not.toHaveBeenCalled()
+    delete global.fetch
   })
 
-  test('fetches, un-flattens, applies and caches when not cached', async () => {
-    const setLocaleMessage = jest.fn()
-    const setItem = jest.fn()
-    global.localStorage = { getItem: jest.fn(() => null), setItem }
-    global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ 'greeting.hello': 'Bonjour' }) }))
-    const c = { $i18n: { setLocaleMessage, messages: { en: { greeting: { hello: 'Hello' } } } } }
-
-    await mixin.methods.loadDynamicLocale.call(c, { code: 'fr' })
-
-    expect(global.fetch).toHaveBeenCalledWith('/api/translate/locale', expect.objectContaining({ method: 'POST' }))
-    expect(setLocaleMessage).toHaveBeenCalledWith('fr', { greeting: { hello: 'Bonjour' } })
-    expect(setItem).toHaveBeenCalledWith('va_locale_fr', JSON.stringify({ greeting: { hello: 'Bonjour' } }))
-  })
-
-  test('throws on a non-OK HTTP response', async () => {
-    global.localStorage = { getItem: jest.fn(() => null), setItem: jest.fn() }
+  test('a failed load for a shipped language still switches, on its own file', async () => {
     global.fetch = jest.fn(() => Promise.resolve({ ok: false, status: 502 }))
-    const c = { $i18n: { setLocaleMessage: jest.fn(), messages: { en: {} } } }
-
-    await expect(mixin.methods.loadDynamicLocale.call(c, { code: 'fr' })).rejects.toThrow('HTTP 502')
-  })
-
-  test('throws when the API returns an error payload', async () => {
-    global.localStorage = { getItem: jest.fn(() => null), setItem: jest.fn() }
-    global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ error: { message: 'quota' } }) }))
-    const c = { $i18n: { setLocaleMessage: jest.fn(), messages: { en: {} } } }
-
-    await expect(mixin.methods.loadDynamicLocale.call(c, { code: 'fr' })).rejects.toThrow('quota')
+    const c = { loadingLang: null, $i18n: { locale: 'en', messages: { en: {}, fr: {} }, setLocaleMessage: jest.fn() }, closeLangPicker: jest.fn() }
+    await mixin.methods.changeLocale.call(c, { code: 'fr' })
+    expect(c.$i18n.locale).toBe('fr')
+    expect(c.langError).toBeNull()
+    delete global.fetch
   })
 })
 

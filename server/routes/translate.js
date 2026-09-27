@@ -30,6 +30,7 @@
  */
 
 const https = require('https')
+const { StringDecoder } = require('string_decoder')
 const { sanitiseValues } = require('../collaborate/utils/sanitiseInput')
 const { validateAIResponse } = require('../collaborate/utils/validateAIResponse')
 const { sendApiError } = require('../collaborate/utils/sendError')
@@ -100,8 +101,10 @@ function httpsGet (urlString) {
   return new Promise((resolve, reject) => {
     const req = https.get(urlString, (res) => {
       let data = ''
-      res.on('data', (chunk) => { data += chunk })
-      res.on('end', () => { resolve({ statusCode: res.statusCode, body: data }) })
+      // One decoder for the whole reply, so a letter split across two chunks arrives whole.
+      const decoder = new StringDecoder('utf8')
+      res.on('data', (chunk) => { data += typeof chunk === 'string' ? chunk : decoder.write(chunk) })
+      res.on('end', () => { resolve({ statusCode: res.statusCode, body: data + decoder.end() }) })
     })
     req.on('error', reject)
     req.setTimeout(REQUEST_TIMEOUT_MS, () => { req.destroy(new Error('MyMemory request timed out')) })

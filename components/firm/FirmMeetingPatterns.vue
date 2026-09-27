@@ -2,12 +2,10 @@
 .mpat(v-if="visible")
   .box.mb-4
     .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
-      h4.title.is-6.mb-0 Are the observation points landing?
+      h4.title.is-6.mb-0 {{ $t('firmMeetingPatterns.title') }}
       span.is-size-7.has-text-grey(v-if="!loading && !loadError") {{ chrome }}
 
-    p.is-size-7.has-text-grey.mb-4
-      | Counts across the firm. No advisor is named, and no figure can be traced back to a
-      |  person.
+    p.is-size-7.has-text-grey.mb-4 {{ $t('firmMeetingPatterns.intro') }}
 
     .has-text-centered.py-5(v-if="loading")
       b-loading(:is-full-page="false" :active="true")
@@ -20,20 +18,18 @@
     //- their people.
     b-message(v-else-if="!enough" type="is-info" size="is-small")
       p.mb-2
-        b Not enough meetings yet to show patterns safely.
-      p
-        | Figures appear once at least #[b {{ minAdvisors }} advisors] and
-        |  #[b {{ minMeetings }} meetings] have contributed. Below that, a count can be worked
-        |  backwards to an individual — and no manager sees an individual's notes unless that
-        |  advisor sends them.
+        b {{ $t('firmMeetingPatterns.notEnough.heading') }}
+      i18n(path="firmMeetingPatterns.notEnough.body" tag="p")
+        template(#advisors)
+          b {{ $t('firmMeetingPatterns.notEnough.advisors', { n: minAdvisors }) }}
+        template(#meetings)
+          b {{ $t('firmMeetingPatterns.notEnough.meetings', { n: minMeetings }) }}
 
     //- Above the threshold and still nothing to show: every point fell under the per-point
     //- floor. Saying "no points" here would read as "you have no observation points", which
     //- is a different and untrue statement.
     p.is-size-7.has-text-grey.py-4(v-else-if="!points.length")
-      | Enough meetings this month, but no single observation point has been checked in
-      |  {{ minMeetings }} of them yet. A point counted over fewer meetings than that can be
-      |  worked backwards to a person, so it is left out rather than shown.
+      | {{ $t('firmMeetingPatterns.noPoints', { n: minMeetings }) }}
 
     template(v-else)
       .mpat-row(v-for="p in points" :key="p.pointId")
@@ -119,9 +115,10 @@ export default {
      */
     chrome () {
       if (!this.period) { return '' }
-      const m = this.meetings === 1 ? '1 meeting' : this.meetings + ' meetings'
-      const a = this.advisors === 1 ? '1 advisor' : this.advisors + ' advisors'
-      return this.period.label + ' · ' + m + ' · ' + a
+      // vue-i18n's two-form choice picks form 0 only at exactly 1, as the original ternary did.
+      const meetings = this.$tc('firmMeetingPatterns.chrome.meetings', this.meetings, { count: this.meetings })
+      const advisors = this.$tc('firmMeetingPatterns.chrome.advisors', this.advisors, { count: this.advisors })
+      return this.$t('firmMeetingPatterns.chrome.line', { period: this.period.label, meetings, advisors })
     }
   },
 
@@ -154,7 +151,7 @@ export default {
         this.points = data.points || []
       } catch (e) {
         if (e.status !== 403) {
-          this.loadError = 'The meeting figures could not be loaded: ' + e.message
+          this.loadError = this.$t('firmMeetingPatterns.errors.loadFailed', { message: e.message })
         }
       }
       this.loading = false
@@ -190,11 +187,11 @@ export default {
           }
         })
       } catch (e) {
-        throw new Error('The server could not be reached. Check your connection and try again.')
+        throw new Error(this.$t('firmMeetingPatterns.errors.unreachable'))
       }
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        const err = new Error((data.error && data.error.message) || 'That could not be read.')
+        const err = new Error((data.error && data.error.message) || this.$t('firmMeetingPatterns.errors.unreadable'))
         err.status = res.status
         throw err
       }

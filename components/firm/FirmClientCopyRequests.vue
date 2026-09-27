@@ -3,13 +3,10 @@
   //- ── The requests a firm is holding ────────────────────────────────────────
   .box.mb-4(v-if="!openRequest")
     .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
-      h4.title.is-6.mb-0 Client Copy Request
-      span.is-size-7.has-text-grey(v-if="!loading && !loadError") Answer within {{ phrase }}
+      h4.title.is-6.mb-0 {{ $t('firmClientCopyRequests.title') }}
+      span.is-size-7.has-text-grey(v-if="!loading && !loadError") {{ $t('firmClientCopyRequests.answerWithin', { phrase }) }}
 
-    p.is-size-7.has-text-grey.mb-4
-      | When a client asks for a copy of what was recorded about them, log it here. Only the
-      |  advisor who recorded a meeting can release it, so a request with several advisors on
-      |  it is answered by each of them in turn.
+    p.is-size-7.has-text-grey.mb-4 {{ $t('firmClientCopyRequests.intro') }}
 
     .has-text-centered.py-5(v-if="loading")
       b-loading(:is-full-page="false" :active="true")
@@ -17,66 +14,59 @@
     b-message(v-else-if="loadError" type="is-danger" size="is-small") {{ loadError }}
 
     template(v-else)
-      p.is-size-7.has-text-grey.py-4(v-if="!openRequests.length")
-        | No requests are open. Anything a client asks for — a copy of what was recorded, a
-        |  correction, or an early deletion — is logged here so the clock on it is visible.
+      p.is-size-7.has-text-grey.py-4(v-if="!openRequests.length") {{ $t('firmClientCopyRequests.list.noneOpen') }}
 
       .ccr-row(v-for="r in openRequests" :key="r.id")
         .ccr-main
-          .ccr-name {{ r.clientName || 'Client no longer on the register' }}
-          .ccr-sub
-            | {{ kindWords[r.kind] }} · logged by {{ r.loggedBy || 'someone at your firm' }}
-            |  · {{ channelWords[r.channel] }}
+          .ccr-name {{ r.clientName || $t('firmClientCopyRequests.list.clientGone') }}
+          .ccr-sub {{ $t('firmClientCopyRequests.list.loggedLine', { kind: kindWords[r.kind], who: r.loggedBy || $t('firmClientCopyRequests.list.someone'), channel: channelWords[r.channel] }) }}
         .ccr-clock(:class="clockClass(r)") {{ r.clock ? r.clock.phrase : '' }}
-        b-button.ccr-open(size="is-small" type="is-primary" outlined @click="open(r)") Open
+        b-button.ccr-open(size="is-small" type="is-primary" outlined @click="open(r)") {{ $t('firmClientCopyRequests.list.open') }}
 
       //- Closed requests are kept deliberately: being able to show that a request WAS
       //- answered, and how quickly, is the evidence half of the all-care basis.
       .ccr-closed(v-if="closedRequests.length")
-        h5.is-size-7.has-text-weight-semibold.has-text-grey.mt-5.mb-2 ANSWERED
+        h5.is-size-7.has-text-weight-semibold.has-text-grey.mt-5.mb-2 {{ $t('firmClientCopyRequests.list.answeredHeading') }}
         .ccr-row(v-for="r in closedRequests" :key="r.id")
           .ccr-main
-            .ccr-name {{ r.clientName || 'Client no longer on the register' }}
-            .ccr-sub
-              | {{ kindWords[r.kind] }} · closed by {{ r.closedBy || 'someone at your firm' }}
-              |  · {{ r.outcome || 'no note left' }}
-          b-button.ccr-open(size="is-small" outlined @click="open(r)") Open
+            .ccr-name {{ r.clientName || $t('firmClientCopyRequests.list.clientGone') }}
+            .ccr-sub {{ $t('firmClientCopyRequests.list.closedLine', { kind: kindWords[r.kind], who: r.closedBy || $t('firmClientCopyRequests.list.someone'), outcome: r.outcome || $t('firmClientCopyRequests.list.noNote') }) }}
+          b-button.ccr-open(size="is-small" outlined @click="open(r)") {{ $t('firmClientCopyRequests.list.open') }}
 
       .mt-5
-        b-button(type="is-primary" @click="logging = true" v-if="!logging") Log a request
+        b-button(type="is-primary" @click="logging = true" v-if="!logging") {{ $t('firmClientCopyRequests.form.logRequest') }}
 
       //- ── Logging one ──────────────────────────────────────────────────────
       .ccr-form.mt-4(v-if="logging")
-        b-field(label="Which client?" label-position="on-border")
-          b-select(v-model="form.clientId" placeholder="Choose from your register" expanded)
+        b-field(:label="$t('firmClientCopyRequests.form.whichClient')" label-position="on-border")
+          b-select(v-model="form.clientId" :placeholder="$t('firmClientCopyRequests.form.chooseClient')" expanded)
             option(v-for="c in clients" :key="c.id" :value="c.id") {{ c.name }}
 
-        b-field(label="What did they ask for?" label-position="on-border")
+        b-field(:label="$t('firmClientCopyRequests.form.whatAsked')" label-position="on-border")
           b-select(v-model="form.kind" expanded)
-            option(value="copy") A copy of what was recorded
-            option(value="correction") A correction to something recorded
-            option(value="deletion") Deletion before the retention date
+            option(value="copy") {{ $t('firmClientCopyRequests.kinds.copy') }}
+            option(value="correction") {{ $t('firmClientCopyRequests.form.correctionOption') }}
+            option(value="deletion") {{ $t('firmClientCopyRequests.kinds.deletion') }}
 
-        b-field(label="How did they ask?" label-position="on-border")
+        b-field(:label="$t('firmClientCopyRequests.form.howAsked')" label-position="on-border")
           b-select(v-model="form.channel" expanded)
             option(v-for="c in channels" :key="c" :value="c") {{ channelWords[c] }}
 
         //- 🔴 THE DATE THE CLIENT ASKED, not the date this was typed in. A request logged a
         //- week late is already a week into its allowance, and a clock that started today
         //- would hide exactly the lateness this screen exists to show.
-        b-field(label="When did they ask?" label-position="on-border")
-          b-datepicker(v-model="form.receivedAt" :max-date="today" placeholder="Pick the date")
-        p.is-size-7.has-text-grey.mb-4
-          | The clock runs from when your client asked, not from today.
+        b-field(:label="$t('firmClientCopyRequests.form.whenAsked')" label-position="on-border")
+          b-datepicker(v-model="form.receivedAt" :max-date="today" :placeholder="$t('firmClientCopyRequests.form.pickDate')")
+        p.is-size-7.has-text-grey.mb-4 {{ $t('firmClientCopyRequests.form.clockHint') }}
 
-        b-field(label="Anything worth noting?" label-position="on-border")
+        b-field(:label="$t('firmClientCopyRequests.form.noteLabel')" label-position="on-border")
           b-input(v-model="form.note" type="textarea" rows="2" maxlength="500")
 
         b-message(v-if="formError" type="is-danger" size="is-small") {{ formError }}
 
         .buttons
-          b-button(type="is-primary" :loading="saving" @click="submit") Log it
-          b-button(@click="cancel") Cancel
+          b-button(type="is-primary" :loading="saving" @click="submit") {{ $t('firmClientCopyRequests.form.logIt') }}
+          b-button(@click="cancel") {{ $t('firmClientCopyRequests.form.cancel') }}
 
   //- ── One request ───────────────────────────────────────────────────────────
   client-copy-request-detail(
@@ -91,7 +81,7 @@
   //- work to one CALENDAR month, which is never shorter. A firm reading a figure in the
   //- wrong unit is reading a legal deadline wrongly.
   .box(v-if="!openRequest && !loading && !loadError")
-    h5.is-size-7.has-text-weight-semibold.has-text-grey.mb-3 HOW LONG YOUR FIRM ANSWERS WITHIN
+    h5.is-size-7.has-text-weight-semibold.has-text-grey.mb-3 {{ $t('firmClientCopyRequests.dial.heading') }}
     .ccr-dial
       b-input.ccr-count(
         v-model.number="dial.count"
@@ -100,20 +90,15 @@
         size="is-small")
       b-select.ccr-unit(v-model="dial.unit" size="is-small")
         option(v-for="u in units" :key="u" :value="u") {{ unitWords[u] ? unitWords[u].many : u }}
-      b-button(size="is-small" type="is-primary" :loading="savingDial" @click="saveDial") Save
-      b-button(size="is-small" v-if="ownDial" @click="resetDial") Use the level above
+      b-button(size="is-small" type="is-primary" :loading="savingDial" @click="saveDial") {{ $t('firmClientCopyRequests.dial.save') }}
+      b-button(size="is-small" v-if="ownDial" @click="resetDial") {{ $t('firmClientCopyRequests.dial.useLevelAbove') }}
 
-    p.is-size-7.has-text-grey.mt-2(v-if="!ownDial")
-      | Currently {{ phrase }}, {{ dialSourceWords }}.
-    p.is-size-7.has-text-grey.mt-2(v-else)
-      | Currently {{ phrase }}, set by your firm.
+    p.is-size-7.has-text-grey.mt-2(v-if="!ownDial") {{ $t('firmClientCopyRequests.dial.currentlyFrom', { phrase, source: dialSourceWords }) }}
+    p.is-size-7.has-text-grey.mt-2(v-else) {{ $t('firmClientCopyRequests.dial.currentlyOwn', { phrase }) }}
 
     //- Said out loud rather than left for somebody to discover: the clock counts weekends
     //- out and cannot count public holidays out, so it runs slightly fast.
-    p.is-size-7.has-text-grey.mt-2
-      | Working days here mean weekdays. Public holidays are not counted out — this app holds
-      |  no holiday calendar — so the date shown is a little earlier than a strict reading, and
-      |  it is a working aid rather than a legal calculation.
+    p.is-size-7.has-text-grey.mt-2 {{ $t('firmClientCopyRequests.dial.workingDaysNote') }}
 </template>
 
 <script>
@@ -167,23 +152,31 @@ export default {
       ownDial: null,
       dialSource: '',
       channels: ['email', 'phone', 'in-person', 'letter', 'other'],
-      channelWords: {
-        email: 'by email',
-        phone: 'by phone',
-        'in-person': 'in person',
-        letter: 'by letter',
-        other: 'another way'
-      },
-      kindWords: {
-        copy: 'A copy of what was recorded',
-        correction: 'A correction',
-        deletion: 'Deletion before the retention date'
-      },
       form: { clientId: null, kind: 'copy', channel: 'email', receivedAt: null, note: '' }
     }
   },
 
   computed: {
+    /** @returns {object} how each channel value reads to a person, keyed by the stored value */
+    channelWords () {
+      return {
+        email: this.$t('firmClientCopyRequests.channels.email'),
+        phone: this.$t('firmClientCopyRequests.channels.phone'),
+        'in-person': this.$t('firmClientCopyRequests.channels.inPerson'),
+        letter: this.$t('firmClientCopyRequests.channels.letter'),
+        other: this.$t('firmClientCopyRequests.channels.other')
+      }
+    },
+
+    /** @returns {object} how each request kind reads to a person, keyed by the stored value */
+    kindWords () {
+      return {
+        copy: this.$t('firmClientCopyRequests.kinds.copy'),
+        correction: this.$t('firmClientCopyRequests.kinds.correction'),
+        deletion: this.$t('firmClientCopyRequests.kinds.deletion')
+      }
+    },
+
     /** @returns {Array<object>} requests still to be answered */
     openRequests () {
       return this.requests.filter(r => r.state === 'open')
@@ -202,8 +195,8 @@ export default {
     /** @returns {string} where the resolved figure came from, in words */
     dialSourceWords () {
       return this.dialSource === 'inherited'
-        ? 'set by the level above your firm'
-        : 'the platform default'
+        ? this.$t('firmClientCopyRequests.dial.sourceInherited')
+        : this.$t('firmClientCopyRequests.dial.sourcePlatform')
     }
   },
 
@@ -282,11 +275,11 @@ export default {
     async submit () {
       this.formError = ''
       if (!this.form.clientId) {
-        this.formError = 'Choose which client asked.'
+        this.formError = this.$t('firmClientCopyRequests.errors.chooseClient')
         return
       }
       if (!this.form.receivedAt) {
-        this.formError = 'Say when your client asked. The clock runs from that date.'
+        this.formError = this.$t('firmClientCopyRequests.errors.sayWhen')
         return
       }
 
@@ -362,11 +355,11 @@ export default {
           body: body ? JSON.stringify(body) : undefined
         })
       } catch (e) {
-        throw new Error('The server could not be reached. Check your connection and try again.')
+        throw new Error(this.$t('firmClientCopyRequests.errors.unreachable'))
       }
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        const err = new Error((data.error && data.error.message) || 'That could not be done.')
+        const err = new Error((data.error && data.error.message) || this.$t('firmClientCopyRequests.errors.failed'))
         err.status = res.status
         throw err
       }

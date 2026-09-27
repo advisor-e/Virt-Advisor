@@ -20,7 +20,7 @@
 //
 // Deliberately NOT asserted: wording, headings and CSS classes (Mike's ruling, 2026-08-24).
 
-const { mountWithBuefy } = require('../helpers/mountComponent')
+const { mountWithBuefy, englishMocks } = require('../helpers/mountComponent')
 const Review = require('../../components/firm/DepreciationDocumentReview.vue').default
 
 function entry (over) {
@@ -68,13 +68,13 @@ function doc (over) {
  * The confirmation dialog is mocked rather than rendered: both decisions are guarded by one,
  * and a test that could not reach past it could not check what the decision actually sends.
  */
-function mountReview (document, resolved) {
+function mountReview (document, resolved, extraMocks) {
   return mountWithBuefy(Review, {
     propsData: {
       document: document || doc(),
       resolved: resolved || { categories: {} }
     },
-    mocks: { $buefy: { dialog: { confirm: jest.fn() } } }
+    mocks: Object.assign({}, extraMocks, { $buefy: { dialog: { confirm: jest.fn() } } })
   })
 }
 
@@ -285,7 +285,8 @@ describe('what approval sends', () => {
 
 describe('the gaps a document leaves', () => {
   test('every category with no match is named', () => {
-    const w = mountReview()
+    // Real English from locales/en.json: the gaps panel lists these names to the manager.
+    const w = mountReview(undefined, undefined, englishMocks())
     expect(w.vm.unmatchedLabels).toEqual([
       'Leasehold improvements', 'Plant and equipment', 'Office equipment', 'Computer hardware', 'Other'
     ])

@@ -100,7 +100,10 @@ export default {
   },
 
   css: [
-    'buefy/dist/buefy.css',
+    // Buefy's own stylesheet, rebuilt with the brand's primary blue #0070C0 in place of
+    // its violet (item 16.1). Source: assets/css/buefy-brand.scss; regenerate with
+    // `npm run brand-css`, never by hand.
+    '~/assets/css/buefy-brand.css',
     // Material Design Icons — the icon pack Buefy is built around (its default
     // `iconPack` is 'mdi'), so this completes the locked Bulma+Buefy stack rather
     // than adding a second UI library. Without it every `icon`, `icon-left` and
@@ -136,6 +139,7 @@ export default {
     { path: '/api/advisor/ai-readiness', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/advisor', handler: '~/server-middleware/advisor.js' },
     { path: '/api/translate', handler: '~/server-middleware/translate.js' },
+    { path: '/api/ui-translation', handler: '~/server-middleware/apiProxy.js' },
     { path: '/api/course', handler: '~/server-middleware/course.js' },
     { path: '/api/report', handler: '~/server-middleware/report.js' },
     { path: '/api/cases', handler: '~/server-middleware/apiProxy.js' },

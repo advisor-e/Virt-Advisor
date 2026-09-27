@@ -13,7 +13,7 @@
 //
 // These tests assert POSITION, not just presence.
 
-const { mountWithBuefy } = require('../helpers/mountComponent')
+const { mountWithBuefy, englishMocks } = require('../helpers/mountComponent')
 const FirmManagerHub = require('../../components/FirmManagerHub.vue').default
 
 const PLATFORM_ROWS = [
@@ -44,7 +44,9 @@ const PLATFORM_ROWS = [
 async function mountHub (state) {
   global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
   const wrapper = mountWithBuefy(FirmManagerHub, {
-    propsData: { firmId: 'firm-1', apiToken: 'test-token', userEmail: 'm@x.com' }
+    propsData: { firmId: 'firm-1', apiToken: 'test-token', userEmail: 'm@x.com' },
+    // Real English: these tests read button words and the "1 update" count off the card.
+    mocks: englishMocks()
   })
   await new Promise(resolve => setTimeout(resolve, 0))
   wrapper.setData(Object.assign({

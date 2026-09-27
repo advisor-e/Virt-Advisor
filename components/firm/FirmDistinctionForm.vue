@@ -1,36 +1,36 @@
 <template lang="pug">
 .distinction-fields
-  b-field(label="Domain")
+  b-field(:label="$t('firmDistinctionForm.domain.label')")
     b-select(:value="value.domain" expanded :disabled="domainLocked" @input="update('domain', $event)")
-      option(v-for="d in domains" :key="d.id" :value="d.id") {{ d.label }}
+      option(v-for="d in domains" :key="d.id" :value="d.id") {{ $t(d.labelKey) }}
 
-  b-field(label="Description" message="Describe the client situation in a plain sentence — this is what the AI matches the advisor's words against. Capture the cause, not just the symptom.")
+  b-field(:label="$t('firmDistinctionForm.description.label')" :message="$t('firmDistinctionForm.description.message')")
     b-input(
       :value="value.description"
-      placeholder="e.g. The owners aren't aligned on where the business is heading"
+      :placeholder="$t('firmDistinctionForm.description.placeholder')"
       maxlength="255"
       @input="update('description', $event)"
     )
 
-  b-field(label="Trigger phrases" message="Type a phrase and press Enter or comma to add. These are example ways an advisor might describe this — they guide the AI, which matches on meaning, not exact words, so 3–6 varied examples is plenty.")
+  b-field(:label="$t('firmDistinctionForm.triggers.label')" :message="$t('firmDistinctionForm.triggers.message')")
     b-taginput(
       :value="value.triggers"
       :confirm-key-codes="[13, 188]"
-      placeholder="Add a phrase…"
-      aria-close-label="Remove phrase"
+      :placeholder="$t('firmDistinctionForm.triggers.placeholder')"
+      :aria-close-label="$t('firmDistinctionForm.triggers.removeLabel')"
       @input="update('triggers', $event)"
     )
 
-  b-field(label="Templates to boost")
+  b-field(:label="$t('firmDistinctionForm.templates.label')")
     .template-picker
       .template-picker-filters
         b-select(v-model="pickerSubSection" size="is-small" style="flex:0 0 200px")
-          option(value="") All areas
+          option(value="") {{ $t('firmDistinctionForm.templates.allAreas') }}
           option(v-for="ss in subSections" :key="ss" :value="ss") {{ ss }}
         b-input(
           v-model="pickerSearch"
           size="is-small"
-          placeholder="Search by title…"
+          :placeholder="$t('firmDistinctionForm.templates.searchPlaceholder')"
           icon="magnify"
           style="flex:1"
         )
@@ -63,9 +63,9 @@
           )
           span.template-picker-title {{ t.title }}
           span.template-picker-sub {{ t.subSection }}
-        p.has-text-grey.is-size-7.p-2(v-if="filteredTemplates.length === 0") No templates match — try clearing the filters.
+        p.has-text-grey.is-size-7.p-2(v-if="filteredTemplates.length === 0") {{ $t('firmDistinctionForm.templates.noMatch') }}
       .template-picker-selected(v-if="value.templates.length > 0")
-        span.is-size-7.has-text-grey.mr-2 Selected:
+        span.is-size-7.has-text-grey.mr-2 {{ $t('firmDistinctionForm.templates.selected') }}
         b-tag.mr-1.mb-1(
           v-for="t in value.templates"
           :key="t"
@@ -74,7 +74,7 @@
           @close="toggleTemplate(t)"
         ) {{ chipLabel(t) }}
 
-  b-field(label="Boost score" message="How many points to add to each matched template's score (1–20). Default 5.")
+  b-field(:label="$t('firmDistinctionForm.boost.label')" :message="$t('firmDistinctionForm.boost.message')")
     b-input(
       :value="value.boost"
       type="number"
@@ -86,7 +86,7 @@
 
   .field.is-grouped.mt-4
     b-button(type="is-primary" :loading="saving" @click="$emit('save')") {{ submitLabel }}
-    b-button.ml-2(:disabled="saving" @click="$emit('cancel')") Cancel
+    b-button.ml-2(:disabled="saving" @click="$emit('cancel')") {{ $t('firmDistinctionForm.cancel') }}
 </template>
 
 <script>
@@ -120,7 +120,7 @@ export default {
       required: true,
       validator: v => Array.isArray(v.triggers) && Array.isArray(v.templates)
     },
-    /** Selectable domains: [{ id, label }]. */
+    /** Selectable domains: [{ id, labelKey }] — FirmManagerHub's DISTINCTION_DOMAINS. */
     domains: { type: Array, default: () => [] },
     /**
      * True for a platform or customised row, whose domain is fixed. Moving one to

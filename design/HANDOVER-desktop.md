@@ -9,23 +9,27 @@
 
 ---
 
-## 2026-09-24 (afternoon) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-26 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed at `5bdbda07`. 624 suites / 13,751 tests, audit PASS. PR #130 MERGED to
-`master` at `a23572a4` on Mike's word.** One commit beyond it: the Meeting Review Brief correction.
+**Clean and pushed. 636 suites / 13,787 tests green, audit PASS. 0 behind `master`; everything
+ahead is in PR #134** (opened today, description current). Not merged — that is the master team's.
 
-### 🔴 FOR THE LAPTOP — once you merge `master`
-- **Dictation now stays on the computer (12.2, done, proven by Mike with Wi-Fi off).** Every
-  recogniser is made by `utils/onDeviceSpeech.js` with `processLocally = true`. A new microphone
-  must use `createOnDeviceRecognition`, **never `new SpeechRecognition()`**, or it sends speech to Google.
-- **Two of your 15.1 screens changed by one line each:** `StrategyConceptCapture.vue` and
-  `StrategyOrgChartBuilder.vue` each gained a `speech-status-line` and its import. Nothing else.
-- **Every `/v1/responses` call now sends `store: false`** (`openaiClient.js`), and Meeting Review
-  sends `chunking_strategy=auto`, without which OpenAI refused every transcription.
-- **OpenAI's own docs are saved** in `design/openai/`. Read `design/OPENAI-DEVELOPER-DOCS.md` before
-  any OpenAI change.
+**Worked: 13.5**, now *Foreign currency, freight and duty in the Three-Way Forecast*. Mike ruled
+the design by the accounting standards; the drawing
+[`three-way-forecast-foreign-currency.html`](mockups/three-way-forecast-foreign-currency.html) is
+**approved, not built**; his call is **proceed**. `activeOn` desktop.
+**Shipped:** the forecast's FRS-42 caution, on screen and under every printed statement page.
+**Filed:** 44.1, a full IFRS / FRS-42 review of the forecast plus a disclosure screen for firm
+managers (unranked). **New:** [`CALCULATION-ASSUMPTIONS.md`](CALCULATION-ASSUMPTIONS.md), the
+accountants' record of the forecast's treatments.
 
-### What today settled
-Filed on Mike's yes: **8.3** (Meeting Review's model retires 26 Feb 2027, no speaker-labelling
-successor), **8.4** (meetings over about 27 minutes exceed OpenAI's 25 MB), **13.5** (his FX review of
-imported stock). 5.3 renumbered **5.4**. Nothing is `activeOn` here.
+**Pick up first:** the 13.5 build — engine, screen, saved shape, and a test that runs the
+workbook's twelve months of orders through the engine itself.
+
+### 🔴 FOR THE LAPTOP
+
+- **13.5 will change** `threeWayForecastModel.js` (the overseas schedule), `importShipmentModel.js`,
+  `ThreeWayForecastIntake.vue`, `ThreeWayForecastReport.vue` and `threeWayForecastSavedShape.js`.
+  Ask before touching them. The "Exchange-rate movement" line will hide when it is zero.
+- Yesterday's notes still apply until PR #134 merges: translation is the backend's, `en.json`
+  grew at its tail (keep both sides), and `mountComponent` renders `<i18n>` by default.

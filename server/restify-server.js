@@ -105,6 +105,7 @@ const restify = require('restify')
 
 const healthRoute = require('./routes/health')
 const translateRoute = require('./routes/translate')
+const uiTranslationRoute = require('./routes/uiTranslation')
 const firmManagerRoute = require('./routes/firmManager')
 const activityRoute = require('./routes/activity')
 const casesRoute = require('./routes/cases')
@@ -233,6 +234,10 @@ server.get('/api/health', healthRoute.get)
 // choosing a language, which is exactly who this is for. The route itself reads
 // no identity — the guard is about who may spend the quota, not about scoping.
 server.post('/api/translate/locale', firmAuth, translateRoute.post)
+// The app's own wording in a reader's language, translated once per language by the
+// backend and shared (server/utils/uiTranslation.js). /api/translate/locale above now
+// carries chat messages only — personal content, which stays off the model.
+server.get('/api/ui-translation/:code', firmAuth, uiTranslationRoute.get)
 server.post('/api/advisor/query', firmAuth, advisorEngine)
 // The firm's Advisory Staircase wording for the in-session selector. READ open to
 // any firm user (every advisor is asked the staircase question); the WRITE lives on

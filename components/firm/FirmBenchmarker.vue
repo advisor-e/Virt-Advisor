@@ -2,97 +2,91 @@
 .fbm
   .notification.is-info.is-light.mb-4
     p.is-size-7
-      | The release in force is what every #[b Business Performance Report] compares a client against.
-      |  Every figure here and on the report's benchmark page is Stats NZ's own. Nothing on this
-      |  screen is typed, and nothing is invented: a file with a column missing is refused by the
-      |  column's name, and a ratio Stats NZ did not publish prints as unpublished, never as a zero.
+      i18n(path="firmBenchmarker.intro.body" tag="span")
+        template(#report)
+          b {{ $t('firmBenchmarker.intro.report') }}
 
   .has-text-centered.py-5(v-if="loading")
     b-loading(:is-full-page="false" :active="true")
 
   template(v-else)
     .box
-      p.has-text-weight-semibold.mb-1 In force now
-      p.is-size-7.has-text-grey.mb-3
-        | The shipped release, until a newer one is uploaded here. The report's benchmark page names
-        |  the year and says "provisional" where Stats NZ does.
+      p.has-text-weight-semibold.mb-1 {{ $t('firmBenchmarker.inForce.heading') }}
+      p.is-size-7.has-text-grey.mb-3 {{ $t('firmBenchmarker.inForce.hint') }}
       .fbm-row.fbm-head
-        span Release
-        span Status
-        span.has-text-right Industries
-        span.has-text-right With benchmarks
-        span.has-text-right Published ratios
+        span {{ $t('firmBenchmarker.inForce.columns.release') }}
+        span {{ $t('firmBenchmarker.inForce.columns.status') }}
+        span.has-text-right {{ $t('firmBenchmarker.inForce.columns.industries') }}
+        span.has-text-right {{ $t('firmBenchmarker.inForce.columns.withBenchmarks') }}
+        span.has-text-right {{ $t('firmBenchmarker.inForce.columns.publishedRatios') }}
       .fbm-row(v-if="summary")
         span
           b {{ summary.year }}
           |
-          b-tag(:type="uploaded ? 'is-info is-light' : 'is-light'" size="is-small") {{ uploaded ? 'uploaded here' : 'shipped with the app' }}
-        span.is-size-7.has-text-grey {{ summary.provisional ? 'provisional — Stats NZ: 2023 final, 2024 and 2025 provisional' : 'final' }}
+          b-tag(:type="uploaded ? 'is-info is-light' : 'is-light'" size="is-small") {{ uploaded ? $t('firmBenchmarker.inForce.uploadedHere') : $t('firmBenchmarker.inForce.shippedWithApp') }}
+        span.is-size-7.has-text-grey {{ summary.provisional ? $t('firmBenchmarker.inForce.provisional') : $t('firmBenchmarker.inForce.final') }}
         span.has-text-right {{ summary.counts.industries }}
         span.has-text-right {{ summary.counts.withBenchmarks }}
         span.has-text-right {{ summary.counts.ratioRows.toLocaleString() }}
       p.is-size-7.has-text-grey.mt-2 {{ summary ? summary.source : '' }}
 
     .box
-      p.has-text-weight-semibold.mb-1 Replace the release
+      p.has-text-weight-semibold.mb-1 {{ $t('firmBenchmarker.replace.title') }}
       p.is-size-7.has-text-grey.mb-3
-        | Stats NZ publishes the benchmarker as two CSV files a year, from
-        |  #[b stats.govt.nz › Business performance benchmarker]. Both are needed, and nothing is
-        |  stored until both read cleanly. Each file is read by its column names, so a file from a
-        |  different year works so long as Stats NZ has not renamed a column — and if they have,
-        |  the refusal names the column.
+        i18n(path="firmBenchmarker.replace.intro" tag="span")
+          template(#where)
+            b {{ $t('firmBenchmarker.replace.where') }}
       .fbm-row.fbm-head
-        span File
-        span What it carries
+        span {{ $t('firmBenchmarker.replace.columns.file') }}
+        span {{ $t('firmBenchmarker.replace.columns.carries') }}
         span
         span
         span
       .fbm-row
         span
-          b Benchmark ratios
+          b {{ $t('firmBenchmarker.replace.ratios.name') }}
           |
-          b-tag(type="is-warning is-light" size="is-small") required
-        span.is-size-7.has-text-grey benchmark_ratios_all_industries-&lt;year&gt;-anzsic-class.csv — the eight ratios by industry and size band: 25th percentile, median, 75th percentile, and each band's turnover range
+          b-tag(type="is-warning is-light" size="is-small") {{ $t('firmBenchmarker.replace.required') }}
+        span.is-size-7.has-text-grey {{ $t('firmBenchmarker.replace.ratios.carries') }}
         b-field.fbm-file(grouped)
           b-upload(v-model="ratiosFile" accept=".csv,text/csv")
             a.button.is-small.is-light
-              span {{ ratiosFile ? ratiosFile.name : 'Choose file' }}
+              span {{ ratiosFile ? ratiosFile.name : $t('firmBenchmarker.replace.chooseFile') }}
         span
         span
       .fbm-row
         span
-          b Financial
+          b {{ $t('firmBenchmarker.replace.financial.name') }}
           |
-          b-tag(type="is-warning is-light" size="is-small") required
-        span.is-size-7.has-text-grey financial_all_industries-&lt;year&gt;.csv — business and employee counts, income, expenditure, profit and assets, with Stats NZ's accuracy category and suppression marks
+          b-tag(type="is-warning is-light" size="is-small") {{ $t('firmBenchmarker.replace.required') }}
+        span.is-size-7.has-text-grey {{ $t('firmBenchmarker.replace.financial.carries') }}
         b-field.fbm-file(grouped)
           b-upload(v-model="financialFile" accept=".csv,text/csv")
             a.button.is-small.is-light
-              span {{ financialFile ? financialFile.name : 'Choose file' }}
+              span {{ financialFile ? financialFile.name : $t('firmBenchmarker.replace.chooseFile') }}
         span
         span
       p.is-size-7.has-text-grey.mt-2
-        | #[b What happens on Replace.] Both files are read; the screen shows what it found — the year,
-        |  how many industries, how many with benchmarks, how many published ratios — and the release
-        |  goes into force for every report from then on. The previous release stays in the version
-        |  history below, and Restore brings it back in one click.
+        i18n(path="firmBenchmarker.replace.onReplace" tag="span")
+          template(#whatHappens)
+            b {{ $t('firmBenchmarker.replace.whatHappens') }}
       b-message(v-if="saveError" type="is-danger" size="is-small") {{ saveError }}
       .buttons.mt-3
-        b-button(type="is-primary" :loading="saving" :disabled="!ratiosFile || !financialFile" @click="upload") Replace the release
-        span.is-size-7.has-text-grey Nothing is stored until both files read cleanly.
+        b-button(type="is-primary" :loading="saving" :disabled="!ratiosFile || !financialFile" @click="upload") {{ $t('firmBenchmarker.replace.title') }}
+        span.is-size-7.has-text-grey {{ $t('firmBenchmarker.replace.nothingStored') }}
 
     .box
-      p.has-text-weight-semibold.mb-2 Version history
-      p.is-size-7.has-text-grey.mb-2 Every release ever uploaded here, newest first, with Restore — the same history every Model Inputs tab has.
-      p.is-size-7.has-text-grey(v-if="!history.length") No release has been uploaded yet; the shipped release is in force.
+      p.has-text-weight-semibold.mb-2 {{ $t('firmBenchmarker.history.heading') }}
+      p.is-size-7.has-text-grey.mb-2 {{ $t('firmBenchmarker.history.hint') }}
+      p.is-size-7.has-text-grey(v-if="!history.length") {{ $t('firmBenchmarker.history.empty') }}
       table.table.is-fullwidth.is-narrow(v-else)
         tbody
           tr(v-for="h in history" :key="h.id")
-            td Version {{ h.version }}
+            td {{ $t('firmBenchmarker.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.created_by }}
             td.is-size-7.has-text-grey {{ h.created_at }}
             td.has-text-right
-              b-button(size="is-small" type="is-light" @click="restore(h.id)") Restore
+              b-button(size="is-small" type="is-light" @click="restore(h.id)") {{ $t('firmBenchmarker.history.restore') }}
 </template>
 
 <script>
@@ -170,7 +164,7 @@ export default {
         if (!res.ok) { throw new Error((body.error && body.error.message) || res.statusText) }
         this.ratiosFile = null
         this.financialFile = null
-        this.$buefy.toast.open({ message: 'The ' + body.dataset.year + ' release is now in force', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmBenchmarker.toast.nowInForce', { year: body.dataset.year }), type: 'is-success' })
         await this.load()
       } catch (err) {
         this.saveError = err.message
@@ -184,7 +178,7 @@ export default {
       try {
         await this.api('POST', '/api/firm-manager/benchmarker/restore', { versionId })
         await this.load()
-        this.$buefy.toast.open({ message: 'That release is back in force', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmBenchmarker.toast.restored'), type: 'is-success' })
       } catch (err) {
         this.saveError = err.message
       }

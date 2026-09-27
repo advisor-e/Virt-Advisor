@@ -9,6 +9,7 @@
 const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
+const { StringDecoder } = require('string_decoder')
 const { getOrgTemplates, filterTemplatesByQuery, formatTemplatesForPrompt } = require('../server/utils/templates')
 const { loadFirmCoaching, formatFirmCoachingForPrompt } = require('../server/utils/coaching')
 // Item 4.31 step 4 — the material a level has put in force for itself, plus what it has
@@ -1534,6 +1535,8 @@ module.exports = function advisorMiddleware (req, res, next) {
   let body = ''
   let bodySize = 0
   let bodyRejected = false
+  // One decoder for the whole body, so a letter split across two chunks arrives whole.
+  const bodyDecoder = new StringDecoder('utf8')
 
   req.on('error', (err) => {
     console.error('[advisor] Request socket error:', err.message)
@@ -1549,11 +1552,12 @@ module.exports = function advisorMiddleware (req, res, next) {
       req.socket && req.socket.destroy()
       return
     }
-    body += chunk.toString('utf8')
+    body += bodyDecoder.write(chunk)
   })
 
   req.on('end', () => {
     if (bodyRejected) { return }
+    body += bodyDecoder.end()
     // Identity is taken from the firmAuth-verified request, never the body.
     handleQuery(body, res, { firmId: req.firmId, advisorId: req.advisorId, advisorName: req.advisorName }).catch((err) => {
       console.error('[advisor] Unhandled error:', err.message)

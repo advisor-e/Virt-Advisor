@@ -3,7 +3,7 @@
 
   //- ── Course builder nav bar ──────────────────────────────────────────────
   .cb-nav-bar
-    button.btn-my-courses(@click="goToCourses") ← My Courses
+    button.btn-my-courses(@click="goToCourses") {{ $t('courseBuilder.nav.myCourses') }}
 
   //- ── AI processing bar — visible whenever any AI call is in-flight ────────
   .ai-loading-bar(v-if="isDesignStreaming || isSessionStreaming || isGeneratingQuiz")
@@ -11,38 +11,38 @@
   //- Server-storage error (CB-16/17) — a failed load/save is never silent.
   .course-error-banner(v-if="courseError")
     span {{ courseError }}
-    button.btn-error-retry(v-if="courseLoadFailed" @click="retryCourseLoad") Try again
+    button.btn-error-retry(v-if="courseLoadFailed" @click="retryCourseLoad") {{ $t('courseBuilder.tryAgain') }}
 
   //- ── PHASE: Courses (picker) ────────────────────────────────────────────
   template(v-if="phase === 'courses'")
     .courses-picker
       .courses-picker-header
-        h2.picker-heading Your saved courses
-        p.picker-sub Pick up where you left off, or start something new.
+        h2.picker-heading {{ $t('courseBuilder.picker.heading') }}
+        p.picker-sub {{ $t('courseBuilder.picker.sub') }}
       .courses-list
         .course-row(v-for="c in savedCourses" :key="c.id")
           .course-row-info
             strong.course-row-title {{ c.outline.title }}
-            p.course-row-meta {{ c.outline.sessions.length }} sessions · {{ (c.progress || []).filter(p => p.status === 'complete').length }} complete
+            p.course-row-meta {{ $t('courseBuilder.picker.meta', { sessions: c.outline.sessions.length, complete: (c.progress || []).filter(p => p.status === 'complete').length }) }}
           .course-row-status
-            span.course-status-badge(:class="c.status === 'active' ? 'badge-status-active' : 'badge-status-paused'") {{ c.status === 'active' ? 'Active' : 'Paused' }}
-            span.course-shared-badge(v-if="c.visibility === 'firm'") Shared
-          button.btn-share-toggle(@click="toggleShareCourse(c)") {{ c.visibility === 'firm' ? 'Make private' : 'Share with firm' }}
-          button.btn-resume-picker-course(@click="resumeCourse(c)") Resume →
-          button.btn-remove-picker-course(@click="removeSavedCourse(c)") ✕ Remove
+            span.course-status-badge(:class="c.status === 'active' ? 'badge-status-active' : 'badge-status-paused'") {{ c.status === 'active' ? $t('courseBuilder.picker.active') : $t('courseBuilder.picker.paused') }}
+            span.course-shared-badge(v-if="c.visibility === 'firm'") {{ $t('courseBuilder.picker.shared') }}
+          button.btn-share-toggle(@click="toggleShareCourse(c)") {{ c.visibility === 'firm' ? $t('courseBuilder.picker.makePrivate') : $t('courseBuilder.picker.shareWithFirm') }}
+          button.btn-resume-picker-course(@click="resumeCourse(c)") {{ $t('courseBuilder.picker.resume') }}
+          button.btn-remove-picker-course(@click="removeSavedCourse(c)") {{ $t('courseBuilder.picker.remove') }}
 
       //- ── Shared by your team (CB-07) — outline-only summaries; "Use this
       //-    course" makes the advisor's own fresh copy (personal-copy model).
       .shared-courses-section(v-if="sharedCourses.length")
-        h3.shared-heading Shared by your team
+        h3.shared-heading {{ $t('courseBuilder.picker.sharedHeading') }}
         .courses-list
           .course-row(v-for="c in sharedCourses" :key="'shared-' + c.id")
             .course-row-info
               strong.course-row-title {{ c.outline.title }}
-              p.course-row-meta {{ c.outline.sessions.length }} sessions · shared by {{ c.authorAdvisorId }}
-            button.btn-use-shared-course(@click="useSharedCourse(c)" :disabled="isCopyingSharedId === c.id") {{ isCopyingSharedId === c.id ? 'Copying...' : 'Use this course' }}
+              p.course-row-meta {{ $t('courseBuilder.picker.sharedMeta', { sessions: c.outline.sessions.length, author: c.authorAdvisorId }) }}
+            button.btn-use-shared-course(@click="useSharedCourse(c)" :disabled="isCopyingSharedId === c.id") {{ isCopyingSharedId === c.id ? $t('courseBuilder.picker.copying') : $t('courseBuilder.picker.useCourse') }}
       .courses-picker-footer
-        button.btn-new-course-main(@click="startFreshCourse") + Build a new course
+        button.btn-new-course-main(@click="startFreshCourse") {{ $t('courseBuilder.picker.newCourse') }}
 
   //- ── PHASE: Design ───────────────────────────────────────────────────────
   template(v-else-if="phase === 'design'")
@@ -57,7 +57,7 @@
 
       //- Pre-built starters — shown only at the opening screen
       .starters-section(v-if="designMessages.length === 1 && !isDesignStreaming")
-        p.starters-heading Build from a template
+        p.starters-heading {{ $t('courseBuilder.design.startersHeading') }}
         .starters-grid
           .starter-card(
             v-for="s in courseStarters"
@@ -69,7 +69,7 @@
             .starter-card-body
               h3.starter-title {{ s.title }}
               p.starter-blurb {{ s.blurb }}
-              span.starter-btn Start building →
+              span.starter-btn {{ $t('courseBuilder.design.startBuilding') }}
 
       //- Streaming indicator
       course-message(v-if="isDesignStreaming" streaming)
@@ -84,19 +84,19 @@
         b-select.fit-select(
           v-model="fitChoice"
           expanded
-          aria-label="Choose how this course is split into sessions"
+          :aria-label="$t('courseBuilder.design.fitAria')"
         )
-          option(value="" disabled) Choose one…
+          option(value="" disabled) {{ $t('courseBuilder.design.fitChooseOne') }}
           option(v-for="o in fitChoices" :key="o.id" :value="o.id") {{ o.label }}
-        button.btn-build-course(@click="sendFitChoice" :disabled="!fitChoice") Build my course →
+        button.btn-build-course(@click="sendFitChoice" :disabled="!fitChoice") {{ $t('courseBuilder.design.fitBuild') }}
 
       //- Course outline confirmation card
       .outline-card(v-if="pendingOutline && !isDesignStreaming")
         .outline-card-header
           h3.outline-title {{ pendingOutline.title }}
           .outline-meta
-            span.outline-tag {{ pendingOutline.totalSessions }} sessions
-            span.outline-tag {{ pendingOutline.intensity === 'progressive' ? 'Progressive difficulty' : 'Consistent depth' }}
+            span.outline-tag {{ $t('courseBuilder.outline.sessionCount', { count: pendingOutline.totalSessions }) }}
+            span.outline-tag {{ pendingOutline.intensity === 'progressive' ? $t('courseBuilder.outline.progressive') : $t('courseBuilder.outline.consistent') }}
             //- The real length of the whole course, added up from the
             //- resources rather than restated from the request.
             span.outline-tag(v-if="outlineTotalLabel(pendingOutline)") {{ outlineTotalLabel(pendingOutline) }}
@@ -120,11 +120,11 @@
                   a.resource-tag.resource-tag-link(v-if="s.resourceLinks && s.resourceLinks[r]" :key="r" :href="s.resourceLinks[r]" target="_blank" rel="noopener noreferrer") {{ r }} ↗
                   span.resource-tag(v-else :key="r") {{ r }}
               //- CB-27: an empty slot says so plainly — never a silent blank.
-              p.session-resources-empty(v-else) No library resource matched this session — it runs from the session focus instead.
+              p.session-resources-empty(v-else) {{ $t('courseBuilder.outline.noResource') }}
               //- A length that is the standard allowance rather than a
               //- published time says so — an estimate shown as a measurement is
               //- the same defect as the AI's echoed 30 minutes.
-              p.session-time-unknown(v-if="s.estimatedTime") Estimated — the library publishes no time for this template.
+              p.session-time-unknown(v-if="s.estimatedTime") {{ $t('courseBuilder.outline.estimated') }}
               //- A resource the export never timed is named, not counted as
               //- zero: an unknown length must not read as "no work".
               p.session-time-unknown(v-if="sessionUnknownLabel(s)") {{ sessionUnknownLabel(s) }}
@@ -134,28 +134,28 @@
         //- CB-26: code-detected session-count mismatch — the engine flags it;
         //- the AI is never trusted to confess a deviation itself.
         .outline-count-notice(v-if="courseState.sessionCountNotice")
-          | You asked for {{ countNoticeAsked }} — this outline has {{ courseState.sessionCountNotice.delivered }}. Use 'Request changes' if you want it changed.
+          | {{ $t('courseBuilder.outline.countNotice', { asked: countNoticeAsked, delivered: courseState.sessionCountNotice.delivered }) }}
         //- The same check on the other half of that one answer: sessions whose
         //- real length misses what the advisor asked for.
         .outline-count-notice(v-if="courseState.sessionLengthNotice")
-          | You asked for {{ lengthNoticeAsked }} sessions — {{ lengthNoticeText }}. {{ lengthNoticeAdvice }}
+          | {{ $t('courseBuilder.outline.lengthNotice', { asked: lengthNoticeAsked, text: lengthNoticeText, advice: lengthNoticeAdvice }) }}
         .outline-visibility
-          p.visibility-label Who can access this course?
+          p.visibility-label {{ $t('courseBuilder.outline.visibilityLabel') }}
           .visibility-opts
             button.vis-opt(:class="{ 'vis-active': courseVisibility === 'private' }" @click="courseVisibility = 'private'")
               span.vis-icon 🔒
-              span Private — just me
+              span {{ $t('courseBuilder.outline.private') }}
             //- CB-07 sharing is LIVE (Mike's personal-copy ruling 2026-07-16):
             //- a firm-wide course appears in teammates' "Shared by your team"
             //- list as an outline-only template they copy.
             button.vis-opt(:class="{ 'vis-active': courseVisibility === 'firm' }" @click="courseVisibility = 'firm'")
               span.vis-icon 🏢
-              span Firm-wide — all advisors
+              span {{ $t('courseBuilder.outline.firm') }}
         .outline-actions
           button.btn-start-course(@click="confirmOutline" :disabled="isSavingCourse")
-            span(v-if="isSavingCourse") Saving...
-            span(v-else) Start this course →
-          button.btn-request-changes(@click="requestOutlineChanges" :disabled="isSavingCourse") Request changes
+            span(v-if="isSavingCourse") {{ $t('courseBuilder.outline.saving') }}
+            span(v-else) {{ $t('courseBuilder.outline.start') }}
+          button.btn-request-changes(@click="requestOutlineChanges" :disabled="isSavingCourse") {{ $t('courseBuilder.outline.requestChanges') }}
 
     .input-area
       speech-status-line(:state="speechState")
@@ -170,7 +170,7 @@
         textarea.message-input(
           v-model="designInput"
           @keydown.enter.exact.prevent="sendDesignMessage"
-          :placeholder="isListening ? '🎤 Listening...' : (pendingOutline ? 'Request any changes, or click Start above...' : 'Type your answer...')"
+          :placeholder="isListening ? $t('courseBuilder.input.listening') : (pendingOutline ? $t('courseBuilder.input.requestChanges') : $t('courseBuilder.input.typeAnswer'))"
           rows="3"
           :disabled="isDesignStreaming"
           :class="{ 'input-listening': isListening, 'input-ready': !isListening && designInput.trim() }"
@@ -179,11 +179,11 @@
           @click="sendDesignMessage"
           :disabled="!designInput.trim() || isDesignStreaming"
         )
-          span(v-if="isDesignStreaming") Thinking...
-          span(v-else) Save & Continue
-      p.input-hint(v-if="!speechSupported") Press Enter to send · Shift+Enter for new line
+          span(v-if="isDesignStreaming") {{ $t('courseBuilder.input.thinking') }}
+          span(v-else) {{ $t('courseBuilder.input.saveContinue') }}
+      p.input-hint(v-if="!speechSupported") {{ $t('courseBuilder.input.hint') }}
       p.design-reset-row
-        button.btn-start-fresh(@click="confirmDeleteCourse") ✕ Start fresh
+        button.btn-start-fresh(@click="confirmDeleteCourse") {{ $t('courseBuilder.design.startFresh') }}
 
   //- ── PHASE: Session ──────────────────────────────────────────────────────
   template(v-else-if="phase === 'session'")
@@ -191,14 +191,14 @@
       .session-progress-track
         .session-progress-fill(:style="{ width: progressPercent + '%' }")
       .session-progress-label
-        span {{ completedSessionCount }} of {{ activeCourse.outline.sessions.length }} sessions complete
+        span {{ $t('courseBuilder.session.progress', { done: completedSessionCount, total: activeCourse.outline.sessions.length }) }}
         .session-top-actions
-          button.btn-new-course(@click="buildNewCourse") + Build a new course
-          button.btn-delete-course(@click="confirmDeleteCourse") ✕ Delete course
+          button.btn-new-course(@click="buildNewCourse") {{ $t('courseBuilder.picker.newCourse') }}
+          button.btn-delete-course(@click="confirmDeleteCourse") {{ $t('courseBuilder.session.deleteCourse') }}
 
     .session-header
       .session-header-info
-        span.session-badge Session {{ activeSessionIndex + 1 }}
+        span.session-badge {{ $t('courseBuilder.session.badge', { n: activeSessionIndex + 1 }) }}
         h3.session-title-heading {{ currentSession.title }}
         p.session-focus-text {{ currentSession.focus }}
         //- CB-25: the session's resource, always visible and clickable here —
@@ -208,28 +208,28 @@
             a.resource-tag.resource-tag-link(v-if="currentSession.resourceLinks && currentSession.resourceLinks[r]" :key="r" :href="currentSession.resourceLinks[r]" target="_blank" rel="noopener noreferrer") {{ r }} ↗
             span.resource-tag(v-else :key="r") {{ r }}
         //- CB-27: an empty slot says so plainly — never a silent blank.
-        p.session-resources-empty(v-else) No library resource matched this session — it runs from the session focus instead.
+        p.session-resources-empty(v-else) {{ $t('courseBuilder.outline.noResource') }}
       .session-quiz-actions
-        button.btn-view-overview(@click="viewCourseOverview") ≡ Overview
-        button.btn-my-notes(@click="showNotes = !showNotes" :class="{ 'notes-active': showNotes }") ✎ My Session Notes
+        button.btn-view-overview(@click="viewCourseOverview") {{ $t('courseBuilder.session.overview') }}
+        button.btn-my-notes(@click="showNotes = !showNotes" :class="{ 'notes-active': showNotes }") {{ $t('courseBuilder.session.myNotes') }}
         button.btn-end-session(
           @click="endSessionAndQuiz"
           :disabled="isSessionStreaming || sessionMessages.length < 2 || isGeneratingQuiz"
-          :title="sessionMessages.length < 2 ? 'Have the session conversation first' : 'End session and take the quiz'"
+          :title="sessionMessages.length < 2 ? $t('courseBuilder.session.needConversation') : $t('courseBuilder.session.endTitle')"
         )
-          span(v-if="isGeneratingQuiz") Generating quiz...
-          span(v-else) ✓ End session & take quiz
-        button.btn-skip-quiz(v-if="quizError" @click="skipQuizAndContinue") Skip quiz & continue →
+          span(v-if="isGeneratingQuiz") {{ $t('courseBuilder.session.generatingQuiz') }}
+          span(v-else) {{ $t('courseBuilder.session.endAndQuiz') }}
+        button.btn-skip-quiz(v-if="quizError" @click="skipQuizAndContinue") {{ $t('courseBuilder.session.skipQuiz') }}
       p.quiz-gen-error(v-if="quizError") {{ quizError }}
 
     .notes-panel(v-show="showNotes")
       .notes-panel-header
-        span.notes-panel-title My session notes
+        span.notes-panel-title {{ $t('courseBuilder.session.notesTitle') }}
         button.notes-close(@click="showNotes = false") ✕
       textarea.notes-textarea(
         :value="currentNotes"
         @input="saveNote($event.target.value)"
-        placeholder="Jot down key takeaways, questions, or ideas..."
+        :placeholder="$t('courseBuilder.session.notesPlaceholder')"
         rows="5"
       )
 
@@ -261,7 +261,7 @@
         textarea.message-input(
           v-model="sessionInput"
           @keydown.enter.exact.prevent="sendSessionMessage"
-          :placeholder="isListening ? '🎤 Listening...' : 'Ask questions, share your thoughts...'"
+          :placeholder="isListening ? $t('courseBuilder.input.listening') : $t('courseBuilder.input.askQuestions')"
           rows="3"
           :disabled="isSessionStreaming || isGeneratingQuiz"
           :class="{ 'input-listening': isListening, 'input-ready': !isListening && sessionInput.trim() }"
@@ -271,21 +271,21 @@
           :disabled="!sessionInput.trim() || isSessionStreaming || isGeneratingQuiz"
         )
           span(v-if="isSessionStreaming") ...
-          span(v-else) Save & Continue
-      p.input-hint(v-if="!speechSupported") Press Enter to send · Shift+Enter for new line
+          span(v-else) {{ $t('courseBuilder.input.saveContinue') }}
+      p.input-hint(v-if="!speechSupported") {{ $t('courseBuilder.input.hint') }}
 
   //- ── PHASE: Overview ─────────────────────────────────────────────────────
   template(v-else-if="phase === 'overview'")
     .course-overview
       .overview-header
-        button.btn-back-to-session(@click="resumeSession") ← Back to session
+        button.btn-back-to-session(@click="resumeSession") {{ $t('courseBuilder.overview.back') }}
         h2.overview-course-title {{ activeCourse.outline.title }}
         p.overview-course-topic {{ activeCourse.outline.topic }}
         .overview-progress-row
           .overview-progress-track
             .overview-progress-fill(:style="{ width: progressPercent + '%' }")
           span.overview-progress-text
-            | {{ completedSessionCount }} of {{ activeCourse.outline.sessions.length }} sessions complete
+            | {{ $t('courseBuilder.session.progress', { done: completedSessionCount, total: activeCourse.outline.sessions.length }) }}
             span(v-if="outlineTotalLabel(activeCourse.outline)")  · {{ outlineTotalLabel(activeCourse.outline) }}
       .overview-sessions
         //- CB-32 (Mike 2026-07-16): any session opens from here, and ▲▼
@@ -297,8 +297,8 @@
           :class="{ 'ov-active': i === activeSessionIndex && activeCourse.progress[i].status !== 'complete', 'ov-done': activeCourse.progress[i].status === 'complete' }"
         )
           .ov-reorder
-            button.btn-move-session(@click="moveSession(i, -1)" :disabled="i === 0" title="Move earlier") ▲
-            button.btn-move-session(@click="moveSession(i, 1)" :disabled="i === activeCourse.outline.sessions.length - 1" title="Move later") ▼
+            button.btn-move-session(@click="moveSession(i, -1)" :disabled="i === 0" :title="$t('courseBuilder.overview.moveEarlier')") ▲
+            button.btn-move-session(@click="moveSession(i, 1)" :disabled="i === activeCourse.outline.sessions.length - 1" :title="$t('courseBuilder.overview.moveLater')") ▼
           .ov-session-num {{ i + 1 }}
           .ov-session-info
             strong.ov-session-title {{ s.title }}
@@ -311,22 +311,22 @@
               button.btn-review-quiz(
                 v-if="activeCourse.progress[i].quizResults && activeCourse.progress[i].quizResults.length"
                 @click="viewQuizReview(i)"
-              ) Review
-            span.ov-badge.ov-badge-active(v-else-if="i === activeSessionIndex") Active
-            span.ov-badge.ov-badge-pending(v-else) Upcoming
-            button.btn-open-session(@click="openSession(i)") Open →
+              ) {{ $t('courseBuilder.overview.review') }}
+            span.ov-badge.ov-badge-active(v-else-if="i === activeSessionIndex") {{ $t('courseBuilder.overview.active') }}
+            span.ov-badge.ov-badge-pending(v-else) {{ $t('courseBuilder.overview.upcoming') }}
+            button.btn-open-session(@click="openSession(i)") {{ $t('courseBuilder.overview.open') }}
       .overview-footer
-        button.btn-resume-session(@click="resumeSession") → Resume Session {{ activeSessionIndex + 1 }}
-        button.btn-delete-course(@click="confirmDeleteCourse") ✕ Delete course
+        button.btn-resume-session(@click="resumeSession") {{ $t('courseBuilder.overview.resume', { n: activeSessionIndex + 1 }) }}
+        button.btn-delete-course(@click="confirmDeleteCourse") {{ $t('courseBuilder.session.deleteCourse') }}
 
   //- ── PHASE: Quiz ─────────────────────────────────────────────────────────
   template(v-else-if="phase === 'quiz'")
     .quiz-container
       .quiz-header
-        h3.quiz-heading Session {{ activeSessionIndex + 1 }} Quiz
-        p.quiz-sub Test your understanding before moving on
+        h3.quiz-heading {{ $t('courseBuilder.quiz.heading', { n: activeSessionIndex + 1 }) }}
+        p.quiz-sub {{ $t('courseBuilder.quiz.sub') }}
         .quiz-progress-row
-          span Question {{ Math.min(quizCurrentIndex + 1, quizQuestions.length) }} of {{ quizQuestions.length }}
+          span {{ $t('courseBuilder.quiz.progress', { current: Math.min(quizCurrentIndex + 1, quizQuestions.length), total: quizQuestions.length }) }}
           .quiz-dots
             span.quiz-dot(
               v-for="(q, i) in quizQuestions"
@@ -346,12 +346,12 @@
             :text="quizAnswer"
             :listening="isListening"
             :disabled="isGrading"
-            ready-label="Captured — review then Submit"
+            :ready-label="$t('courseBuilder.quiz.voiceReady')"
             @toggle="toggleListening"
           )
           textarea.quiz-textarea(
             v-model="quizAnswer"
-            :placeholder="isListening ? '🎤 Listening...' : 'Type your answer here...'"
+            :placeholder="isListening ? $t('courseBuilder.input.listening') : $t('courseBuilder.quiz.placeholder')"
             rows="5"
             :disabled="isGrading"
             :class="{ 'input-listening': isListening, 'input-ready': !isListening && quizAnswer.trim() }"
@@ -360,83 +360,83 @@
             @click="submitAnswer"
             :disabled="!quizAnswer.trim() || isGrading"
           )
-            span(v-if="isGrading") Evaluating...
-            span(v-else) Submit answer
+            span(v-if="isGrading") {{ $t('courseBuilder.quiz.evaluating') }}
+            span(v-else) {{ $t('courseBuilder.quiz.submit') }}
 
         .quiz-result-card(v-if="currentResult")
           .result-badge(:class="currentResult.ungraded ? 'badge-ungraded' : (currentResult.passed ? 'badge-pass' : 'badge-fail')")
-            | {{ currentResult.ungraded ? '— Not graded' : (currentResult.passed ? '✓ Good understanding' : '✗ Review this one') }}
-          p.result-score(v-if="!currentResult.ungraded") Score: {{ currentResult.score }}%
-          p.result-feedback {{ currentResult.feedback }}
+            | {{ currentResult.ungraded ? $t('courseBuilder.quiz.notGraded') : (currentResult.passed ? $t('courseBuilder.quiz.good') : $t('courseBuilder.quiz.reviewThis')) }}
+          p.result-score(v-if="!currentResult.ungraded") {{ $t('courseBuilder.quiz.score', { score: currentResult.score }) }}
+          p.result-feedback {{ feedbackText(currentResult) }}
           //- The firm's authored answer, revealed only after grading. Only
           //- bank-backed questions carry one — AI-generated questions have no
           //- authored answer and never fabricate one.
           .model-answer-block(v-if="currentResult.modelAnswer")
-            p.model-answer-label Model answer
+            p.model-answer-label {{ $t('courseBuilder.quiz.modelAnswer') }}
             p.model-answer-text {{ currentResult.modelAnswer }}
-            p.model-answer-keypoint(v-if="currentResult.modelKeyPoint") Key point: {{ currentResult.modelKeyPoint }}
+            p.model-answer-keypoint(v-if="currentResult.modelKeyPoint") {{ $t('courseBuilder.quiz.keyPoint', { point: currentResult.modelKeyPoint }) }}
           button.btn-next-q(@click="nextQuestion")
-            | {{ quizCurrentIndex < quizQuestions.length - 1 ? 'Next question →' : 'See results' }}
+            | {{ quizCurrentIndex < quizQuestions.length - 1 ? $t('courseBuilder.quiz.next') : $t('courseBuilder.quiz.seeResults') }}
 
       //- Quiz complete — results summary
       .quiz-results(v-if="quizComplete")
         .results-score-circle(:class="quizPassed ? 'score-pass' : 'score-needs-work'")
           span.score-number {{ overallScore === null ? '—' : overallScore + '%' }}
-          span.score-label {{ quizUngraded ? 'Not graded' : (quizPassed ? 'Passed' : 'Keep going') }}
-        p.results-verdict(v-if="quizUngraded") This quiz couldn't be marked this time — your session is still complete, and you can revisit the material any time.
-        p.results-verdict(v-else-if="quizPassed") Great work — you've completed this session.
-        p.results-verdict(v-else) No problem — you can revisit the session material any time.
+          span.score-label {{ quizUngraded ? $t('courseBuilder.results.notGraded') : (quizPassed ? $t('courseBuilder.results.passed') : $t('courseBuilder.results.keepGoing')) }}
+        p.results-verdict(v-if="quizUngraded") {{ $t('courseBuilder.results.ungradedVerdict') }}
+        p.results-verdict(v-else-if="quizPassed") {{ $t('courseBuilder.results.passedVerdict') }}
+        p.results-verdict(v-else) {{ $t('courseBuilder.results.failedVerdict') }}
         .results-breakdown
           .result-row(v-for="(r, i) in quizResults" :key="i")
-            span.q-num Q{{ i + 1 }}
+            span.q-num {{ $t('courseBuilder.results.questionNumber', { n: i + 1 }) }}
             span.q-result-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : r.score + '%' }}
-            p.q-feedback-brief {{ r.feedback.slice(0, 80) }}{{ r.feedback.length > 80 ? '...' : '' }}
+            p.q-feedback-brief {{ feedbackText(r).slice(0, 80) }}{{ feedbackText(r).length > 80 ? '...' : '' }}
         button.btn-continue-course(@click="completeSession")
-          | {{ hasMoreSessions ? 'Continue to session ' + (activeSessionIndex + 2) + ' →' : 'Complete course' }}
+          | {{ hasMoreSessions ? $t('courseBuilder.results.continue', { n: activeSessionIndex + 2 }) : $t('courseBuilder.results.complete') }}
 
   //- ── PHASE: Quiz Review ──────────────────────────────────────────────────
   template(v-else-if="phase === 'quiz-review'")
     .quiz-review-container
       .quiz-review-header
-        button.btn-back-to-overview(@click="backFromQuizReview") ← Back to overview
-        h3.review-heading Quiz review — Session {{ reviewSessionIndex + 1 }}
+        button.btn-back-to-overview(@click="backFromQuizReview") {{ $t('courseBuilder.review.back') }}
+        h3.review-heading {{ $t('courseBuilder.review.heading', { n: reviewSessionIndex + 1 }) }}
       .review-questions
         .review-q-row(v-for="(r, i) in reviewResults" :key="i")
           .review-q-meta
-            span.review-q-num Q{{ i + 1 }}
+            span.review-q-num {{ $t('courseBuilder.results.questionNumber', { n: i + 1 }) }}
             span.review-q-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : r.score + '%' }}
-            span.review-badge(:class="r.ungraded ? 'badge-ungraded' : (r.passed ? 'badge-pass' : 'badge-fail')") {{ r.ungraded ? '— Not graded' : (r.passed ? '✓ Good understanding' : '✗ Review this one') }}
+            span.review-badge(:class="r.ungraded ? 'badge-ungraded' : (r.passed ? 'badge-pass' : 'badge-fail')") {{ r.ungraded ? $t('courseBuilder.quiz.notGraded') : (r.passed ? $t('courseBuilder.quiz.good') : $t('courseBuilder.quiz.reviewThis')) }}
           p.review-q-text {{ r.question }}
           //- Where the question came from. Older saved results carry no
           //- provenance, so both lines stay hidden rather than guessing.
           p.review-q-source(v-if="r.bankKey")
-            | from {{ r.bankKey }} · question {{ r.bankRef }}{{ r.bankSource ? ' · ' + r.bankSource : '' }}
+            | {{ $t('courseBuilder.review.source', { bank: r.bankKey, ref: r.bankRef }) }}{{ r.bankSource ? ' · ' + r.bankSource : '' }}
           //- Explicit null = this page has no bank. Undefined = a result saved
           //- before provenance existed, which says nothing rather than guessing.
           p.review-q-source(v-else-if="r.bankKey === null")
-            | AI-written from the session content
+            | {{ $t('courseBuilder.review.aiWritten') }}
           .review-answer-block
-            p.review-answer-label Your answer
+            p.review-answer-label {{ $t('courseBuilder.review.yourAnswer') }}
             p.review-answer-text {{ r.answer }}
           .model-answer-block(v-if="r.modelAnswer")
-            p.model-answer-label Model answer
+            p.model-answer-label {{ $t('courseBuilder.quiz.modelAnswer') }}
             p.model-answer-text {{ r.modelAnswer }}
-            p.model-answer-keypoint(v-if="r.modelKeyPoint") Key point: {{ r.modelKeyPoint }}
-          p.review-feedback {{ r.feedback }}
+            p.model-answer-keypoint(v-if="r.modelKeyPoint") {{ $t('courseBuilder.quiz.keyPoint', { point: r.modelKeyPoint }) }}
+          p.review-feedback {{ feedbackText(r) }}
 
   //- ── PHASE: Complete ─────────────────────────────────────────────────────
   template(v-else-if="phase === 'complete'")
     .completion-screen
       .completion-check ✓
-      h2.completion-heading Course complete!
+      h2.completion-heading {{ $t('courseBuilder.complete.heading') }}
       p.completion-course-name {{ activeCourse.outline.title }}
       .completion-stats
         .comp-stat
           span.stat-number {{ completedSessionCount }}
-          span.stat-label Sessions completed
+          span.stat-label {{ $t('courseBuilder.complete.sessions') }}
         .comp-stat
           span.stat-number {{ averageScore }}%
-          span.stat-label Average quiz score
+          span.stat-label {{ $t('courseBuilder.complete.average') }}
       .completion-sessions
         .comp-session-row(v-for="(s, i) in activeCourse.outline.sessions" :key="i")
           .comp-session-num {{ i + 1 }}
@@ -446,30 +446,30 @@
             span(:class="activeCourse.progress[i].quizScore >= 70 ? 'score-pass-text' : 'score-fail-text'")
               | {{ activeCourse.progress[i].quizScore }}%
       .completion-actions
-        button.btn-download-cert(@click="showCertificate = true") ↓ Download certificate
-        button.btn-return-menu(@click="$emit('exit')") ← Return to main menu
+        button.btn-download-cert(@click="openCertificate") {{ $t('courseBuilder.complete.download') }}
+        button.btn-return-menu(@click="$emit('exit')") {{ $t('courseBuilder.complete.returnMenu') }}
 
     //- Certificate modal
     .certificate-modal(v-if="showCertificate")
       .cert-backdrop(@click="showCertificate = false")
       .certificate-card
-        .cert-logo Advisor-e
-        h1.cert-title Course Completion Certificate
-        p.cert-subtitle This certifies that
-        p.cert-advisor-name {{ advisorProfile && advisorProfile.name ? advisorProfile.name : 'the advisor' }}
-        p.cert-body has successfully completed
+        .cert-logo {{ certFirmName || 'Advisor-e' }}
+        h1.cert-title {{ $t('courseBuilder.certificate.title') }}
+        p.cert-subtitle {{ $t('courseBuilder.certificate.certifies') }}
+        p.cert-advisor-name {{ advisorProfile && advisorProfile.name ? advisorProfile.name : $t('courseBuilder.certificate.theAdvisor') }}
+        p.cert-body {{ $t('courseBuilder.certificate.completed') }}
         p.cert-course-name {{ activeCourse.outline.title }}
         p.cert-date {{ certCompletedDate }}
         .cert-stats
           .cert-stat-item
             span.cert-stat-num {{ completedSessionCount }}
-            span.cert-stat-label Sessions
+            span.cert-stat-label {{ $t('courseBuilder.certificate.sessions') }}
           .cert-stat-item
             span.cert-stat-num {{ averageScore }}%
-            span.cert-stat-label Average score
+            span.cert-stat-label {{ $t('courseBuilder.certificate.average') }}
         .cert-actions
-          button.btn-cert-print(@click="printCertificate") Print / Save as PDF
-          button.btn-cert-close(@click="showCertificate = false") Close
+          button.btn-cert-print(@click="printCertificate") {{ $t('courseBuilder.certificate.print') }}
+          button.btn-cert-close(@click="showCertificate = false") {{ $t('courseBuilder.certificate.close') }}
 </template>
 
 <script>
@@ -482,8 +482,10 @@ import {
   SPEECH_STATE, recognitionClass, createOnDeviceRecognition, checkOnDevice, installOnDevice
 } from '~/utils/onDeviceSpeech'
 import CourseMessage from '~/components/course/CourseMessage.vue'
-import { ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
+import { UNGRADED_FEEDBACK, ungradedResult, overallQuizScore, quizPassed as quizPassedRule, quizFullyUngraded } from '~/utils/quizScoring'
 import moderationMessage from '~/mixins/moderationMessage'
+import { intlLocaleFor } from '~/utils/dateLocale'
+import { BCP47_MAP } from '~/mixins/speechMixin'
 import { listCourses, listSharedCourses, copySharedCourse, createCourse, updateCourse, deleteCourse, migrateLegacyCourses } from '~/utils/courses'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
@@ -584,7 +586,9 @@ export default {
       reviewSessionIndex: 0,
 
       // Certificate
-      showCertificate: false
+      showCertificate: false,
+      // The advisor's firm, printed on the certificate (Mike, 2026-09-25). Null until read.
+      certFirmName: null
     }
   },
 
@@ -661,7 +665,9 @@ export default {
         .reverse()
         .find(p => p.completedAt)
       if (!last) { return '' }
-      return new Date(last.completedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
+      // In the reader's language; English stays day-first (utils/dateLocale.js).
+      const locale = intlLocaleFor(this.$i18n && this.$i18n.locale)
+      return new Date(last.completedAt).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
     },
 
     /**
@@ -691,10 +697,10 @@ export default {
         this.courseState.sessionCountNotice.requested
       if (!asked) { return '' }
       // A course saved before the count became a range carries a plain number.
-      if (typeof asked === 'number') { return `${asked} sessions` }
+      if (typeof asked === 'number') { return this.$t('courseBuilder.outline.sessionCount', { count: asked }) }
       return asked.min === asked.max
-        ? `${asked.min} session${asked.min > 1 ? 's' : ''}`
-        : `${asked.min}–${asked.max} sessions`
+        ? this.$tc('courseBuilder.outline.sessionCountExact', asked.min, { count: asked.min })
+        : this.$t('courseBuilder.outline.sessionCountRange', { min: asked.min, max: asked.max })
     },
 
     /**
@@ -707,10 +713,7 @@ export default {
     untimedResourcesLabel () {
       const names = (this.pendingOutline && this.pendingOutline.unknownResources) || []
       if (!names.length) { return '' }
-      const subject = names.length === 1
-        ? "1 resource has no published time, so it isn't timetabled"
-        : `${names.length} resources have no published time, so they aren't timetabled`
-      return `${subject}: ${names.join(', ')}.`
+      return this.$tc('courseBuilder.outline.untimed', names.length, { count: names.length, names: names.join(', ') })
     },
 
     /**
@@ -725,8 +728,8 @@ export default {
         this.courseState.sessionLengthNotice.requested
       if (!asked) { return '' }
       return asked.min === asked.max
-        ? `${asked.min}-minute`
-        : `${asked.min}–${asked.max} minute`
+        ? this.$t('courseBuilder.outline.lengthAskedExact', { count: asked.min })
+        : this.$t('courseBuilder.outline.lengthAskedRange', { min: asked.min, max: asked.max })
     },
 
     /**
@@ -738,9 +741,9 @@ export default {
     lengthNoticeText () {
       const notice = this.courseState && this.courseState.sessionLengthNotice
       if (!notice || !notice.sessions || !notice.sessions.length) { return '' }
-      const list = notice.sessions.map(s => `session ${s.id} works out at ${this.formatMinutes(s.minutes)}`)
+      const list = notice.sessions.map(s => this.$t('courseBuilder.outline.lengthSession', { id: s.id, time: this.formatMinutes(s.minutes) }))
       if (list.length === 1) { return list[0] }
-      return list.slice(0, -1).join(', ') + ' and ' + list[list.length - 1]
+      return this.$t('courseBuilder.outline.listAnd', { list: list.slice(0, -1).join(', '), last: list[list.length - 1] })
     },
 
     /**
@@ -754,10 +757,11 @@ export default {
       if (!notice || !notice.sessions || !notice.sessions.length) { return '' }
       const over = notice.sessions.some(s => s.minutes > notice.requested.max)
       const under = notice.sessions.some(s => s.minutes < notice.requested.min)
-      const subject = notice.sessions.length > 1 ? 'them' : 'it'
-      if (over && !under) { return `Use 'Request changes' if you want ${subject} shorter.` }
-      if (under && !over) { return `Use 'Request changes' if you want ${subject} longer.` }
-      return `Use 'Request changes' if you want ${subject} changed.`
+      // "it" for one session, "them" for several — the plural form carries it.
+      const n = notice.sessions.length
+      if (over && !under) { return this.$tc('courseBuilder.outline.adviceShorter', n) }
+      if (under && !over) { return this.$tc('courseBuilder.outline.adviceLonger', n) }
+      return this.$tc('courseBuilder.outline.adviceChanged', n)
     }
   },
 
@@ -780,7 +784,9 @@ export default {
       this._recognitionRunning = false
       this.recognition.continuous = true
       this.recognition.interimResults = true
-      this.recognition.lang = 'en-US'
+      // The reader's language, as the advisor chat uses. A language change remounts this
+      // screen (VirtualAdvisor re-selects the mode), so setting it here is enough.
+      this.recognition.lang = BCP47_MAP[this.$i18n && this.$i18n.locale] || 'en-US'
       this.recognition.onresult = (e) => {
         let transcript = ''
         for (let i = 0; i < e.results.length; i++) { transcript += e.results[i][0].transcript }
@@ -834,8 +840,10 @@ export default {
       if (!mins || !Number.isFinite(mins) || mins <= 0) { return null }
       const hours = Math.floor(mins / 60)
       const rest = Math.round(mins % 60)
-      if (!hours) { return `${rest}m` }
-      return rest ? `${hours}h ${rest}m` : `${hours}h`
+      if (!hours) { return this.$t('courseBuilder.time.minutes', { m: rest }) }
+      return rest
+        ? this.$t('courseBuilder.time.hoursMinutes', { h: hours, m: rest })
+        : this.$t('courseBuilder.time.hours', { h: hours })
     },
 
     /**
@@ -857,9 +865,9 @@ export default {
       // "20m — 20m reading" would say it a second time.
       if (session.slice) { return total }
       const parts = []
-      if (effort.video) { parts.push(`${effort.video}m video`) }
-      if (effort.reading) { parts.push(`${effort.reading}m reading`) }
-      if (effort.rehearsal) { parts.push(`${effort.rehearsal}m rehearsal`) }
+      if (effort.video) { parts.push(this.$t('courseBuilder.time.video', { m: effort.video })) }
+      if (effort.reading) { parts.push(this.$t('courseBuilder.time.reading', { m: effort.reading })) }
+      if (effort.rehearsal) { parts.push(this.$t('courseBuilder.time.rehearsal', { m: effort.rehearsal })) }
       return parts.length ? `${total} — ${parts.join(' · ')}` : total
     },
 
@@ -873,9 +881,23 @@ export default {
     sessionUnknownLabel (session) {
       const unknown = session && session.sessionEffort && session.sessionEffort.unknown
       if (!unknown || !unknown.length) { return null }
-      return unknown.length === 1
-        ? '1 resource has no published time'
-        : `${unknown.length} resources have no published time`
+      return this.$tc('courseBuilder.outline.unknownTime', unknown.length, { count: unknown.length })
+    },
+
+    /**
+     * A quiz result's feedback in the reader's language.
+     *
+     * The approved "couldn't assess" sentence is SAVED in English with the result — on
+     * old results too — so it is recognised by its exact text and shown from the wording
+     * file. Every other feedback (the marker's, or a moderation block naming the sentence
+     * that stopped it) is shown as saved.
+     *
+     * @param {object} result - a quiz result
+     * @returns {string}
+     */
+    feedbackText (result) {
+      const saved = (result && result.feedback) || ''
+      return saved === UNGRADED_FEEDBACK ? this.$t('courseBuilder.quiz.ungradedFeedback') : saved
     },
 
     /**
@@ -931,7 +953,7 @@ export default {
     },
 
     /**
-     * Ask Chrome whether English works on the computer (item 12.2). Until it answers the voice
+     * Ask Chrome whether the reader's language works on the computer (item 12.2). Until it answers the voice
      * bar is not drawn; if it cannot, the bar stays off — never Google (D1).
      */
     async _checkSpeechOnDevice () {
@@ -1032,7 +1054,7 @@ export default {
       // No saved courses — start design conversation
       this.designMessages = [{
         role: 'assistant',
-        content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat are the skills or advisory concepts you'd like to develop?"
+        content: this.$t('opening.course')
       }]
     },
 
@@ -1066,7 +1088,7 @@ export default {
         this._refreshSavedCourses()
       } catch (e) {
         console.warn('[course] Save failed:', e.message)
-        this.courseError = "Couldn't save your progress just now — it will retry with your next action."
+        this.courseError = this.$t('courseBuilder.errors.saveFailed')
       }
     },
 
@@ -1083,7 +1105,7 @@ export default {
       } catch (e) {
         console.warn('[course] Failed to load saved courses:', e.message)
         this.savedCourses = []
-        this.courseError = "We couldn't load your saved courses. Check your connection and try again."
+        this.courseError = this.$t('courseBuilder.errors.loadFailed')
         this.courseLoadFailed = true
       }
     },
@@ -1095,7 +1117,7 @@ export default {
       const links = (session && session.resourceLinks) || {}
       return ((session && session.resources) || [])
         .map(r => links[r] ? `[${r}](${links[r]})` : r)
-        .join(' and ') || 'the session material'
+        .join(this.$t('courseBuilder.session.and')) || this.$t('courseBuilder.session.theMaterial')
     },
 
     // Rebuild the "Shared by your team" list (CB-07). Failures degrade to an
@@ -1121,14 +1143,14 @@ export default {
         this.courseError = ''
       } catch (e) {
         console.warn('[course] Share toggle failed:', e.message)
-        this.courseError = "Couldn't change sharing just now — please try again."
+        this.courseError = this.$t('courseBuilder.errors.shareFailed')
       }
     },
 
     // Remove a saved course from the picker (confirm-gated). Same server
     // delete the in-course "✕ Delete course" uses.
     async removeSavedCourse (course) {
-      if (!confirm(`Delete '${course.outline.title}'? Its progress will be lost.`)) { return }
+      if (!confirm(this.$t('courseBuilder.confirm.remove', { title: course.outline.title }))) { return }
       try {
         await deleteCourse(course.id, this.apiToken)
         if (this._serverCourseIds) { this._serverCourseIds.delete(course.id) }
@@ -1136,7 +1158,7 @@ export default {
         await this._refreshSavedCourses()
       } catch (e) {
         console.warn('[course] Remove failed:', e.message)
-        this.courseError = "Couldn't delete the course — please try again."
+        this.courseError = this.$t('courseBuilder.errors.deleteFailed')
       }
     },
 
@@ -1146,7 +1168,7 @@ export default {
     async useSharedCourse (shared) {
       if (this.isCopyingSharedId) { return }
       const alreadyCopied = this.savedCourses.some(c => c.copiedFrom === shared.id)
-      if (alreadyCopied && !confirm('You already have a copy of this course. Make another copy?')) { return }
+      if (alreadyCopied && !confirm(this.$t('courseBuilder.confirm.copyAgain'))) { return }
       this.isCopyingSharedId = shared.id
       try {
         await copySharedCourse(shared.id, this.apiToken)
@@ -1154,7 +1176,7 @@ export default {
         this.courseError = ''
       } catch (e) {
         console.warn('[course] Copy shared course failed:', e.message)
-        this.courseError = "Couldn't copy that course just now — please try again."
+        this.courseError = this.$t('courseBuilder.errors.copyFailed')
       } finally {
         this.isCopyingSharedId = null
       }
@@ -1258,7 +1280,7 @@ export default {
                 await this.$nextTick()
                 this._scrollDesign()
               } else if (data.type === 'error') {
-                this.designStreamingText = this.moderationMessageFrom(data) || data.message || 'The response timed out. Please try again.'
+                this.designStreamingText = this.moderationMessageFrom(data) || data.message || this.$t('courseBuilder.errors.timedOut')
               } else if (data.type === 'done') {
                 let content = this.designStreamingText
                 content = content.replace(/\[COURSE_OUTLINE\][\s\S]*?\[\/COURSE_OUTLINE\]/g, '').trim()
@@ -1281,7 +1303,7 @@ export default {
       } catch (e) {
         if (e && e.name === 'AbortError') { return } // superseded by a context switch
         console.error('[course:design]', e.message)
-        this.designMessages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' })
+        this.designMessages.push({ role: 'assistant', content: this.$t('courseBuilder.errors.somethingWrong') })
         this.isDesignStreaming = false
         this.designStreamingText = ''
       }
@@ -1330,7 +1352,7 @@ export default {
       } catch (e) {
         // The outline card stays on screen — the advisor's course is never lost.
         console.warn('[course] Could not save the new course:', e.message)
-        this.courseError = "Couldn't save your progress just now — it will retry with your next action."
+        this.courseError = this.$t('courseBuilder.errors.saveFailed')
       }
       this.isSavingCourse = false
     },
@@ -1376,7 +1398,7 @@ export default {
         const resources = this._linkedResourceNames(session)
         this.sessionMessages = [{
           role: 'assistant',
-          content: `**Session ${session.id}: ${session.title}**\n\n${session.focus}\n\nYour resource for this session is **${resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll discuss what you found.`
+          content: this.$t('courseBuilder.session.intro', { id: session.id, title: session.title, focus: session.focus, resources })
         }]
       }
     },
@@ -1448,7 +1470,7 @@ export default {
         const resources = this._linkedResourceNames(session)
         this.sessionMessages = [{
           role: 'assistant',
-          content: `**Session ${session.id}: ${session.title}**\n\n${session.focus}\n\nHead to **${resources}** in your Advisor-e library. Work through it and come back when you're ready — we'll pick it apart together.`
+          content: this.$t('courseBuilder.session.introFallback', { id: session.id, title: session.title, focus: session.focus, resources })
         }]
         this.isSessionStreaming = false
         this.sessionStreamingText = ''
@@ -1518,9 +1540,9 @@ export default {
                 await this.$nextTick()
                 this._scrollSession()
               } else if (data.type === 'error') {
-                this.sessionStreamingText = this.moderationMessageFrom(data) || data.message || 'The response timed out. Please try again.'
+                this.sessionStreamingText = this.moderationMessageFrom(data) || data.message || this.$t('courseBuilder.errors.timedOut')
               } else if (data.type === 'done') {
-                const content = this.sessionStreamingText || 'The response timed out. Please try again.'
+                const content = this.sessionStreamingText || this.$t('courseBuilder.errors.timedOut')
                 this.sessionMessages.push({ role: 'assistant', content })
                 this.sessionStreamingText = ''
                 this.isSessionStreaming = false
@@ -1530,7 +1552,7 @@ export default {
         }
 
         if (this.isSessionStreaming) {
-          const content = this.sessionStreamingText || 'The response timed out. Please try again.'
+          const content = this.sessionStreamingText || this.$t('courseBuilder.errors.timedOut')
           this.sessionMessages.push({ role: 'assistant', content })
           this.sessionStreamingText = ''
           this.isSessionStreaming = false
@@ -1538,7 +1560,7 @@ export default {
       } catch (e) {
         if (e && e.name === 'AbortError') { return } // superseded by a context switch
         console.error('[course:session]', e.message)
-        this.sessionMessages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' })
+        this.sessionMessages.push({ role: 'assistant', content: this.$t('courseBuilder.errors.somethingWrong') })
         this.isSessionStreaming = false
         this.sessionStreamingText = ''
       }
@@ -1581,11 +1603,11 @@ export default {
         } else {
           console.warn('[course] Quiz generation returned no questions:', data)
           this.quizError = this.moderationMessageFrom(data) ||
-            'Couldn\'t generate quiz questions — please try again, or skip to continue.'
+            this.$t('courseBuilder.errors.quizNoQuestions')
         }
       } catch (e) {
         console.error('[course] Quiz generation error:', e.message)
-        this.quizError = 'Something went wrong generating the quiz — please try again, or skip to continue.'
+        this.quizError = this.$t('courseBuilder.errors.quizFailed')
       }
 
       this.isGeneratingQuiz = false
@@ -1609,7 +1631,7 @@ export default {
         course.progress[index].status !== 'complete' &&
         course.progress.slice(0, index).some(p => p.status !== 'complete')
       if (skipsComplexity &&
-        !confirm(`This course builds up session by session — Session ${index + 1} assumes you've covered the earlier ones. Open it anyway?`)) { return }
+        !confirm(this.$t('courseBuilder.confirm.openAhead', { n: index + 1 }))) { return }
       this.activeSessionIndex = index
       this.phase = 'session'
       this._startSession(false)
@@ -1627,7 +1649,7 @@ export default {
       const sessions = course.outline.sessions
       if (to < 0 || to >= sessions.length) { return }
       if (direction < 0 && course.outline.intensity === 'progressive' &&
-        !confirm(`This course builds up session by session — moving '${sessions[index].title}' earlier may put advanced material before its foundations. Move it anyway?`)) { return }
+        !confirm(this.$t('courseBuilder.confirm.moveEarlier', { title: sessions[index].title }))) { return }
       const activeSession = sessions[this.activeSessionIndex]
       const swap = (arr) => {
         const moved = arr[index]
@@ -1662,6 +1684,28 @@ export default {
       // pause in typing (flushed on teardown).
       clearTimeout(this._noteSaveTimer)
       this._noteSaveTimer = setTimeout(() => { this._saveCourse(this.activeCourse) }, 800)
+    },
+
+    /**
+     * Open the certificate, heading it with the advisor's firm (Mike, 2026-09-25).
+     *
+     * @route GET /api/report/firm/brand — the firm is read from the verified pass. It never
+     *   fails: an unreadable name answers null, and the certificate keeps "Advisor-e". The
+     *   certificate opens either way; a brand is never a reason to withhold it.
+     */
+    async openCertificate () {
+      this.showCertificate = true
+      if (this.certFirmName || !this.apiToken) { return }
+      try {
+        const res = await fetch('/api/report/firm/brand', {
+          headers: { Authorization: `Bearer ${this.apiToken}` }
+        })
+        if (!res.ok) { return }
+        const body = await res.json()
+        if (body && typeof body.name === 'string' && body.name.trim()) { this.certFirmName = body.name.trim() }
+      } catch (e) {
+        console.warn('[course] Firm name for the certificate could not be read:', e.message)
+      }
     },
 
     /**
@@ -1708,7 +1752,7 @@ export default {
       this.quizError = ''
       this.designMessages = [{
         role: 'assistant',
-        content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat are the skills or advisory concepts you'd like to develop?"
+        content: this.$t('opening.course')
       }]
     },
 
@@ -1726,6 +1770,9 @@ export default {
     },
 
     selectStarter (starter) {
+      // Deliberately English (item 12.1): the course engine reads the session
+      // count out of this sentence (requestedSessionCount), so a translated
+      // copy could silently lose it.
       this.designInput = `I'd like to build a course called "${starter.title}". ${starter.blurb} Please design a ${starter.sessions}-session course using the available Advisor-e templates and resources.`
       this.sendDesignMessage()
     },
@@ -1743,7 +1790,7 @@ export default {
       this.phase = 'design'
       this.designMessages = [{
         role: 'assistant',
-        content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat are the skills or advisory concepts you'd like to develop?"
+        content: this.$t('opening.course')
       }]
     },
 
@@ -1753,7 +1800,7 @@ export default {
     },
 
     confirmDeleteCourse () {
-      if (!confirm('Delete this course and start again? Your progress will be lost.')) { return }
+      if (!confirm(this.$t('courseBuilder.confirm.deleteCourse'))) { return }
       this._deleteCourse()
     },
 
@@ -1766,7 +1813,7 @@ export default {
         } catch (e) {
           // The course still exists on the server — keep it on screen too.
           console.warn('[course] Delete failed:', e.message)
-          this.courseError = "Couldn't delete the course — please try again."
+          this.courseError = this.$t('courseBuilder.errors.deleteFailed')
           return
         }
       }
@@ -1782,7 +1829,7 @@ export default {
       this.quizError = ''
       this.designMessages = [{
         role: 'assistant',
-        content: this.$t ? this.$t('opening.course') : "Great — let's design your learning program together.\n\nWhat are the skills or advisory concepts you'd like to develop?"
+        content: this.$t('opening.course')
       }]
     },
 
@@ -1862,7 +1909,7 @@ export default {
     _markSessionComplete (score, results = null) {
       if (!this.activeCourse) {
         console.error('[course] _markSessionComplete called but activeCourse is null — cannot advance')
-        this.quizError = 'Session state was lost. Please refresh and try again.'
+        this.quizError = this.$t('courseBuilder.errors.stateLost')
         return
       }
       const progress = (this.activeCourse.progress || []).map((p, i) => {

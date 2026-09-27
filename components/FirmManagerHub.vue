@@ -9,7 +9,7 @@ section.firm-manager-hub.section
           p.subtitle.is-6.has-text-grey(v-if="firmId") {{ firmId }}
       //- The mentor sits above every firm, so "back to Advisor" has no meaning there.
       .level-right(v-if="scope === 'firm'" style="gap:12px;display:flex;align-items:center;")
-        a.button.is-light.is-small(href="/advisor") ← Back to Advisor
+        a.button.is-light.is-small(href="/advisor") {{ $t('firmManagerHub.backToAdvisor') }}
 
     //- ── THE HUB MENU ────────────────────────────────────────────────────
     //- design/HUB-NAVIGATION-GROUPING.md, approved by Mike 2026-08-19, drawn in
@@ -39,7 +39,7 @@ section.firm-manager-hub.section
             aria-controls="hub-menu-list"
             :aria-expanded="String(!menuHidden)"
             @click="toggleMenu"
-          ) Hide menu
+          ) {{ $t('firmManagerHub.menu.hide') }}
         b-menu#hub-menu-list
           //- A heading whose every item is hidden at this tier is not rendered at
           //- all. The mentor therefore has no Model Inputs heading rather than an
@@ -48,7 +48,7 @@ section.firm-manager-hub.section
           b-menu-list(
             v-for="group in visibleGroups"
             :key="group.heading"
-            :label="group.heading"
+            :label="$t(group.heading)"
           )
             //- 🔴 THE DOT SITS IN THIS MENU ON MIKE'S RULING OF 2026-09-10 — "put the
             //- dots in the left hand menu". It is a NARROW, STATUS-ONLY EXCEPTION to the
@@ -84,7 +84,7 @@ section.firm-manager-hub.section
                     :class="`hub-menu-dot--${menuDot(item.key) || 'none'}`"
                     :title="menuDotTitle(item.key)"
                   )
-                  span {{ item.i18n ? $t(item.i18n) : item.label }}
+                  span {{ $t(item.i18n) }}
                   span.is-sr-only(v-if="menuDot(item.key)")  — {{ menuDotTitle(item.key) }}
         //- The three colours mean nothing on their own the first time somebody meets
         //- them, so the foot of the menu says what they are — the Handbook's own three
@@ -101,13 +101,13 @@ section.firm-manager-hub.section
         .hub-menu-legend(v-if="menuDotCount() > 0")
           .hub-menu-legend-row
             span.hub-menu-dot.hub-menu-dot--red
-            span something new
+            span {{ $t('firmManagerHub.menu.legendNew') }}
           .hub-menu-legend-row
             span.hub-menu-dot.hub-menu-dot--blue
-            span never opened
+            span {{ $t('firmManagerHub.menu.legendNeverOpened') }}
           .hub-menu-legend-row
             span.hub-menu-dot.hub-menu-dot--orange
-            span not opened in 3 weeks
+            span {{ $t('firmManagerHub.menu.legendStale') }}
           .hub-menu-legend-count {{ menuDotCountLabel() }}
       //- Closed, the menu leaves the way back to itself on the screen. A control
       //- that hides its own means of return is a trap, not a preference.
@@ -117,7 +117,7 @@ section.firm-manager-hub.section
           aria-controls="hub-menu-list"
           :aria-expanded="String(!menuHidden)"
           @click="toggleMenu"
-        ) Show menu
+        ) {{ $t('firmManagerHub.menu.show') }}
       //- ── Tab: Domain Support (FIRM-EDITABLE-TABLES-PLAN.md Phase 2, §0.6) ──
       //- The four-column material tables the advisors' AI reads. The former PDF
       //- "Decision Frameworks" (Document Library) tab was removed 2026-07-27
@@ -438,7 +438,7 @@ section.firm-manager-hub.section
           //- Domain sidebar
           .column.is-3
             b-menu
-              b-menu-list(label="Domain")
+              b-menu-list(:label="$t('firmManagerHub.distinctions.domainHeading')")
                 //- The label goes through the slot rather than the `label` prop so the
                 //- update count can sit beside it — Buefy renders one or the other,
                 //- never both. The count is what makes a mentor update findable: the
@@ -452,14 +452,14 @@ section.firm-manager-hub.section
                 )
                   template(v-slot:label)
                     span.dist-domain
-                      span.dist-domain-name {{ d.label }}
+                      span.dist-domain-name {{ $t(d.labelKey) }}
                       //- Spelled out, not left to the colour: the amber alone says
                       //- nothing to a reader who cannot see it.
                       b-tag(
                         v-if="distinctionUpdateCounts[d.id]"
                         type="is-warning"
                         size="is-small"
-                      ) {{ distinctionUpdateCounts[d.id] }} {{ distinctionUpdateCounts[d.id] === 1 ? 'update' : 'updates' }}
+                      ) {{ $tc('firmManagerHub.distinctions.domainUpdateCount', distinctionUpdateCounts[d.id], { count: distinctionUpdateCounts[d.id] }) }}
 
           .column
             //- Help button — how distinction matching works (prominent, top-right)
@@ -468,97 +468,117 @@ section.firm-manager-hub.section
                 type="is-info"
                 size="is-medium"
                 @click="showDistinctionHelpModal = true"
-              ) How this works
+              ) {{ $t('firmManagerHub.distinctions.howThisWorks') }}
 
             b-modal(v-model="showDistinctionHelpModal" has-modal-card trap-focus)
               .modal-card(style="max-width:600px")
                 header.modal-card-head
-                  p.modal-card-title How to write a distinction
+                  p.modal-card-title {{ $t('firmManagerHub.help.title') }}
                 section.modal-card-body
-                  p.mb-3 A distinction teaches the system to recommend the templates #[em you] trust when a certain kind of client situation comes up. The system reads what the advisor typed and understands the #[strong meaning] — so you just describe the situation in plain English, and it handles the rest. You don't need to guess every word an advisor might use.
-                  p.mb-3 Here's what each box does:
+                  //- vue-i18n's <i18n> component rather than $t() where the emphasis falls
+                  //- MID-SENTENCE, so a translator is free to move it — the same pattern as
+                  //- MentorDistinctions' copy of this modal.
+                  i18n.mb-3(path="firmManagerHub.help.intro" tag="p")
+                    template(#you)
+                      em {{ $t('firmManagerHub.help.introYou') }}
+                    template(#meaning)
+                      strong {{ $t('firmManagerHub.help.introMeaning') }}
+                  p.mb-3 {{ $t('firmManagerHub.help.boxes') }}
                   .content
                     ul
-                      li #[strong Domain] — The advisory area this applies to (Conflict, Staff, Strategy, and so on). Pick where this situation belongs.
-                      li #[strong Description] — Describe the client situation in one plain sentence: what's #[em actually] going on. Aim at the #[strong cause], not just the surface symptom — "the owners aren't aligned on where the business is heading" works far better than "they're arguing." This is the sentence the system reads the advisor's words against, so write it the way you'd explain the situation to a colleague.
-                      li #[strong Trigger phrases] — A few different ways an advisor might describe this in their own words. These are just examples to point the system in the right direction — #[strong not] exact phrases it has to find. Three to six varied examples is plenty; don't try to list every wording.
-                      li #[strong Templates to boost] — The templates you want brought forward when this situation appears. Pick the ones you'd reach for yourself.
-                      li #[strong Boost] — How hard to push those templates up the list when this situation is recognised. Leave it at the default for a gentle nudge; raise it when you want this situation to strongly steer the recommendation.
+                      li #[strong {{ $t('firmManagerHub.help.domainLabel') }}] — {{ $t('firmManagerHub.help.domainBody') }}
+                      li
+                        strong {{ $t('firmManagerHub.help.descriptionLabel') }}
+                        | {{ ' — ' }}
+                        i18n(path="firmManagerHub.help.descriptionBody" tag="span")
+                          template(#actually)
+                            em {{ $t('firmManagerHub.help.descriptionActually') }}
+                          template(#cause)
+                            strong {{ $t('firmManagerHub.help.descriptionCause') }}
+                      li
+                        strong {{ $t('firmManagerHub.help.triggersLabel') }}
+                        | {{ ' — ' }}
+                        i18n(path="firmManagerHub.help.triggersBody" tag="span")
+                          template(#not)
+                            strong {{ $t('firmManagerHub.help.triggersNot') }}
+                      li #[strong {{ $t('firmManagerHub.help.templatesLabel') }}] — {{ $t('firmManagerHub.help.templatesBody') }}
+                      li #[strong {{ $t('firmManagerHub.help.boostLabel') }}] — {{ $t('firmManagerHub.help.boostBody') }}
                 footer.modal-card-foot
-                  b-button(@click="showDistinctionHelpModal = false") Close
+                  b-button(@click="showDistinctionHelpModal = false") {{ $t('firmManagerHub.close') }}
 
             //- Move-to-domain modal
             b-modal(v-model="showMoveModal" has-modal-card trap-focus)
               .modal-card(style="max-width:480px")
                 header.modal-card-head
-                  p.modal-card-title Move distinction to another domain
+                  p.modal-card-title {{ $t('firmManagerHub.move.title') }}
                 section.modal-card-body
-                  p.mb-3(v-if="moveRow") Move #[strong {{ moveRow.description }}] into:
+                  i18n.mb-3(v-if="moveRow" path="firmManagerHub.move.intro" tag="p")
+                    template(#description)
+                      strong {{ moveRow.description }}
                   b-field
-                    b-select(v-model="moveTargetDomain" placeholder="Choose a domain…" expanded)
-                      option(v-for="d in moveDomainOptions" :key="d.id" :value="d.id") {{ d.label }}
+                    b-select(v-model="moveTargetDomain" :placeholder="$t('firmManagerHub.move.placeholder')" expanded)
+                      option(v-for="d in moveDomainOptions" :key="d.id" :value="d.id") {{ $t(d.labelKey) }}
                   p.has-text-grey.is-size-7.mt-2(v-if="moveRow && moveRow.kind !== 'firm-own'")
-                    | This creates your firm's copy in the new domain and switches the platform original off here.
+                    | {{ $t('firmManagerHub.move.platformNote') }}
                 footer.modal-card-foot
                   b-button(
                     type="is-primary"
                     :disabled="!moveTargetDomain"
                     :loading="movingDistinction"
                     @click="confirmMoveDistinction"
-                  ) Move
-                  b-button(@click="closeMoveModal") Cancel
+                  ) {{ $t('firmManagerHub.move.confirm') }}
+                  b-button(@click="closeMoveModal") {{ $t('firmManagerHub.cancel') }}
 
             //- Mentor-update review (Stage E): compare the mentor's current version with
             //- the firm's version, then Adopt the update or Keep the firm's version.
             b-modal(v-model="showMentorUpdateModal" has-modal-card trap-focus)
               .modal-card(style="max-width:720px" v-if="mentorUpdateRow")
                 header.modal-card-head
-                  p.modal-card-title The mentor updated this distinction
+                  p.modal-card-title {{ $t('firmManagerHub.mentorUpdate.title') }}
                 section.modal-card-body
                   p.mb-4.has-text-grey
-                    | You customised this distinction, so your version has been kept. The mentor has
-                    | since changed their version. Compare them below, then choose.
+                    | {{ $t('firmManagerHub.mentorUpdate.intro') }}
                   .columns
                     .column
-                      p.has-text-weight-semibold.mb-2 Mentor's current version
+                      p.has-text-weight-semibold.mb-2 {{ $t('firmManagerHub.mentorUpdate.mentorVersion') }}
                       .box.is-shadowless(style="background:#fffbeb")
-                        p.is-size-7.has-text-grey.mb-1 Description
+                        p.is-size-7.has-text-grey.mb-1 {{ $t('firmManagerHub.distinctions.description') }}
                         p.mb-2 {{ mentorUpdateRow.mentorVersion.description }}
-                        p.is-size-7.has-text-grey.mb-1 Trigger phrases
+                        p.is-size-7.has-text-grey.mb-1 {{ $t('firmManagerHub.distinctions.triggerPhrases') }}
                         p.is-size-7.mb-2 {{ mentorUpdateRow.mentorVersion.triggers.join(', ') }}
-                        p.is-size-7.has-text-grey.mb-1 Templates boosted
+                        p.is-size-7.has-text-grey.mb-1 {{ $t('firmManagerHub.distinctions.templatesBoosted') }}
                         p.is-size-7.mb-2
                           b-tag.mr-1.mb-1(v-for="t in mentorUpdateRow.mentorVersion.templates" :key="'m-'+t" size="is-small") {{ t }}
-                        p.is-size-7.has-text-grey.mb-1 Boost
+                        p.is-size-7.has-text-grey.mb-1 {{ $t('firmManagerHub.distinctions.boost') }}
                         p +{{ mentorUpdateRow.mentorVersion.boost }}
                     .column
-                      p.has-text-weight-semibold.mb-2 Your version
+                      p.has-text-weight-semibold.mb-2 {{ $t('firmManagerHub.mentorUpdate.yourVersion') }}
                       .box.is-shadowless(style="background:#f0fff4")
-                        p.is-size-7.has-text-grey.mb-1 Description
+                        p.is-size-7.has-text-grey.mb-1 {{ $t('firmManagerHub.distinctions.description') }}
                         p.mb-2 {{ mentorUpdateRow.description }}
-                        p.is-size-7.has-text-grey.mb-1 Trigger phrases
+                        p.is-size-7.has-text-grey.mb-1 {{ $t('firmManagerHub.distinctions.triggerPhrases') }}
                         p.is-size-7.mb-2 {{ mentorUpdateRow.triggers.join(', ') }}
-                        p.is-size-7.has-text-grey.mb-1 Templates boosted
+                        p.is-size-7.has-text-grey.mb-1 {{ $t('firmManagerHub.distinctions.templatesBoosted') }}
                         p.is-size-7.mb-2
                           b-tag.mr-1.mb-1(v-for="t in mentorUpdateRow.templates" :key="'f-'+t" size="is-small" type="is-success is-light") {{ t }}
-                        p.is-size-7.has-text-grey.mb-1 Boost
+                        p.is-size-7.has-text-grey.mb-1 {{ $t('firmManagerHub.distinctions.boost') }}
                         p +{{ mentorUpdateRow.boost }}
                 footer.modal-card-foot
                   b-button(
                     type="is-primary"
                     :loading="resolvingMentorUpdate"
                     @click="adoptMentorUpdate(mentorUpdateRow.id)"
-                  ) Adopt the mentor's version
+                  ) {{ $t('firmManagerHub.mentorUpdate.adopt') }}
                   b-button(
                     :loading="resolvingMentorUpdate"
                     @click="keepMineMentorUpdate(mentorUpdateRow.id)"
-                  ) Keep mine
-                  b-button(@click="closeMentorUpdateReview") Cancel
+                  ) {{ $t('firmManagerHub.mentorUpdate.keepMine') }}
+                  b-button(@click="closeMentorUpdateReview") {{ $t('firmManagerHub.cancel') }}
 
             //- Unified list — platform, customised, switched-off and firm-own rows together
             .level.mb-3
               .level-left
-                p.has-text-weight-semibold Advisory Distinctions — {{ currentDistinctionDomainLabel }}
+                p.has-text-weight-semibold {{ $t('firmManagerHub.distinctions.heading', { domain: currentDistinctionDomainLabel }) }}
               .level-right
                 //- Always offered. It used to hide whenever a form was open, which
                 //- made a button vanishing at the top the only visible response to
@@ -568,10 +588,9 @@ section.firm-manager-hub.section
                   size="is-small"
                   icon-left="plus"
                   @click="openDistinctionForm(null)"
-                ) Add distinction
+                ) {{ $t('firmManagerHub.distinctions.add') }}
             b-notification.mb-3(type="is-info is-light" :closable="false" style="font-size:0.85rem")
-              | Edit any distinction to make it your firm's own, or switch one off.
-              | Platform rows are shared defaults; your changes apply to your firm only.
+              | {{ $t('firmManagerHub.distinctions.editNote') }}
 
             //- "Since your last visit" — mentor updates the firm hasn't reviewed yet.
             //- Count spans all domains; switch domains to find the badged rows.
@@ -583,14 +602,14 @@ section.firm-manager-hub.section
               .level.is-mobile
                 .level-left
                   span.has-text-weight-semibold
-                    | {{ distinctionNewUpdateCount }} mentor {{ distinctionNewUpdateCount === 1 ? 'update' : 'updates' }} since your last visit
+                    | {{ $tc('firmManagerHub.distinctions.mentorUpdatesSince', distinctionNewUpdateCount, { count: distinctionNewUpdateCount }) }}
                 .level-right
                   b-button(
                     type="is-warning"
                     size="is-small"
                     :loading="markingDistinctionsReviewed"
                     @click="markDistinctionsReviewed"
-                  ) Mark all as reviewed
+                  ) {{ $t('firmManagerHub.distinctions.markAllReviewed') }}
 
             //- One distinction per card, NOT a table (rebuilt 2026-08-01). The table
             //- could not open an edit form against the row it belonged to, and Mike
@@ -606,7 +625,7 @@ section.firm-manager-hub.section
               )
                 //- Editing happens HERE, in the card, not at the foot of the panel.
                 template(v-if="isEditingDistinction(row)")
-                  p.distinction-editing-label.mb-3 Edit distinction
+                  p.distinction-editing-label.mb-3 {{ $t('firmManagerHub.distinctions.editHeading') }}
                   firm-distinction-form(
                     v-model="distinctionForm"
                     :domains="distinctionDomains"
@@ -615,7 +634,7 @@ section.firm-manager-hub.section
                     :sub-sections="templateSubSections"
                     :group-targets="templateGroupTargets"
                     :saving="savingDistinction"
-                    submit-label="Save changes"
+                    :submit-label="$t('firmManagerHub.distinctions.saveChanges')"
                     @save="saveDistinction"
                     @cancel="closeDistinctionForm"
                   )
@@ -627,18 +646,18 @@ section.firm-manager-hub.section
                       v-if="row.mentorUpdated"
                       type="is-warning"
                       size="is-small"
-                    ) Updated by mentor · {{ formatMentorDate(row.mentorUpdatedAt) }}
+                    ) {{ $t('firmManagerHub.distinctions.updatedByMentor', { date: formatMentorDate(row.mentorUpdatedAt) }) }}
                     b-tag(
                       v-if="row.mentorDrift"
                       type="is-warning"
                       size="is-small"
-                    ) Mentor updated this distinction
+                    ) {{ $t('firmManagerHub.distinctions.mentorDrift') }}
                   p.distinction-text {{ row.description }}
                   .distinction-field
-                    p.distinction-label Trigger phrases
+                    p.distinction-label {{ $t('firmManagerHub.distinctions.triggerPhrases') }}
                     p.distinction-value.is-size-7.has-text-grey {{ row.triggers.join(', ') }}
                   .distinction-field
-                    p.distinction-label Templates boosted
+                    p.distinction-label {{ $t('firmManagerHub.distinctions.templatesBoosted') }}
                     div
                       b-tag.mr-1.mb-1(
                         v-for="t in row.templates"
@@ -647,13 +666,13 @@ section.firm-manager-hub.section
                         :type="row.kind === 'firm-own' || row.kind === 'customised' ? 'is-success is-light' : ''"
                       ) {{ t }}
                   .distinction-field(v-if="row.kind !== 'declined'")
-                    p.distinction-label Boost
+                    p.distinction-label {{ $t('firmManagerHub.distinctions.boost') }}
                     p.distinction-value +{{ row.boost }}
                   .buttons.mt-2.mb-0
                     template(v-if="row.kind === 'platform'")
-                      b-button(size="is-small" @click="openDistinctionForm(row)") Edit
-                      b-button(size="is-small" @click="openMoveDistinction(row)") Move to…
-                      b-button(size="is-small" @click="switchOffDistinction(row.id)") Switch off
+                      b-button(size="is-small" @click="openDistinctionForm(row)") {{ $t('firmManagerHub.distinctions.edit') }}
+                      b-button(size="is-small" @click="openMoveDistinction(row)") {{ $t('firmManagerHub.distinctions.moveTo') }}
+                      b-button(size="is-small" @click="switchOffDistinction(row.id)") {{ $t('firmManagerHub.distinctions.switchOff') }}
                     template(v-else-if="row.kind === 'customised'")
                       b-button(
                         v-if="row.mentorDrift"
@@ -661,28 +680,28 @@ section.firm-manager-hub.section
                         type="is-warning"
                         icon-left="bell-ring"
                         @click="openMentorUpdateReview(row)"
-                      ) Review update
-                      b-button(size="is-small" @click="openDistinctionForm(row)") Edit
-                      b-button(size="is-small" @click="openMoveDistinction(row)") Move to…
-                      b-button(size="is-small" @click="confirmResetDistinction(row.id)") Reset to platform
-                      b-button(size="is-small" @click="switchOffDistinction(row.id)") Switch off
+                      ) {{ $t('firmManagerHub.distinctions.reviewUpdate') }}
+                      b-button(size="is-small" @click="openDistinctionForm(row)") {{ $t('firmManagerHub.distinctions.edit') }}
+                      b-button(size="is-small" @click="openMoveDistinction(row)") {{ $t('firmManagerHub.distinctions.moveTo') }}
+                      b-button(size="is-small" @click="confirmResetDistinction(row.id)") {{ $t('firmManagerHub.distinctions.resetToPlatform') }}
+                      b-button(size="is-small" @click="switchOffDistinction(row.id)") {{ $t('firmManagerHub.distinctions.switchOff') }}
                     template(v-else-if="row.kind === 'declined'")
-                      b-button(size="is-small" type="is-primary is-light" @click="switchOnDistinction(row.id)") Switch on
+                      b-button(size="is-small" type="is-primary is-light" @click="switchOnDistinction(row.id)") {{ $t('firmManagerHub.distinctions.switchOn') }}
                     template(v-else)
-                      b-button(size="is-small" @click="openDistinctionForm(row)") Edit
-                      b-button(size="is-small" @click="openMoveDistinction(row)") Move to…
-                      b-button(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)") Remove
+                      b-button(size="is-small" @click="openDistinctionForm(row)") {{ $t('firmManagerHub.distinctions.edit') }}
+                      b-button(size="is-small" @click="openMoveDistinction(row)") {{ $t('firmManagerHub.distinctions.moveTo') }}
+                      b-button(size="is-small" type="is-danger is-light" @click="confirmDeleteDistinction(row.id)") {{ $t('firmManagerHub.remove') }}
 
             p.has-text-grey.is-size-7.mb-4(
               v-else-if="!loadingFirmDistinctions && domainDistinctions.length === 0 && !showDistinctionForm"
-            ) No distinctions for this domain yet. Add one to boost specific templates when advisors use particular phrases.
+            ) {{ $t('firmManagerHub.distinctions.empty') }}
 
             //- ── Add form ──────────────────────────────────────────────────
             //- Only for a NEW distinction, and at the end of the list on purpose:
             //- that is where it will appear. An EDIT never renders here — it happens
             //- in the card being edited, above.
             .box.distinction-form.mt-4(v-if="showDistinctionForm && !editingDistinctionId")
-              p.has-text-weight-semibold.mb-4 New distinction
+              p.has-text-weight-semibold.mb-4 {{ $t('firmManagerHub.distinctions.newHeading') }}
               firm-distinction-form(
                 v-model="distinctionForm"
                 :domains="distinctionDomains"
@@ -691,7 +710,7 @@ section.firm-manager-hub.section
                 :sub-sections="templateSubSections"
                 :group-targets="templateGroupTargets"
                 :saving="savingDistinction"
-                submit-label="Add distinction"
+                :submit-label="$t('firmManagerHub.distinctions.add')"
                 @save="saveDistinction"
                 @cancel="closeDistinctionForm"
               )
@@ -797,18 +816,18 @@ section.firm-manager-hub.section
         tier-not-connected(v-else-if="casesAwaitingFirms")
         template(v-else)
           b-notification.mb-4(type="is-info is-light" :closable="false")
-            | Your advisors' shared case studies. Open one to see how the recommendation was reached, then review it. Private cases are never shown here.
+            | {{ $t('firmManagerHub.cases.intro') }}
           p.has-text-grey.has-text-centered.py-6(v-if="firmCases.length === 0")
-            | No shared case studies yet. When an advisor shares a case, it appears here for review.
+            | {{ $t('firmManagerHub.cases.empty') }}
           div(v-else)
             .box.mb-3(v-for="c in firmCases" :key="c.id")
               .level.is-mobile.mb-0(style="cursor:pointer" @click="toggleReviewCase(c.id)")
                 .level-left
                   div
                     p.has-text-weight-semibold {{ c.title }}
-                    p.is-size-7.has-text-grey {{ caseAdvisorLabel(c) }} &middot; {{ c.domain || 'No area recorded' }} &middot; {{ formatDate(c.createdAt) }}
+                    p.is-size-7.has-text-grey {{ caseAdvisorLabel(c) }} &middot; {{ c.domain || $t('firmManagerHub.cases.noArea') }} &middot; {{ formatDate(c.createdAt) }}
                 .level-right(style="gap:8px")
-                  b-tag(v-if="c.feedbackPending" type="is-warning is-light") Feedback welcome
+                  b-tag(v-if="c.feedbackPending" type="is-warning is-light") {{ $t('firmManagerHub.cases.feedbackWelcome') }}
                   b-icon(:icon="expandedReviewCaseId === c.id ? 'chevron-up' : 'chevron-down'")
 
               div(v-if="expandedReviewCaseId === c.id")
@@ -874,11 +893,11 @@ section.firm-manager-hub.section
 
                 //- Post-delivery review — the advisor's own reflection
                 .mt-4(v-if="c.review")
-                  p.is-size-7.has-text-weight-semibold Post-Delivery Review (by the advisor)
-                  p.is-size-7(v-if="c.review.wentWell") ✓ What went well? — {{ c.review.wentWell }}
-                  p.is-size-7(v-if="c.review.wentLess") ⚠ What went less well? — {{ c.review.wentLess }}
-                  p.is-size-7(v-if="c.review.changesRecommended") What they'd do differently — {{ c.review.changesRecommended }}
-                p.is-size-7.has-text-grey.mt-4(v-else) The advisor hasn't recorded a post-delivery review yet.
+                  p.is-size-7.has-text-weight-semibold {{ $t('firmManagerHub.cases.reviewHeading') }}
+                  p.is-size-7(v-if="c.review.wentWell") {{ $t('firmManagerHub.cases.wentWell', { text: c.review.wentWell }) }}
+                  p.is-size-7(v-if="c.review.wentLess") {{ $t('firmManagerHub.cases.wentLess', { text: c.review.wentLess }) }}
+                  p.is-size-7(v-if="c.review.changesRecommended") {{ $t('firmManagerHub.cases.changesRecommended', { text: c.review.changesRecommended }) }}
+                p.is-size-7.has-text-grey.mt-4(v-else) {{ $t('firmManagerHub.cases.noReview') }}
 
                 //- Share upward — an anonymised copy travels to EVERY managing level
                 //- above this firm at once (ruled 2026-08-11), not to the mentor alone.
@@ -921,25 +940,25 @@ section.firm-manager-hub.section
                   | {{ $t('caseShare.consent') }}
                 .has-text-centered.py-5(v-if="mentorPreviewLoading")
                   b-loading(:is-full-page="false" :active="true")
-                  p.is-size-7.has-text-grey.mt-2 Preparing the anonymised copy…
+                  p.is-size-7.has-text-grey.mt-2 {{ $t('firmManagerHub.share.preparing') }}
                 template(v-else-if="mentorPreview")
                   .mb-3(v-if="mentorPreview.summary")
-                    p.is-size-7.has-text-weight-semibold Summary
+                    p.is-size-7.has-text-weight-semibold {{ $t('firmManagerHub.share.summary') }}
                     p.is-size-7 {{ mentorPreview.summary }}
                   .mb-2(v-if="mentorPreview.transcript && mentorPreview.transcript.length")
-                    p.is-size-7.has-text-weight-semibold Conversation
+                    p.is-size-7.has-text-weight-semibold {{ $t('firmManagerHub.share.conversation') }}
                     .mentor-anon-msg(v-for="(m, i) in mentorPreview.transcript" :key="i")
-                      span.has-text-weight-semibold.is-size-7 {{ m.role === 'assistant' ? 'Adviser tool' : 'Adviser' }}:
+                      span.has-text-weight-semibold.is-size-7 {{ m.role === 'assistant' ? $t('firmManagerHub.share.roleTool') : $t('firmManagerHub.share.roleAdviser') }}:
                       span.is-size-7  {{ m.content }}
-                  p.is-size-7.has-text-grey(v-if="!mentorPreview.summary && (!mentorPreview.transcript || !mentorPreview.transcript.length)") This case has no shareable content.
+                  p.is-size-7.has-text-grey(v-if="!mentorPreview.summary && (!mentorPreview.transcript || !mentorPreview.transcript.length)") {{ $t('firmManagerHub.share.noContent') }}
               footer.modal-card-foot
                 b-button(
                   type="is-primary"
                   :disabled="mentorPreviewLoading || !mentorPreview"
                   :loading="mentorSharing"
                   @click="confirmShareWithMentor"
-                ) Approve & share
-                b-button(@click="closeMentorPreview") Cancel
+                ) {{ $t('firmManagerHub.share.approve') }}
+                b-button(@click="closeMentorPreview") {{ $t('firmManagerHub.cancel') }}
 
       //- ── Tab (mentor only): Logic Lab Report ────────────────────────
       //- The addition that makes this the Mentor Hub rather than a re-scoped
@@ -1066,21 +1085,22 @@ const ALL_CLIENT_TEMPLATES = require('~/data/templates.json')
 
 const TEMPLATE_SUBSECTIONS = [...new Set(ALL_CLIENT_TEMPLATES.map(t => t.subSection))].sort()
 
+// Each name lives in locales/en.json at `labelKey`, so it translates with the hub.
 const DISTINCTION_DOMAINS = [
-  { id: 'conflict', label: 'Conflict & Dispute' },
-  { id: 'profit', label: 'Profitability & Feasibility' },
-  { id: 'staff', label: 'Staff & Team' },
-  { id: 'data-systems', label: 'Data & Financial Systems' },
-  { id: 'sales-marketing', label: 'Sales & Marketing' },
-  { id: 'forecasting', label: 'Financial Management' },
-  { id: 'governance', label: 'Governance & Leadership' },
-  { id: 'strategy', label: 'Strategy & Planning' },
-  { id: 'systems', label: 'Business Systems' },
-  { id: 'valuation', label: 'Business Valuation' },
-  { id: 'risk', label: 'Risk Management' },
-  { id: 'succession', label: 'Succession & Exit Planning' },
-  { id: 'eoy', label: 'End of Year' },
-  { id: 'due-diligence', label: 'Due Diligence & Acquisitions' }
+  { id: 'conflict', labelKey: 'firmManagerHub.domains.conflict' },
+  { id: 'profit', labelKey: 'firmManagerHub.domains.profit' },
+  { id: 'staff', labelKey: 'firmManagerHub.domains.staff' },
+  { id: 'data-systems', labelKey: 'firmManagerHub.domains.dataSystems' },
+  { id: 'sales-marketing', labelKey: 'firmManagerHub.domains.salesMarketing' },
+  { id: 'forecasting', labelKey: 'firmManagerHub.domains.forecasting' },
+  { id: 'governance', labelKey: 'firmManagerHub.domains.governance' },
+  { id: 'strategy', labelKey: 'firmManagerHub.domains.strategy' },
+  { id: 'systems', labelKey: 'firmManagerHub.domains.systems' },
+  { id: 'valuation', labelKey: 'firmManagerHub.domains.valuation' },
+  { id: 'risk', labelKey: 'firmManagerHub.domains.risk' },
+  { id: 'succession', labelKey: 'firmManagerHub.domains.succession' },
+  { id: 'eoy', labelKey: 'firmManagerHub.domains.eoy' },
+  { id: 'due-diligence', labelKey: 'firmManagerHub.domains.dueDiligence' }
 ]
 
 // Exported for the locking test (tests/unit/distinctionDomainsVisible.test.js),
@@ -1531,7 +1551,8 @@ const HUB_SCOPES = ['mentor', 'global', 'group', 'firm']
  *
  * Each item's `key` is the value of `activeTab` when it is open, and — for the gated
  * ones — its key in TAB_TIERS. One name, so a tab cannot be gated in the matrix and
- * ungated in the menu. `i18n` is used where the label is already a locale key.
+ * ungated in the menu. `i18n` is the label's locale key, and `heading` is a locale key
+ * too — the English for both lives in locales/en.json, wording unchanged.
  *
  * NO ICONS, ruled by Mike 2026-08-19 — "if we don't need the icons drop them out". The
  * approved mockup draws the sidebar as plain text and eleven of the horizontal tabs
@@ -1539,26 +1560,26 @@ const HUB_SCOPES = ['mentor', 'global', 'group', 'firm']
  * Tables never had one, so a vertical column of mixed icon / no-icon rows would have had
  * to invent two to look straight. Plain text needs neither.
  *
- * @type {Array.<{heading: string, items: Array.<{key: string, label?: string, i18n?: string}>}>}
+ * @type {Array.<{heading: string, items: Array.<{key: string, i18n: string}>}>}
  */
 const NAV_GROUPS = [
   {
     // Everything here teaches the AI — the hub's own stated purpose, and the door
     // managers arrive through in the master app ("Manage AI Coach").
-    heading: 'Your AI coach',
+    heading: 'firmManagerHub.nav.yourAiCoach',
     items: [
-      { key: 'domainSupport', label: 'Domain Support' },
+      { key: 'domainSupport', i18n: 'firmManagerHub.tabs.domainSupport' },
       // Two panels, one name. Exactly one is ever gated on at a tier, so a manager
       // sees a single Advisory Distinctions entry and never two.
-      { key: 'distinctionsFirm', label: 'Advisory Distinctions' },
-      { key: 'distinctionsMentor', label: 'Advisory Distinctions' },
-      { key: 'logicTables', label: 'Logic Tables' },
-      { key: 'staircase', label: 'Advisory Staircase' },
-      { key: 'logicLab', label: 'Logic-Lab' },
+      { key: 'distinctionsFirm', i18n: 'firmManagerHub.tabs.advisoryDistinctions' },
+      { key: 'distinctionsMentor', i18n: 'firmManagerHub.tabs.advisoryDistinctions' },
+      { key: 'logicTables', i18n: 'firmManagerHub.tabs.logicTables' },
+      { key: 'staircase', i18n: 'firmManagerHub.tabs.advisoryStaircase' },
+      { key: 'logicLab', i18n: 'firmManagerHub.tabs.logicLab' },
       // 🔴 THE LABEL IS MIKE'S OWN WORD, 2026-08-21 — "a 'AI Prompts' page" — and was
       // confirmed as the tab label rather than a working title. Added at the END of the
       // group on purpose: appending moves nothing that is already on a manager's screen.
-      { key: 'aiPrompts', label: 'AI Prompts' },
+      { key: 'aiPrompts', i18n: 'firmManagerHub.tabs.aiPrompts' },
       // The firm's own template upload (Phase 3, Mike 2026-09-01) — in THIS group
       // because it decides which library the AI recommends from. At the END, as
       // aiPrompts was: appending moves nothing already on a manager's screen. The
@@ -1569,7 +1590,7 @@ const NAV_GROUPS = [
       // find and quote in a meeting transcript. Both machines appended to this group on
       // the same day; the firm's Template Library reached master first, so it keeps its
       // place and this one follows it — appending still moves nothing already on screen.
-      { key: 'meetingObservations', label: 'Meeting Review' },
+      { key: 'meetingObservations', i18n: 'firmManagerHub.tabs.meetingReview' },
       // 🔴 THE LABEL IS MIKE'S OWN WORD, 2026-09-10 — "name it 'Client Copy Request'" — and it
       // REPLACED ours ("Client Requests"). Pinned; no session rewords it, including to make it
       // plural. ⚠ One mismatch recorded rather than quietly corrected: the tab is named for
@@ -1582,12 +1603,12 @@ const NAV_GROUPS = [
       // fifth heading, and the four headings are Mike's own words; inventing one unasked is the
       // thing the gate ruling of 2026-08-26 exists to prevent. Appended at the END, as
       // aiPrompts was: appending moves nothing already on a manager's screen.
-      { key: 'clientCopyRequests', label: 'Client Copy Request' }
+      { key: 'clientCopyRequests', i18n: 'firmManagerHub.tabs.clientCopyRequest' }
     ]
   },
   {
     // Mike's own words for this heading (2026-08-19), kept verbatim.
-    heading: 'Your Team In Action',
+    heading: 'firmManagerHub.nav.yourTeamInAction',
     items: [
       { key: 'adviserNetwork', i18n: 'firmAdviserNetwork.tab' },
       { key: 'teamProgress', i18n: 'firmTeamProgress.tab' },
@@ -1597,7 +1618,7 @@ const NAV_GROUPS = [
       // anonymised and opt-in, and filing them beside Advisor Network would say the
       // opposite of what that consent gate exists to say. See "Rolled up from below",
       // and TAB_TIERS.teamCaseStudies for why no tier above the firm has this one.
-      { key: 'teamCaseStudies', label: 'Team Case Studies' },
+      { key: 'teamCaseStudies', i18n: 'firmManagerHub.tabs.teamCaseStudies' },
       // The standard planning session this tier hands down (item 15.1, Decision C, Mike
       // 2026-09-21). Label is the approved drawing's own — "Session Processes".
       //
@@ -1606,7 +1627,7 @@ const NAV_GROUPS = [
       // unwritten. It is how this firm's advisors run a planning meeting, which is what
       // this heading is for. Appended at the END, as every addition here is: appending
       // moves nothing already on a manager's screen.
-      { key: 'sessionProcess', label: 'Session Processes' },
+      { key: 'sessionProcess', i18n: 'firmManagerHub.tabs.sessionProcesses' },
       // The Sales Tracker's two manager screens (item 17 stage 4, Mike 2026-09-22 —
       // "so i can see the lists and report"). Under THIS heading rather than "Your AI
       // coach" because no AI touches either: they are how this firm's advisors are
@@ -1618,40 +1639,40 @@ const NAV_GROUPS = [
       // where its users cannot reach it (Mike's ruling 2026-09-21). These two are the
       // manager's half and belong here; /sales-pipeline, /sales-coi and
       // /sales-tracker-dashboard stay the advisor's own pages.
-      { key: 'salesTeam', label: 'Team Pipeline' },
-      { key: 'salesLists', label: 'Sales Tracker Lists' }
+      { key: 'salesTeam', i18n: 'firmManagerHub.tabs.teamPipeline' },
+      { key: 'salesLists', i18n: 'firmManagerHub.tabs.salesTrackerLists' }
     ]
   },
   {
     // Mike's own words for this heading (2026-08-19), kept verbatim.
-    heading: 'Model Inputs',
+    heading: 'firmManagerHub.nav.modelInputs',
     items: [
-      { key: 'propertyTaxRules', label: 'Property Tax Rules' },
+      { key: 'propertyTaxRules', i18n: 'firmManagerHub.tabs.propertyTaxRules' },
       // Added at the END of the group on purpose: appending moves nothing that is
       // already on a manager's screen. Mentor-only — see TAB_TIERS.trendThresholds.
-      { key: 'trendThresholds', label: 'Forecast Trend Thresholds' },
+      { key: 'trendThresholds', i18n: 'firmManagerHub.tabs.forecastTrendThresholds' },
       // Appended for the same reason as the line above, and the label is Mike's own —
       // approved 2026-09-04. Mentor-only; see TAB_TIERS.sellDownLadder.
-      { key: 'sellDownLadder', label: 'Imported Stock Prices' },
+      { key: 'sellDownLadder', i18n: 'firmManagerHub.tabs.importedStockPrices' },
       // Appended for the same reason; the label is the drawing's, approved by Mike
       // 2026-09-08. Mentor-only; see TAB_TIERS.industryBenchmarks.
-      { key: 'industryBenchmarks', label: 'Industry Benchmarks' },
+      { key: 'industryBenchmarks', i18n: 'firmManagerHub.tabs.industryBenchmarks' },
       // Appended for the same reason as the two lines above — adding at the end moves
       // nothing already on a manager's screen. All four tiers, on Mike's own ruling; see
       // TAB_TIERS.depreciationRates. The label is the feature's name after his rename of
       // 2026-09-09: it is a depreciation schedule, not a set of tax rules.
-      { key: 'depreciationRates', label: 'Depreciation Rates' },
+      { key: 'depreciationRates', i18n: 'firmManagerHub.tabs.depreciationRates' },
       // Appended for the same reason as every line above it — adding at the end moves
       // nothing already on a manager's screen. All four tiers; see TAB_TIERS.taxRates.
       // 🔴 A SEPARATE ENTRY FROM THE LINE ABOVE ON PURPOSE. Mike renamed that tab on
       // 2026-09-09 so a tab's name would predict what is inside it; these are the tax
       // rates that name promised and did not deliver.
-      { key: 'taxRates', label: 'Tax Rates' },
+      { key: 'taxRates', i18n: 'firmManagerHub.tabs.taxRates' },
       // Appended for the same reason as every line above it. THE GLOBAL GROUP MANAGER ALONE,
       // on Mike's ruling of 2026-09-11; see TAB_TIERS.countrySchedules. A separate entry from
       // the two above it on purpose: Depreciation Rates is a firm's own documents and its own
       // six rates, and this is the country-wide library those six are chosen FROM.
-      { key: 'countrySchedules', label: 'Country Rate Schedules' },
+      { key: 'countrySchedules', i18n: 'firmManagerHub.tabs.countryRateSchedules' },
       // Item 13.3, on Mike's ask of 2026-09-22: *"BOTH those issues must be fixed"*.
       // Under THIS heading because the currency every figure is labelled in is an input
       // every model uses, and it sits beside the other per-country settings a manager
@@ -1685,9 +1706,9 @@ const NAV_GROUPS = [
     // shows it alongside Compliance. It has lived under "Your Team In Action" since
     // 2026-08-19 and moving it would move something already on a manager's screen — the
     // thing every other addition to this file has taken care not to do.
-    heading: 'Compliance',
+    heading: 'firmManagerHub.nav.compliance',
     items: [
-      { key: 'compliance', label: 'Compliance' },
+      { key: 'compliance', i18n: 'firmManagerHub.tabs.compliance' },
       // Item 4.87. Appended here rather than given a group of its own because consent is
       // a firm's own undertaking in the same way its declaration is — the drawing's
       // placement, approved 2026-09-10. Firm tier only; see TAB_TIERS.outcomeConsent.
@@ -1704,11 +1725,11 @@ const NAV_GROUPS = [
     // ⚠ NOT "Across your firms", though it reads better. The level below a global
     // group manager is a COUNTRY, not a firm, and a heading has to be true at every
     // tier that sees it.
-    heading: 'Rolled up from below',
+    heading: 'firmManagerHub.nav.rolledUpFromBelow',
     items: [
       { key: 'adoption', i18n: 'mentorAdoption.tab' },
       { key: 'logicLabReport', i18n: 'logicLabReport.tab' },
-      { key: 'caseReviews', label: 'Case Reviews' },
+      { key: 'caseReviews', i18n: 'firmManagerHub.tabs.caseReviews' },
       { key: 'templateCheck', i18n: 'templateCheck.tab' },
       // Placed beside Template Check as approved (Mike, 2026-08-31): both are
       // mentor-only maintenance of the one shared template catalogue, even though
@@ -1742,16 +1763,15 @@ const HUB_MENU_STATE_KEY = 'hub:menuHidden'
  * new ones (2026-08-10): "a page that says Global Group Manager Hub and performs
  * accordingly… and then the group manager hub pages".
  *
- * Hardcoded English, matching every other heading and tab label in this component.
- * The whole hub's copy is an existing i18n item, not a new one.
+ * Each value is a locale key; the English lives in locales/en.json.
  *
  * @type {Object.<string, string>}
  */
 const HUB_TITLES = {
-  mentor: 'Mentor Hub',
-  global: 'Global Group Manager Hub',
-  group: 'Group Manager Hub',
-  firm: 'Firm Manager Hub'
+  mentor: 'firmManagerHub.title.mentor',
+  global: 'firmManagerHub.title.global',
+  group: 'firmManagerHub.title.group',
+  firm: 'firmManagerHub.title.firm'
 }
 
 // Exported for tests/unit/hubTabTiers.test.js, which pins the firm and mentor
@@ -1898,24 +1918,31 @@ export default {
       // The picker's own search/area filters moved into FirmDistinctionForm — they are
       // about finding a template, not about what is saved, and a fresh child mounts with
       // fresh filters instead of the parent having to remember to reset them.
-      // Revenue-model GROUP targets — let a distinction boost a whole group of revenue
-      // models instead of one named model; the engine auto-matches the specific model to
-      // the client's industry. Tokens are stored in distinctionForm.templates and read by
-      // the resolver (templateResolver.js group-boost block). Revenue models only, by design.
-      templateGroupTargets: [
-        { token: '@rf-industry', label: 'Revenue & Feasibility Model — Industry (auto-matched)', hint: 'Engine picks the model matching the client\'s industry' },
-        { token: '@rf-general', label: 'Revenue & Feasibility Model — General', hint: 'Generic feasibility/concept tools (Break-Even, EBITDA…)' }
-      ],
+      // The revenue-model group targets are the `templateGroupTargets` computed.
       allClientTemplates: ALL_CLIENT_TEMPLATES,
       templateSubSections: TEMPLATE_SUBSECTIONS
     }
   },
 
   computed: {
-    // Hardcoded English to match every other heading and tab label in this
-    // component. The whole hub's copy is an open i18n item, not a new one.
     hubTitle () {
-      return HUB_TITLES[this.scope] || HUB_TITLES.firm
+      return this.$t(HUB_TITLES[this.scope] || HUB_TITLES.firm)
+    },
+
+    /**
+     * Revenue-model GROUP targets — let a distinction boost a whole group of revenue
+     * models instead of one named model; the engine auto-matches the specific model to
+     * the client's industry. Tokens are stored in distinctionForm.templates and read by
+     * the resolver (templateResolver.js group-boost block). Revenue models only, by design.
+     * Computed rather than data so the labels follow the locale.
+     *
+     * @returns {Array.<{token: string, label: string, hint: string}>}
+     */
+    templateGroupTargets () {
+      return [
+        { token: '@rf-industry', label: this.$t('firmManagerHub.groupTargets.industryLabel'), hint: this.$t('firmManagerHub.groupTargets.industryHint') },
+        { token: '@rf-general', label: this.$t('firmManagerHub.groupTargets.generalLabel'), hint: this.$t('firmManagerHub.groupTargets.generalHint') }
+      ]
     },
 
     /**
@@ -1939,7 +1966,7 @@ export default {
     },
     currentDistinctionDomainLabel () {
       const d = DISTINCTION_DOMAINS.find(d => d.id === this.selectedDistinctionDomain)
-      return d ? d.label : ''
+      return d ? this.$t(d.labelKey) : ''
     },
     // The unified, badged list for the selected domain.
     domainDistinctions () {
@@ -2091,12 +2118,10 @@ export default {
      */
     menuDotTitle (key) {
       const state = this.menuDot(key)
-      if (state === 'blue') { return 'Never opened' }
-      if (state === 'orange') { return 'Not opened in 3 weeks' }
+      if (state === 'blue') { return this.$t('firmManagerHub.menu.dotNeverOpened') }
+      if (state === 'orange') { return this.$t('firmManagerHub.menu.dotStale') }
       if (state !== 'red') { return '' }
-      return this.complianceNewCount === 1
-        ? '1 new item since you last declared'
-        : `${this.complianceNewCount} new items since you last declared`
+      return this.$tc('firmManagerHub.menu.dotNewItems', this.complianceNewCount, { count: this.complianceNewCount })
     },
 
     /**
@@ -2124,7 +2149,7 @@ export default {
      */
     menuDotCountLabel () {
       const n = this.menuDotCount()
-      return n === 1 ? '1 tab needing a look' : `${n} tabs needing a look`
+      return this.$tc('firmManagerHub.menu.tabsNeedingLook', n, { count: n })
     },
 
     /**
@@ -2419,7 +2444,7 @@ export default {
         await this.api('DELETE', `/api/firm-manager/distinctions/platform/${id}`)
         this.closeMentorUpdateReview()
         await this.loadFirmDistinctions()
-        this.$buefy.toast.open({ message: 'Adopted the mentor\'s version', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.adopted'), type: 'is-success' })
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       } finally {
@@ -2434,7 +2459,7 @@ export default {
         await this.api('POST', `/api/firm-manager/distinctions/platform/${id}/keep-mine`)
         this.closeMentorUpdateReview()
         await this.loadFirmDistinctions()
-        this.$buefy.toast.open({ message: 'Kept your version', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.keptYours'), type: 'is-success' })
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
       } finally {
@@ -2492,19 +2517,19 @@ export default {
 
     async saveDistinction () {
       if (!this.distinctionForm.domain) {
-        this.$buefy.toast.open({ message: 'Please select a domain.', type: 'is-warning' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.selectDomain'), type: 'is-warning' })
         return
       }
       if (!this.distinctionForm.description.trim()) {
-        this.$buefy.toast.open({ message: 'Description is required.', type: 'is-warning' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.descriptionRequired'), type: 'is-warning' })
         return
       }
       if (this.distinctionForm.triggers.length === 0) {
-        this.$buefy.toast.open({ message: 'Add at least one trigger phrase.', type: 'is-warning' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.addTrigger'), type: 'is-warning' })
         return
       }
       if (this.distinctionForm.templates.length === 0) {
-        this.$buefy.toast.open({ message: 'Select at least one template to boost.', type: 'is-warning' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.selectTemplate'), type: 'is-warning' })
         return
       }
 
@@ -2519,13 +2544,13 @@ export default {
             templates: this.distinctionForm.templates,
             boost: this.distinctionForm.boost
           })
-          this.$buefy.toast.open({ message: 'Distinction updated for your firm.', type: 'is-success' })
+          this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.updatedForFirm'), type: 'is-success' })
         } else if (this.editingDistinctionId) {
           await this.api('PUT', `/api/firm-manager/distinctions/${this.editingDistinctionId}`, this.distinctionForm)
-          this.$buefy.toast.open({ message: 'Distinction updated.', type: 'is-success' })
+          this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.updated'), type: 'is-success' })
         } else {
           await this.api('POST', '/api/firm-manager/distinctions', this.distinctionForm)
-          this.$buefy.toast.open({ message: 'Distinction added.', type: 'is-success' })
+          this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.added'), type: 'is-success' })
         }
         this.closeDistinctionForm()
         this.loadFirmDistinctions()
@@ -2538,9 +2563,9 @@ export default {
 
     confirmDeleteDistinction (id) {
       this.$buefy.dialog.confirm({
-        message: 'Remove this distinction? It will no longer boost templates during scoring.',
+        message: this.$t('firmManagerHub.confirm.removeDistinction'),
         type: 'is-danger',
-        confirmText: 'Remove',
+        confirmText: this.$t('firmManagerHub.remove'),
         onConfirm: () => this.deleteDistinction(id)
       })
     },
@@ -2548,7 +2573,7 @@ export default {
     async deleteDistinction (id) {
       try {
         await this.api('DELETE', `/api/firm-manager/distinctions/${id}`)
-        this.$buefy.toast.open({ message: 'Distinction removed.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.removed'), type: 'is-success' })
         this.loadFirmDistinctions()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
@@ -2559,7 +2584,7 @@ export default {
     async switchOffDistinction (id) {
       try {
         await this.api('PUT', `/api/firm-manager/distinctions/platform/${id}/decline`, { declined: true })
-        this.$buefy.toast.open({ message: 'Distinction switched off for your firm.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.switchedOff'), type: 'is-success' })
         this.loadFirmDistinctions()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
@@ -2570,7 +2595,7 @@ export default {
     async switchOnDistinction (id) {
       try {
         await this.api('PUT', `/api/firm-manager/distinctions/platform/${id}/decline`, { declined: false })
-        this.$buefy.toast.open({ message: 'Distinction switched back on.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.switchedOn'), type: 'is-success' })
         this.loadFirmDistinctions()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
@@ -2579,9 +2604,9 @@ export default {
 
     confirmResetDistinction (id) {
       this.$buefy.dialog.confirm({
-        message: "Reset this distinction to the platform version? Your firm's edits to it will be discarded.",
+        message: this.$t('firmManagerHub.confirm.resetDistinction'),
         type: 'is-warning',
-        confirmText: 'Reset',
+        confirmText: this.$t('firmManagerHub.confirm.reset'),
         onConfirm: () => this.resetDistinction(id)
       })
     },
@@ -2590,7 +2615,7 @@ export default {
     async resetDistinction (id) {
       try {
         await this.api('DELETE', `/api/firm-manager/distinctions/platform/${id}`)
-        this.$buefy.toast.open({ message: 'Reset to the platform version.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.reset'), type: 'is-success' })
         this.loadFirmDistinctions()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
@@ -2645,10 +2670,10 @@ export default {
     // Badge label + Buefy tag type for a unified-list row's kind.
     distinctionBadge (kind) {
       switch (kind) {
-        case 'customised': return { label: 'Customised', type: 'is-success' }
-        case 'declined': return { label: 'Switched off', type: 'is-warning is-light' }
-        case 'firm-own': return { label: 'Your firm', type: 'is-primary is-light' }
-        default: return { label: 'Platform', type: 'is-light' }
+        case 'customised': return { label: this.$t('firmManagerHub.distinctions.badge.customised'), type: 'is-success' }
+        case 'declined': return { label: this.$t('firmManagerHub.distinctions.badge.switchedOff'), type: 'is-warning is-light' }
+        case 'firm-own': return { label: this.$t('firmManagerHub.distinctions.badge.yourFirm'), type: 'is-primary is-light' }
+        default: return { label: this.$t('firmManagerHub.distinctions.badge.platform'), type: 'is-light' }
       }
     },
 
@@ -2689,7 +2714,7 @@ export default {
         } else {
           await this.api('POST', `/api/firm-manager/distinctions/platform/${row.id}/move`, { targetDomain: target })
         }
-        this.$buefy.toast.open({ message: 'Distinction moved.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.moved'), type: 'is-success' })
         this.closeMoveModal()
         this.loadFirmDistinctions()
       } catch (e) {
@@ -2730,7 +2755,7 @@ export default {
         this.mentorPreview = data.anonymised || { summary: '', transcript: [] }
       } catch (e) {
         const blocked = this.moderationMessageFrom(e && e.body)
-        this.$buefy.toast.open({ message: blocked || 'Could not prepare an anonymised copy. Please try again.', type: 'is-danger', duration: blocked ? 10000 : 2000 })
+        this.$buefy.toast.open({ message: blocked || this.$t('firmManagerHub.toast.previewFailed'), type: 'is-danger', duration: blocked ? 10000 : 2000 })
         this.closeMentorPreview()
       } finally {
         this.mentorPreviewLoading = false
@@ -2752,10 +2777,10 @@ export default {
         await this.api('POST', `/api/firm-manager/cases/${id}/share-with-mentor`, { anonymised: this.mentorPreview })
         const c = this.firmCases.find(x => x.id === id)
         if (c) { c.mentorShared = true; c.mentorSharedAt = new Date().toISOString() }
-        this.$buefy.toast.open({ message: 'Shared with mentor.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.shared'), type: 'is-success' })
         this.closeMentorPreview()
       } catch (e) {
-        this.$buefy.toast.open({ message: 'Could not share the case. Please try again.', type: 'is-danger' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.shareFailed'), type: 'is-danger' })
       } finally {
         this.mentorSharing = false
       }
@@ -2768,9 +2793,9 @@ export default {
         await this.api('DELETE', `/api/firm-manager/cases/${c.id}/share-with-mentor`)
         c.mentorShared = false
         c.mentorSharedAt = null
-        this.$buefy.toast.open({ message: 'Withdrawn from mentor.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.withdrawn'), type: 'is-success' })
       } catch (e) {
-        this.$buefy.toast.open({ message: 'Could not withdraw the case. Please try again.', type: 'is-danger' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.withdrawFailed'), type: 'is-danger' })
       } finally {
         this.mentorActionCaseId = null
       }
@@ -2786,7 +2811,7 @@ export default {
       if (c.origin && c.origin.length) {
         return c.origin.map(s => s.label).filter(Boolean).join(' · ')
       }
-      return c.advisorId || 'Unknown advisor'
+      return c.advisorId || this.$t('firmManagerHub.cases.unknownAdvisor')
     },
 
     /** The advisory area the engine focused on, from the stored trace. */
@@ -2856,7 +2881,7 @@ export default {
     /** Human label for a domain id (falls back to the id). */
     domainLabel (id) {
       const d = this.distinctionDomains.find(x => x.id === id)
-      return (d && d.label) || id || '—'
+      return (d && this.$t(d.labelKey)) || id || '—'
     },
 
     /**
@@ -2869,21 +2894,21 @@ export default {
       const trace = c.decisionTrace || {}
       const targetDomain = (trace.domain && trace.domain.id) || null
       if (!targetDomain) {
-        this.$buefy.toast.open({ message: 'This case has no recorded area to move into.', type: 'is-danger' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.toast.noAreaToMove'), type: 'is-danger' })
         return
       }
       const targetLabel = this.traceDomainLabel(trace)
       const fromLabel = this.domainLabel(nm.domain)
       // Buefy renders the dialog message as HTML, so escape the firm-authored
       // description (and truncate) before interpolating it.
-      const raw = String(nm.description || 'this distinction')
+      const raw = String(nm.description || this.$t('firmManagerHub.nearMiss.fallbackName'))
       const escaped = raw.replace(/[<>&]/g, ch => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[ch]))
       const desc = escaped.length > 80 ? escaped.slice(0, 80) + '…' : escaped
       this.$buefy.dialog.confirm({
-        title: 'Move distinction',
-        message: `Move "${desc}" from ${fromLabel} into ${targetLabel}? It will then influence future ${targetLabel} sessions instead.`,
-        confirmText: 'Move it here',
-        cancelText: 'Cancel',
+        title: this.$t('firmManagerHub.nearMiss.title'),
+        message: this.$t('firmManagerHub.nearMiss.message', { desc, from: fromLabel, target: targetLabel }),
+        confirmText: this.$t('firmManagerHub.nearMiss.confirm'),
+        cancelText: this.$t('firmManagerHub.cancel'),
         type: 'is-warning',
         onConfirm: async () => {
           const key = this.nearMissKey(c, nm)
@@ -2892,11 +2917,11 @@ export default {
             const req = buildMoveRequest(nm, targetDomain)
             await this.api(req.method, req.path, req.body)
             this.$set(this.movedNearMisses, key, true)
-            this.$buefy.toast.open({ message: `Moved into ${targetLabel}.`, type: 'is-success' })
+            this.$buefy.toast.open({ message: this.$t('firmManagerHub.nearMiss.moved', { target: targetLabel }), type: 'is-success' })
             // Keep the Advisory Distinctions screen in step with the move.
             this.loadFirmDistinctions()
           } catch (e) {
-            this.$buefy.toast.open({ message: e.message || 'Could not move the distinction.', type: 'is-danger' })
+            this.$buefy.toast.open({ message: e.message || this.$t('firmManagerHub.nearMiss.failed'), type: 'is-danger' })
           } finally {
             this.movingNearMissKey = null
           }

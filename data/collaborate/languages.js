@@ -1,6 +1,7 @@
-// Languages supported by LibreTranslate (libretranslate.com)
-// preloaded: true  = locale file exists in /locales, instant switch, no API call
-// preloaded: false = fetched via LibreTranslate on first use, then cached in localStorage
+// The languages Collaborate's picker offers — the same codes as data/languages.json.
+// preloaded: true  = a partial locale file ships in /locales
+// Every language but English is completed by the backend's translation
+// (server/utils/uiTranslation.js via utils/uiLocaleLoader.js), then kept in this browser.
 export const LANGUAGES = [
   // --- Pre-loaded (instant) ---
   { code: 'en', name: 'English',           preloaded: true  },
@@ -11,7 +12,7 @@ export const LANGUAGES = [
   { code: 'it', name: 'Italiano',          preloaded: true  },
   { code: 'nl', name: 'Nederlands',        preloaded: true  },
   { code: 'pl', name: 'Polski',            preloaded: true  },
-  // --- Dynamic via LibreTranslate ---
+  // --- No shipped file: translated by the backend on first use ---
   { code: 'ar', name: 'العربية',           preloaded: false },
   { code: 'az', name: 'Azərbaycan',        preloaded: false },
   { code: 'ca', name: 'Català',            preloaded: false },
