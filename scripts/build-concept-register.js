@@ -161,19 +161,22 @@ function buildRows (data, haveSlide, deckPages) {
 
   // Every page a concept of the same deck claims, so a suggestion can tell
   // whether it would be reaching across somebody else's material.
+  // A concept from a supporting document (item 15.28) is paged in that document, not in
+  // its panel's deck — Alignment Statements' page 3 is not Business Targets' page 3.
+  const sourceOf = c => c.document || c.deck
   const claimed = {}
   data.concepts.forEach((c) => {
-    if (c.source !== AGENDA) { (claimed[c.deck] = claimed[c.deck] || []).push(c.page) }
+    if (c.source !== AGENDA) { (claimed[sourceOf(c)] = claimed[sourceOf(c)] || []).push(c.page) }
   })
 
   return data.concepts
     .map((c) => {
       const known = c.source !== AGENDA
-      const slide = slideName(c.deck, c.page)
+      const slide = slideName(sourceOf(c), c.page)
       // Only where the concept's own page is trusted: suggesting a response
       // page relative to the agenda slide would be four pages of noise.
       const suggested = known
-        ? suggestResponse(c.page, responses[c.deck] || [], claimed[c.deck] || [], c.name)
+        ? suggestResponse(c.page, responses[sourceOf(c)] || [], claimed[sourceOf(c)] || [], c.name)
         : null
       return {
         id: c.id,

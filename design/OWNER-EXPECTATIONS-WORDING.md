@@ -38,7 +38,7 @@
 | Card | **Weekly hours and annual leave** |
 | Card | **Focus Tasks/Duties % · Andy**, headed *priced at 45 hours a week* |
 | Columns | **Tasks/Duties** · **Now %** · **Hrs** · **Focus %** · **Hrs** — the workbook heads them *Now* and *Focus*; the % is ours |
-| Footnote | *Both columns are priced at the owner's Stage 1 weekly hours, as the workbook does. Each column should add to 100%. Rename, remove or add this owner's tasks here; the other owners keep their own.* |
+| Footnote | *Both columns are priced at the owner's Stage 1 weekly hours, as the workbook does. Each column should add to 100%. The ten tasks are shared by every owner — rename, remove or add one here and it changes for all of them.* — last sentence approved by Mike word for word 2026-09-26 (item 15.24), when the owners' tasks became one list of ten |
 | Button, under the tasks | **+ Add task** · each row's **×** reads *Remove this task* on hover · an empty name box shows *Task name* |
 | Note, only if the firm's list cannot be read | *The firm's starting task list could not be loaded, so a new owner starts on the workbook's list.* |
 | Headline sub-label | **all owners combined** |
@@ -51,7 +51,7 @@
 | Sentence, mentor, nothing written yet | *This is the starting list taken from the Business Owner Expectations workbook. Change anything below and press Save, and every tier beneath you receives your list instead.* |
 | Sentence, lower tier, nothing written anywhere | *You are using the platform's starting list, taken from the Business Owner Expectations workbook. Change anything below and press Save to hold your own instead.* |
 | Sentence, inherited from a tier above | *You are using the starting list set by {tier}. Change anything below and press Save to hold your own instead.* |
-| Sentence, this tier's own | *This is your own starting list. Every owner on Business Owner Expectations begins with these tasks at every tier beneath you, and each owner may then rename, remove or add their own.* |
+| Sentence, this tier's own | *This is your own starting list. Every owner on Business Owner Expectations begins with these tasks at every tier beneath you, and the owners share them as one list of up to ten that can be renamed, removed or added to.* — approved by Mike word for word 2026-09-26 (item 15.24), when the owners' tasks became one list of ten |
 | Buttons | **+ Add task** · **Save this starting list** · **Go back to the inherited list** · **Version history** / **Hide version history** · **Restore** |
 | Ladder | each tier reads **writes it · 10 tasks** or **inherits** — the Session Processes wording |
 | Confirm, going back | *Your own starting list will stop being used, and the one from the level above will be handed down instead. Earlier versions stay in the history.* · **Go back to inheriting** |

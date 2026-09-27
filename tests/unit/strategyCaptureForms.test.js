@@ -367,19 +367,41 @@ describe('a ruled line is a box, and a heading is never one', () => {
   test('every banded-grid concept offers exactly the lines its workbook rules', () => {
     // The general form of all three above: across every concept whose capture form is
     // the banded grid, the boxes on screen are the blank cells in Mike's document.
+    //
+    // ⚠ COUNTED PER TABLE, OVER THE TABLES READ AS A BANDED GRID. A table may name its own
+    // form (item 15.28): Alignment Statements' statement stack marks the gaps between its
+    // bands blank so the stack skips them, and those gaps are not lines he ruled.
     const banded = concepts.filter(c => c.captureForm === 'banded-grid' && c.captureTemplate)
     expect(banded.length).toBeGreaterThan(0)
     const wrong = banded
       .map((c) => {
         const capture = forms.captureForConcept(c)
         if (!capture.supplied) { return null }
-        const want = ruledLinesIn(c.captureTemplate)
-        return capture.fields.length === want
-          ? null
-          : `${c.id}: ${capture.fields.length} boxes, workbook rules ${want} lines`
+        const tables = forms.resolveTemplate(c.captureTemplate).tables
+        const bandedAt = tables.map((t, i) => i).filter(i => capture.tableForms[i] === 'banded-grid')
+        const want = bandedAt.reduce((n, i) =>
+          n + tables[i].rows.reduce((m, r) => m + r.cells.filter(x => x.blank).length, 0), 0)
+        const got = capture.fields.filter(f => bandedAt.some(i => f.key.startsWith('t' + i + 'r'))).length
+        return got === want ? null : `${c.id}: ${got} boxes, workbook rules ${want} lines`
       })
       .filter(Boolean)
     expect(wrong).toEqual([])
+  })
+
+  test('🔴 a table naming its own form is laid out by it — Alignment Statements, item 15.28', () => {
+    // One form for the whole card either flowed the five statements four across or turned
+    // the table into a stack. Each part is its own: the statements one box apiece under his
+    // five names, then the three-by-three table.
+    const capture = captureOf('alignment-statements')
+    expect(capture.tableForms).toEqual(['named-field-stack', 'banded-grid'])
+    const stack = capture.fields.filter(f => f.key.startsWith('t0r'))
+    expect(stack.map(f => f.columnLabel)).toEqual(['Vision', 'Purpose', 'Values', 'Mission', 'Strategy'])
+    expect(capture.fields.filter(f => f.key.startsWith('t1r'))).toHaveLength(9)
+  })
+
+  test('a concept whose tables name no form of their own reads every table by its own', () => {
+    const capture = captureOf('blue-ocean-strategy')
+    expect(capture.tableForms.every(f => f === 'banded-grid')).toBe(true)
   })
 
   test('a template Mike has WORKED THROUGH offers no box that is one of his headings', () => {

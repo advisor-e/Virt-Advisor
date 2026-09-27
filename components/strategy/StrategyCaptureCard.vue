@@ -34,6 +34,9 @@
       :firm-name="firmName"
       :firm-colour="firmColour"
       :firm-logo="firmLogo"
+      :text-edits="textEdits"
+      :editable="editable"
+      @text-edited="relayTextEdit"
     )
     .scc-advance
       b-button(type="is-primary" @click="capturing = true") {{ $t('strategyPlanner.teaching.captureNow') }}
@@ -179,7 +182,13 @@ export default {
      * none and the drawing falls back to the initials disc — Mike's ruling,
      * 2026-09-22. Sourced by firmBrand() from Advisor-e's firm profile.
      */
-    firmLogo: { type: String, default: '' }
+    firmLogo: { type: String, default: '' },
+
+    /** The session's page edits, carried through to the drawing — item 15.25. */
+    textEdits: { type: Object, default: () => ({}) },
+
+    /** True on the Run screen: the advisor may edit the drawing's text. */
+    editable: { type: Boolean, default: false }
   },
 
   data () {
@@ -253,6 +262,15 @@ export default {
   },
 
   methods: {
+    /**
+     * @param {{conceptId: string, sheet: number, block: string, text: (string|null)}} edit
+     * @param {function(boolean): void} done
+     */
+    relayTextEdit (edit, done) {
+      // Payload: the page edit and its done(ok) callback, unchanged — the page saves it.
+      this.$emit('text-edited', edit, done)
+    },
+
     /**
      * What a box currently holds.
      * @param {string} key

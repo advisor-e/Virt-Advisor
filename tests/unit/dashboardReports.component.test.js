@@ -299,3 +299,31 @@ describe('the advisor\'s steps', () => {
     expect(wrapper.findAll('.drd-page').length).toBe(11)
   })
 })
+
+describe('the sign-in arrives after the report has asked for its figures', () => {
+  // 🔴 UAT-ONLY, AND INVISIBLE ON A DEVELOPER'S MACHINE. The page resolves the sign-in in
+  // its own mounted(), after this one's, so the first request carries the placeholder
+  // token. A loopback host accepts it; anywhere else it is refused and the stale banner
+  // showed the moment the report opened, until the advisor changed something.
+  it('🔴 asks again with the real token, and the stale warning clears', async () => {
+    const state = fullState()
+    const figures = computeReportPages({ current: CURRENT, prior: PRIOR, inventory: state.inventory, thresholds: THRESHOLDS })
+    global.fetch = jest.fn((url, opts) => {
+      const signedIn = opts && opts.headers && opts.headers.Authorization === 'Bearer tok-real'
+      const body = signedIn ? { success: true, data: figures } : { success: false, error: { code: 'INVALID_TOKEN' } }
+      return Promise.resolve({ ok: signedIn, json: () => Promise.resolve(body) })
+    })
+    const wrapper = mountWithBuefy(DashboardReportsWorkbench, {
+      propsData: { step: 6, restore: state, token: 'dev-local-bypass', apiToken: 'dev-local-bypass', clientName: 'Harbourside Kitchen Supplies Ltd' }
+    })
+    for (let i = 0; i < 4; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
+    expect(wrapper.vm.error).toBe(true)
+
+    await wrapper.setProps({ token: 'tok-real' })
+    for (let i = 0; i < 4; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
+    const pagesCalls = global.fetch.mock.calls.filter(([url]) => url === '/api/report/dashboard-reports/pages')
+    expect(pagesCalls[pagesCalls.length - 1][1].headers.Authorization).toBe('Bearer tok-real')
+    expect(wrapper.vm.error).toBe(false)
+    expect(wrapper.vm.figures).toBe(figures)
+  })
+})

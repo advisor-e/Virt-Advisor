@@ -26,6 +26,9 @@ section.sts
     :firm-name="firmName"
     :firm-colour="firmColour"
     :firm-logo="firmLogo"
+    :edits="editsFor(n - 1)"
+    :editable="editable"
+    @text-edited="relayTextEdit"
   )
 
   //- What the concept does, in Mike's own words from the deck's Session Scope
@@ -53,6 +56,7 @@ section.sts
 <script>
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
 import { promptsEchoDrawing, conceptSheetCount } from '~/components/strategy/concepts'
+import { sheetEdits } from '~/utils/conceptTextBlocks'
 
 /**
  * StrategyTeachingSlide — the concept on screen, so an advisor can teach it.
@@ -129,6 +133,18 @@ export default {
     fields: {
       type: Array,
       default: () => []
+    },
+
+    /** The session's page edits, `{ '<conceptId>#<sheet>': { block: text } }` — item 15.25. */
+    textEdits: {
+      type: Object,
+      default: () => ({})
+    },
+
+    /** True on the Run screen: the advisor may edit this concept's page text. */
+    editable: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -163,6 +179,26 @@ export default {
      */
     promptsRepeatDrawing () {
       return promptsEchoDrawing(this.conceptId)
+    }
+  },
+
+  methods: {
+    /**
+     * One sheet's saved page edits.
+     * @param {number} sheet
+     * @returns {Object<string, string>}
+     */
+    editsFor (sheet) {
+      return sheetEdits(this.textEdits, this.conceptId, sheet)
+    },
+
+    /**
+     * @param {{conceptId: string, sheet: number, block: string, text: (string|null)}} edit
+     * @param {function(boolean): void} done
+     */
+    relayTextEdit (edit, done) {
+      // Payload: the page edit and its done(ok) callback, unchanged — the page saves it.
+      this.$emit('text-edited', edit, done)
     }
   }
 }

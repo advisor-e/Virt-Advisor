@@ -54,11 +54,20 @@ const LINE_GRIDS = ['Vertical/ & Horizontal Integration Tasks', 'Revenue Streams
 /** The two shapes read as words beside answers, where no cell is a ruled line. */
 const WORD_SHAPES = [...QUESTION_SHEETS, ...NAMED_ROW_GRIDS]
 
+/**
+ * A card of TWO forms, each part naming its own — item 15.28. Its shape is asserted in its
+ * own test below, because neither of the three shapes' rules fits the whole of it.
+ */
+const PART_CARDS = ['Alignment Statements']
+
+/** The pages a reader entry reads, in order, whichever way the entry names them. */
+const pagesOf = p => (p.parts ? p.parts.map(part => part.page) : (p.pages || [p.page]))
+
 describe('the forms on his deck pages are read, not declared missing', () => {
-  test('every deck-page template is accounted for by one of the three shapes', () => {
+  test('every deck-page template is accounted for by one of the three shapes, or is a card of parts', () => {
     // Without this, another template could be added and every shape assertion below
     // would simply skip it — passing while guarding nothing.
-    expect([...WORD_SHAPES, ...LINE_GRIDS].sort()).toEqual([...TEMPLATES].sort())
+    expect([...WORD_SHAPES, ...LINE_GRIDS, ...PART_CARDS].sort()).toEqual([...TEMPLATES].sort())
   })
 
   test('the reader is told which pages are line grids, and it is exactly these', () => {
@@ -73,9 +82,29 @@ describe('the forms on his deck pages are read, not declared missing', () => {
       const t = deckTables.templates[p.template]
       expect(t).toBeDefined()
       expect(t.deck).toBe(p.deck)
-      expect(t.page).toBe((p.pages || [p.page])[0])
-      expect(t.tables).toHaveLength((p.pages || [p.page]).length)
+      expect(t.page).toBe(pagesOf(p)[0])
+      expect(t.tables).toHaveLength(pagesOf(p).length)
     })
+  })
+
+  test('🔴 Alignment Statements is five named statements, then his three-by-three table — item 15.28', () => {
+    // Read as ONE form, either the statements flowed four across or the table became a
+    // stack. Each part names its own, and the gaps between his statement bands are marked
+    // blank so the stack reads names DOWN the first column and never offers a gap as a box.
+    const [stack, table] = deckTables.templates['Alignment Statements'].tables
+    expect(stack.form).toBe('named-field-stack')
+    expect(stack.columns).toBe(2)
+    const named = stack.rows.filter(r => r.cells[0].text && !r.cells[0].blank)
+    expect(named).toHaveLength(5)
+    stack.rows.filter(r => !named.includes(r)).forEach((r) => {
+      expect(r.cells.every(c => c.blank && !c.text)).toBe(true)
+    })
+
+    // p9's worked example, read as p10's empty table: a header and three rows of lines.
+    expect(table.form).toBeUndefined()
+    expect(table.columns).toBe(3)
+    expect(table.rows).toHaveLength(4)
+    table.rows.slice(1).forEach(r => expect(r.cells.every(c => c.blank)).toBe(true))
   })
 
   test('each question sheet is one two-column grid — his question beside the client\'s answer', () => {

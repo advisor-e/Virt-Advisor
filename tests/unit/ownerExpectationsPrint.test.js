@@ -59,7 +59,7 @@ describe('the plan asks the model what the screen asks', () => {
     wrapper.vm.openForm.duties[2].focusPct = 33
     wrapper.vm.removeTask(9)
     wrapper.vm.addTask()
-    wrapper.vm.openForm.duties[9].task = 'Board meetings'
+    wrapper.vm.renameTask(9, 'Board meetings')
     wrapper.vm.openForm.duties[9].nowPct = 5
     wrapper.vm.form.development.fixedCosts[2] = 310000
     wrapper.vm.form.loan.ratePct = 8.5
@@ -116,5 +116,15 @@ describe('the contrast table', () => {
     const row = contrastFrom(r).tasks.find(t => t.name === 'Board meetings')
     expect(row.cells[0]).toBeNull()
     expect(row.cells[1]).toEqual({ now: 0, focus: 0.1 })
+  })
+
+  it('🔴 never prints more than the workbook\'s ten task rows, so the page never runs on — item 15.24', () => {
+    // Mike, 2026-09-26: "no more than 10 tasks in the model, and table - do not print onto an
+    // additional page". A tester's session holds ten; only a longer one shows the overflow.
+    const r = JSON.parse(JSON.stringify(sample))
+    r.owners.owners[0].duties = Array.from({ length: 15 }, (_, i) => ({ task: 'Task ' + i, now: 0.05, focus: 0.05 }))
+    const names = contrastFrom(r).tasks.map(t => t.name)
+    expect(names.length).toBeLessThanOrEqual(10)
+    expect(names.slice(0, 3)).toEqual(['Task 0', 'Task 1', 'Task 2'])
   })
 })

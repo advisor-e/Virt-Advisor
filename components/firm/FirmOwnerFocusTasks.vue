@@ -93,8 +93,8 @@ const TIERS = [
   { tier: 'firm_manager', labelKey: 'sessionProcess.tierFirmManager' }
 ]
 
-/** The backend's ceiling — `MAX_TASKS` in server/utils/ownerFocusTasks.js. */
-const MAX_TASKS = 20
+/** The backend's ceiling — `MAX_TASKS` in server/utils/ownerFocusTasks.js: the workbook's ten (15.24). */
+const MAX_TASKS = 10
 
 const PATH = '/api/owner-focus-tasks'
 

@@ -1,10 +1,11 @@
 # "Helps Your Client To…" lines — every row of the scope menu now carries one
 
-> ✅ **COMPLETE, 2026-09-25.** All **47** rows of the Strategy Planner's session scope menu carry a
-> *Helps Your Client To…* line: **34** read off Mike's own decks, and **13** drafted here and
-> approved by him word for word — the ten agenda rows, the two framing pages (Collaborative
-> Thinking and Our Session Objective), then Business Owner Expectations (item 15.23). Every one
-> of the thirteen is in the record below, dated.
+> ✅ **COMPLETE, 2026-09-26.** All **48** rows of the Strategy Planner's session scope menu carry a
+> *Helps Your Client To…* line: **34** read off Mike's own decks, and **14** drafted and approved
+> by him word for word — the ten agenda rows, the two framing pages (Collaborative Thinking and
+> Our Session Objective), Business Owner Expectations (item 15.23), then Alignment Statements
+> (item 15.28, drafted on its drawing as Decision C). Every one of the fourteen is in the record
+> below, dated.
 >
 > 🔴 **THIS FILE IS STILL THE ONLY PLACE AN UNAPPROVED LINE MAY EXIST.** Nothing waiting here is
 > in `data/strategy-frameworks.json` or on any screen. Once an AI-written sentence sits in the
@@ -36,6 +37,7 @@
 
 ## What has been applied
 
+- **2026-09-26** · `alignment-statements` — "Turn what each owner wants into five statements — Vision, Purpose, Values, Mission and Strategy — and say them in words the team, the customers and the community each understand."
 - **2026-09-25** · `business-owner-expectations` — "Put a number on the life each owner wants — the income, the hours, the time off and the work they'd rather be doing — and see how big the business has to become to pay for it."
 - **2026-09-24** · `collaborative-thinking` — "Look at the business together, one side at a time, before anyone decides — so the plan is built on everyone's view rather than out-voting the person who saw the crack."
 - **2026-09-24** · `our-session-objective` — "Know what today is for and what is expected of everyone: come with an open mind, be ready to be challenged, discover what you've been missing, and leave with an action plan."

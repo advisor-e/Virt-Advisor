@@ -391,8 +391,14 @@ function hasField (frameworkId, fieldKey) {
  * so `page` is a real page like a framing page's. Item 15.23: Business Owner Expectations,
  * Business Targets pages 5-6, whose rows were deleted as agenda lines on 2026-09-23 and
  * came back on Mike's approved drawing of 2026-09-25.
+ *
+ * `support-document` is a row that sits in a deck's panel but is taught from a DIFFERENT
+ * document, named in `document`, whose pages its `page` counts. Item 15.28: Alignment
+ * Statements, from `L.Suppt.Alignment.pdf`, in Business Targets on Mike's word of
+ * 2026-09-26. Its page number is never printed against the panel's deck, which would send
+ * anyone checking to the wrong page — his ruling the same day: the menu shows a dash.
  */
-const CONCEPT_SOURCES = ['session-scope-table', 'agenda', 'framing-page', 'deck-page']
+const CONCEPT_SOURCES = ['session-scope-table', 'agenda', 'framing-page', 'deck-page', 'support-document']
 
 /**
  * The Report Models a concept card may run inside a session, by catalogue route (item 15.23).
@@ -439,6 +445,12 @@ function buildConcept (raw, knownIds) {
   }
   if (!Number.isInteger(raw.page) || raw.page < 1) {
     throw fail('BAD_CONCEPT', 'Concept "' + id + '" has no usable page number.')
+  }
+  // A page number means nothing without the document it counts in, and a `document` on any
+  // other row would silently re-page it away from its deck.
+  if ((raw.source === 'support-document') !== Boolean(raw.document)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" must name a document exactly when its ' +
+      'source is support-document.')
   }
   if (!CAPTURE_BASES.includes(raw.captureFormBasis)) {
     throw fail('BAD_CONCEPT', 'Concept "' + id + '" has captureFormBasis "' +
@@ -496,6 +508,7 @@ function buildConcept (raw, knownIds) {
     name: String(raw.name),
     planningDomain: raw.planningDomain,
     deck: raw.deck || null,
+    document: raw.document || null,
     page: raw.page,
     source: raw.source,
     conceptSummary: raw.conceptSummary || null,
@@ -677,7 +690,8 @@ const DECKS = RAW_DECKS.map(function (raw) {
   // the menu now reads each row's own source for that rather than the deck's.
   // A deck that is ONLY framing pages — Business Targets, after the eight agenda rows
   // went — takes 'framing-page', which simply means it carries no "agenda only" note.
-  const scopeRows = concepts.filter(c => c.source !== 'framing-page')
+  // A support-document row is the same: its own page, in its own document (item 15.28).
+  const scopeRows = concepts.filter(c => c.source !== 'framing-page' && c.source !== 'support-document')
   const sources = (scopeRows.length ? scopeRows : concepts)
     .map(c => c.source).filter((s, i, all) => all.indexOf(s) === i)
   if (sources.length !== 1) {
@@ -823,11 +837,11 @@ module.exports = {
   hasField,
   PLANNING_DOMAINS,
   STRATEGY_SHAPES,
-  // The concept index — the 47
+  // The concept index — the 48
   listConcepts,
   getConcept,
   conceptsForPlanningDomain,
-  // The session scope menu — the 47 as five panels, in Mike's order
+  // The session scope menu — the 48 as five panels, in Mike's order
   listDecks,
   frameworkForConcept,
   CONCEPT_SOURCES,

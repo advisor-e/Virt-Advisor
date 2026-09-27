@@ -9,25 +9,23 @@
 
 ---
 
-## 2026-09-24 (evening) · Laptop · branch `feat/advisor-progress`
+## 2026-09-27 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed at `2f435d24` plus this note. 629 suites / 13,752 tests green, audit PASS.
-3 ahead, 0 behind `master`, no PR yet.**
+**Clean and pushed. 11 ahead of master, 0 behind — all of it in PR #136 (open, not merged).
+Green: 636 suites / 13,810 tests.**
 
-**Closed today on Mike's word:** **15.1** (Strategy Planner stages 1–7 built; the rest lives in
-15.20 / 15.17 / 15.2 / 15.22) · **15.16** (13 concepts capture into his own tables, 22 → 35 of 46) ·
-**15.11** (its slide tables built under 15.16, read off the page, not drawn). **Filed:** **15.22**,
-the seven concepts still needing his ruling. All of it is in
-[`STRATEGY-CAPTURE-FORM-PROPOSALS.md`](STRATEGY-CAPTURE-FORM-PROPOSALS.md).
+**Closed on Mike's word:** 16 — the Business Performance Report carries the advisor's firm on its
+cover and every footer, through `mixins/firmBrand.js` (shared with the Strategy Planner).
+**Worked:** 15.2 — drawing approved ([`mockups/growth-aspect-questions.html`](mockups/growth-aspect-questions.html)),
+first part built: the 98 questions in `data/growth-fundamentals.json` and the wheel's button. His
+call: proceed. **Fixed at shutdown:** the report opened with the stale banner outside loopback,
+because its first figures call went out before the sign-in was read.
 
-**FOR THE DESKTOP:** `scripts/read-deck-capture-tables.js` now reads a page declared `grid` as
-writing lines — merged cells from his rules, his example as guide text, a question row. **Your
-branch's `check:branch` shows "15.8 used twice" until you merge `master`: it is one item, renamed
-today, and `master` already carries the new name.** The check itself now tells a rename from a
-clash (`scripts/ref-ceiling.js`), on this branch until it reaches `master`.
+**FOR THE DESKTOP:**
+- Merging #134 and #136: item 16 ends DONE — keep #136's closure, drop #134's parked entry. Keep
+  #134's closures of 16.1 and 13.2, and #136's of 15.24.
+- `growthAspects` now carry `questions`, and the Process Improvement and Governance descriptions
+  changed on Mike's rulings. They reach the Virtual Advisor's prompt.
+- 15.2's Mentor Hub tab needs `FirmManagerHub.vue` — not started; it waits for #134.
 
-**SHARED FILES TOUCHED:** `StrategyConceptCapture.vue`, `StrategyCaptureCard.vue`,
-`StrategyPlanDocument.vue`, `pages/strategy-planner.vue`, `server/utils/strategyCaptureForms.js`,
-`scripts/ref-ceiling.js`, `design/features/README.md` (one link on row 15).
-
-**In hand:** 15.17, 15.20 unchanged — not worked today. **Next here:** 15.22 when Mike rules.
+**In hand, not touched today:** 15.17, 15.20, 8.4.

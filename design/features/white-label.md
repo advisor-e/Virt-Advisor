@@ -62,6 +62,21 @@ outside it; it cannot break for the logo; and nothing can stand on it.
 position is the drawing's, untouched. **On a printed sheet** the drawing's own height-based
 values stand, because a sheet has a fixed shape.
 
+**The Business Performance Report carries the same mark, in its own drawing's box** — the
+cover's large one and the small one in every page's footer —
+[`../../components/DashboardReportMark.vue`](../../components/DashboardReportMark.vue). It has no
+frame, because its approved drawing
+([`../mockups/business-performance-report.html`](../mockups/business-performance-report.html))
+has none. The order is the same: logo, then the disc with the firm's name beside it, then the
+placeholder only when nothing is known. **One deliberate difference from that drawing:** on the
+navy cover a real logo sits on a white plate, because most logos are drawn for white paper; the
+drawing shows only the empty placeholder box.
+
+The brand is read once, by [`../../mixins/firmBrand.js`](../../mixins/firmBrand.js) — the same
+read the Strategy Planner uses — and **injected** by `DashboardReport.vue` rather than passed
+as a prop, so none of the report's fourteen page components can drop it on the way (the failure
+in §4). Pinned by [`../../tests/unit/dashboardReportBrand.test.js`](../../tests/unit/dashboardReportBrand.test.js).
+
 ## 4. The 33 concept drawings — and every caller that reaches one
 
 Every concept drawing takes `firmName`, `firmColour` and `firmLogo`

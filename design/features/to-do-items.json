@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "15.24",
-      "name": "Business Owner Expectations plan page overflows past about 14 tasks",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The contrast page prints one row per task any named owner holds. It fits one A4 sheet with the workbook's ten tasks and room for about four more, but an owner may hold twenty.",
-      "risk": "A firm whose owners add their own tasks gets a table running under the page's running foot on the client's plan - the fault fixed once already on 2026-09-25 at ten tasks. Nothing is lost; the page just prints badly.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-25 - found measuring the 15.23 build: 76px spare below the table at ten tasks, about 17px a row. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "components/strategy/StrategyOwnerContrast.vue (the page), utils/ownerExpectationsPrint.js (which tasks print), design/mockups/strategy-concept-owner-expectations.html (the approved drawing a fix must amend).",
-      "note": "A DESIGN CHOICE FOR MIKE, NOT A PATCH: let the task rows continue onto a second sheet, print smaller type, or print only the tasks whose share changes between now and focus. Owners across does not affect it - six named owners fit on one sheet, measured 2026-09-25.",
-      "comment": "2026-09-25 - filed on Mike's yes while walking the 15.23 build in a browser."
-    },
-    {
       "ref": "15.2",
       "name": "The hundred questions behind the nine Growth Aspects",
       "rankedByMike": false,
@@ -106,6 +85,10 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-27"
+      },
       "why": "The coverage wheel can say an aspect is untouched but cannot help the advisor ask anything about it. The hundred questions behind the nine aspects are what make the check useful in the room.",
       "risk": "Without them an advisor sees a hatched segment and has nothing to say next, so the coverage check names a gap it cannot help close. The counter-risk is scale: a hundred questions authored onto a screen is a real content job, and folding it into 15.1 is how that build stops ending.",
       "askedBy": {
@@ -114,8 +97,8 @@
         "detail": "2026-09-16 - the 9 Growth Aspect Questions deck is one of the fourteen he supplied for the Strategy Planner; split out of 15.1 on his yes, as Decision 7 of the drawing. Not a new idea of ours."
       },
       "touches": "data/growth-fundamentals.json growthAspects, which already holds the nine names and descriptions; the Strategy Planner's coverage check on screen 3 of design/mockups/strategy-planner.html; and a mentor-tier authoring screen, per the hub-page rule.",
-      "note": "NOT IN THIS BUILD - Mike's ruling 2026-09-16 - 'the ~100 Growth Aspect questions', on design/mockups/strategy-planner.html, where the reasoning is recorded in full. The coverage check ships on the nine names alone and still does its job: it shows WHERE a plan is thin. Source is his '9 Growth Aspect Questions hyperlinked.pdf' - about 100 questions across the nine aspects. growth-fundamentals.json already holds the nine names and descriptions, so this adds questions beneath an existing structure rather than inventing one. Under the hub-page rule the screen starts at the mentor tier ALONE: platform content, identical for every firm.",
-      "comment": "2026-09-16 - split out of 15.1 during the Strategy Planner scoping, on Mike's yes, as the drawing's ruling on the ~100 Growth Aspect questions. Filed rather than noted: a deferral that is not written down is a deferral that is forgotten."
+      "note": "PROCEED ON MIKE'S WORD 2026-09-25: the questions are in the build, and the AI puts them forward as the talk turns to an aspect. Drawn and approved 2026-09-27: design/mockups/growth-aspect-questions.html, decisions A-D and its wording ruled on it. BUILT 2026-09-27: all 98 stored, the two ruled descriptions, and the wheel's button (screen 1). NOT BUILT: the Mentor Hub tab (screen 3), which waits for PR #134 because both change FirmManagerHub.vue; and the AI suggestion (screen 2), which stands on 8.4 alone - a strategy session is a Meeting Review meeting type (Decision 10), so no new privacy ruling is needed.",
+      "comment": "2026-09-25 - Mike: proceed, with the direction above. First split out of 15.1 on his yes, 2026-09-16, as Decision 7 of the drawing."
     },
     {
       "ref": "15.13",
@@ -202,7 +185,7 @@
         "detail": "2026-09-23 - 'lets get the remaining 12 frameworks sorted before we deal with this', then 'read them closely - slide 4 in organisational review DOES NOT contain business development stages', which forced the decks open rather than their titles compared."
       },
       "touches": "A new drawing in design/mockups/ by the section 0 method and its ARTEFACTS.md row; scripts/build-concept-graphics.js DRAWINGS; the count guards in tests/unit/conceptGraphics.test.js, which pin 35 svgs and 34 titled concepts.",
-      "note": "THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Checked by rendering it, not by its title. CLOSED THE SAME DAY: eight stage directions deleted on Mike's ruling, Divisional KPI's and Review Internal Insights Data wired from his own material, and two pages brought in that were never among the 52 - Our Session Objective and Collaborative Thinking, the first concept with TWO teaching sheets. 44 of 46 run. Drafting Tender Proposals is the other unrunnable row and is NOT a gap - his summary calls it general reading. Record: strategy-planner.md section 0.",
+      "note": "PROCEED ON MIKE'S WORD 2026-09-25. WHAT REMAINS: Define the Cultural Core Values still has no drawing and no capture form, so it is one of two concepts that cannot run - Drafting Tender Proposals is the other, deliberately. THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Draw it by the section 0 method for his approval, or bring it in through 15.20's converter, which turned this very page to clean vector on 2026-09-23. The other work done under this number - eight stage directions deleted, two framing pages added, their agenda wired 2026-09-25 - is finished.",
       "comment": "2026-09-23 - filed as nine stage directions, then rewritten to what survives his ruling. His challenge disproved a page mapping built from extracted titles; every claim here is from a 150dpi render of his own slide."
     },
     {
@@ -310,9 +293,13 @@
         "ours": true,
         "detail": "2026-09-24 - found while proving item O5 of the OpenAI working page. Mike said yes to filing it, and added the section-by-section option in the note."
       },
-      "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; item 8.3, since both need the same design work.",
-      "note": "THE HARD PART IS SPEAKERS, NOT SPLITTING: OpenAI labels each file's speakers A, B afresh, so pieces must be tied back to one advisor - known_speaker_references (up to four 2-10 second clips) is the documented way. MIKE'S OPTION 2026-09-24, in his words: meeting presentations have sections, each with a response section; clicking a section starts its own recording, as the voice recorder does in the guided AI session elsewhere in the app, saved per section and combined at the end - which also shows a technical dropout sooner than the end of the meeting. Evidence: OPENAI-DEVELOPER-DOCS.md O5.",
-      "comment": "2026-09-24 - filed on Mike's yes, with his option recorded. Design it together with 8.3."
+      "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; the Strategy Planner's Run session (pages/strategy-planner.vue, StrategyConceptCapture.vue, StrategyCaptureCard.vue) and its navigation timeline (strategySessionStore.js); item 8.3, since both need the same design work.",
+      "note": "DRAWN 2026-09-25 ON MIKE'S YES, NOT APPROVED, NOT BUILT: design/mockups/strategy-session-recording.html - the Strategy Planner's Run session, one concept card per section, joining his Decisions 10 and 11. Six decisions A-F wait on him, one at a time. THE HARD PART IS SPEAKERS: a known_speaker_references clip cut from the consent line names the advisor in every section. MIKE'S OPTION 2026-09-24, in his words: meeting presentations have sections, each with a response section; clicking a section starts its own recording, as the voice recorder does in the guided AI session elsewhere in the app, saved per section and combined at the end - which also shows a technical dropout sooner than the end of the meeting.",
+      "comment": "2026-09-25 - Mike's call: PROCEED - the drawing's six decisions next, asked one at a time. Filed 2026-09-24 on his yes, with his option recorded; design it together with 8.3.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-25"
+      }
     },
     {
       "ref": "13.5",

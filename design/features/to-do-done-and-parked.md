@@ -109,22 +109,6 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
-**16 · A client's document carries no firm, so the white-label promise has nothing behind it.**
-⏸ **Parked 2026-09-25 by Mike ("yes").** Our half is built; waiting on the master team's answer to
-question 8 of the integration email.
-
-- **Built and wired:** `firmBrand()` in [`server/utils/firmsDirectory.js`](../../server/utils/firmsDirectory.js)
-  reads the firm's name, logo and colour through seam **Q-FIRM-BRAND** in
-  [`config/integration.js`](../../config/integration.js). All four call sites carry it — the plan
-  document and the three session screens (2026-09-23). Mike's ruling: the firm's real logo in a
-  fixed-height box, initials disc only as fallback, border in the firm's colour. See
-  [`white-label.md`](white-label.md) §4.
-- **The data is Advisor-e's and we build no screen for it** — Mike: *"Advisor-e already picks up the
-  colour and brands the border to suit"*; it lives on the firm profile page.
-- **What un-parks it:** the master team naming the two columns (question 8 of
-  [`../MASTER-TEAM-INTEGRATION-EMAIL.md`](../MASTER-TEAM-INTEGRATION-EMAIL.md)). Until then the
-  seam is inert and documents print the placeholder mark.
-
 **7.3 · A second opinion from two AI providers.** ⏸ **Parked 2026-09-23 by Mike.** His own idea,
 unbuilt, and it needs a decision and an impact test before any design — not a build.
 
@@ -368,6 +352,113 @@ locked in the prompt. Either is fine; deciding by accident is not.
 ---
 
 ## 2. Closed recently, with what proved it
+
+**16 · A client's document carries no firm, so the white-label promise has nothing behind it.**
+✅ **Closed 2026-09-27 by Mike ("if its done, mark it done").** This supersedes the desktop's
+parking of 2026-09-25: that note said our half was built, and the Dashboard Report still printed
+"Firm logo" on its cover and every footer until this day.
+
+- **What proves it:** every client document reads the firm's brand through `firmBrand()` and
+  `GET /api/report/firm/brand` — the Strategy Planner's session screens and plan, and now the
+  Business Performance Report's cover and every page footer, through one shared read,
+  [`../../mixins/firmBrand.js`](../../mixins/firmBrand.js). Logo first, then the initials disc with
+  the firm's name, the placeholder only when nothing is known. A client's own sign-in reads its
+  advisor's firm. Pinned by `tests/unit/strategySessionBrand.test.js` and
+  `tests/unit/dashboardReportBrand.test.js`; walked in a browser on the built app. See
+  [`white-label.md`](white-label.md) §3–4.
+- **Not ours, and it holds nothing open:** a firm's real logo and colour appear once the master
+  team names the two columns — question 8 of the integration email, seam `Q-FIRM-BRAND` in
+  `config/integration.js`. Nothing on this side changes when they do.
+
+**15.24 · Business Owner Expectations plan page overflowed past about 14 tasks.**
+✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he ruled it.
+
+- **His rulings:** *"no the tasks are restricted in number - no more in number than original
+  doc"*, then *"1 list of 10 is what i asked for BUT those 10 can be edited"*, and the scope:
+  *"no more than 10 tasks in the model, and table - do not print onto an additional page"*.
+- **What proves it:** the model holds ten tasks at most; the screen keeps one list shared by every
+  owner, where a rename, an added task or a removed one changes it for all and each owner keeps
+  their own shares, and Add task stops at ten; the printed table never exceeds ten rows. A session
+  saved while owners kept their own lists is joined by task name. Tests in
+  `tests/unit/ownerExpectations*.test.js`; walked in a browser. The note under the table carries
+  his approved wording ([`../OWNER-EXPECTATIONS-WORDING.md`](../OWNER-EXPECTATIONS-WORDING.md)).
+  Found the same day and fixed on his word ("no - fix it now"): the managers' Owner Focus Tasks
+  tab still allowed 20 and said each owner kept their own list. It now holds ten, a list saved
+  with more keeps its first ten rather than falling back to the tier above, and its sentence is
+  his approved wording. Commit: `git log --grep "(15.24)"`.
+
+**15.26 · The Our Session Objective agenda had room for six steps; a seventh printed over the logo.**
+✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he ruled it, approved it and it was built.
+
+- **His rulings:** *"session objective needs to be on its own page - it frames the session and
+  establisges permission boundaries - page 2 is the agenda layout is over to you"*, then *"the
+  agenda page needs to show the step/stage as a parent - the name of the concept as a child
+  hierarchy please"*.
+- **What proves it:** built to the approved drawing
+  [`../mockups/strategy-session-objective-two-sheets.html`](../mockups/strategy-session-objective-two-sheets.html).
+  Sheet 1 is his framing page without the agenda; sheet 2 the agenda, each step in his bold row
+  with its concepts beneath it, up to three columns, continuing on another sheet past that. The
+  rules live in `utils/agendaLayout.js`; `tests/unit/agendaLayout.test.js` holds every session
+  size up to forty steps holding every concept to the firm's mark and the frame. Walked in a
+  browser on Run session and the client's plan. Commit: `git log --grep "(15.26)"`.
+- **Not proved here:** printing a real multi-sheet agenda to paper — the extra sheet is drawn and
+  counted, and printed through the same page the plan already prints.
+
+**15.27 · A step's purpose never reached the advisor — the approved tooltip was never built.**
+✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he picked it up.
+
+- **Why it existed:** the approved drawing,
+  [`../mockups/strategy-session-process.html`](../mockups/strategy-session-process.html), says a
+  step's purpose is *"Written by the mentor. The advisor sees it as a tooltip; the client never
+  does."* The mentor's screen saved it; the seed, both saves and the session store dropped it.
+- **What proves it:** the purpose now travels from the handed-down step into the session, is saved
+  and reopened with it, and shows on Build session as a "?" beside the step's name — GlossaryTerm's
+  mark; the drawing's box was not followed, its own note was ([`strategy-planner.md`](strategy-planner.md)
+  §0). `tests/unit/strategyStepPurpose.test.js` pins the seed, the save, the mark, and that the
+  client's plan never carries it; the store test pins that a step without one keeps its old shape.
+  Walked in a browser with a test purpose written through the firm manager's route, then removed.
+  Commit: `git log --grep "(15.27)"`.
+- **Not proved here:** reopening a saved session in the browser — the saved data was checked, the
+  one reopen line was not driven. Nothing shows on screen for anyone until a purpose is written.
+
+**15.28 · Alignment Statements join Business Targets — taught and captured like every other concept.**
+✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he asked for it, ruled the drawing and
+approved the build.
+
+- **Why it existed:** Mike, 2026-09-26 — *"i think it should be included - it can be placed in the
+  'business targets' section since often, in order to improve owner alignment, they need to define
+  their expectations by calculating their wishes and communictaing them to each party"*.
+- **What proves it:** built to the approved drawing,
+  [`../mockups/strategy-concept-alignment-statements.html`](../mockups/strategy-concept-alignment-statements.html),
+  with his four rulings written on it. Third in Business Targets, paged in `L.Suppt.Alignment.pdf`
+  so the menu prints a dash; six teaching sheets with page editing; the five statements as a stack
+  and the three-by-three table beneath, his p9 example as grey guide text. Walked in a browser on
+  the built app. The walk found the table's rows out of line against the drawing — fixed on his yes
+  the same day, every box in a row now one height. His menu line is recorded on
+  [`../AGENDA-HELPS-LINES.md`](../AGENDA-HELPS-LINES.md). Full suite green, 13,822 tests. Commit:
+  `git log --grep "(15.28)"`.
+- **Not proved here:** a real MySQL database — the laptop has none; the card saves through the
+  same entries route every concept uses. UAT's check, not ours.
+
+**15.25 · An advisor could not edit a concept page's text before running the session.**
+✅ **Closed 2026-09-25 by Mike ("done")**, the day he asked for it, tried the test and approved
+the build.
+
+- **Why it existed:** Mike, 2026-09-25 — *"I want to be able to EDIT the presentation - perhaps i
+  want to add a few points etc."* An advisor could arrange a session but not change a word on it.
+- **What proves it:** built from the test he approved,
+  [`../mockups/strategy-edit-text-test.html`](../mockups/strategy-edit-text-test.html), with his
+  wording, [`../STRATEGY-EDIT-TEXT-WORDING.md`](../STRATEGY-EDIT-TEXT-WORDING.md). Driven in a
+  browser on the built app: an edit fits, saves, survives a reload and a step rename, and prints in
+  the client's plan; a label too long for its circle is refused with a red outline; Cancel and
+  **Put back the original** restore the page. Store and route tests pin the firm boundary, the
+  ceilings, and that no scope save erases an edit. Commits `fd67bb5b`, `afcb2cfb`, `5206aeb1`.
+- **His rulings:** an edit that does not fit is not saved — more content goes through "add a page"
+  (later) or "add a template" (15.20); and "as it currently appears" governs the import, not later
+  edits. How it works, and three named differences from the test:
+  [`strategy-planner.md`](strategy-planner.md) §9a.
+- **Not proved here:** a real MySQL database — the laptop has none; the edit rides `scope_json`,
+  whose SQL path is the same one the session already uses. UAT's check, not ours.
 
 **10.1 · Seven manager screens can't be translated.**
 ✅ **Closed 2026-09-25 by Mike ("yes - done")**.

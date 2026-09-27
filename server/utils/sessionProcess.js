@@ -337,6 +337,7 @@ module.exports = {
   CONFIG_KEY,
   MAX_STEPS,
   MAX_ITEMS_PER_STEP,
+  MAX_PURPOSE,
   baseProcess,
   validateProcess,
   readOwnProcess,

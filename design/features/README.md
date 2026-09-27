@@ -56,7 +56,7 @@ can be read in one place — the Handbook does not move them.*
 | 33 | [Logic Lab](logic-lab.md) ⚠ the desktop's ground | [history](logic-lab-history.md) · [Logic Lab Accept And Push](../LOGIC-LAB-ACCEPT-AND-PUSH.md) · [Logic Lab Build Vs Mockup](../LOGIC-LAB-BUILD-VS-MOCKUP.md) |
 | 34 | [Logic-Lab Report](logic-lab-report.md) — mentor & middle tiers | [history](logic-lab-report-history.md) |
 | 9 | [Founder's Claims Audit & Outcome Learning](outcome-learning.md) — three marketing claims read against the code, and the task that came out of it | [history](outcome-learning-history.md) · [Learn Scope Honesty](../LEARN-SCOPE-HONESTY.md) · [Scenario Lab Report](../SCENARIO-LAB-REPORT.md) · [Wording Trace Reasons](../WORDING-TRACE-REASONS.md) |
-| 15 | [Strategy Planner](strategy-planner.md) — the planning session an advisor runs with a client, and the first thing that keeps what was said in the room | [history](strategy-planner-history.md) · [Planning Template Census](../PLANNING-TEMPLATE-CENSUS.md) · [Agenda Helps Lines](../AGENDA-HELPS-LINES.md) · [Plan Document Wording](../PLAN-DOCUMENT-WORDING.md) · [Capture Form Proposals](../STRATEGY-CAPTURE-FORM-PROPOSALS.md) |
+| 15 | [Strategy Planner](strategy-planner.md) — the planning session an advisor runs with a client, and the first thing that keeps what was said in the room | [history](strategy-planner-history.md) · [Planning Template Census](../PLANNING-TEMPLATE-CENSUS.md) · [Agenda Helps Lines](../AGENDA-HELPS-LINES.md) · [Plan Document Wording](../PLAN-DOCUMENT-WORDING.md) · [Edit Text Wording](../STRATEGY-EDIT-TEXT-WORDING.md) · [Capture Form Proposals](../STRATEGY-CAPTURE-FORM-PROPOSALS.md) |
 
 ## Hub pages — mentor & firm
 

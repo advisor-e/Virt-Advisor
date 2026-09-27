@@ -1,15 +1,17 @@
 # Meeting Review — Consent Wording, approved
 
-> ## ✅ THE WORDING IS APPROVED. NOTHING IS BUILT.
+> ## ✅ THE WORDING IS APPROVED, AND BUILT.
 >
 > **Mike approved the spoken line (candidate B) and the screen (candidate 1, split into two steps)
 > on 2026-09-01.** This file is the artefact those words live in, and it is registered in
 > [`ARTEFACTS.md`](ARTEFACTS.md). Anything built from them is checked against **this page**, never
 > against a paraphrase of it.
 >
-> **What is NOT settled:** the legal work in §6, and the build itself — there is no screen, no route
-> and no locale string for any of this. **The retention period is settled at 18 months** (Mike's
-> ruling, 2026-09-01); `[period]` now survives only inside candidate C, which was not chosen.
+> **Built in Meeting Review's slice 2, 2026-09-01:** `components/MeetingConsentPanel.vue` renders
+> these words from `locales/en.json` (`meetingConsent`), and `tests/unit/meetingConsentWording.test.js`
+> holds them against this page, so the code cannot drift from the approved words without failing.
+> What is left is in §6. **The retention period is settled at 18 months** (Mike's ruling,
+> 2026-09-01); `[period]` now survives only inside candidate C, which was not chosen.
 >
 > **The wording is fixed and a firm cannot edit it.** *(Mike's ruling, 2026-09-01.)* These are the
 > only words in the app that are a promise made aloud to someone outside the firm, and they need a
@@ -24,9 +26,8 @@
 > 2026-09-01 rulings: the fixed-wording ruling and the firm-set clock are both correct and they meet
 > in this one number.)*
 >
-> **None of this text is in a locale file yet.** When it is built it goes through `$t()` into all
-> eight locales like every other string — but read §5 first. These are not ordinary strings to
-> translate.
+> **The text is in `locales/en.json` only.** The other seven locales are deliberately empty — read
+> §5 first. These are not ordinary strings to translate.
 >
 > ⚠ **I am not a lawyer and this is not legal advice.** The wording is drafted to be honest and
 > complete, which is a different thing from being legally sufficient. §6 lists what still has to
@@ -202,14 +203,24 @@ problem rather than a cosmetic one.
 
 ## 6. What still has to happen before a first recording
 
-The wording is settled. These are not, and none is a coding task:
+The wording is settled and built. Two things remain, and neither is a coding task:
 
-1. **A lawyer reads the approved wording**, in each market the feature is sold into.
-2. **The impact assessment** (Brief §4 item 3) — recording identifiable third parties, and material
-   that will sometimes be special-category data: health, family, bereavement.
-3. **Staff consultation** (item 4) — this generates findings about employees, which is monitoring in
-   employment-law terms however carefully P2 confines who reads it.
-4. **An answer for a client who asks for their data, or its deletion** (item 7).
+1. **OpenAI switches Zero Data Retention on** for the project. The amendment was signed on
+   2026-09-23 and OpenAI approved it on 2026-09-24; it is not in force until the Account Console
+   shows it on (Brief §4 item 5).
+2. **A legally competent translation** of these words before a market in another language records
+   — §5. Until then the other seven locales stay empty.
+
+**Settled, and no longer on this list:**
+
+- **A lawyer's reading is suggested, never required** — Mike's ruling
+  ([`features/compliance.md`](features/compliance.md) §1). The gate is each firm's own declaration
+  that it has read and understands the law where it operates, built 2026-09-10.
+- **Staff consultation is the firm's, never a gate** — Mike's ruling, 2026-09-25. It is point 3 of
+  the firm's compliance checklist, and the checklist never gates recording.
+- **The impact assessment** — written 2026-09-10: [`MEETING-REVIEW-DPIA.md`](MEETING-REVIEW-DPIA.md).
+- **An answer for a client who asks for their data, or its deletion** — built 2026-09-10, the
+  Client Copy Request tab (Brief §4 item 7).
 
 ---
 
