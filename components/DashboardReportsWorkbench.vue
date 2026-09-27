@@ -61,6 +61,7 @@
     :state="state"
     :client-name="clientName"
     :period="period"
+    :brand="firmBrand"
     :availability="availability"
     :editable="!clientMode"
     :approval="approval"
@@ -93,6 +94,7 @@ import DashboardReportsPages from '~/components/DashboardReportsPages.vue'
 import DashboardReport from '~/components/DashboardReport.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
+import firmBrand from '~/mixins/firmBrand'
 import { intlLocaleFor } from '~/utils/dateLocale'
 const { emptyState, pagesRequestFrom, OPTIONAL_PAGES, SOURCES } = require('~/utils/dashboardReportsSavedShape')
 const { sendListFrom } = require('~/utils/nextStepsSendList')
@@ -125,7 +127,7 @@ export default {
     DashboardReport
   },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportRecompute, firmBrand],
 
   props: {
     /** For the intake upload (firmAuth). */
@@ -292,12 +294,21 @@ export default {
       // The saved row carries the industry code; its bands come from the backend, as at mount.
       // Without this the size-band list is empty after a reload and the save looks lost.
       this.loadIndustry(this.state.setup.industryCode)
+    },
+    /**
+     * The page resolves the sign-in's token in ITS mounted(), which runs after this
+     * one's — so the brand read at mount can go out with the placeholder token and be
+     * refused. Read it again with the real one.
+     */
+    token () {
+      this.loadFirmBrand({ Authorization: 'Bearer ' + this.token })
     }
   },
 
   mounted () {
     this.recompute()
     if (this.state.setup.industryCode) { this.loadIndustry(this.state.setup.industryCode) }
+    this.loadFirmBrand({ Authorization: 'Bearer ' + this.token })
   },
 
   methods: {

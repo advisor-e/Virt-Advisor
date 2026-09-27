@@ -353,6 +353,23 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**16 · A client's document carries no firm, so the white-label promise has nothing behind it.**
+✅ **Closed 2026-09-27 by Mike ("if its done, mark it done").** This supersedes the desktop's
+parking of 2026-09-25: that note said our half was built, and the Dashboard Report still printed
+"Firm logo" on its cover and every footer until this day.
+
+- **What proves it:** every client document reads the firm's brand through `firmBrand()` and
+  `GET /api/report/firm/brand` — the Strategy Planner's session screens and plan, and now the
+  Business Performance Report's cover and every page footer, through one shared read,
+  [`../../mixins/firmBrand.js`](../../mixins/firmBrand.js). Logo first, then the initials disc with
+  the firm's name, the placeholder only when nothing is known. A client's own sign-in reads its
+  advisor's firm. Pinned by `tests/unit/strategySessionBrand.test.js` and
+  `tests/unit/dashboardReportBrand.test.js`; walked in a browser on the built app. See
+  [`white-label.md`](white-label.md) §3–4.
+- **Not ours, and it holds nothing open:** a firm's real logo and colour appear once the master
+  team names the two columns — question 8 of the integration email, seam `Q-FIRM-BRAND` in
+  `config/integration.js`. Nothing on this side changes when they do.
+
 **15.24 · Business Owner Expectations plan page overflowed past about 14 tasks.**
 ✅ **Closed 2026-09-26 by Mike ("yes" — done)**, the day he ruled it.
 

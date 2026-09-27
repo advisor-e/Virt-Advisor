@@ -4,7 +4,7 @@ div
     .drd-c1
     .drd-c2
     .drd-c3
-    span.drd-logo.is-big {{ $t('report.dashboardReports.doc.firmLogo') }}
+    dashboard-report-mark.drd-cover-mark(big :name="brand.name || ''" :logo="brand.logo || ''" :colour="brand.colour || '#0070c0'")
     .drd-eyebrow {{ $t('report.dashboardReports.doc.coverEyebrow') }}
     h2.drd-cover-title {{ $t('report.dashboardReports.title') }}
     .drd-client {{ clientName }}
@@ -36,14 +36,19 @@ div
  * DashboardReportCover — the cover and the contents page of the Business Performance
  * Report (drawing pages 1 and 2). The cover is its own layout, not the shared frame:
  * navy, the deck's three circles, the client's name in the caution colour as the deck has
- * it, and the prepared-by line.
+ * it, and the prepared-by line. The big mark top right is the advisor firm's (item 16),
+ * injected by `DashboardReport` exactly as `DashboardReportPage` takes it.
  */
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
+import DashboardReportMark from '~/components/DashboardReportMark.vue'
 
 export default {
   name: 'DashboardReportCover',
 
-  components: { DashboardReportPage },
+  components: { DashboardReportPage, DashboardReportMark },
+
+  /** `drdBrand()` → `{ name, logo, colour }`, from `DashboardReport`. */
+  inject: { drdBrand: { default: () => () => ({}) } },
 
   props: {
     clientName: { type: String, default: '' },
@@ -54,6 +59,10 @@ export default {
     sections: { type: Array, required: true },
     /** Titles of the optional pages the advisor added. */
     addedTitles: { type: Array, default: () => [] }
+  },
+
+  computed: {
+    brand () { return this.drdBrand() || {} }
   }
 }
 </script>
@@ -64,7 +73,7 @@ export default {
 .drd-c1 { width: 560px; height: 560px; right: -180px; top: -270px; background: #0070c0; opacity: .75; }
 .drd-c2 { width: 380px; height: 380px; right: -80px; bottom: -130px; background: #00b1e0; opacity: .85; }
 .drd-c3 { width: 240px; height: 240px; right: 240px; bottom: -60px; background: #ff9900; }
-.drd-logo.is-big { position: absolute; right: 56px; top: 40px; width: 170px; height: 52px; font-size: 11px; border-color: #00b1e0; background: rgba(255, 255, 255, .08); color: #7fd3f1; }
+.drd-cover-mark { position: absolute; right: 56px; top: 40px; }
 .drd-eyebrow { font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #00b1e0; }
 .drd-cover-title { margin: 96px 0 0; font: 700 64px/1.05 var(--drd-serif, Georgia, serif); color: #fff; max-width: 62%; position: relative; }
 .drd-client { margin-top: 30px; font-weight: 700; font-size: 24px; color: #ff9900; position: relative; }

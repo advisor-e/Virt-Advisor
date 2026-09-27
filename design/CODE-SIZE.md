@@ -5,34 +5,34 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-26 at commit `4d75a2b3`.**
+> **Measured 2026-09-27 at commit `ea7b6f11`.**
 
-**Working code: 122,140 lines** across 595 files — blank lines and
+**Working code: 123,064 lines** across 603 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
 |---|---:|---:|---:|
-| Screens and components (`components`) | 227 | 62,300 | 20,071 |
-| The Restify backend (`server`) | 256 | 52,071 | 38,464 |
-| Pages (`pages`) | 51 | 3,216 | 2,261 |
-| Front-end helpers (`utils`) | 37 | 2,778 | 2,421 |
+| Screens and components (`components`) | 234 | 63,062 | 20,372 |
+| The Restify backend (`server`) | 256 | 52,096 | 38,494 |
+| Pages (`pages`) | 51 | 3,226 | 2,279 |
+| Front-end helpers (`utils`) | 38 | 2,905 | 2,515 |
 | Mixins (`mixins`) | 12 | 1,221 | 486 |
 | Thin proxies to the backend (`server-middleware`) | 6 | 237 | 87 |
 | Configuration (`config`) | 1 | 118 | 192 |
 | Nuxt configuration (`nuxt.config.js`) | 1 | 97 | 138 |
 | Plugins (`plugins`) | 2 | 83 | 51 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **595** | **122,140** | **64,178** |
+| **Total working code** | **603** | **123,064** | **64,621** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
-| JavaScript | 316 | 56,837 |
-| Vue screens and components | 279 | 65,303 |
+| JavaScript | 317 | 57,025 |
+| Vue screens and components | 286 | 66,039 |
 
 **Beside the code, and not counted in it:**
 
-- **Comments and documentation** inside those same files: 64,178 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 643 files, 113,329 lines of test code.
+- **Comments and documentation** inside those same files: 64,621 lines. The JSDoc rule asks for the *why*, and this is what it costs.
+- **Tests**: 645 files, 113,655 lines of test code.
 - **Locale strings**: 7,235 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 

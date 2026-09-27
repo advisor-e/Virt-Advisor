@@ -97,27 +97,6 @@
       "comment": "2026-09-25 - Mike: proceed, with the direction above. First split out of 15.1 on his yes, 2026-09-16, as Decision 7 of the drawing."
     },
     {
-      "ref": "16",
-      "name": "A client's document carries no firm, so the white-label promise has nothing behind it",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Outside",
-      "why": "The 33 concepts were redrawn so a client sees their own advisor's firm rather than Advisor-e. Nothing in this app holds a firm's name, logo or colour, so every document prints the words 'Firm logo' against an empty disc.",
-      "risk": "An advisor hands a client a plan with a placeholder where their brand belongs, which reads as unfinished software rather than a missing setting. It is also the reason the deck images were deleted on 2026-09-18 and 33 concepts redrawn - so the cost has been paid and the benefit has not arrived. Mike's own words: Advisor-e ALWAYS clones and shows that ADVISORS firm logo, never advisor-e.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-20 - found while wiring the first four drawings for 15.7: the mark is a prop and nothing above passes one in. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "components/strategy/StrategyConceptGraphic.vue and the 33 drawings, which already take firmName and firmColour; StrategyPlanDocument.vue and the strategy page, which pass nothing; DashboardReportCover.vue and DashboardReportPage.vue, which print the same placeholder string; and wherever a firm's brand is set, which under the hub-page rule starts at the mentor tier.",
-      "note": "🔴 OUR HALF IS NOT YET COMPLETE (found 2026-09-26): the four Strategy Planner call sites carry the firm's brand (features/white-label.md section 4), but DashboardReportCover.vue and DashboardReportPage.vue still print a fixed \"Firm logo\" placeholder and never call firmBrand(). THE DATA IS ADVISOR-E'S AND WE BUILD NO SCREEN FOR IT - his words, \"Advisor-e already picks up the colour and brands the border to suit\": it lives on the firm profile page. Ours is firmBrand() in server/utils/firmsDirectory.js and seam Q-FIRM-BRAND in config/integration.js, question 8 of the integration email - inert until they name the two columns. Mike ruled the mark is the firm's REAL logo in a fixed-height box, initials disc only as fallback, border in the firm's colour.",
-      "comment": "2026-09-20 - filed on Mike's yes at shutdown. It had been written into the Strategy Planner Brief as a stated limit, and a line in a Brief is not a task - which is the habit the every-fault-ends-two-ways rule exists to stop. A new parent rather than a Strategy Planner decimal because the report screens print the same placeholder."
-    },
-    {
       "ref": "16.1",
       "name": "Primary buttons show the library's violet where the brand file says blue",
       "rankedByMike": false,
