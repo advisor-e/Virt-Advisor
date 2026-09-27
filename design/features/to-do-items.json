@@ -430,6 +430,27 @@
       "touches": "server/report/threeWayForecastModel.js and importShipmentModel.js, where every treatment lives; design/CALCULATION-ASSUMPTIONS.md, the record, extended beyond section 1; a disclosure screen for firm managers under the hub-page rule, its tiers stated at scoping; 13.5, which already covers the currency treatments.",
       "note": "NOT SCOPED. Standards in view, confirmed at scoping rather than assumed: FRS-42 (prospective statements), IAS 1 and IFRS 18 which replaces it for periods from 1 January 2027, IAS 2, IAS 7, IAS 12, IAS 16, IAS 21, IAS 23, IFRS 9, IFRS 15, IFRS 16, IAS 37. Output: every treatment the forecast makes, each ticked or warned against its standard, in design/CALCULATION-ASSUMPTIONS.md; each warning becomes a fix or a filed item on Mike's word. Impact test run at scoping. Already done: section 1 (currency, 13.5) and section 0 (the FRS-42 caution).",
       "comment": "2026-09-26 - filed on Mike's instruction during 13.5's drawing questions. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.2",
+      "name": "The desktop's default Node is version 20, not the locked 14.15",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "On the desktop, node means version 20. Two NVM_SYMLINK Windows settings point to the wrong folder, though nvm itself is on 14.15.",
+      "risk": "Under version 20, seven suites fail for reasons unrelated to the code and the pre-push hook blocks every push. A session that does not know the workaround reads a green branch as broken. The fix changes Windows settings for the whole computer and needs administrator rights, and other tools on it may rely on Node 20.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-28 - found when the post-merge suite failed on Node 20 and passed on 14.15. A defect we found; filed on Mike's yes."
+      },
+      "touches": "This computer's Windows settings only, not the repository: Machine NVM_SYMLINK (C:\\Program Files\\nodejs, Node 20), User NVM_SYMLINK (C:\\nvm4w\\nodejs\\node_modules\\nodejs), and the PATH entries that follow them. C:\\nvm4w\\nodejs already points at v14.15.0.",
+      "note": "WORKAROUND, proven 2026-09-28: before any jest, commit or push in PowerShell, put C:\\Users\\Mike Barnes\\AppData\\Local\\nvm\\v14.15.0 first on PATH and set NVM_SYMLINK to the same folder. First job at scoping: list what else on this computer runs node before changing anything.",
+      "comment": "2026-09-28 - filed on Mike's yes at startup, rather than fixed, because the fix is machine-wide."
     }
   ]
 }
