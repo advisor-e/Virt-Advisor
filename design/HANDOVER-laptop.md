@@ -9,23 +9,26 @@
 
 ---
 
-## 2026-09-27 · Laptop · branch `feat/advisor-progress`
+## 2026-09-28 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed. PR #136 MERGED into master 2026-09-27 on Mike's instruction (`d84db396`) —
-all of today's work is on master. Green: 636 suites / 13,810 tests.**
+**master merged in at startup (18 commits, incl. #134 and #137). Green: 645 suites / 13,943 tests;
+nuxt build exit 0. Not in a PR yet — `npm run check:branch` says whether it was pushed.**
 
-**Closed on Mike's word:** 16 — the Business Performance Report carries the advisor's firm on its
-cover and every footer, through `mixins/firmBrand.js` (shared with the Strategy Planner).
-**Worked:** 15.2 — drawing approved ([`mockups/growth-aspect-questions.html`](mockups/growth-aspect-questions.html)),
-first part built: the 98 questions in `data/growth-fundamentals.json` and the wheel's button. His
-call: proceed. **Fixed at shutdown:** the report opened with the stale banner outside loopback,
-because its first figures call went out before the sign-in was read.
+**Closed on Mike's word:** 15.2 — the Growth Aspect Questions hub tab, at all four managing tiers on
+the standard cascade (screens 3 and 3b of [`mockups/growth-aspect-questions.html`](mockups/growth-aspect-questions.html)).
+Its screen 2 (the AI suggestion) is carried on 8.4's note. **Filed:** 10.3 — Depreciation Rates,
+Forecast Trend Thresholds and Property Tax Rules become one hub page. **Fixed on his yes:** six hub
+tabs showed a blank "saved by" in their history (`created_by` → `saved_by`).
 
-**FOR THE DESKTOP:**
-- Merging #134 and #136: item 16 ends DONE — keep #136's closure, drop #134's parked entry. Keep
-  #134's closures of 16.1 and 13.2, and #136's of 15.24.
-- `growthAspects` now carry `questions`, and the Process Improvement and Governance descriptions
-  changed on Mike's rulings. They reach the Virtual Advisor's prompt.
-- 15.2's Mentor Hub tab needs `FirmManagerHub.vue` — not started; it waits for #134.
+**FOR THE DESKTOP — files this branch changed that you may also touch:**
+
+- `components/FirmManagerHub.vue` — one tab added at the end of "Your AI coach", in `TAB_TIERS`
+  and `NAV_GROUPS`; `hubTabTiers` and `mentorHubScope` tests count it.
+- `locales/en.json` — `growthAspectQuestions` block at the tail, and one line in
+  `firmManagerHub.tabs`. Keep both sides on a merge.
+- One line each in `FirmAiPrompts`, `FirmBenchmarker`, `FirmDepreciationRates`,
+  `FirmForecastTrendThresholds`, `FirmPropertyTaxRules` and `FirmSellDownLadder` (the saved_by fix).
+- `firmBenchmarker.component.test.js` — two characters garbled by `1375c0eb` restored.
+- The wheel's nine colours moved to `utils/growthAspectColours.js`.
 
 **In hand, not touched today:** 15.17, 15.20, 8.4.
