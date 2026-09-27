@@ -353,6 +353,28 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**13.5 · Foreign currency, freight and duty in the Three-Way Forecast, by the accounting standards.**
+✅ **Closed 2026-09-28 by Mike ("yes" — done)**, the day it was built, on his four rulings of
+2026-09-26 and the approved drawing
+[`../mockups/three-way-forecast-foreign-currency.html`](../mockups/three-way-forecast-foreign-currency.html).
+
+- **Why it existed:** the forecast charged a flat 10% of every imported order, deposit included,
+  as an exchange loss — **10,764.30** on the workbook's January order — and charged freight and
+  duty in full in the landing month.
+- **What proves it:** four slices. The calculations (`779f5cd7`) reproduce the drawing's January
+  order to the cent (deposit 64,585.80, balance 43,057.20, interest 653.03, stock cost 125,942.31,
+  border GST 18,891.35, exchange movement 0) and the workbook's twelve orders, in
+  `tests/unit/forecastForeignCurrency.test.js`. The step 3 screen and saved forecasts
+  (`9722719c`); step 4's what-if tiles, +21,906.59 and -11,818.18 as drawn (`637a83a4`), with two
+  sentences approved in [`../THREE-WAY-FORECAST-WHATIF-WORDING.md`](../THREE-WAY-FORECAST-WHATIF-WORDING.md);
+  and the records, with the accountants' basis in [`../CALCULATION-ASSUMPTIONS.md`](../CALCULATION-ASSUMPTIONS.md)
+  §1. Both screens walked on a production build.
+- **Found on the way and fixed the same day, on Mike's yes:** years 2 and 3 re-landed year 1's
+  opening stock in transit and paid its balance again; the approved "NZ dollar" labels now name
+  the firm's own currency.
+- **Not proved here:** a real MySQL save of a forecast with currencies — the store is unchanged
+  and the saved shape grew by six named values within its 200. UAT's check.
+
 **16 · A client's document carries no firm, so the white-label promise has nothing behind it.**
 ✅ **Closed 2026-09-27 by Mike ("if its done, mark it done").** This supersedes the desktop's
 parking of 2026-09-25: that note said our half was built, and the Dashboard Report still printed
@@ -3172,10 +3194,13 @@ section"* — and it was built there as **slice 2**: an upstream calculator
 turns real orders into the months the forecast works in.
 
 🔴 **The port reproduces his workbook, and that is the whole of what closes this.** Deposit 60%,
-balance at order + 91 days, both charges pro-rated over a **360-day** year:
-`43,057.20 + 653.03 interest + 1,088.39 currency = 44,798.62` — his own figure, to the cent. The
-supplier terms are his (manufacture 120, balance due 91, prep 9), and they sum to the
-**154 / 149 / 144 days** his sheet states for sea, air and express.
+balance at order + 91 days, interest cover pro-rated over a **360-day** year: the January order's
+64,585.80 deposit, 43,057.20 balance and 653.03 interest are his own figures, to the cent, and all
+twelve months of his orders are pinned in `tests/unit/forecastForeignCurrency.test.js`. His sheet's
+"FX Loss" (1,088.39 on January) is **not** charged — the balance is paid before the goods land, so
+no exchange difference arises (item 13.5, Mike's ruling of 2026-09-26). The supplier terms are his
+(manufacture 120, balance due 91, prep 9), and they sum to the **154 / 149 / 144 days** his sheet
+states for sea, air and express.
 
 🔴 **Reading the sheet corrected the earlier summary twice, and both corrections were only
 available by opening it.** The curves the supplier sheets actually consume are the **four-band**

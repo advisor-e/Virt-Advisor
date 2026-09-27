@@ -219,4 +219,17 @@ describe('a console reply with no figures', () => {
     expect(w.text()).toContain('Mike Barnes')
     errors.mockRestore()
   })
+
+  test('a posture the server saved is recorded on screen, not reported as failed', async () => {
+    const noStats = Object.assign({}, CONSOLE)
+    delete noStats.stats
+    global.fetch = jest.fn()
+      .mockImplementationOnce(() => Promise.resolve({ ok: true, json: () => Promise.resolve(noStats) }))
+      .mockImplementationOnce(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true, crossOrgPosture: 'open' }) }))
+    const w = factory()
+    await flush(); await w.vm.$nextTick()
+    await w.vm.setPosture('open')
+    expect(w.vm.c.stats.crossOrgPosture).toBe('open')
+    expect(w.vm.$buefy.toast.open).toHaveBeenCalledWith(expect.objectContaining({ type: 'is-success' }))
+  })
 })

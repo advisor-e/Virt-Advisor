@@ -26,7 +26,7 @@ Wording approved by Mike 2026-09-26 and pinned in
 
 ## 1. Imported stock and foreign currency — Three-Way Forecast
 
-*Checked 2026-09-26. Model: [`server/report/threeWayForecastModel.js`](../server/report/threeWayForecastModel.js),
+*Checked 2026-09-26; treatments rewritten to the built code 2026-09-28. Model: [`server/report/threeWayForecastModel.js`](../server/report/threeWayForecastModel.js),
 with the shipment calculator [`server/report/importShipmentModel.js`](../server/report/importShipmentModel.js).
 Work item: 13.5.*
 
@@ -47,42 +47,29 @@ the stock's cost is the sum of the two converted payments — no separate exchan
 arises. A separate exchange gain or loss arises only on an amount still owed after the goods land.
 No paragraph permits an exchange difference to be added to the carrying amount of inventory.
 
-### 1.2 What the forecast does today
+### 1.2 What the forecast does
 
-All figures are entered in the firm's own currency. **No model converts between currencies.**
+Built in item 13.5 on Mike's rulings of 2026-09-26. The advisor holds up to three currencies in a
+**"Currencies you trade in"** table, each with an **assumed exchange rate** quoted as *1 NZD buys
+0.6000 USD*. Every foreign amount is entered in its own currency and converted at that rate; an
+amount in the firm's own currency is never converted.
 
-| Assumption | Default | Treatment today | Against the standards |
+| Assumption | Default | Treatment | Against the standards |
 |---|---|---|---|
-| Supplier price | — | Entered as a home-currency amount. There is no field for the supplier's currency or an exchange rate. | ⚠ Differs — IAS 21.21 records the foreign amount at a rate. **Changing in 13.5.** |
-| Exchange-rate allowance on purchases | 10% | A flat percentage of the **whole** order value, deposit included, charged as a direct cost in the landing month. On the workbook's January order (107,643, 60% deposit) this is **10,764.30**. | ⚠ Differs — an assumed loss, not a rate. It charges exposure on a deposit already paid (IFRIC 22.8). **Replaced in 13.5.** |
-| Freight | 12% of stock value | Expensed as a direct cost in the landing month. | ⚠ Differs — IAS 2.10-11 carries freight in the stock's cost, expensed as the stock sells. **Changing in 13.5.** |
-| Duty | 5% of stock value | Expensed as a direct cost in the landing month. | ⚠ Differs — as freight. **Changing in 13.5.** |
-| Border GST | 15% | Charged on landing and claimed back. Not part of stock cost. | ✅ Consistent — IAS 2.11 excludes recoverable taxes. Base and timing: [`TAX-RULES-IMPORT-GST.md`](TAX-RULES-IMPORT-GST.md). |
+| Supplier price | — | Entered **in the supplier's currency**. Each payment — deposit, balance and interest cover — converts at that currency's assumed rate, and the converted payments are the stock's cost. | ✅ Consistent — IAS 21.21; IFRIC 22.8-9, since both payments fall before the goods land. |
+| Exchange rate | Entered by the advisor | **One rate per currency for the whole forecast.** With no movement assumed between payment and settlement, no exchange difference arises, so the "Exchange-rate movement" line is zero and is not shown. | ✅ Consistent — IAS 21.28 recognises a difference only when the rate moves; IAS 1.29-31 omits what is immaterial. |
+| Freight | 12% of stock value | **Part of the stock's cost**: paid in the landing month, charged to cost of sales as the stock sells, with any unsold share carried in closing stock. | ✅ Consistent — IAS 2.10-11. |
+| Duty | 5% of stock value | As freight. | ✅ Consistent — IAS 2.10-11. |
+| Border GST | 15% | Charged on landing on the stock's cost with freight and duty, and claimed back. Not part of stock cost. | ✅ Consistent — IAS 2.11 excludes recoverable taxes. Base and timing: [`TAX-RULES-IMPORT-GST.md`](TAX-RULES-IMPORT-GST.md). |
 | Supplier interest cover | 6% a year on the deferred balance, over its days outstanding (360-day year) | Paid with the balance and **expensed as interest in overheads**, below the gross margin. | ✅ Consistent — IAS 2.18. |
-| Exchange-rate allowance on overseas receipts | 10% | A flat percentage taken off each overseas receipt, as a direct cost. | ⚠ Differs — the receivable is a monetary item: an exchange gain or loss arises only between invoice and collection, in profit or loss (IAS 21.21, 21.28). **Replaced in 13.5.** |
+| Overseas sales | — | Entered **in the customer's currency** and converted at its assumed rate; collected in full at that rate. | ✅ Consistent — IAS 21.21, 21.28, on one assumed rate. |
+| Balance still owed on stock at sea when the forecast opens | — | Entered in the supplier's currency and converted when the goods land. The deposits already paid stay at what was paid. | ✅ Consistent — IAS 21.23 for the amount owed; IFRIC 22.8 for the deposits. |
+| What if the exchange rate moves | 10% each way | **Shown, never charged.** The forecast is run again with every rate on one side moved together — the NZ dollar falling for stock, rising for overseas receipts — and step 4 shows the extra paid or the less received within the forecast's years, with the lowest bank balance with and without the move. | ✅ Discloses the exchange rates as significant assumptions, with the effect of a change — FRS-42 paras 51, 55, 58. |
 
-### 1.3 What 13.5 changes (ruled by Mike 2026-09-26, not yet built)
+A forecast saved before 13.5 carries no currencies: it opens in the firm's own currency and nothing
+converts.
 
-- The advisor enters the supplier's invoice **in its own currency** with an **assumed exchange rate**.
-  Up to three currencies are held, each with its own rate; each shipment chooses one.
-- Each payment converts at that rate for the month it is paid, and the converted payments become
-  the stock's cost (IAS 21.21, IFRIC 22.8-9).
-- A separate exchange gain or loss line appears only for an amount owed after the goods land
-  (IAS 21.28).
-- Freight and duty join the imported stock's cost and are charged as the stock sells, not in
-  full in the landing month (IAS 2.10-11).
-- Overseas sales are entered in the customer's currency with an assumed rate. An exchange gain or
-  loss arises only on money not yet collected, in profit or loss, not in cost of sales
-  (IAS 21.21, 21.28).
-- The "Exchange-rate movement" line is shown only when it is not zero (IAS 1.29-31). The exchange
-  rates are disclosed as significant assumptions, with the effect of a rate move (FRS-42 paras 51,
-  55, 58).
-- Both 10% allowances stop being a cost. Each becomes a **"what if the rate moves"** setting on
-  amounts not yet paid or collected, and its effect is shown rather than charged.
-
-When 13.5 ships, §1.2 is rewritten to match the code. The table above then becomes the disclosure.
-
-### 1.4 Sources
+### 1.3 Sources
 
 - [IAS 21 *The Effects of Changes in Foreign Exchange Rates*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ias21.html)
 - [IFRIC 22 *Foreign Currency Transactions and Advance Consideration*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2024/issued/ifric22.html)

@@ -359,6 +359,8 @@ export default {
         })
         const data = await res.json()
         if (data.success) {
+          // A reply that came without figures still records a change the server saved.
+          if (!this.c.stats) { this.$set(this.c, 'stats', {}) }
           this.$set(this.c.stats, 'crossOrgPosture', data.crossOrgPosture)
           if (data.crossOrg) { this.$set(this.c, 'crossOrg', data.crossOrg) }
           this.$buefy.toast.open({ message: this.$t('firm.postureUpdated'), type: 'is-success' })

@@ -9,27 +9,24 @@
 
 ---
 
-## 2026-09-26 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-28 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed. 636 suites / 13,787 tests green, audit PASS. 0 behind `master`; everything
-ahead is in PR #134** (opened today, description current). Not merged — that is the master team's.
+**Clean and pushed. 642 suites / 13,924 tests green on Node 14.15, audit PASS. 10 ahead, 0 behind
+`master`** — PR #134 and #137 were merged today on Mike's instruction, so the next `/startup`
+proposes a PR.
 
-**Worked: 13.5**, now *Foreign currency, freight and duty in the Three-Way Forecast*. Mike ruled
-the design by the accounting standards; the drawing
-[`three-way-forecast-foreign-currency.html`](mockups/three-way-forecast-foreign-currency.html) is
-**approved, not built**; his call is **proceed**. `activeOn` desktop.
-**Shipped:** the forecast's FRS-42 caution, on screen and under every printed statement page.
-**Filed:** 44.1, a full IFRS / FRS-42 review of the forecast plus a disclosure screen for firm
-managers (unranked). **New:** [`CALCULATION-ASSUMPTIONS.md`](CALCULATION-ASSUMPTIONS.md), the
-accountants' record of the forecast's treatments.
-
-**Pick up first:** the 13.5 build — engine, screen, saved shape, and a test that runs the
-workbook's twelve months of orders through the engine itself.
+**Closed: 13.5** (four slices — `779f5cd7`, `9722719c`, `637a83a4`, and the records).
+**Fixed:** the Handbook's U+FFFD refusal; years 2 and 3 re-landing opening stock in transit; the
+manager console's missing-figures guard (tiles and posture switch). **Filed: 22.2** — this
+machine's default Node is 20; run tests, commits and pushes with the 14.15 folder first on PATH, as
+its note says. **In hand here:** nothing; 13.5's marker is cleared.
 
 ### 🔴 FOR THE LAPTOP
 
-- **13.5 will change** `threeWayForecastModel.js` (the overseas schedule), `importShipmentModel.js`,
-  `ThreeWayForecastIntake.vue`, `ThreeWayForecastReport.vue` and `threeWayForecastSavedShape.js`.
-  Ask before touching them. The "Exchange-rate movement" line will hide when it is zero.
-- Yesterday's notes still apply until PR #134 merges: translation is the backend's, `en.json`
-  grew at its tail (keep both sides), and `mountComponent` renders `<i18n>` by default.
+- Merge `master` first — the laptop is 18 behind it.
+- 15.2's Mentor Hub tab no longer waits: #134 is merged and `FirmManagerHub.vue` is free.
+- Shared files changed today: `ThreeWayForecastIntake.vue`, `ThreeWayForecastReport.vue`,
+  `threeWayForecastModel.js`, `importShipmentModel.js`, `threeWayForecastSavedShape.js`,
+  `HeroStrip.vue` (now takes 2 columns), `ManagerConsole.vue`, and `en.json` under
+  `report.threeWayForecast`. `fxAllowancePct` / `salesFxAllowancePct` are now what-if settings,
+  not costs.
