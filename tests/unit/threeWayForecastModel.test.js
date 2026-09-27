@@ -594,7 +594,12 @@ describe('4.64 — with the tick off, the overseas split moves nothing', () => {
    * The drawing's own worked example, whose arithmetic is printed beneath its table so it
    * can be checked by hand. A container of 90,000 landing in September and one of 60,000
    * landing in January: 60% deposit paid four months ahead, balance the month after
-   * landing, freight 12%, duty 5%, exchange allowance 10%, Steady Eddy.
+   * landing, freight 12%, duty 5%, Steady Eddy.
+   *
+   * 13.5 (Mike's rulings of 2026-09-26): the 10% exchange allowance is no longer charged —
+   * it is a "what if" setting now — and freight and duty join the stock's cost. So the
+   * payments are the stock cost itself, and 105,300 of stock cost (90,000 + 12% + 5%) sells
+   * down the ladder. Revenue is unchanged: the price is still marked up on the goods.
    *
    * Month 0 is April, because the forecast opens 1 April.
    */
@@ -610,23 +615,23 @@ describe('4.64 — with the tick off, the overseas split moves nothing', () => {
     const os = f.schedules.overseas
 
     test('the deposit leaves four months before the stock lands', () => {
-      expect(os.deposits[1]).toBeCloseTo(59400, 6) // 90,000 x 60% x 1.10, in May
-      expect(os.deposits[5]).toBeCloseTo(39600, 6) // for January's container
+      expect(os.deposits[1]).toBeCloseTo(54000, 6) // 90,000 x 60%, in May
+      expect(os.deposits[5]).toBeCloseTo(36000, 6) // for January's container
       expect(os.deposits[0]).toBe(0)
     })
 
-    test('freight, duty and border GST all fall in the landing month', () => {
+    test('freight, duty and border GST are all paid in the landing month', () => {
       expect(os.freight[5]).toBeCloseTo(10800, 6) // 12% of 90,000
       expect(os.duty[5]).toBeCloseTo(4500, 6) // 5% of 90,000
-      // The landed value is the exchange-adjusted stock cost plus freight and duty:
-      // (99,000 + 10,800 + 4,500) x 15% = 17,145.
-      expect(os.borderGst[5]).toBeCloseTo(17145, 6)
-      expect(os.borderGst[9]).toBeCloseTo(11430, 6)
+      // The landed value is the stock cost plus freight and duty:
+      // (90,000 + 10,800 + 4,500) x 15% = 15,795.
+      expect(os.borderGst[5]).toBeCloseTo(15795, 6)
+      expect(os.borderGst[9]).toBeCloseTo(10530, 6)
     })
 
     test('the balance follows a month after landing', () => {
-      expect(os.supplierBalance[6]).toBeCloseTo(39600, 6)
-      expect(os.supplierBalance[10]).toBeCloseTo(26400, 6)
+      expect(os.supplierBalance[6]).toBeCloseTo(36000, 6)
+      expect(os.supplierBalance[10]).toBeCloseTo(24000, 6)
     })
 
     test('the stock sells DOWN the ladder, not all at the launch price', () => {
@@ -650,15 +655,30 @@ describe('4.64 — with the tick off, the overseas split moves nothing', () => {
     })
 
     test('the real stock cost reaches cost of sales, not revenue over a mark-up', () => {
-      // Mike's ruling: unit costs govern imported stock. 20% of 90,000 is 18,000 of stock
-      // consumed in October, whatever it sold for.
-      expect(os.importedCostOfSales[6]).toBeCloseTo(18000, 6)
-      expect(os.importedCostOfSales[7]).toBeCloseTo(27000, 6)
+      // Mike's ruling: unit costs govern imported stock. The cost now carries its freight
+      // and duty (13.5), so 20% of 105,300 is 21,060 consumed in October.
+      expect(os.importedCostOfSales[6]).toBeCloseTo(21060, 6)
+      expect(os.importedCostOfSales[7]).toBeCloseTo(31590, 6)
     })
 
-    test('the exchange movement is its own cost, on the stock cost', () => {
-      expect(os.fxOnPurchases[5]).toBeCloseTo(9000, 6) // 10% of 90,000
-      expect(os.fxOnPurchases[9]).toBeCloseTo(6000, 6)
+    test('no exchange movement is charged, and freight and duty are not charged on landing', () => {
+      // 🔴 THE FAULT 13.5 REMOVES: 10% of every order was charged as though the rate had
+      // moved. With one rate per currency nothing moves, so nothing is charged.
+      os.fxOnPurchases.forEach((v) => { expect(v).toBe(0) })
+      os.fxOnSales.forEach((v) => { expect(v).toBe(0) })
+      // September's cost of sales is the stock that sold, not the freight and duty paid
+      // that month — nothing of this container has sold by then.
+      expect(os.importedCostOfSales[5]).toBe(0)
+      expect(f.profitAndLoss.exchangeMovement.every(v => v === 0)).toBe(true)
+    })
+
+    test('freight and duty still unsold at the year end stay in closing stock', () => {
+      // September's container sells all four bands inside the year. January's (60,000, so
+      // 70,200 with freight and duty) is ready in February and sells Steady Eddy's first two
+      // bands, 20% and 30%, by March — so half of it, freight and duty included, is carried.
+      const base = computeThreeWayForecast({})
+      const carried = f.balanceSheet.months.inventory[11] - base.balanceSheet.months.inventory[11]
+      expect(carried).toBeCloseTo(0.5 * 70200, 6)
     })
   })
 
@@ -671,25 +691,27 @@ describe('4.64 — with the tick off, the overseas split moves nothing', () => {
       // is to show when deposits are due, freight is paid, border gst etc - BEFORE the
       // business can even start selling them".
       const p = f.cashFlow.payments
-      expect(p.overseasDeposits[1]).toBeCloseTo(59400, 6)
+      expect(p.overseasDeposits[1]).toBeCloseTo(54000, 6)
       expect(p.overseasFreight[5]).toBeCloseTo(10800, 6)
       expect(p.overseasDuty[5]).toBeCloseTo(4500, 6)
-      expect(p.overseasBorderGst[5]).toBeCloseTo(17145, 6)
-      expect(p.overseasSupplierBalance[6]).toBeCloseTo(39600, 6)
+      expect(p.overseasBorderGst[5]).toBeCloseTo(15795, 6)
+      expect(p.overseasSupplierBalance[6]).toBeCloseTo(36000, 6)
       // And none of it touched the domestic creditors ledger.
       expect(p.accountsPayable[5]).toBeCloseTo(base.cashFlow.payments.accountsPayable[5], 6)
     })
 
-    test('131,445 leaves the business by the end of September, on stock costing 90,000', () => {
-      // The drawing's headline figure — the working-capital hole a funding request exists
-      // to cover — and not one dollar of this stock has been sold by then.
+    test('121,095 leaves the business by the end of September, on stock costing 90,000', () => {
+      // The 2026-09-04 drawing's headline figure — the working-capital hole a funding
+      // request exists to cover — and not one dollar of this stock has been sold by then.
+      // It was 131,445 until 13.5 removed the 10% allowance from both deposits and the
+      // border GST charged on it: 54,000 + 36,000 + 10,800 + 4,500 + 15,795.
       const p = f.cashFlow.payments
       let out = 0
       for (let m = 0; m <= 5; m++) {
         out += p.overseasDeposits[m] + p.overseasFreight[m] + p.overseasDuty[m] +
           p.overseasBorderGst[m] + p.overseasSupplierBalance[m]
       }
-      expect(out).toBeCloseTo(131445, 6)
+      expect(out).toBeCloseTo(121095, 6)
       expect(f.schedules.overseas.importedRevenue.slice(0, 6).every(v => v === 0)).toBe(true)
     })
   })
@@ -860,9 +882,9 @@ describe('4.64 — with the tick off, the overseas split moves nothing', () => {
 
     test('border GST is claimed back as an input — a timing cost, not a lost one', () => {
       const f = computeThreeWayForecast({ overseas: WORKED })
-      expect(f.cashFlow.payments.overseasBorderGst[5]).toBeCloseTo(17145, 6)
+      expect(f.cashFlow.payments.overseasBorderGst[5]).toBeCloseTo(15795, 6)
       expect(f.schedules.gst.inputs[5] - base.schedules.gst.inputs[5])
-        .toBeGreaterThanOrEqual(17145 - 0.000001)
+        .toBeGreaterThanOrEqual(15795 - 0.000001)
     })
   })
 
@@ -890,7 +912,7 @@ describe('4.64 — with the tick off, the overseas split moves nothing', () => {
       const os = computeThreeWayForecast({ overseas: early }).schedules.overseas
       expect(os.depositsBeforeStart).toHaveLength(1)
       expect(os.depositsBeforeStart[0].landsInMonth).toBe(2)
-      expect(os.depositsBeforeStart[0].amount).toBeCloseTo(59400, 6)
+      expect(os.depositsBeforeStart[0].amount).toBeCloseTo(54000, 6)
       os.deposits.forEach((v) => { expect(v).toBe(0) })
     })
   })

@@ -124,8 +124,9 @@ describe('Three-Way Forecast screen — the itemised P&L adds up to cost of sale
 
   test('buying AND selling overseas: every month still adds up', async () => {
     const os = TRADING.schedules.overseas
-    // The scenario must actually exercise all four overseas lines, or the test proves nothing.
-    expect(os.freight.some(v => v > 0) && os.duty.some(v => v > 0) && os.fxOnSales.some(v => v > 0)).toBe(true)
+    // The scenario must actually exercise both directions, or the test proves nothing. The
+    // exchange line is zero since 13.5 (one rate per currency), so it is not required here.
+    expect(os.freight.some(v => v > 0) && os.duty.some(v => v > 0) && os.overseasRevenue.some(v => v > 0)).toBe(true)
     expect(await gapsIn(TRADING)).toEqual(new Array(12).fill(0))
   })
 
@@ -166,7 +167,7 @@ describe('Three-Way Forecast screen — the five overseas cash rows (4.64)', () 
     // The whole reason the rows exist. Inside Money out this figure is invisible.
     const w = await mountWithResult(IMPORTING)
     const deposits = w.vm.cashRows.find(r => r.key === 'os-dep').values
-    expect(deposits[1]).toBeCloseTo(59400, 6)
+    expect(deposits[1]).toBeCloseTo(54000, 6) // 90,000 x 60%
     expect(IMPORTING.schedules.overseas.importedRevenue[1]).toBe(0)
   })
 

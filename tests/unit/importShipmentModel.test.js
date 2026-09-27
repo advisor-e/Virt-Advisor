@@ -147,9 +147,11 @@ describe('the workbook’s own payment split', () => {
    * interest issue") after the build reported it as a gap rather than inventing a charge.
    *
    * His sheet adds two things to the balance before paying it, both pro-rated over a
-   * 360-day year: 6% interest cover and a 10% currency movement. 43,057.20 becomes
-   * 44,798.62. The currency half is the forecast's own exchange allowance, applied by the
-   * engine — which is why this module computes the interest and deliberately not the rest.
+   * 360-day year: 6% interest cover and a 10% currency movement ("FX Loss", row 59).
+   * This module computes the interest. The currency movement is NOT charged anywhere, by
+   * Mike's ruling of 2026-09-26 (item 13.5): the balance is paid on 2 April and the goods
+   * land on 26 May, so it is an advance payment whose rate is fixed on the day it is paid
+   * (NZ IFRIC 22.8-9) and no exchange difference arises.
    */
   test('interest cover reproduces his own 653.03 on January’s balance', () => {
     expect(out.rows[0].interest).toBeCloseTo(653.03, 2)
@@ -157,13 +159,14 @@ describe('the workbook’s own payment split', () => {
   })
 
   // 🔴 360, NOT 365, AND IT IS WHAT MAKES HIS FIGURES COME OUT. On a 365-day year the
-  // currency charge is 1,073.49 and the workbook's 44,798.62 stops agreeing.
-  test('together with the exchange allowance it reaches his 44,798.62', () => {
-    const currency = 43057.2 * 0.10 * 91 / 360
-    expect(currency).toBeCloseTo(1088.39, 2)
-    expect(43057.2 + out.rows[0].interest + currency).toBeCloseTo(44798.62, 2)
-    // The 365-day year the convention could have been, stated so the choice is provable.
-    expect(43057.2 * 0.10 * 91 / 365).toBeCloseTo(1073.48, 1)
+  // interest is 644.09 and his row 58 stops agreeing.
+  test('the interest runs on a 360-day year, as his sheet does', () => {
+    expect(43057.2 * 0.06 * 91 / 365).toBeCloseTo(644.09, 2)
+    expect(out.rows[0].interest).not.toBeCloseTo(644.09, 2)
+  })
+
+  test('the balance is paid before the goods land, so no exchange movement arises', () => {
+    expect(out.rows[0].balanceDueOn < out.rows[0].landsOn).toBe(true)
   })
 })
 
@@ -330,8 +333,8 @@ describe('the calculator drives the forecast', () => {
 
   test('the deposits land in May — the month the orders were placed', () => {
     const os = computeThreeWayForecast({ overseas: withCalculator }).schedules.overseas
-    // Both containers, deposit 60% plus the 10% exchange allowance, in one month.
-    expect(os.deposits[1]).toBeCloseTo((90000 + 60000) * 0.6 * 1.1, 6)
+    // Both containers' 60% deposits, in one month.
+    expect(os.deposits[1]).toBeCloseTo((90000 + 60000) * 0.6, 6)
     expect(os.deposits[2]).toBe(0)
     expect(os.deposits[5]).toBe(0)
   })
@@ -343,7 +346,7 @@ describe('the calculator drives the forecast', () => {
     const os = computeThreeWayForecast({ overseas: withCalculator }).schedules.overseas
     // The cash row carries the interest cover out with the balance, as one payment — which
     // is how his own sheet pays it. 910 across the two containers.
-    expect(os.supplierBalance[4]).toBeCloseTo((90000 + 60000) * 0.4 * 1.1 + 910, 6)
+    expect(os.supplierBalance[4]).toBeCloseTo((90000 + 60000) * 0.4 + 910, 6)
     expect(os.supplierBalance[6]).toBe(0)
     expect(os.supplierBalance[7]).toBe(0)
 
@@ -351,8 +354,8 @@ describe('the calculator drives the forecast', () => {
       importedPurchases: computeImportShipments(TWO_CONTAINERS).importedPurchases
     })
     const flat = computeThreeWayForecast({ overseas: uniform }).schedules.overseas
-    expect(flat.supplierBalance[6]).toBeCloseTo(90000 * 0.4 * 1.1, 6) // October
-    expect(flat.supplierBalance[7]).toBeCloseTo(60000 * 0.4 * 1.1, 6) // November
+    expect(flat.supplierBalance[6]).toBeCloseTo(90000 * 0.4, 6) // October
+    expect(flat.supplierBalance[7]).toBeCloseTo(60000 * 0.4, 6) // November
     expect(flat.supplierBalance[4]).toBe(0)
   })
 
@@ -369,13 +372,14 @@ describe('the calculator drives the forecast', () => {
       expect(os.supplierInterest.reduce((a, b) => a + b, 0)).toBeCloseTo(910, 6)
     })
 
-    test('the direct costs are freight, duty and exchange movement — and nothing else', () => {
-      // Direct costs must be exactly the three that belong there. If the interest had been
-      // added to them, this sum would be 910 higher.
-      const direct = os.freight.reduce((a, b) => a + b, 0) +
-        os.duty.reduce((a, b) => a + b, 0) +
-        os.exchangeMovement.reduce((a, b) => a + b, 0)
-      expect(direct).toBeCloseTo(150000 * 0.12 + 150000 * 0.05 + 150000 * 0.1, 6)
+    test('the stock’s cost is the goods, freight and duty — and not the interest', () => {
+      // What joins stock must be exactly those three (13.5: freight and duty are part of the
+      // stock's cost). If the interest had been added, this sum would be 910 higher.
+      const sum = row => row.reduce((a, b) => a + b, 0)
+      const p = f.profitAndLoss
+      expect(sum(p.importedStock) + sum(p.overseasFreight) + sum(p.overseasDuty))
+        .toBeCloseTo(150000 * 1.17, 6)
+      expect(sum(os.exchangeMovement)).toBe(0)
     })
 
     test('a forecast with no calculator is charged no interest cover at all', () => {
