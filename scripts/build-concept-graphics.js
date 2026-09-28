@@ -173,7 +173,9 @@ const DRAWINGS = [
  *
  * @type {Array<{file: string, svg: number, since: string, item: string}>}
  */
-const AWAITING_APPROVAL = []
+const AWAITING_APPROVAL = [
+  { file: 'strategy-concept-cultural-core-values.html', svg: 1, since: '2026-09-28', item: '15.17' }
+]
 
 /**
  * Every concept a drawing serves, in registry order.
