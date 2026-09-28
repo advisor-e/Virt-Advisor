@@ -1546,7 +1546,21 @@ page passes `timing` (the manager's standard-session screen does not); `scope.ti
 kept through every other scope save. **Two differences from screen 7, both deliberate:** "+ Add a
 break here" sits after EVERY row rather than once per step, because a break may go between any two
 concepts; and a "+ Start the next day here" link, not drawn, adds a day row — its wording Mike's,
-2026-09-28. Not yet built: the Run session screen (slice 4), which is where screens 8–10 are drawn. **Never run against real OpenAI or a real microphone** — that proof needs the
+2026-09-28. **Slice 4 is built too (2026-09-28): the Run session screen** —
+`StrategySessionRecorder.vue` (consent through Meeting Review's own panel, one MediaRecorder per
+segment, the 8-second clip cut in the browser, the strip, the chips, "part 2" at 25 minutes or on
+the server's word, "End recording", "Stop and delete everything"), `StrategyRunAgenda.vue` (the
+timed agenda and the corner countdown, Decision G) and `StrategyConceptSummary.vue` (screen 10).
+**Differences from the drawing, every one named:** the live card shows a red top edge and the word
+"recording" rather than its own clock (the strip carries the clock); the agenda sits above the
+cards on a narrow screen and beside them on a wide one; the countdown is fixed to the corner of the
+window, as Mike asked; the finished banner is shown only when every section was turned into text,
+because its approved words say so — a failed section has already said so in its own banner. Three
+controls were not drawn and were ruled while building, all Mike's words on 2026-09-28: **"Take a
+break"** on the strip; a failed summary's **"This summary couldn't be written." / "Write it
+again"**; and **Meeting Review's own interruption alarm**, reused word for word, whose **"Resume
+recording"** carries the concept on as its next part. **The first build is complete; none of it has
+run against a real microphone or real OpenAI** — that proof is the desktop's or UAT's. **Never run against real OpenAI or a real microphone** — that proof needs the
 desktop or UAT. Every ruling below
 is Mike's, 2026-09-28.
 
