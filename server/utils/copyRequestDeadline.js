@@ -73,16 +73,12 @@ const UNITS = {
 /** Every valid unit, for validation and for the screen's picker. */
 const UNIT_VALUES = [UNITS.workingDays, UNITS.calendarDays, UNITS.calendarMonths]
 
-/**
- * How each unit reads to a person. Singular is handled because "1 working days left" on a
- * screen counting down to a legal deadline reads as carelessness about the deadline itself.
- * @type {Object.<string, {one: string, many: string}>}
+/*
+ * How a unit or a clock READS is not decided here. This module sends facts — a count, a unit,
+ * a number of units remaining — and each screen words them in its reader's language
+ * (item 10.2, `mixins/copyDeadlineWords.js`). The English sentences it used to build reached a
+ * German manager in English.
  */
-const UNIT_WORDS = {
-  'working-days': { one: 'working day', many: 'working days' },
-  'calendar-days': { one: 'day', many: 'days' },
-  'calendar-months': { one: 'calendar month', many: 'calendar months' }
-}
 
 /**
  * The platform default: New Zealand's statutory maximum, which is where the app is sold today.
@@ -421,44 +417,11 @@ function _workingDaysBetween (a, b) {
   return forward ? count : -count
 }
 
-/**
- * The setting as a manager reads it — "20 working days", "1 calendar month".
- *
- * @param {{count: number, unit: string}} deadline
- * @returns {string}
- */
-function deadlinePhrase (deadline) {
-  const checked = deadline && validateDeadline(deadline.count, deadline.unit)
-  if (!checked || !checked.ok) {
-    return PLATFORM_DEFAULT.count + ' ' + UNIT_WORDS[PLATFORM_DEFAULT.unit].many
-  }
-  const words = UNIT_WORDS[checked.value.unit]
-  return checked.value.count + ' ' + (checked.value.count === 1 ? words.one : words.many)
-}
-
-/**
- * The clock as it reads on the screen — "4 working days left", "2 days overdue".
- *
- * @param {{remaining: number, unit: string}} remaining - from `timeRemaining`
- * @returns {string}
- */
-function remainingPhrase (remaining) {
-  if (!remaining || typeof remaining.remaining !== 'number') { return '' }
-  const n = remaining.remaining
-  const words = UNIT_WORDS[remaining.unit] || UNIT_WORDS['calendar-days']
-
-  if (n === 0) { return 'due today' }
-  const size = Math.abs(n)
-  const word = size === 1 ? words.one : words.many
-  return n < 0 ? size + ' ' + word + ' overdue' : size + ' ' + word + ' left'
-}
-
 module.exports = {
   CONFIG_KEY,
   DEV_FILE,
   UNITS,
   UNIT_VALUES,
-  UNIT_WORDS,
   PLATFORM_DEFAULT,
   LIMITS,
   DEADLINE_SOURCES,
@@ -468,7 +431,5 @@ module.exports = {
   loadResolvedDeadline,
   dueDate,
   timeRemaining,
-  deadlinePhrase,
-  remainingPhrase,
   _writeDevMap
 }

@@ -6944,6 +6944,11 @@
       "approved": "In use",
       "rejected": "Rejected"
     },
+    "unread": {
+      "sentence": "Some of this schedule could not be read: {pages} of {document} were not read, so a class printed there is missing from this list.",
+      "pages": "page {list} | pages {list}",
+      "lastPair": "{rest} and {last}"
+    },
     "reads": {
       "loadedBy": "{filename} · loaded by {who}",
       "passProgress": "Pass {done} of {planned} · {classes} classes so far.",
@@ -7982,6 +7987,21 @@
       "noteLabel": "Anything worth noting?",
       "logIt": "Log it",
       "cancel": "Cancel"
+    },
+    "units": {
+      "working-days": "{count} working day | {count} working days",
+      "calendar-days": "{count} day | {count} days",
+      "calendar-months": "{count} calendar month | {count} calendar months"
+    },
+    "unitNames": {
+      "working-days": "working days",
+      "calendar-days": "days",
+      "calendar-months": "calendar months"
+    },
+    "clock": {
+      "left": "{amount} left",
+      "overdue": "{amount} overdue",
+      "dueToday": "due today"
     },
     "kinds": {
       "copy": "A copy of what was recorded",

@@ -410,28 +410,12 @@ function validateCountrySchedule (value, opts) {
   }
 }
 
-/**
- * Which pages of this schedule were NOT read, as one sentence a person can act on.
- *
- * 🔴 THE CONDITION MIKE ATTACHED TO HIS SECOND RULING, and it is why this lives in the store
- * rather than in one screen: *the gap shows WHEREVER THAT TABLE IS USED*, not only where the
- * schedule was loaded. Every caller that renders a class picker or a rate origin asks this,
- * so there is one sentence rather than four that drift.
- *
- * @param {object|null} schedule - a validated schedule, or null
- * @returns {string} '' when every page was read, which is the normal case
+/*
+ * Which pages of a schedule were NOT read travels as `pagesUnread` — page ranges, never a
+ * sentence. The sentence has ONE home, `utils/scheduleUnreadWords.js`, so it is worded in the
+ * reader's language (item 10.2); it used to be built here in English. Mike's condition on his
+ * second ruling still holds there: the gap shows WHEREVER THAT TABLE IS USED.
  */
-function unreadPagesSentence (schedule) {
-  if (!schedule || !Array.isArray(schedule.pagesUnread) || schedule.pagesUnread.length === 0) {
-    return ''
-  }
-  const parts = schedule.pagesUnread.map(r => (r.from === r.to ? String(r.from) : r.from + '–' + r.to))
-  const pages = parts.length === 1
-    ? 'page ' + parts[0]
-    : 'pages ' + parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1]
-  return 'Some of this schedule could not be read: ' + pages + ' of ' + schedule.document +
-    ' were not read, so a class printed there is missing from this list.'
-}
 
 /**
  * The country schedule one scope works to, with the tier that supplied it named.
@@ -561,7 +545,6 @@ module.exports = {
   cleanPageRanges,
   cleanUnresolved,
   validateCountrySchedule,
-  unreadPagesSentence,
   resolveCountrySchedule,
   searchScheduleClasses,
   mayLoadSchedules

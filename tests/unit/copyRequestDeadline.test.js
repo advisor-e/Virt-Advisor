@@ -208,7 +208,6 @@ describe('what is left', () => {
     const left = d.timeRemaining(RECEIVED, NZ, new Date('2026-09-24T00:00:00Z'))
     expect(left.remaining).toBe(4)
     expect(left.unit).toBe('working-days')
-    expect(d.remainingPhrase(left)).toBe('4 working days left')
   })
 
   it('reports a calendar-month deadline as days, because months are not a countdown', () => {
@@ -222,13 +221,12 @@ describe('what is left', () => {
     const left = d.timeRemaining(RECEIVED, NZ, new Date('2026-10-05T00:00:00Z'))
     expect(left.overdue).toBe(true)
     expect(left.remaining).toBeLessThan(0)
-    expect(d.remainingPhrase(left)).toMatch(/overdue$/)
   })
 
-  it('says "due today" rather than "0 working days left"', () => {
+  it('is exactly 0 on the due day — the screen says "due today" on that, never "-0"', () => {
     const left = d.timeRemaining(RECEIVED, NZ, new Date('2026-09-30T12:00:00Z'))
     expect(left.remaining).toBe(0)
-    expect(d.remainingPhrase(left)).toBe('due today')
+    expect(Object.is(left.remaining, -0)).toBe(false)
   })
 
   it('is not skewed by the time of day', () => {
@@ -242,19 +240,4 @@ describe('what is left', () => {
   })
 })
 
-describe('the words', () => {
-  it('uses the singular where the count is one', () => {
-    expect(d.deadlinePhrase({ count: 1, unit: 'calendar-months' })).toBe('1 calendar month')
-    expect(d.deadlinePhrase({ count: 20, unit: 'working-days' })).toBe('20 working days')
-  })
-
-  it('falls back to the platform default rather than printing nothing', () => {
-    expect(d.deadlinePhrase(null)).toBe('20 working days')
-    expect(d.deadlinePhrase({ count: 999, unit: 'working-days' })).toBe('20 working days')
-  })
-
-  it('returns an empty string for an unusable remaining figure', () => {
-    expect(d.remainingPhrase(null)).toBe('')
-    expect(d.remainingPhrase({})).toBe('')
-  })
-})
+// The words moved to the screen (item 10.2) — tests/unit/hubFactsWording.test.js.

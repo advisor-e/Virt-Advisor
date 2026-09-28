@@ -11,7 +11,7 @@
     template(v-else)
       .is-flex.is-justify-content-space-between.is-align-items-baseline.mb-1
         h4.title.is-6.mb-0 {{ request.clientName || 'Client no longer on the register' }}
-        span.is-size-7(:class="clockClass") {{ clock ? clock.phrase : '' }}
+        span.is-size-7(:class="clockClass") {{ clockWords(clock) }}
 
       p.is-size-7.has-text-grey.mb-4
         | {{ kindWords[request.kind] }} · asked on {{ shortDate(request.receivedAt) }}
@@ -257,8 +257,12 @@
  * none. `advisorLabel` falls back to the identifier rather than inventing a name, which is the
  * same wall the "4 of 12" denominator met.
  */
+import copyDeadlineWords from '../../mixins/copyDeadlineWords'
+
 export default {
   name: 'ClientCopyRequestDetail',
+
+  mixins: [copyDeadlineWords],
 
   props: {
     /** The signed-in caller's token, passed down by the hub. */

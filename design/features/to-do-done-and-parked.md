@@ -353,6 +353,24 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**10.2 · Hub screens show English written by the backend, so it never translates.**
+✅ **Closed 2026-09-28 by Mike ("yes" — done)**, the day it was fixed. It was filed on 2026-09-25 as
+what item 10.1 (`1375c0eb`) left behind, and nothing had touched it since.
+
+- **Why it existed:** four backend helpers built English sentences — a copy request's response
+  time and countdown, Meeting Patterns' month, and a country schedule's "pages not read" warning —
+  so a manager reading the hub in another language met English in five places.
+- **What proves it:** the backend now sends facts only (a count and unit, days remaining, a year and
+  month, page ranges) and the screens word them: `mixins/copyDeadlineWords.js` for both copy-request
+  screens, `utils/scheduleUnreadWords.js` for the depreciation picker and the schedules list (one
+  home, carrying Mike's condition that the gap shows wherever the table is used), and `$d` with a
+  new `monthYear` format for Meeting Patterns. English is unchanged word for word, pinned in
+  `tests/unit/hubFactsWording.test.js`; the route tests now check that no sentence is sent.
+- **Found on the way, not part of it:** `ClientCopyRequestDetail.vue` has its own English typed
+  into the page and was never put through the wording file.
+- **Not proved here:** a walk of those screens in German. Some newer browsers write September as
+  "Sept 2026" where the backend wrote "Sep 2026".
+
 **13.5 · Foreign currency, freight and duty in the Three-Way Forecast, by the accounting standards.**
 ✅ **Closed 2026-09-28 by Mike ("yes" — done)**, the day it was built, on his four rulings of
 2026-09-26 and the approved drawing

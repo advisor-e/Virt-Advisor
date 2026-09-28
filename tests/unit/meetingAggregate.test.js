@@ -22,7 +22,6 @@ const {
   MIN_ADVISORS,
   MIN_MEETINGS,
   periodOf,
-  periodLabel,
   inPeriod,
   outcomeOf,
   summarise
@@ -248,10 +247,9 @@ describe('counting', () => {
     expect(p1.met).toBe(14)
   })
 
-  test('the period carries the label the drawing prints', () => {
-    expect(periodLabel({ year: 2026, month: 8 })).toBe('Aug 2026')
-    expect(periodLabel({ year: 2026, month: 1 })).toBe('Jan 2026')
-    expect(periodLabel({ year: 2026, month: 12 })).toBe('Dec 2026')
+  test('the period is a year and a month, never words — the screen writes them (item 10.2)', () => {
+    const out = summarise([], { year: 2026, month: 8 })
+    expect(out.period).toEqual({ year: 2026, month: 8 })
   })
 
   test('periodOf reads a date as a 1-12 month', () => {

@@ -25,7 +25,6 @@ const {
   cleanPageRanges,
   cleanUnresolved,
   validateCountrySchedule,
-  unreadPagesSentence,
   resolveCountrySchedule,
   searchScheduleClasses,
   mayLoadSchedules
@@ -313,33 +312,6 @@ describe('validateCountrySchedule', () => {
     }))
     expect(ok).toBe(true)
     expect(value.pagesUnread).toEqual([{ from: 41, to: 48 }])
-  })
-})
-
-describe('unreadPagesSentence', () => {
-  it('says nothing when every page was read', () => {
-    expect(unreadPagesSentence(validateCountrySchedule(aSchedule()).value)).toBe('')
-    expect(unreadPagesSentence(null)).toBe('')
-  })
-
-  it('names the pages and the document when a range was not read', () => {
-    const { value } = validateCountrySchedule(aSchedule({
-      pagesRead: [{ from: 1, to: 40 }],
-      pagesUnread: [{ from: 41, to: 48 }]
-    }))
-    const said = unreadPagesSentence(value)
-    expect(said).toContain('41')
-    expect(said).toContain('48')
-    expect(said).toContain('IR265')
-  })
-
-  it('names every range when more than one was not read', () => {
-    const { value } = validateCountrySchedule(aSchedule({
-      pagesUnread: [{ from: 41, to: 48 }, { from: 50, to: 50 }]
-    }))
-    const said = unreadPagesSentence(value)
-    expect(said).toContain('41')
-    expect(said).toContain('50')
   })
 })
 

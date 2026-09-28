@@ -43,10 +43,6 @@ const MIN_ADVISORS = 5
 /** Mike's ruling, 2026-09-01, and per point as well on 2026-09-07. Never lowered. */
 const MIN_MEETINGS = 20
 
-const MONTH_NAMES = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-]
-
 /**
  * The calendar month a date falls in, read in UTC.
  *
@@ -69,15 +65,11 @@ function periodOf (date) {
   return { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1 }
 }
 
-/**
- * The period as the approved drawing prints it in the screen's chrome — "Aug 2026".
- *
- * @param {{year: number, month: number}} period
- * @returns {string}
+/*
+ * The period is sent as a year and a month, never as words. The screen writes "Aug 2026" in
+ * its reader's language (item 10.2) — an English month name built here reached a German
+ * manager as English.
  */
-function periodLabel (period) {
-  return MONTH_NAMES[period.month - 1] + ' ' + period.year
-}
 
 /**
  * Was this meeting created inside the period?
@@ -136,7 +128,7 @@ function outcomeOf (finding) {
  * @param {Array<{meta: object, coaching: (object|null)}>} records - every meeting of the firm
  * @param {{year: number, month: number}} period
  * @returns {{
- *   period: {year: number, month: number, label: string},
+ *   period: {year: number, month: number},
  *   meetings: number,
  *   advisors: number,
  *   enough: boolean,
@@ -165,7 +157,7 @@ function summarise (records, period) {
   const enough = advisors >= MIN_ADVISORS && meetings >= MIN_MEETINGS
 
   const base = {
-    period: { year: period.year, month: period.month, label: periodLabel(period) },
+    period: { year: period.year, month: period.month },
     meetings,
     advisors,
     enough,
@@ -205,7 +197,6 @@ module.exports = {
   MIN_ADVISORS,
   MIN_MEETINGS,
   periodOf,
-  periodLabel,
   inPeriod,
   outcomeOf,
   summarise

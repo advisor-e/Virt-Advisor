@@ -369,27 +369,6 @@
       "comment": "2026-09-25 - filed on Mike's yes at shutdown."
     },
     {
-      "ref": "10.2",
-      "name": "Hub screens show English written by the backend, so it never translates",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off, on a few words",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A few words on the hub are composed by the backend in English and never pass through the wording file: client copy deadline units and countdown phrases, meeting pattern period labels, and the depreciation unread-pages sentence.",
-      "risk": "A manager reading in another language meets English fragments inside otherwise translated screens after 10.1 converted the screens themselves. The countdown phrase is the one a firm acts on against a legal deadline.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-25 - found converting the hub screens after 10.1. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "The routes behind FirmClientCopyRequests.vue (unitWords and the clock phrase), FirmMeetingPatterns.vue (period.label) and DepreciationDocumentReview.vue (scheduleUnreadNote); those three screens and the unread note in CountryRateSchedules.vue, which already words it itself; their route tests.",
-      "note": "The backend should send facts - a unit code, a number, a date - and each screen word them through $t. Changes what four routes return, so their tests move with them.",
-      "comment": "2026-09-25 - filed on Mike's yes at shutdown."
-    },
-    {
       "ref": "44.1",
       "name": "Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions",
       "rankedByMike": false,

@@ -36,14 +36,16 @@ const enMessages = mergeSections(en, collaborateEn, COLLABORATE_SECTIONS)
  * assembling a date in a component.
  */
 const LONG_DATE = { year: 'numeric', month: 'long', day: 'numeric' }
+/** A month on its own — "Aug 2026" — for a screen that reports a calendar month (item 10.2). */
+const MONTH_YEAR = { year: 'numeric', month: 'short' }
 const LOCALES = ['en', 'fr', 'es', 'de', 'pt', 'it', 'nl', 'pl']
 
 // Both the app's own keys and the tags `Intl` is actually handed (`en` → `en-GB`, so English
 // dates read day-first — Mike, 2026-09-07). Registering both means a caller that passes
 // either finds the format, and `$d` never falls through to its empty string again.
 const dateTimeFormats = LOCALES.reduce((out, locale) => {
-  out[locale] = { long: LONG_DATE }
-  out[intlLocaleFor(locale)] = { long: LONG_DATE }
+  out[locale] = { long: LONG_DATE, monthYear: MONTH_YEAR }
+  out[intlLocaleFor(locale)] = { long: LONG_DATE, monthYear: MONTH_YEAR }
   return out
 }, {})
 

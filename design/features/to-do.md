@@ -48,11 +48,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 11 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 12 | **13.6** Translations mistake business words and three screens split sentences around bold text ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 13 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 14 | **10.2** Hub screens show English written by the backend, so it never translates ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 15 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 16 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 14 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 15 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Sixteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Fifteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
