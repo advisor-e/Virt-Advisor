@@ -92,5 +92,11 @@ test('"Today\'s agenda" is the live concept\'s day on a two-day workshop', () =>
 test('no start time shows no agenda at all rather than an agenda of blanks', () => {
   const w = mount(null, { startsAt: null, minutes: { objective: 20 }, days: {} })
   expect(w.vm.rows).toEqual([])
-  expect(w.find('.sra').exists()).toBe(false)
+  expect(w.find('.sra-agenda').exists()).toBe(false)
+})
+
+test('without a start time the countdown still runs on the live concept\'s minutes', async () => {
+  const w = mount({ key: 'objective', label: 'x', startedAt: T0 }, { startsAt: null, minutes: { objective: 20 }, days: {} })
+  await w.setData({ now: T0 + 60000 })
+  expect(w.vm.countdown).toMatchObject({ over: false, figure: '19:00' })
 })

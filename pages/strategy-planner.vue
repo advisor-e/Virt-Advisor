@@ -295,7 +295,8 @@
                 :segment="seg"
               )
 
-        //- Screens 8 and 9: the timed agenda beside the cards, and the countdown in the corner.
+        //- Screens 8 and 9: the timed agenda above the cards when a start time is set, and the
+        //- countdown in the corner (the agenda's position ruled by Mike, 2026-09-28).
         aside.sp-runside
           strategy-run-agenda(
             :steps="planStepDefs"
@@ -2477,14 +2478,12 @@ export default {
 
 .sp-card { margin-bottom: 1.1rem; }
 
-/* Item 8.4, slice 4 — the cards, with the timed agenda beside them on a wide screen and above
-   them on a narrow one (screens 8 and 9). */
-.sp-runwrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
-.sp-runside { order: -1; }
-@media (min-width: 1024px) {
-  .sp-runwrap { grid-template-columns: minmax(0, 1fr) 17rem; }
-  .sp-runside { order: 0; position: sticky; top: 1rem; align-self: start; }
-}
+/* Item 8.4, slice 4 — the timed agenda sits ABOVE the cards, and only when a start time is set
+   (Mike, 2026-09-28). Beside them it took a column even when it had nothing to show, and his
+   first real recording found Porter's 5 Forces squeezed into what was left. Every card keeps
+   the full width of the page; the countdown stays in the corner. */
+.sp-runwrap { display: flex; flex-direction: column; gap: 1rem; }
+.sp-runside { order: -1; max-width: 34rem; }
 /* 🔴 THE BAR IS THE TOP OF ITS OWN CARD (Mike, 2026-09-28). Sitting in the gap between two cards
    it read as the foot of the card ABOVE, so a press meant for the concept just finished would
    start recording the next one. Joined to the card below — no gap, the card's border and wash

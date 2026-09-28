@@ -1,6 +1,8 @@
 <template lang="pug">
-.sra(v-if="rows.length")
-  .sra-agenda
+.sra
+  //- The agenda only when there are times to show (a start time is set); the countdown below
+  //- needs only the live concept's minutes, so it does not wait on the agenda.
+  .sra-agenda(v-if="rows.length")
     h5 {{ $t('strategyPlanner.timing.agenda') }}
     .sra-row(v-for="r in rows" :key="r.key" :class="{ 'is-past': r.past, 'is-live': r.live, 'is-break': r.kind === 'break' }")
       span.sra-name {{ r.name }}

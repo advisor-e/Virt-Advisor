@@ -1580,7 +1580,12 @@ finished as transcribed with no AI call, all audio destroyed. **Risk carried:** 
 pause can be clipped — unmeasured until a real voice is recorded. **Two more fixes from the walk, on
 Mike's yes:** each "Record this section" bar is now joined to the top of its own card — in the gap
 between cards it read as the foot of the card above, inviting a press that would file a recording
-under the wrong concept; and the finished banner counts "1 section", "1 minute" in the singular. **Never run against real OpenAI or a real microphone** — that proof needs the
+under the wrong concept; and the finished banner counts "1 section", "1 minute" in the singular.
+**Mike's own first recording, the same day, found the cards squeezed**: the agenda's column beside
+them stayed even with no start time to show. On his yes the agenda now sits ABOVE the cards, only
+when a start time is set, and every card has the page's full width; the countdown needs only the
+concept's minutes and shows without a start time. That recording also proved the voice path — a
+word-perfect transcript, and the advisor named by the clip throughout. **Never run against real OpenAI or a real microphone** — that proof needs the
 desktop or UAT. Every ruling below
 is Mike's, 2026-09-28.
 
