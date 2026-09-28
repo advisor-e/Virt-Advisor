@@ -117,9 +117,9 @@
         "ours": false,
         "detail": "2026-09-22 - in his own words: \"i want you to make a task to review the 3 way forecast model and the financial assessment reports / performance reports (in the perf reports section) to see what could be 'pulled in' by clicking an import button\"."
       },
-      "touches": "The three-way forecast (parent 6) and the report models (parent 5) as sources; the Strategy Planner's session surface as the destination. Which reports expose a readable saved result, and in what shape, IS the review - nothing is known yet.",
-      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. The impact test is unrun and this must not start until it is. Its first output is a list of what each report can and cannot give a planning session.",
-      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.14 and 15.15). Score and scoreReason are ours; he has not ranked it."
+      "touches": "CONCEPT_MODELS in server/utils/strategyFrameworks.js (only /owner-expectations today); loadModelPrints in pages/strategy-planner.vue; the concept assess-current-position-by-reviewing-pre-meeting-data-sectio in data/strategy-frameworks.json; the saved-report store (server/utils/savedReports.js) as the source.",
+      "note": "PROCEED ON MIKE'S WORD 2026-09-28. IMPACT TEST PASSED. Problem: his Strategic Orientation p2 step names the Financial Performance Reports, and its form holds customer rows only. Measure: headline figures reaching that step and the plan PDF untyped - 0 today - each equal to its report's own screen. Route: 15.23's model print (read saved inputs, re-run the model's route, print; nothing copied). CAN COME IN: 14 client-saved reports, Business Performance Report and three-way forecast first. SCREEN ONLY: High- and Mid-Level Budget, Stock Purchasing, Sales Dashboard, Wages Review, Retirement Review. HELD NOWHERE: staff, customer and supplier feedback, economic outlook. DRAWN 2026-09-28, not approved: design/mockups/strategy-current-position-import.html, decisions A-D and its wording to rule.",
+      "comment": "2026-09-28 - Mike: proceed, after the impact test. The test found saved multi-year forecasts reopening as one year; fixed first on his yes (1c866a94). Filed 2026-09-22 with 15.14 and 15.15; score ours, not ranked by him."
     },
     {
       "ref": "15.14",
