@@ -28,8 +28,9 @@ mishearing of "Bay of Plenty", and the spelling is American.
 
 **8.4 next:** screen 4 still needs Decisions D and F from Mike.
 
-**FOR THE DESKTOP:** 8.4 is still not on `master` (PR #139), so 15.13's two insertions still
-wait. Shared files changed: `CLAUDE.md` (privacy exception), `strategy-planner.md`,
+**FOR THE DESKTOP: 8.4's first build IS on `master`** (PR #139, merged 2026-09-29 as
+`368bddf4`) — 15.13's two insertions into `StrategyConceptCapture.vue` and
+`pages/strategy-planner.vue` can go now. Shared files changed: `CLAUDE.md` (privacy exception), `strategy-planner.md`,
 `ARTEFACTS.md`, the to-do files, `scripts/build-concept-graphics.js`,
 `components/strategy/concepts/index.js`, and the counts in `conceptGraphics.test.js`
 (43 drawings, 36 self-titled).
