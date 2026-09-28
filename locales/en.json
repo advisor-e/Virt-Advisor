@@ -2596,7 +2596,7 @@
           "atRisk": "At risk"
         },
         "noScore": "No score yet: the score counts the measures your advisor's firm has set thresholds for, and none could be banded — usually because last year's reports have not been read.",
-        "scoreMethod": "Scored on the {n} banded measures on pages 2 and 5: 2 in green, 1 in amber, 0 in red against your firm's thresholds, out of 100. The method follows the Piotroski F-score, the pass-or-fail test count investors use to screen a company's financial strength.",
+        "scoreMethod": "Scored on the {n} banded measures on pages 2 and 5, each judged against your firm's thresholds: a green measure earns 2 points, an amber 1 and a red none, and the total is shown out of 100. The method follows the Piotroski F-score, the pass-or-fail test count investors use to screen a company's financial strength.",
         "scoreAllGreen": "All {n} measures are in the green.",
         "scorePulledDown": "{green} of {n} measures green; {list} pull the score down.",
         "measure": {

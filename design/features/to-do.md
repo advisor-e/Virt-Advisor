@@ -35,21 +35,20 @@ repository sees; the two never both appear, and the build stops if they would.
 <!-- BEGIN GENERATED: the ranked list — npm run to-do -->
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | **desktop**, since 2026-09-28 |
-| 2 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-28 |
-| 3 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 4 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 5 | **15.20** Nobody but a developer can add a concept, and each one costs a day ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
-| 6 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
-| 7 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-25 |
-| 8 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 9 | **13.6** Translations mistake business words and three screens split sentences around bold text ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 10 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 11 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 12 | **10.3** Depreciation Rates, Forecast Trend Thresholds and Property Tax Rules become one hub page ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 13 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 1 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-28 |
+| 2 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 3 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 4 | **15.20** Nobody but a developer can add a concept, and each one costs a day ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
+| 5 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
+| 6 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-25 |
+| 7 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 8 | **13.6** Translations mistake business words and three screens split sentences around bold text ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 9 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 10 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 11 | **10.3** Depreciation Rates, Forecast Trend Thresholds and Property Tax Rules become one hub page ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 12 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Thirteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

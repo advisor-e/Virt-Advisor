@@ -204,6 +204,25 @@ article.spd(:style="frameStyle")
             dt(:key="line.key + 't'") {{ line.label }}
             dd(:key="line.key + 'd'" :class="{ 'is-blank': !line.value }") {{ line.value || $t('strategyPlanner.plan.blank') }}
 
+      //- 🔴 THE REPORT'S OWN EXECUTIVE SUMMARY, AND NOTHING ELSE OF IT — item 15.13, Decision D
+      //- of design/mockups/strategy-current-position-import.html. Printed only where the advisor
+      //- brought the report in, straight after this step's page, and worked out afresh from the
+      //- client's saved report so it can never disagree with it.
+      //- 🔴 ON THE PLAN'S OWN SHEET — Mike, 2026-09-29: the plan is one document, so this page
+      //- wears the same frame, mark, foot and page number as its neighbours. The report's own
+      //- mark, foot and number are hidden below. A recorded deviation from the drawing's §4.
+      strategy-report-plan-page.spd-page.is-report(
+        v-if="item.reportImport && clientId"
+        :key="'r' + i + item.key"
+        :client-id="clientId"
+        :client-name="clientName"
+        :api-token="apiToken"
+        :number="3"
+      )
+        strategy-plan-mark(v-bind="markProps")
+        strategy-plan-frame(split)
+        p.spd-foot(v-if="runningFoot") {{ runningFoot }}
+
   //- 🔴 THE CLOSING BLOCKS, PRINTED AFTER THE STEPS AND OUTSIDE THEM. Decision D,
   //- 2026-09-21, took Strategic Statements and the Action Plan off Build session, so
   //- they no longer sit inside a step the advisor named. They are still the two things
@@ -269,7 +288,14 @@ import { sheetEdits } from '~/utils/conceptTextBlocks'
 export default {
   name: 'StrategyPlanDocument',
 
-  components: { StrategyConceptGraphic, StrategyOrgChart, StrategyPlanMark, StrategyPlanFrame, StrategyOwnerContrast },
+  components: {
+    StrategyConceptGraphic,
+    StrategyOrgChart,
+    StrategyPlanMark,
+    StrategyPlanFrame,
+    StrategyOwnerContrast,
+    StrategyReportPlanPage: () => import('~/components/strategy/StrategyReportPlanPage.vue')
+  },
 
   props: {
     /** The client this plan belongs to. */
@@ -280,6 +306,12 @@ export default {
 
     /** That client's id — a hosted model's page prints in the client's own currency. */
     clientId: {
+      type: String,
+      default: ''
+    },
+
+    /** The planner's Bearer token — the brought-in report's summary reads the saved report with it. */
+    apiToken: {
       type: String,
       default: ''
     },
@@ -574,6 +606,25 @@ export default {
 /* The title page carries the mark at the top, so nothing interrupts its border and it
    needs no number — his own title page has none. */
 .spd-page.is-title::after { content: none; }
+
+/* The brought-in Executive Summary (item 15.13) sits inside this sheet as its content: the
+   report page gives up its own ratio, padding, shadow and page break, and its own mark, foot
+   and number, which the sheet around it already carries. Its figures and words are untouched. */
+.spd-page.is-report >>> .drd-page {
+  aspect-ratio: auto;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+  overflow: visible;
+  break-after: auto;
+  page-break-after: auto;
+}
+.spd-page.is-report >>> .drd-foot,
+.spd-page.is-report >>> .drd-pno { display: none; }
 
 /* ── copied from the approved drawing, `.deck .note` ── */
 .spd-foot {

@@ -370,6 +370,29 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.13 · No import button pulls the forecast and performance figures into a planning session.**
+✅ **Closed 2026-09-29 by Mike ("done").**
+
+- **His rulings:** proceed, 2026-09-28; the drawing, its decisions A–D and wording approved the
+  same day — [`strategy-current-position-import.html`](../mockups/strategy-current-position-import.html);
+  on 2026-09-29, the two insertions in 8.4's files and a third in `StrategyPlanDocument.vue`, and
+  that the plan's Executive Summary wears the plan's own framed sheet (*"would you want to see it
+  look consistent throughout?"*) — the one recorded deviation from the drawing's §4.
+- **What was done:** "Bring in the Business Performance Report" sits above the Customer & Skills
+  Review form on "Assess current position" and brings in the whole report, drawn by the report
+  itself, with a numbered page strip; with no completed report it shows his message. The session
+  saves one marker; where it is set, the plan prints the report's Executive Summary straight after
+  that step's page, on the plan's own sheet.
+- **What proves it:** `strategyReportImport.test.js` — the card asks exactly what the report's page
+  asks, the marker is saved under the one key the backend admits, the panel is on no other card,
+  the plan carries the summary only when it was brought in. Walked in a browser on the built app
+  beside the drawing; printed in the plan's own print mode, 7 A4 sheets without it and 8 with it.
+  Commit: `git log --grep "(15.13)"`.
+- **Found on the way and fixed the same day, on Mike's yes:** the plan's Print button had printed a
+  blank sheet since 2026-09-22, when the planner's frame (`.sp-sheet`) was wrapped round the plan and
+  the print rule hid it; and the report's health-score note reworded so its points no longer read
+  as a count ("a green measure earns 2 points, an amber 1 and a red none").
+
 **15.17 · One framework has a real teaching slide and no drawing - Cultural Core Values.**
 ✅ **Closed 2026-09-28 by Mike ("done").**
 
