@@ -1681,10 +1681,39 @@ Values, Mission and Strategy, plus a three-column table. Its own instruction alr
 purpose and audience: *"say them in words the team, the customers and the community each
 understand."*
 
+**How Wordsmith works — five steps (Mike's yes, 2026-09-29).** The 2026-09-28 test was one model
+call that saw only the purpose, the style and the words; it never saw a definition. That is
+replaced by:
+
+1. **Sort.** The model sorts what was said into the five statements by meaning, answering with
+   the transcript's **line numbers**; the code takes those lines word for word, the client's only.
+   Asked to copy passages instead, the model tidied them (the Lab, 2026-09-29), so the exact words
+   are guaranteed by construction. Speech that fits none is left out; a statement nobody spoke
+   about says so.
+2. **Check against the definition.** Each statement carries its definition — the Alignment
+   document first, best practice second where it agrees, the Alignment document wherever they
+   differ. What is missing (a Mission's date and measure, a Strategy's scope) becomes a question
+   for the advisor and client, never an invention.
+3. **Style becomes settings** — sentence length, formality, jargon, voice — shown to the advisor.
+4. **Draft** from the sorted quotes, the definition, the purpose and the settings: the client's
+   strongest phrases kept, New Zealand spelling, a length per statement.
+5. **Code checks every draft** — invented facts, lost key phrases, spelling, length — retries once,
+   then shows any failure to the advisor.
+
+**The definitions cascade (Mike, 2026-09-29):** *"as for every other section in this app, what is
+loaded into the mentor hub cascades down thru the layers to firm manager with the same adopt or
+decline rules as all other cascade content."* The standard rules (`tier-cascade.md` P3, P11), all
+four tiers. Each definition is a row with a stable id, ready for `resolveInheritedRows`; the five
+statement names are fixed keys, like the Growth Aspects'. Until the hub tab is built the shipped
+file is the mentor's content.
+
 **How Wordsmith will be measured** (impact test, stated before design): a bench of ten drafts
 from a real recorded segment, the five statements each written in two styles. Mike judges them,
-and fewer than seven usable with light edits means it is not earning its place. After it is built:
-the time from pressing Wordsmith to approved text, and how much of each draft survives unedited.
+and fewer than seven usable with light edits means it is not earning its place. **The Wordsmith
+Lab** (`scripts/wordsmith-lab.js`, his yes 2026-09-29) re-runs that bench through the saved
+instructions and scores each step, so he judges only drafts that pass the machine checks. After
+it is built: the time from pressing Wordsmith to approved text, and how much of each draft
+survives unedited.
 
 ## 10. Where it lives
 
