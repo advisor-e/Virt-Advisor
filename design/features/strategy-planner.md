@@ -1534,7 +1534,7 @@ paragraphs take 19–273 more characters; circle labels about 7.
 
 ## 9b. Recording a session in concept segments, then Wordsmith — built 2026-09-28
 
-Items **8.4** (recording, built) and **15.14** (Wordsmith, next after 8.4's second build). Drawing:
+Items **8.4** (recording, built) and **15.14** (Wordsmith, built second, after the recording — which is built). Drawing:
 [`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html),
 **approved for build by Mike on 2026-09-28** — *"i approve the drawing to build"* — as committed in
 `976533c2`; every decision and label on it ruled one question at a time. Screen 11 was added and
@@ -1663,7 +1663,10 @@ people will review our submission' and then the wordsmit summaries and edits the
 used for stated purpose"*. **The gain:** *"save time for advisor and client trying to 'craft the
 perefect message'"*. It works from the recorded concept segments, not from the typed boxes; he
 declined a typed-box version. The purpose and style answers are words a person gave, so they are
-moderated and fenced as untrusted input.
+moderated and fenced as untrusted input. **Privacy (Mike's yes, 2026-09-28):** Wordsmith may send
+the spoken words of the Alignment Statements segment to OpenAI under Meeting Review's four
+conditions — that segment only — recorded as the second named use in `CLAUDE.md`'s exception.
+Checked against the twelve ZDR rules at scoping the same day: it passes as scoped.
 
 **Nothing from the recording leaves the app** (settles Meeting Review's P13 for this feature).
 *"the entire conversation wont be sent outside, it will just create the wordings in the strategic
