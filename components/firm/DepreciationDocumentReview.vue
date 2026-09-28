@@ -245,6 +245,8 @@
  * Every string a manager reads comes from the `depreciationDocumentReview` block of
  * `locales/en.json` (item 10.1).
  */
+import { scheduleUnreadSentence } from '~/utils/scheduleUnreadWords'
+
 export default {
   name: 'DepreciationDocumentReview',
 
@@ -293,8 +295,8 @@ export default {
       scheduleTruncated: false,
       /** Which schedule answered — document, edition and how many classes it holds. */
       scheduleDoc: null,
-      /** The unread-pages sentence, composed by the backend so one wording has one home. */
-      scheduleUnreadNote: '',
+      /** The schedule's unread page ranges, worded by `scheduleUnreadNote` (item 10.2). */
+      schedulePagesUnread: [],
       /** True while the country schedule is being searched. */
       scheduleSearching: false,
       /** The debounce handle for the search box. */
@@ -303,6 +305,11 @@ export default {
   },
 
   computed: {
+    /** The unread-pages warning, in the reader's language — one wording, one home. */
+    scheduleUnreadNote () {
+      return scheduleUnreadSentence(this.schedulePagesUnread, this.scheduleDoc && this.scheduleDoc.document, this.$t, this.$tc)
+    },
+
     /** The six category labels, in the order the forecast holds them. */
     categoryLabels () {
       return {
@@ -594,7 +601,7 @@ export default {
         this.scheduleTotal = body.total || 0
         this.scheduleTruncated = Boolean(body.truncated)
         this.scheduleDoc = body.schedule || null
-        this.scheduleUnreadNote = body.unreadNote || ''
+        this.schedulePagesUnread = Array.isArray(body.pagesUnread) ? body.pagesUnread : []
       } catch (err) {
         // Silent by design, and this comment is the record rather than an oversight: the
         // picker still holds the document's own classes, which is what it offered before this

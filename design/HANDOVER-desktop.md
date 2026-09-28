@@ -9,27 +9,24 @@
 
 ---
 
-## 2026-09-26 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-28 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed. 636 suites / 13,787 tests green, audit PASS. 0 behind `master`; everything
-ahead is in PR #134** (opened today, description current). Not merged — that is the master team's.
+**Clean and pushed. 21 ahead, 0 behind `master` — all of it in PR #138 (open, not merged).
+Green: 645 suites / 13,929 tests on Node 14.15, audit PASS.** Run tests, commits and pushes with
+the 14.15 folder first on PATH (item 22.2).
 
-**Worked: 13.5**, now *Foreign currency, freight and duty in the Three-Way Forecast*. Mike ruled
-the design by the accounting standards; the drawing
-[`three-way-forecast-foreign-currency.html`](mockups/three-way-forecast-foreign-currency.html) is
-**approved, not built**; his call is **proceed**. `activeOn` desktop.
-**Shipped:** the forecast's FRS-42 caution, on screen and under every printed statement page.
-**Filed:** 44.1, a full IFRS / FRS-42 review of the forecast plus a disclosure screen for firm
-managers (unranked). **New:** [`CALCULATION-ASSUMPTIONS.md`](CALCULATION-ASSUMPTIONS.md), the
-accountants' record of the forecast's treatments.
-
-**Pick up first:** the 13.5 build — engine, screen, saved shape, and a test that runs the
-workbook's twelve months of orders through the engine itself.
+**Closed on Mike's word:** 10.2 — the hub's backend sends facts and the screens word them; the
+client copy request screen translated whole, English unchanged. **Parked:** 8.3, with a REMINDERS
+DUE box in `npm run check:branch` from 15 Dec 2026 (`design/features/reminders.json`).
+**Fixed:** a saved 2- or 3-year forecast reopened as one year (`1c866a94`).
+**In hand here:** 15.13 — drawn, approved, own parts built; waits on 8.4 reaching master.
 
 ### 🔴 FOR THE LAPTOP
 
-- **13.5 will change** `threeWayForecastModel.js` (the overseas schedule), `importShipmentModel.js`,
-  `ThreeWayForecastIntake.vue`, `ThreeWayForecastReport.vue` and `threeWayForecastSavedShape.js`.
-  Ask before touching them. The "Exchange-rate movement" line will hide when it is zero.
-- Yesterday's notes still apply until PR #134 merges: translation is the backend's, `en.json`
-  grew at its tail (keep both sides), and `mountComponent` renders `<i18n>` by default.
+- 15.13 needs two insertions in files 8.4 holds — the panel into `StrategyConceptCapture.vue`, the
+  plan page into `pages/strategy-planner.vue`. Nothing touched them here; say when 8.4 is merged.
+- Shared files changed: `threeWayForecastSavedShape.js` (5 new keys), `en.json`
+  (`strategyPlanner.reportImport`, `clientCopyRequestDetail`, `firmClientCopyRequests.units`),
+  `data/strategy-frameworks.json` (`importReport` on one concept), `strategyCaptureForms.js`,
+  `scripts/check-branch-state.js`, `.claude/commands/startup.md`.
+- Your copy of 15.2 and 15.14 is newer than ours; keep yours on merge.

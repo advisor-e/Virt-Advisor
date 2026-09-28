@@ -33,7 +33,7 @@
             td.has-text-weight-semibold {{ s.country }}
             td
               | {{ s.document }}
-              p.has-text-grey.mt-1(v-if="s.unreadNote") {{ s.unreadNote }}
+              p.has-text-grey.mt-1(v-if="libraryUnreadNote(s)") {{ libraryUnreadNote(s) }}
               p.has-text-grey.mt-1(v-else-if="s.unresolved")
                 | {{ $tc('countryRateSchedules.library.unresolved', s.unresolved, { count: s.unresolved }) }}
             td {{ s.published }}
@@ -158,6 +158,7 @@
  * something that will never move. `stale` comes from the backend and this screen names it.
  */
 import moderationMessage from '~/mixins/moderationMessage'
+import { scheduleUnreadSentence } from '~/utils/scheduleUnreadWords'
 
 export default {
   name: 'CountryRateSchedules',
@@ -264,6 +265,15 @@ export default {
     },
 
     /**
+     * An approved schedule's unread pages, in the reader's language (item 10.2).
+     * @param {{pagesUnread: Array<object>, document: string}} s - a library row
+     * @returns {string} '' when every page was read
+     */
+    libraryUnreadNote (s) {
+      return scheduleUnreadSentence(s.pagesUnread, s.document, this.$t, this.$tc)
+    },
+
+    /**
      * What one read found, for the panel under it.
      * @param {object} r - a read row
      * @returns {object} the reading, or an empty object before it has been fetched
@@ -272,8 +282,8 @@ export default {
       const d = this.details[r.country] || {}
       return {
         unresolved: d.unresolved || [],
-        // Built here from the page ranges so it translates. The depreciation picker shows the
-        // backend's own English sentence (`scheduleUnreadNote`), so the two are worded separately.
+        // A read awaiting approval has its own shorter wording. An APPROVED schedule's gap is
+        // worded by `libraryUnreadNote`, the same sentence the depreciation picker shows.
         unreadNote: d.pagesUnread && d.pagesUnread.length
           ? this.$t('countryRateSchedules.reads.unreadNote', {
             pages: d.pagesUnread.map(p => (p.from === p.to ? p.from : p.from + '–' + p.to)).join(', ')

@@ -27,6 +27,7 @@ var branchSurvey = require('./branch-survey')
 var activeItems = require('./active-items')
 var itemCollisionsLib = require('./item-collisions')
 var refCeiling = require('./ref-ceiling')
+var reminders = require('./reminders')
 
 var REPORT_ONLY = process.argv.indexOf('--report') !== -1
 var PROTECTED_BRANCH = 'master'
@@ -223,6 +224,32 @@ function ceilingReport (currentBranch) {
   bar()
 }
 
+/**
+ * Report only — the dated questions for Mike that have fallen due (design/features/reminders.json).
+ *
+ * Mike, 2026-09-28, parking item 8.3: "an automated reminder to ask me again on December 15".
+ * Printed FIRST in the report, because the reminder is the thing he asked to be put to him
+ * before anything else is picked up. Same contract as the boxes below: it can never block a
+ * push, including by throwing.
+ */
+function reminderReport () {
+  var lines = null
+  try {
+    var root = path.resolve(__dirname, '..')
+    var data = JSON.parse(fs.readFileSync(path.join(root, 'design', 'features', 'reminders.json'), 'utf8'))
+    lines = reminders.dueLines(data, reminders.todayIso())
+  } catch (err) {
+    return
+  }
+  if (!lines) { return }
+
+  bar()
+  line('⏰ REMINDERS DUE — questions Mike asked to be put to him on these dates')
+  bar()
+  lines.forEach(line)
+  bar()
+}
+
 var branch = gitSafe(['rev-parse', '--abbrev-ref', 'HEAD'])
 
 if (!branch || branch === 'HEAD') {
@@ -297,6 +324,7 @@ if (behind > 0) {
   // Report mode reaches here (enforce mode has already exited inside `fail`). Being
   // behind master does not make the other machine's work less relevant — at session
   // start it is exactly when you want the whole picture, not half of it.
+  reminderReport()
   survey(branch)
   // AFTER the survey, which does the fetch this reads from, and BEFORE the claims box:
   // what was committed outranks what was declared, so it is read first.
@@ -308,6 +336,7 @@ if (behind > 0) {
 
 // Clean.
 line('✔ Branch `' + branch + '`: ' + ahead + ' ahead, 0 behind origin/' + PROTECTED_BRANCH + '.')
+reminderReport()
 survey(branch)
 itemCollisions(branch)
 activeReport(branch)

@@ -31,7 +31,7 @@ const { computeOwnerExpectationsModel } = require('../report/ownerExpectationsMo
 const { computeCostOfCapital } = require('../report/costOfCapitalModel')
 const { computeVolatility } = require('../report/volatilityModel')
 const { computeImportShipments } = require('../report/importShipmentModel')
-const { computeThreeWayForecast, computeThreeYearForecast, importedRevenuePreview } = require('../report/threeWayForecastModel')
+const { computeThreeWayForecast, computeThreeYearForecast, importedRevenuePreview, exchangeRateWhatIf } = require('../report/threeWayForecastModel')
 const { assembleForecastIntake, MAX_FILES: MAX_FORECAST_FILES } = require('../report/intake/threeWayForecastAssembler')
 const { computeTrend } = require('../report/trendModel')
 const { computeDashboardReports } = require('../report/dashboardReportsModel')
@@ -1545,9 +1545,11 @@ function threeWayForecast (req, res, next) {
  *   `yearCount` is how long a forecast the advisor asked for — 1, 2 or 3 (Mike's ruling,
  *   2026-09-07). Absent, junk or out of range means 3, which is what every caller written
  *   before that date receives. The model clamps it; nothing here trusts the body.
- * @returns {object} { success, data: { years, summary }, timestamp } — one linked
+ * @returns {object} { success, data: { years, summary, whatIf }, timestamp } — one linked
  *   twelve-month year per year asked for, plus `summary` with the totals FOR THOSE YEARS,
- *   the closing position and the lowest cash point across them with its date.
+ *   the closing position and the lowest cash point across them with its date. `whatIf` is
+ *   step 4's "what if the exchange rate moves" (item 13.5): shown beside the forecast,
+ *   never charged in it, and `applies: false` when nothing is in a foreign currency.
  *
  * Anonymous by design, like the other calculation routes; only file intake carries
  * `firmAuth`. The model's second parameter is deliberately NOT forwarded.
@@ -1556,6 +1558,7 @@ function threeYearForecast (req, res, next) {
   try {
     const inputs = (req.body && typeof req.body === 'object') ? req.body : {}
     const data = computeThreeYearForecast(inputs)
+    data.whatIf = exchangeRateWhatIf(inputs, data)
     res.send(200, { success: true, data, timestamp: new Date().toISOString() })
   } catch (err) {
     console.error('[report] three-year-forecast compute failed:', err)

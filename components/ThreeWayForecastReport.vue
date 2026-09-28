@@ -53,6 +53,25 @@
     //- Mike's ruling, 2026-09-26. On paper it is carried by each statement page instead.
     p.tw-note.tw-caution {{ $t('report.threeWayForecast.report.caution') }}
 
+    //- "What if the exchange rate moves" (item 13.5, design/mockups/three-way-forecast-
+    //- foreign-currency.html). SHOWN, NOT CHARGED: the forecast above uses the rates entered,
+    //- and these are the backend running it again with every rate on one side moved. Only
+    //- when something is in a foreign currency — a domestic forecast has nothing to move.
+    .tw-whatif(v-if="whatIf")
+      h2.tw-h2 {{ $t('report.threeWayForecast.report.whatIf.heading') }}
+      hero-strip(:columns="2" :stale="!!error")
+        hero-figure(
+          v-for="t in whatIf.tiles"
+          :key="t.key"
+          :label="t.label"
+          :value="signedMoney(t.value)"
+          :sub="t.sub")
+      p.tw-note(v-for="t in whatIf.tiles" :key="'low-' + t.key") {{ t.label }} — {{ t.lowest }}
+      p.tw-note {{ $t('report.threeWayForecast.report.whatIf.shownNotCharged') }}
+      .tw-why
+        b {{ $t('report.threeWayForecast.report.whatIf.whyHeading') }}
+        p {{ $t('report.threeWayForecast.report.whatIf.whyBody') }}
+
     //- 🔴 A FORECAST WITH NO SALES IN IT. Found 2026-09-07 by driving the real app after
     //- Mike reported that the sliders "did nothing": his by-month export ended part-way
     //- through a month, that month was stripped as incomplete, and short of twelve the
@@ -514,6 +533,47 @@ export default {
         grossSurplus: s.grossSurplus,
         grossMarginPct: revenue === 0 ? 0 : ((s.grossSurplus || 0) / revenue) * 100
       }
+    },
+
+    /**
+     * The "what if the exchange rate moves" tiles (item 13.5), from the backend's own second
+     * runs — nothing here recomputes a figure. A side with no foreign currency has no tile,
+     * and a forecast with neither has no block at all.
+     * @returns {{tiles: Array<object>}|null}
+     */
+    whatIf () {
+      const w = this.result && this.result.whatIf
+      if (!w || !w.applies) { return null }
+      let name = this.firmCurrency
+      try { name = new Intl.DisplayNames([this.$i18n.locale], { type: 'currency' }).of(this.firmCurrency) } catch (e) { /* the code stands */ }
+      const K = 'report.threeWayForecast.report.whatIf.'
+      const listOf = (rates) => {
+        const parts = rates.map(r => this.$t(K + 'rate', { moved: this.num(r.moved, 4), code: r.code }))
+        try { return new Intl.ListFormat(this.$i18n.locale, { type: 'conjunction' }).format(parts) } catch (e) { return parts.join(', ') }
+      }
+      const lowest = side => this.$t(K + 'lowest', {
+        with: this.money(side.lowestCash.with.value), without: this.money(side.lowestCash.without.value)
+      })
+      const tiles = []
+      if (w.purchases.rates.length) {
+        tiles.push({
+          key: 'buy',
+          label: this.$t(K + 'falls', { currency: name, pct: this.num(Math.abs(w.purchases.move) * 100) }),
+          value: w.purchases.extraPaid,
+          sub: this.$t(K + 'morePaid', { home: this.firmCurrency, rates: listOf(w.purchases.rates) }),
+          lowest: lowest(w.purchases)
+        })
+      }
+      if (w.sales.rates.length) {
+        tiles.push({
+          key: 'sell',
+          label: this.$t(K + 'rises', { currency: name, pct: this.num(Math.abs(w.sales.move) * 100) }),
+          value: -w.sales.lessReceived,
+          sub: this.$t(K + 'lessReceived', { home: this.firmCurrency, rates: listOf(w.sales.rates) }),
+          lowest: lowest(w.sales)
+        })
+      }
+      return tiles.length ? { tiles } : null
     },
 
     /** The closing-cash sub — the year it closes on, once there is more than one. */
@@ -1079,9 +1139,14 @@ export default {
         : [
             sub('pl-os-stock', 'importedStock', p.importedStock),
             sub('pl-os-frt', 'overseasFreight', p.overseasFreight),
-            sub('pl-os-duty', 'overseasDuty', p.overseasDuty),
-            sub('pl-os-fx', 'exchangeMovement', p.exchangeMovement)
-          ]
+            sub('pl-os-duty', 'overseasDuty', p.overseasDuty)
+          ].concat(
+            // Hidden while it is zero, and on its own line the moment it is not — Mike's
+            // ruling of 2026-09-26 (IAS 1.29-31). With one rate per currency it is zero.
+            p.exchangeMovement.some(v => Math.abs(v) >= 0.005)
+              ? [sub('pl-os-fx', 'exchangeMovement', p.exchangeMovement)]
+              : []
+          )
       return [
         { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue, strong: true },
         sub('open-stock', 'openingStock', p.openingInventory),
@@ -1405,6 +1470,12 @@ export default {
 }
 .tw-nosales b { display: block; font-size: 13px; }
 .tw-nosales span { font-size: 12.5px; color: var(--rs-muted); }
+/* 13.5 — the rate what-if and the panel explaining it. Kept in the print: disclosing the
+   effect of a significant assumption is FRS-42's ask of a forecast, not a screen extra. */
+.tw-whatif { display: flex; flex-direction: column; gap: 8px; }
+.tw-why { border: 1px solid var(--rs-line); border-radius: 10px; padding: 10px 14px; }
+.tw-why b { display: block; font-size: 13px; margin-bottom: 4px; }
+.tw-why p { font-size: 12.5px; color: var(--rs-muted); margin: 0; }
 
 /* Tabs over the three statements, with the Summary / Every line setting beside them. The
    row wraps rather than squashing: on a narrow screen the setting drops under the tabs. */

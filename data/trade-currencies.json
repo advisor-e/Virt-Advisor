@@ -1,0 +1,16 @@
+{
+  "_readme": [
+    "The currencies an advisor can add to a Three-Way Forecast's \"Currencies you trade in\"",
+    "table (item 13.5, drawing approved by Mike 2026-09-26). Codes only: each name is shown",
+    "in the reader's own language by the browser, so no English is held here.",
+    "",
+    "SEPARATE FROM data/currencies.json ON PURPOSE. That file is the currencies a FIRM may",
+    "report in, and adding one there would offer it as a firm's own currency. A supplier",
+    "invoicing in Chinese yuan says nothing about what the firm reports in."
+  ],
+  "codes": [
+    "USD", "EUR", "GBP", "CNY", "JPY", "AUD", "NZD", "CAD", "CHF", "HKD", "SGD", "INR",
+    "KRW", "TWD", "THB", "VND", "IDR", "MYR", "PHP", "AED", "ZAR", "SEK", "NOK", "DKK",
+    "MXN", "BRL"
+  ]
+}

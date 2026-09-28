@@ -256,7 +256,8 @@ export default {
     // The stat tiles for this tier — each counts a level within the manager's scope.
     tiles () {
       if (!this.c) { return [] }
-      const s = this.c.stats
+      // A reply without its figures draws empty tiles rather than failing the whole panel.
+      const s = this.c.stats || {}
       const def = {
         globalGroups: { key: 'globalGroups', label: this.$t('console.tiles.globalGroups'), value: s.globalGroups },
         groups: { key: 'groups', label: this.$t('console.tiles.groups'), value: s.orgGroups },
@@ -278,7 +279,7 @@ export default {
       const top = (this.c && this.c.tree && this.c.tree.children && this.c.tree.children[0] && this.c.tree.children[0].level) || 'firm'
       return this.$t('console.breakdownSub', { level: this.$t('console.levelPlural.' + top) })
     },
-    postureOpen () { return !!this.c && this.c.stats.crossOrgPosture === 'open' },
+    postureOpen () { return !!this.c && !!this.c.stats && this.c.stats.crossOrgPosture === 'open' },
     // The three-level cross-org control state (own level / inherited ceiling /
     // effective / cappedBy) for THIS manager's tier. Null if the payload predates it.
     crossOrg () { return (this.c && this.c.crossOrg) || null },
@@ -358,6 +359,8 @@ export default {
         })
         const data = await res.json()
         if (data.success) {
+          // A reply that came without figures still records a change the server saved.
+          if (!this.c.stats) { this.$set(this.c, 'stats', {}) }
           this.$set(this.c.stats, 'crossOrgPosture', data.crossOrgPosture)
           if (data.crossOrg) { this.$set(this.c, 'crossOrg', data.crossOrg) }
           this.$buefy.toast.open({ message: this.$t('firm.postureUpdated'), type: 'is-success' })

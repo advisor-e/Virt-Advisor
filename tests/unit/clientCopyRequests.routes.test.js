@@ -732,7 +732,9 @@ describe('the deadline routes', () => {
     const res = makeMockRes()
     await routes.getDeadline(makeReq(), res)
     expect(res._body.resolved).toMatchObject({ count: 1, unit: 'calendar-months', source: 'set-here' })
-    expect(res._body.phrase).toBe('1 calendar month')
+    // Facts only: the screen words them in the reader's language (item 10.2).
+    expect(res._body.phrase).toBeUndefined()
+    expect(res._body.unitWords).toBeUndefined()
   })
 
   it('refuses a bad figure rather than storing it', async () => {

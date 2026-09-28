@@ -3154,6 +3154,7 @@
         "transitPaidHeading": "What was paid",
         "transitDeposits": "Deposits paid, goods not yet landed",
         "transitBalanceOwing": "Still owed to the supplier on landing",
+        "transitDepositsStayHome": "The deposits stay in {home}: they are already paid.",
         "transitBalanceWhy": "A deposit implies a balance. If only the deposit comes across, the stock lands with part of its cost missing and the cash flow understates what leaves.",
         "transitLandsHeading": "When it lands",
         "transitAddsUp": "Adds to {amount} ✓",
@@ -3414,9 +3415,10 @@
         },
         "overseas": {
           "tick": "This business buys or sells overseas",
-          "tickHint": "Leave this unticked and nothing changes. Tick it to enter imported stock and overseas sales, with their own timing, GST and exchange allowances.",
+          "tickHint": "Leave this unticked and nothing changes. Tick it to enter imported stock and overseas sales, with their own timing, GST and currencies.",
           "importHeading": "Stock arriving from overseas",
-          "landingLabel": "The value of stock landing each month, before GST",
+          "landingLabel": "The value of stock landing each month, before GST, in",
+          "landingGridNote": "When the shipments below fill this grid, it shows their {home} figures and its currency choice is not used, because each shipment carries its own currency.",
           "landingNote": "The month the goods LAND — not the month you order and not the month you pay. It is when the container clears customs and the stock is yours to sell, and every other date on this card is worked out from it.",
           "earlyDepositHeading": "A deposit falls before this forecast starts.",
           "earlyDepositBody": "{amount} was due before your start date, for stock landing in {months}. It is already in your opening bank balance, so it is not counted again below. Check the lead time is what you meant.",
@@ -3428,8 +3430,13 @@
           "gettingHereHeading": "Getting it here",
           "freight": "Freight and shipping (% of stock cost)",
           "duty": "Duty and clearance (% of stock cost)",
-          "fxAllowance": "Exchange-rate allowance",
-          "gettingHereNote": "Freight, duty and GST at the border are all paid in the month it lands. The exchange allowance is added to what you actually pay the supplier, and shown as its own cost.",
+          "gettingHereNote": "Freight and duty are paid in the month it lands, and become part of what the stock cost — so they are charged as it sells.",
+          "whatIfHeading": "What if the exchange rate moves",
+          "fallsBy": "If the {currency} falls by",
+          "risesBy": "If the {currency} rises by",
+          "whatIfMoves": "Every rate in the table moves together: 1 {home} would buy {moves}.",
+          "moveEach": "{moved} {code} instead of {rate}",
+          "whatIfNotChanged": "The forecast is not changed: the effect is shown beside it, in step 4.",
           "sellDownHeading": "How it sells down",
           "newPrice": "New to the market (% on cost)",
           "standardPrice": "Standard price (% on cost)",
@@ -3445,14 +3452,12 @@
           "readySameMonth": "The same month",
           "readyMonthAfter": "The month after",
           "exportHeading": "Sales to overseas customers",
-          "exportLabel": "Overseas sales invoiced each month, before GST",
+          "exportLabel": "Overseas sales invoiced each month, before GST, in",
           "gettingThereHeading": "Getting it there",
           "deliveryLag": "Goods reach the customer",
           "monthsAfter": "The same month | 1 month after despatch | {count} months after despatch",
           "zeroRated": "These sales are zero-rated for GST",
           "zeroRatedHint": "Untick it and overseas sales are charged GST at the same rate as local ones.",
-          "salesFxAllowance": "Exchange-rate allowance on receipts",
-          "salesFxHint": "Its own percentage, not the one on the stock card. A business that buys and sells in the same currency can set this low or to zero.",
           "thenTheyPayHeading": "Then they pay",
           "onDelivery": "On delivery",
           "afterDeliveryOne": "Month after delivery",
@@ -3461,6 +3466,15 @@
           "afterDeliveryFour": "Four months after",
           "overseasMarkup": "Mark-up on overseas sales",
           "overseasMarkupHint": "Leave it empty to use the same mark-up as local sales."
+        },
+        "currencies": {
+          "heading": "Currencies you trade in",
+          "currency": "Currency",
+          "rate": "Exchange rate",
+          "buys": "1 {home} buys",
+          "note": "Shown while the overseas tick is on, or while the opening balance sheet has stock still on the water. Up to three. {home} is never listed: it is your own currency, from your firm settings, and anything entered in it is not converted.",
+          "convertLine": "{amount} {code} at {rate} = {homeAmount} {home}",
+          "monthLine": "{month}: {line}"
         },
         "shipments": {
           "heading": "Fill these from actual shipments",
@@ -3473,7 +3487,8 @@
           "termsNote": "Shipping adds {sea} days by sea, {air} by air and {express} by express. These are the numbers that turn an order date into a landing date, which is why they are entered once rather than typed again on every row.",
           "description": "Description",
           "descriptionPlaceholder": "Container 1",
-          "cost": "Cost",
+          "currency": "Currency",
+          "cost": "Invoice",
           "ordered": "Ordered",
           "deposit": "Deposit %",
           "speed": "Speed",
@@ -3641,6 +3656,18 @@
         "startAgain": "Start again",
         "privacy": "Nothing is saved. Nothing about this client leaves the app.",
         "caution": "This is a forecast. Actual results are likely to differ from it, and the differences may be material.",
+        "whatIf": {
+          "heading": "What if the exchange rate moves",
+          "falls": "If the {currency} falls {pct}%",
+          "rises": "If the {currency} rises {pct}%",
+          "morePaid": "more paid for stock from overseas: 1 {home} buys {rates}",
+          "lessReceived": "less received from overseas customers: 1 {home} buys {rates}",
+          "rate": "{moved} {code}",
+          "lowest": "Lowest bank balance {with} with the move, {without} without it.",
+          "shownNotCharged": "Shown, not charged. The forecast itself uses the rates entered.",
+          "whyHeading": "Why it works this way",
+          "whyBody": "Each payment to a supplier is converted at the rate on the day it is paid, and money paid before the goods arrive becomes part of what the stock cost. A rate move only matters for money not yet paid or collected, which is what the tiles above show."
+        },
         "overseasDeposits": "Deposits paid overseas",
         "overseasFreight": "Freight and shipping",
         "overseasDuty": "Duty and clearance",
@@ -6128,6 +6155,16 @@
       "placeholder": "Record it as it comes up…",
       "choose": "Choose…"
     },
+    "reportImport": {
+      "heading": "This client's Business Performance Report",
+      "savedLine": "{client} has a saved Business Performance Report for {period}.",
+      "bringIn": "Bring in the Business Performance Report",
+      "fresh": "Worked out fresh from the saved report each time. Nothing is copied into the session.",
+      "meta": "{period} · saved {date} by {name} · {n} pages",
+      "again": "Bring in again",
+      "againNote": "Picks up any change saved to the report since.",
+      "none": "Sorry - no completed Business Performance Report currently exists for this client. Please complete the report via the Model Library directly, and then you may try to import again."
+    },
     "capture": {
       "noTableMeasured": "There is no fill-in table for this concept yet. Talk it through and record it in your own notes.",
       "teachingNotDrawn": "The diagram from the slide is not on this screen yet — present it from the deck."
@@ -6906,6 +6943,11 @@
       "failed": "Could not be read",
       "approved": "In use",
       "rejected": "Rejected"
+    },
+    "unread": {
+      "sentence": "Some of this schedule could not be read: {pages} of {document} were not read, so a class printed there is missing from this list.",
+      "pages": "page {list} | pages {list}",
+      "lastPair": "{rest} and {last}"
     },
     "reads": {
       "loadedBy": "{filename} · loaded by {who}",
@@ -7918,6 +7960,98 @@
       "restored": "That release is back in force"
     }
   },
+  "clientCopyRequestDetail": {
+    "back": "← All requests",
+    "clientGone": "Client no longer on the register",
+    "askedLine": "{kind} · asked on {date}",
+    "due": "· due {date}",
+    "noAudio": {
+      "title": "There is no audio of any meeting, and there never will be.",
+      "body": "Every recording is destroyed the moment its transcript exists — that is what your client was told when consent was taken. What can be provided is text."
+    },
+    "waiting": {
+      "title": "You can release the meetings you recorded. The others are for the advisor who took them.",
+      "body": "Still waiting on {names}. The request is answered once every advisor has released their part."
+    },
+    "meetingsHeading": "MEETINGS HELD WITH THIS CLIENT",
+    "noMeetings": "No meetings with this client have been recorded. Nothing here has been deleted — none was ever made.",
+    "youRecorded": "You recorded this",
+    "recordedBy": "Recorded by {advisor}",
+    "keptUntil": "· kept until {date}",
+    "deletedClientAsked": "Deleted at your client’s request on {date}",
+    "deletedOn": "Deleted on {date}",
+    "tags": {
+      "transcript": "Transcript",
+      "summary": "Meeting Summary",
+      "summaryNever": "Meeting Summary was never approved",
+      "coachingNever": "My Coaching Notes — never provided"
+    },
+    "expiredNote": "This meeting was held when your firm kept transcripts for {months} months. The transcript and both reports were destroyed on that date and cannot be recovered.",
+    "releasedLine": "Released {date} by {who}.",
+    "breakGlassLine": "Released on the firm’s behalf — {declaredBy} recorded that {absent} could no longer act.",
+    "actions": {
+      "prepare": "Prepare the copy",
+      "recordCorrection": "Record a correction",
+      "delete": "Delete",
+      "waitingOn": "Waiting on {advisor}",
+      "cannotAct": "They cannot act"
+    },
+    "others": {
+      "title": "A transcript is a record of a conversation, and other people are in it.",
+      "body": "Your client may have named employees, family members or customers. Whether any of that should be removed before you hand it over is a judgement about your client’s situation and your obligations — we cannot make it for you, and nothing here removes anything automatically. Read what you are about to provide."
+    },
+    "ack": {
+      "identity": "I have confirmed I am dealing with {client}, or someone they have authorised to ask on their behalf.",
+      "thisClient": "this client",
+      "identityNote": "This application cannot check that. Your firm confirms it, the same way consent is confirmed before a recording starts.",
+      "contentRead": "I have read what is being provided and I am satisfied it is right to release it."
+    },
+    "fileNote": "Preparing the copy produces a file you download and send yourself, from your own email — exactly as a Meeting Summary is sent today. Nothing is emailed by this application.",
+    "markAnswered": "Mark this request answered",
+    "answered": "Answered {date} by {who}.",
+    "cancel": "Cancel",
+    "correction": {
+      "title": "Record a correction",
+      "whyTitle": "The transcript is not changed, and this is the reason.",
+      "whyBody": "It records what was said in a room, not a claim about the world. Your client’s statement is attached to the meeting and travels with it from now on — which is what the law asks for where a record cannot simply be rewritten.",
+      "quote": "The passage your client disputes",
+      "quoteAt": "Where in the meeting (optional)",
+      "statement": "Your client’s statement, in their words",
+      "attach": "Attach this statement",
+      "needWords": "A correction needs your client’s own words."
+    },
+    "delete": {
+      "title": "Delete this meeting",
+      "warnTitle": "This destroys the transcript and both reports for this meeting.",
+      "warnBody": "It is the same removal the retention clock performs, brought forward — so the Meeting Summary and your own coaching notes go too. They quote the transcript throughout, and removing only the transcript would leave your client’s words in two other files. {cannotUndo}",
+      "cannotUndo": "It cannot be undone.",
+      "stubTitle": "A record that the meeting happened will remain.",
+      "stubBody": "The date, the client, the advisor and the fact that it was deleted at your client’s request — nothing of what was said. Keeping that lets you prove the deletion happened rather than showing an empty folder and asking to be believed.",
+      "clientAsked": "{client} asked for this, and I have confirmed who I am dealing with.",
+      "myClient": "My client",
+      "understand": "I understand this cannot be undone and that no copy is kept anywhere.",
+      "confirm": "Delete permanently"
+    },
+    "glass": {
+      "title": "Release on the firm’s behalf",
+      "warnTitle": "Only {advisor} can release this meeting, and a request cannot wait forever.",
+      "recordingAdvisor": "the recording advisor",
+      "warnBody": "Your client’s right does not lapse because an advisor left the firm. If they can no longer act, you may release it on the firm’s behalf — and this application cannot check that for itself, so {declaring}.",
+      "declaring": "you are declaring it",
+      "cannotAct": "{advisor} can no longer act on this request.",
+      "thisAdvisor": "This advisor",
+      "contentRead": "I have read what is being released and I am satisfied it is right to provide it.",
+      "signInNote": "Sign-in is handled by Advisor-e, not by this application, so nothing here can confirm whether an advisor has left. This declaration stays on the record permanently, with your name and today’s date.",
+      "confirm": "Release on the firm’s behalf"
+    },
+    "anotherAdvisor": "another advisor",
+    "unrecordedDate": "an unrecorded date",
+    "undated": "An undated meeting",
+    "errors": {
+      "unreachable": "The server could not be reached. Check your connection and try again.",
+      "failed": "That could not be done."
+    }
+  },
   "firmClientCopyRequests": {
     "title": "Client Copy Request",
     "answerWithin": "Answer within {phrase}",
@@ -7945,6 +8079,21 @@
       "noteLabel": "Anything worth noting?",
       "logIt": "Log it",
       "cancel": "Cancel"
+    },
+    "units": {
+      "working-days": "{count} working day | {count} working days",
+      "calendar-days": "{count} day | {count} days",
+      "calendar-months": "{count} calendar month | {count} calendar months"
+    },
+    "unitNames": {
+      "working-days": "working days",
+      "calendar-days": "days",
+      "calendar-months": "calendar months"
+    },
+    "clock": {
+      "left": "{amount} left",
+      "overdue": "{amount} overdue",
+      "dueToday": "due today"
     },
     "kinds": {
       "copy": "A copy of what was recorded",

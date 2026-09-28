@@ -199,6 +199,42 @@ describe('the two-year trend read on step 3 (item 4.61b)', () => {
   })
 })
 
+describe('13.5 — the currencies and every currency choice reach the engine', () => {
+  function trading () {
+    const w = mountIntake()
+    w.vm.form.overseas.enabled = true
+    w.vm.form.currencies = [{ code: 'USD', rate: 0.6 }, { code: 'CNY', rate: null }, { code: '', rate: null }]
+    w.vm.form.overseas.importedPurchasesCurrency = 'USD'
+    w.vm.form.overseas.overseasSalesCurrency = 'USD'
+    w.vm.form.stockInTransit.balanceCurrency = 'USD'
+    return w
+  }
+
+  test('🔴 a row with no rate is not sent: it would convert nothing', () => {
+    const w = trading()
+    expect(w.vm.buildInputs().currencies).toEqual([{ code: 'USD', rate: 0.6 }])
+    w.destroy()
+  })
+
+  test('the grid, the sales and the balance owed each carry their currency', () => {
+    const w = trading()
+    const sent = w.vm.buildInputs()
+    expect(sent.overseas.importedPurchasesCurrency).toBe('USD')
+    expect(sent.overseas.overseasSalesCurrency).toBe('USD')
+    expect(sent.stockInTransit.balanceCurrency).toBe('USD')
+    w.destroy()
+  })
+
+  test('🔴 a deposit before the start is warned about in the firm’s own currency, with no allowance', () => {
+    // 60,000 USD at 0.6000 is 100,000; its 60% deposit is 60,000 — not 60,000 x 1.1 in USD.
+    const w = trading()
+    w.vm.form.overseas.importedPurchases = [60000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    w.vm.form.overseas.depositLeadMonths = 4
+    expect(w.vm.depositsBeforeStart[0].amount).toBeCloseTo(60000, 6)
+    w.destroy()
+  })
+})
+
 describe('the intake sends every figure the engine takes', () => {
   test('🔴 every top-level input the model defaults is sent explicitly', () => {
     const w = mountIntake()

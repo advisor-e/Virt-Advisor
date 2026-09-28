@@ -20,7 +20,7 @@
         .ccr-main
           .ccr-name {{ r.clientName || $t('firmClientCopyRequests.list.clientGone') }}
           .ccr-sub {{ $t('firmClientCopyRequests.list.loggedLine', { kind: kindWords[r.kind], who: r.loggedBy || $t('firmClientCopyRequests.list.someone'), channel: channelWords[r.channel] }) }}
-        .ccr-clock(:class="clockClass(r)") {{ r.clock ? r.clock.phrase : '' }}
+        .ccr-clock(:class="clockClass(r)") {{ clockWords(r.clock) }}
         b-button.ccr-open(size="is-small" type="is-primary" outlined @click="open(r)") {{ $t('firmClientCopyRequests.list.open') }}
 
       //- Closed requests are kept deliberately: being able to show that a request WAS
@@ -89,7 +89,7 @@
         min="1"
         size="is-small")
       b-select.ccr-unit(v-model="dial.unit" size="is-small")
-        option(v-for="u in units" :key="u" :value="u") {{ unitWords[u] ? unitWords[u].many : u }}
+        option(v-for="u in units" :key="u" :value="u") {{ unitName(u) }}
       b-button(size="is-small" type="is-primary" :loading="savingDial" @click="saveDial") {{ $t('firmClientCopyRequests.dial.save') }}
       b-button(size="is-small" v-if="ownDial" @click="resetDial") {{ $t('firmClientCopyRequests.dial.useLevelAbove') }}
 
@@ -123,11 +123,14 @@
  * ⚠ NOT EYEBALLABLE ON THE LAPTOP. It stands on the firm's client register, which is MySQL.
  */
 import ClientCopyRequestDetail from '../shared/ClientCopyRequestDetail.vue'
+import copyDeadlineWords from '../../mixins/copyDeadlineWords'
 
 export default {
   name: 'FirmClientCopyRequests',
 
   components: { ClientCopyRequestDetail },
+
+  mixins: [copyDeadlineWords],
 
   props: {
     /** The signed-in manager's token, passed down by the hub. */
@@ -145,9 +148,9 @@ export default {
       requests: [],
       clients: [],
       openRequest: null,
-      phrase: '',
+      /** The firm's response time as the backend resolved it — `{ count, unit, source }`. */
+      deadline: null,
       units: [],
-      unitWords: {},
       dial: { count: 20, unit: 'working-days' },
       ownDial: null,
       dialSource: '',
@@ -157,6 +160,11 @@ export default {
   },
 
   computed: {
+    /** @returns {string} the response time in words — "20 working days" */
+    phrase () {
+      return this.deadlineWords(this.deadline)
+    },
+
     /** @returns {object} how each channel value reads to a person, keyed by the stored value */
     channelWords () {
       return {
@@ -215,11 +223,10 @@ export default {
       try {
         const data = await this.api('GET', '/api/client-copy-requests')
         this.requests = data.requests || []
-        this.phrase = data.phrase || ''
+        this.deadline = data.deadline || null
 
         const dial = await this.api('GET', '/api/firm-manager/client-copy-deadline')
         this.units = dial.units || []
-        this.unitWords = dial.unitWords || {}
         this.ownDial = dial.own || null
         this.dialSource = dial.resolved ? dial.resolved.source : ''
         this.dial = {

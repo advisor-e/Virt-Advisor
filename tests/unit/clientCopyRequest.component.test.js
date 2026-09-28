@@ -23,6 +23,7 @@
 
 import { shallowMount, mount, createLocalVue } from '@vue/test-utils'
 import ClientCopyRequestDetail from '../../components/shared/ClientCopyRequestDetail.vue'
+const { englishMocks } = require('../helpers/mountComponent')
 
 const localVue = createLocalVue()
 
@@ -85,13 +86,15 @@ async function mountDetail (payload) {
       request: REQUEST,
       meetings: [],
       releases: [],
-      clock: { due: '2026-09-30T00:00:00.000Z', remaining: 4, unit: 'working-days', overdue: false, phrase: '4 working days left' }
+      clock: { due: '2026-09-30T00:00:00.000Z', remaining: 4, unit: 'working-days', overdue: false }
     }, payload))
   })
 
   const wrapper = mount(ClientCopyRequestDetail, {
     localVue,
     stubs: STUBS,
+    // The clock is worded on the screen now (item 10.2), so the screen needs its $t / $tc.
+    mocks: englishMocks(),
     propsData: { apiToken: 'tok', requestId: REQUEST.id }
   })
   await flush(wrapper)
@@ -169,15 +172,18 @@ describe('an expired meeting', () => {
     expect(wrapper.vm.anyReleasable).toBe(false)
   })
 
+  /** The two methods under test, with the screen's wording and its date locale. */
+  const methodsVm = () => Object.assign({ shortDate: ClientCopyRequestDetail.methods.shortDate, dateLocale: 'en-NZ' }, englishMocks())
+
   it('computes the retention end date from the meeting’s own months', () => {
-    const vm = { shortDate: ClientCopyRequestDetail.methods.shortDate }
+    const vm = methodsVm()
     const ends = ClientCopyRequestDetail.methods.retentionEnds.call(
       vm, { createdAt: '2026-08-27T00:00:00.000Z', retentionMonths: 18 })
     expect(ends).toMatch(/2028/)
   })
 
   it('says so plainly when a meeting has no recorded period, rather than guessing one', () => {
-    const vm = { shortDate: ClientCopyRequestDetail.methods.shortDate }
+    const vm = methodsVm()
     const ends = ClientCopyRequestDetail.methods.retentionEnds.call(
       vm, { createdAt: '2026-08-27T00:00:00.000Z', retentionMonths: null })
     expect(ends).toBe('an unrecorded date')
@@ -225,6 +231,7 @@ describe('the failure path', () => {
     const wrapper = shallowMount(ClientCopyRequestDetail, {
       localVue,
       stubs: STUBS,
+      mocks: englishMocks(),
       propsData: { apiToken: 'tok', requestId: REQUEST.id }
     })
     await flush(wrapper)
@@ -239,6 +246,7 @@ describe('the failure path', () => {
     const wrapper = shallowMount(ClientCopyRequestDetail, {
       localVue,
       stubs: STUBS,
+      mocks: englishMocks(),
       propsData: { apiToken: 'tok', requestId: REQUEST.id }
     })
     await flush(wrapper)

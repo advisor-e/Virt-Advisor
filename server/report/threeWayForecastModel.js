@@ -142,6 +142,15 @@ function pickSeries (v, def) {
 function zeroes () { return new Array(MONTHS).fill(0) }
 
 /**
+ * A currency code as the advisor chose it, or the fallback. Empty is the firm's own
+ * currency, so an absent choice never converts anything (13.5).
+ * @param {*} v @param {string} def @returns {string}
+ */
+function pickCode (v, def) {
+  return typeof v === 'string' ? v.trim().toUpperCase() : (def || '')
+}
+
+/**
  * A 12-element series of blanks, where a blank means "nothing was said about this month".
  *
  * ⚠ NOT `zeroes()`, AND THE DIFFERENCE IS THE WHOLE POINT. Zero is a figure an advisor can
@@ -192,8 +201,9 @@ function pickOverrideSeries (v) {
  * the prepayment and the liability start disagreeing.
  *
  * @param {object} O - the normalised `overseas` block.
- * @returns {Array<{value:number, landsInMonth:number, depositPct:number, depositMonth:number,
- *   balance:Array<{month:number, share:number}>}>}
+ * @returns {Array<{value:number, currency:string, landsInMonth:number, depositPct:number,
+ *   depositMonth:number, balance:Array<{month:number, share:number}>, interest:number}>}
+ *   `value` and `interest` are in `currency`, unconverted.
  */
 function landingsOf (O) {
   const out = []
@@ -208,7 +218,9 @@ function landingsOf (O) {
       // braces, because a caller is not obliged to have used it.
       if (!value || m < 0 || m >= MONTHS) { continue }
       out.push({
+        // In the shipment's own currency; `overseasSchedule` converts it (13.5).
         value,
+        currency: pickCode(L.currency, ''),
         landsInMonth: m,
         depositPct: Math.min(1, Math.max(0, pick(L.depositPct, O.depositPct))),
         depositMonth: Math.round(pick(L.depositMonth, m - O.depositLeadMonths)),
@@ -230,6 +242,7 @@ function landingsOf (O) {
     }
     out.push({
       value,
+      currency: O.importedPurchasesCurrency,
       landsInMonth: m,
       depositPct: O.depositPct,
       depositMonth: m - O.depositLeadMonths,
@@ -251,6 +264,7 @@ function landingsOf (O) {
  * client's numbers. See the file's own header. Item 4.64.
  */
 const SELL_DOWN = require('../../data/forecast-sell-down.json')
+const { resolveCurrencies, currencyOf, toHome, movedRates } = require('./fxConversion')
 
 /** A demand pattern's four 30-day bands. @param {string} name @returns {Array<number>|null} */
 function curveOfPattern (name) {
@@ -411,8 +425,14 @@ const DEFAULTS = {
     depositPct: 0.6,
     depositLeadMonths: 4, // reaches 9 — his workbook pays ~220 days before the first sale
     balancePayment: [0, 1, 0, 0, 0], // from the landing month: [same, +1, +2, +3, +4]
+    // Which currency the typed landing grid is in. Empty is the firm's own, and is never
+    // converted (13.5). Shipments carry their own and ignore this.
+    importedPurchasesCurrency: '',
     freightPct: 0.12,
     dutyPct: 0.05,
+    // 🔴 NOT A COST SINCE 13.5. It is how far the NZ dollar FALLS in the "what if the
+    // exchange rate moves" tile, and nothing in the forecast charges it — Mike's ruling of
+    // 2026-09-26. The name is kept so every saved forecast keeps its setting.
     fxAllowancePct: 0.1,
     // How it sells down. The ladder and the curve are Mike's, from data/forecast-sell-down.json.
     sellDown: Object.assign({}, SELL_DOWN.ladder, {
@@ -423,11 +443,14 @@ const DEFAULTS = {
     // What the advisor has typed over the worked-out revenue, month by month. All blank by
     // default, so the ladder governs every month unless somebody says otherwise (item 4.64).
     importedRevenueOverride: blanks(),
-    // Selling overseas.
+    // Selling overseas, invoiced in `overseasSalesCurrency` — empty is the firm's own.
     overseasSales: zeroes(),
+    overseasSalesCurrency: '',
     deliveryLagMonths: 2,
     overseasCollection: [0, 0.5, 0.5, 0, 0], // from the DELIVERY month, not the invoice
     zeroRated: true,
+    // 🔴 NOT A COST SINCE 13.5: how far the NZ dollar RISES in the sales-side "what if"
+    // tile. Its own setting, kept apart from the stock card's (ruled 2026-09-04).
     salesFxAllowancePct: 0.1,
     overseasMarkup: null // null follows the local mark-up, which is the ruled default
   },
@@ -449,12 +472,17 @@ const DEFAULTS = {
     // liability: goods not yet received are a commitment, not a debt, so this never
     // touches the opening balance sheet — it is cash leaving in the landing month.
     balanceOwing: 0,
+    // The currency the balance owing is in (Mike's ruling of 2026-09-26). The deposits
+    // stay in the firm's own currency: they are already paid.
+    balanceCurrency: '',
     // How much of the opening deposit lands in each of the twelve months. Amounts, not
     // percentages — which is why a shortfall WARNS rather than blocks (Mike, 2026-09-05):
     // a container landing after the forecast year ends is a true fact about an importer on
     // a nine-month lead, and whatever is not landed simply stays a deposit at the year end.
     landing: zeroes()
   },
+  // "Currencies you trade in" (13.5). Empty: nothing converts. See `resolveInputs`.
+  currencies: [],
   // [same month, +1, +2, +3, +4] — the workbook validates these to 100%.
   debtorCollection: [0.1, 0.55, 0.3, 0.05, 0],
   creditorPayment: [0, 0.9, 0.1, 0, 0],
@@ -601,6 +629,7 @@ function resolveInputs (raw, fallback) {
       depositPct: pick(o.depositPct, def.depositPct),
       depositLeadMonths: Math.round(pick(o.depositLeadMonths, def.depositLeadMonths)),
       balancePayment: bucket(o.balancePayment, def.balancePayment),
+      importedPurchasesCurrency: pickCode(o.importedPurchasesCurrency, def.importedPurchasesCurrency),
       freightPct: pick(o.freightPct, def.freightPct),
       dutyPct: pick(o.dutyPct, def.dutyPct),
       fxAllowancePct: pick(o.fxAllowancePct, def.fxAllowancePct),
@@ -620,6 +649,7 @@ function resolveInputs (raw, fallback) {
       // today's forecast back, not a forecast carrying one typed revenue figure.
       importedRevenueOverride: enabled ? pickOverrideSeries(o.importedRevenueOverride) : blanks(),
       overseasSales: seriesIf(o.overseasSales, def.overseasSales),
+      overseasSalesCurrency: pickCode(o.overseasSalesCurrency, def.overseasSalesCurrency),
       deliveryLagMonths: Math.round(pick(o.deliveryLagMonths, def.deliveryLagMonths)),
       overseasCollection: bucket(o.overseasCollection, def.overseasCollection),
       zeroRated: o.zeroRated !== false,
@@ -646,7 +676,11 @@ function resolveInputs (raw, fallback) {
       landing[m] = want > room ? (room > 0 ? room : 0) : want
       running += landing[m]
     }
-    return { balanceOwing: pick(t.balanceOwing, def.balanceOwing), landing }
+    return {
+      balanceOwing: pick(t.balanceOwing, def.balanceOwing),
+      balanceCurrency: pickCode(t.balanceCurrency, def.balanceCurrency),
+      landing
+    }
   })(i.stockInTransit, d.stockInTransit, openingBalanceSheet.stockInTransitDeposits)
 
   const gstFiling = resolveGstFiling(i, d)
@@ -655,6 +689,13 @@ function resolveInputs (raw, fallback) {
     startDateSerial: pick(i.startDateSerial, d.startDateSerial),
     overseas,
     stockInTransit,
+    // "Currencies you trade in" — up to three, each with what 1 NZD buys (item 13.5, Mike's
+    // rulings of 2026-09-26). OUTSIDE `overseas` for the same reason `stockInTransit` is: the
+    // opening balance owed on stock still at sea needs a currency whether or not the business
+    // trades overseas this year. EMPTY WHEN ABSENT, so nothing is converted and every forecast
+    // saved before 13.5 reads in the firm's own currency. A later year inherits the year
+    // before's table through `d`, like every other input.
+    currencies: resolveCurrencies(Array.isArray(i.currencies) ? i.currencies : d.currencies),
     sales: pickSeries(i.sales, d.sales),
     purchases: pickSeries(i.purchases, d.purchases),
     markup: pick(i.markup, d.markup),
@@ -1026,10 +1067,27 @@ function lagSchedule (gross, buckets) {
  *   two positions this already rolls forward, and two functions writing one balance-sheet
  *   line is how a prepayment and its release start disagreeing.
  * @param {number} openingDeposits the opening deposit balance those landings release from
+ * @param {{purchases: Array<object>, sales: Array<object>}} rates the "Currencies you trade
+ *   in" table each side converts at. The same table on both sides except inside the "what
+ *   if the exchange rate moves" runs, where one side's rates are moved and the other's are
+ *   not (`exchangeRateWhatIf`).
  * @returns {object} the monthly series, plus what fell outside the twelve months
+ *
+ * 🔴 13.5, BY THE ACCOUNTING STANDARDS (Mike's rulings of 2026-09-26; basis in
+ * `design/CALCULATION-ASSUMPTIONS.md` §1). Every amount arrives in its own currency and is
+ * converted at its currency's rate. Each supplier payment is made before the goods land, so
+ * the converted payments ARE the stock's cost and no exchange difference arises (NZ IFRIC
+ * 22.8-9). Freight and duty join that cost and are charged as the stock sells (NZ IAS
+ * 2.10-11). With one rate per currency, `fxOnPurchases` and `fxOnSales` are zero: they stay
+ * in the shape because the report's "Exchange-rate movement" line reads them.
  */
-function overseasSchedule (O, gst, T, openingDeposits) {
+function overseasSchedule (O, gst, T, openingDeposits, rates) {
+  const buying = (rates && rates.purchases) || []
+  const selling = (rates && rates.sales) || []
   const out = {
+    // The goods' own cost in the firm's currency, in the month each container lands —
+    // before freight and duty. What joins inventory is this plus `freight` and `duty`.
+    importedLanded: zeroes(),
     deposits: zeroes(),
     freight: zeroes(),
     duty: zeroes(),
@@ -1063,11 +1121,19 @@ function overseasSchedule (O, gst, T, openingDeposits) {
     transitBorderGst: zeroes(),
     // What the twelve months cannot show, reported rather than dropped.
     depositsBeforeStart: [],
-    revenueBeyondYear: 0
+    revenueBeyondYear: 0,
+    // Amounts in a currency the table no longer holds, left unconverted and named so the
+    // report can say so. Empty unless a currency was removed after something chose it.
+    unconverted: []
   }
-  const fx = 1 + O.fxAllowancePct
   const curve = O.sellDown.curve || []
   const landings = landingsOf(O)
+  /** Convert, and record an amount whose currency the table does not hold. */
+  const convert = function (amount, code, table, where) {
+    const cur = currencyOf(code, table)
+    if (!cur.known && amount) { out.unconverted.push({ where, currency: cur.code, amount }) }
+    return toHome(amount, cur)
+  }
   // Movements, gathered first and rolled forward once at the end.
   const prepaidIn = zeroes(); const prepaidReleased = zeroes()
   const owingAdded = zeroes(); const owingPaid = zeroes()
@@ -1075,12 +1141,14 @@ function overseasSchedule (O, gst, T, openingDeposits) {
   for (let i = 0; i < landings.length; i++) {
     const L = landings[i]
     const m = L.landsInMonth
-    const landed = L.value
+    const landed = convert(L.value, L.currency, buying, 'shipment')
+    const interest = convert(L.interest, L.currency, buying, 'shipment')
+    out.importedLanded[m] += landed
 
     // The deposit, paid AHEAD of the landing. A lead that reaches back past the start of
     // the forecast is not counted — that cash went before this year began. Mike's ruling
     // of 2026-09-04: warn, and leave it out.
-    const deposit = landed * L.depositPct * fx
+    const deposit = landed * L.depositPct
     if (L.depositMonth >= 0) {
       out.deposits[L.depositMonth] += deposit
       // It is a prepayment from the day it is paid until the day the container lands.
@@ -1098,10 +1166,9 @@ function overseasSchedule (O, gst, T, openingDeposits) {
     // whenever it is actually settled.
     //
     // ⚠ INTEREST COVER RIDES OUT WITH IT AS CASH, BUT IT IS NOT PART OF THE LIABILITY.
-    // His sheet pays balance + interest + currency as ONE payment, and the forecast already
-    // folds the exchange allowance into this line the same way — so the cash row carries it.
-    // What is owed for the STOCK is the balance alone, and the interest is expensed in the
-    // month it is settled, never accrued before it.
+    // His sheet pays balance + interest as ONE payment, so the cash row carries both. What
+    // is owed for the STOCK is the balance alone, and the interest is expensed in the month
+    // it is settled, never accrued before it.
     //
     // 🔴 THE FIRST ATTEMPT PUT THE INTEREST INTO `owingAdded` TOO, AND THE BALANCE-SHEET
     // TEST CAUGHT IT — every month out by exactly the interest. Recognising a liability at
@@ -1114,27 +1181,32 @@ function overseasSchedule (O, gst, T, openingDeposits) {
     // Interest cover is what a supplier charges for waiting to be paid, not a cost of
     // getting goods here, and putting it above the gross margin would understate the margin
     // on every container. `supplierInterest` is what the P&L charges.
-    const balance = landed * (1 - L.depositPct) * fx
+    const balance = landed * (1 - L.depositPct)
     owingAdded[m] += balance
     for (let j = 0; j < L.balance.length; j++) {
       const t = L.balance[j].month
       if (t >= 0 && t < MONTHS) {
         const share = L.balance[j].share
-        out.supplierBalance[t] += (balance + L.interest) * share
-        out.supplierInterest[t] += L.interest * share
+        out.supplierBalance[t] += (balance + interest) * share
+        out.supplierInterest[t] += interest * share
         owingPaid[t] += balance * share
       }
     }
 
-    // Getting it here, and clearing customs. All three fall in the landing month.
+    // Getting it here, and clearing customs. All three are PAID in the landing month.
     const freight = landed * O.freightPct
     const duty = landed * O.dutyPct
     out.freight[m] += freight
     out.duty[m] += duty
-    out.fxOnPurchases[m] += landed * O.fxAllowancePct
-    // GST at the border is charged on the LANDED value — the exchange-adjusted stock
-    // cost plus freight and duty — not on the supplier's invoice alone.
-    out.borderGst[m] += (landed * fx + freight + duty) * gst
+    // GST at the border is charged on the LANDED value — the stock's cost plus freight and
+    // duty — not on the supplier's invoice alone.
+    out.borderGst[m] += (landed + freight + duty) * gst
+
+    // 🔴 FREIGHT AND DUTY ARE PART OF WHAT THE STOCK COST (NZ IAS 2.10-11; Mike's ruling
+    // (2) of 2026-09-26), so they reach the P&L as each slice sells, and a slice unsold at
+    // the year end keeps its share in closing stock. Until 13.5 both were charged in full
+    // in the landing month.
+    const stockCost = landed + freight + duty
 
     // How it sells down: band by band, at whichever price that band's stock-turn day
     // count still commands. Mike's ruling of 2026-09-04 — revenue is worked out, never
@@ -1148,8 +1220,12 @@ function overseasSchedule (O, gst, T, openingDeposits) {
       // Real unit costs govern imported stock (his ruling): the cost of sales is what
       // this slice of stock actually cost, never revenue worked backwards through a
       // mark-up.
-      const cost = landed * curve[b]
-      const revenue = cost * (1 + markup)
+      const cost = stockCost * curve[b]
+      // ⚠ THE PRICE IS MARKED UP ON THE GOODS ALONE, as it always has been. Freight and duty
+      // moving into the cost changes WHEN they are charged, never what the stock sells for —
+      // which is how the approved drawing's year comes out higher by exactly the 10,764.30
+      // no longer charged.
+      const revenue = landed * curve[b] * (1 + markup)
       if (t < MONTHS) {
         out.importedRevenue[t] += revenue
         out.importedCostOfSales[t] += cost
@@ -1178,10 +1254,11 @@ function overseasSchedule (O, gst, T, openingDeposits) {
     if (typed !== null && typed !== undefined) { out.importedRevenue[m] = typed }
   }
 
-  // Selling overseas. The clock starts at DELIVERY, not at the invoice.
-  const banked = 1 - O.salesFxAllowancePct
+  // Selling overseas. The clock starts at DELIVERY, not at the invoice. Each sale converts
+  // at its currency's rate (Mike's ruling (3) of 2026-09-26); the whole receipt is banked,
+  // because with one rate there is no movement between invoice and collection.
   for (let m = 0; m < MONTHS; m++) {
-    const sale = O.overseasSales[m]
+    const sale = convert(O.overseasSales[m], O.overseasSalesCurrency, selling, 'overseasSales')
     if (!sale) { continue }
     out.overseasRevenue[m] += sale
     // Zero-rated by default; the tick charges GST at the domestic rate instead.
@@ -1192,12 +1269,7 @@ function overseasSchedule (O, gst, T, openingDeposits) {
     for (let lag = 0; lag < 5; lag++) {
       const t = delivered + lag
       if (t < MONTHS) {
-        const due = gross * O.overseasCollection[lag]
-        out.overseasCollections[t] += due * banked
-        // What the exchange rate takes on the way in. It joins the same direct-cost line
-        // as the purchase side, and it comes off the debtor too — otherwise the balance
-        // sheet would carry a receivable that is never going to arrive.
-        out.fxOnSales[t] += due * O.salesFxAllowancePct
+        out.overseasCollections[t] += gross * O.overseasCollection[lag]
       }
     }
   }
@@ -1206,6 +1278,10 @@ function overseasSchedule (O, gst, T, openingDeposits) {
   // The deposit is ALREADY an asset when the forecast opens — that cash left before this
   // year began and the forecast has never counted it. What a landing month does is stop it
   // being a deposit and make it stock.
+  //
+  // The balance still owed is in its own currency (Mike's ruling (5) of 2026-09-26) and is
+  // converted once here. The deposits are not: they are already paid, in the firm's own.
+  const transitOwing = convert(T.balanceOwing, T.balanceCurrency, buying, 'stockInTransit')
   for (let m = 0; m < MONTHS; m++) {
     const released = T.landing[m]
     if (!released) { continue }
@@ -1215,7 +1291,7 @@ function overseasSchedule (O, gst, T, openingDeposits) {
     // rest, and the cost of sales is too low when it sells. A profit overstated by figures
     // that all look perfectly reasonable on screen.
     const share = openingDeposits > 0 ? released / openingDeposits : 0
-    const balance = T.balanceOwing * share
+    const balance = transitOwing * share
     prepaidReleased[m] += released
     out.transitBalancePaid[m] += balance
     // What joins inventory: everything paid for the goods, deposit and balance together.
@@ -1234,9 +1310,8 @@ function overseasSchedule (O, gst, T, openingDeposits) {
     out.transitBorderGst[m] += (released + balance) * gst
   }
 
-  // Roll the two positions forward. The exchange allowance sits inside the prepayment
-  // while it is one, and is expensed in the landing month along with the rest of it —
-  // which is why the release is the full amount paid, not the stock cost alone.
+  // Roll the two positions forward. The release is the full deposit paid, which becomes
+  // part of the stock's cost in the landing month.
   //
   // 🔴 MONTH ZERO OPENS AT THE DEPOSITS ALREADY PAID, not at zero. That `0` was the whole
   // of the engine gap Fix 2 closes: the position only ever handled shipments the forecast
@@ -1279,6 +1354,8 @@ function openingRunOff (openingBalance, buckets) {
  *   prove the port cell for cell. It is a SEPARATE parameter from `rawInputs` so that
  *   no request body can ever reach it, and no route passes it — see
  *   `tests/unit/threeWayForecastModel.test.js`, which fails the build if one does.
+ *   `fxMove: { purchases, sales }` moves every rate on one side by that share, and exists
+ *   only for `exchangeRateWhatIf` (13.5) — the forecast a client is shown never carries it.
  * @returns {object} months, profitAndLoss, balanceSheet, cashFlow, schedules and the
  *   `corrections` register naming each departure from the workbook.
  */
@@ -1421,16 +1498,24 @@ function computeThreeWayForecast (rawInputs, options) {
   /* -- buying and selling overseas (4.64) ------------------------------------------ */
   // Every series below is zeroes unless the advisor entered overseas trade, so nothing
   // from here can move a figure in a domestic forecast.
-  const OS = overseasSchedule(I.overseas, gst, I.stockInTransit, opening.stockInTransitDeposits)
-  const importedPurchases = I.overseas.importedPurchases
+  // The rates each side converts at. They differ only inside a "what if the exchange rate
+  // moves" run (`exchangeRateWhatIf`), which moves one side and leaves the other alone.
+  const fxMove = (options && options.fxMove) || {}
+  const rates = {
+    purchases: fxMove.purchases ? movedRates(I.currencies, fxMove.purchases) : I.currencies,
+    sales: fxMove.sales ? movedRates(I.currencies, fxMove.sales) : I.currencies
+  }
+  const OS = overseasSchedule(I.overseas, gst, I.stockInTransit, opening.stockInTransitDeposits, rates)
+  // What lands, in the firm's own currency. Taken from the schedule rather than the typed
+  // grid, because a shipment carries its own currency and only the schedule converts it.
+  const importedPurchases = OS.importedLanded
   // Imported stock is sold at HOME — Mike's ruling of 2026-09-04 — so its revenue joins
   // the domestic stream for GST and for collection.
   const domesticRevenue = addSeries(I.sales, OS.importedRevenue)
   const overseasGross = addSeries(OS.overseasRevenue, OS.overseasGst)
-  // Freight, duty and both exchange movements are direct costs in the month they arise.
-  // Expensing them is also what keeps the three statements articulating: the cash goes
-  // out, and the same figure goes through the P&L.
-  const importedDirectCosts = addSeries(OS.freight, OS.duty, OS.fxOnPurchases, OS.fxOnSales)
+  // Only an exchange movement is still a direct cost in the month it arises — zero while
+  // each currency holds one rate. Freight and duty now go into the stock (13.5).
+  const importedDirectCosts = addSeries(OS.fxOnPurchases, OS.fxOnSales)
 
   /* -- the P&L lines that depend only on revenue ----------------------------------- */
   const revenue = addSeries(domesticRevenue, OS.overseasRevenue)
@@ -1459,7 +1544,10 @@ function computeThreeWayForecast (rawInputs, options) {
   // deposit; it does not make the stock ARRIVE. Inventory is driven by purchases, so the
   // landed value has to join them in the landing month or the goods vanish between the two
   // balance-sheet lines.
-  const allPurchases = addSeries(I.purchases, importedPurchases, OS.transitLanded)
+  //
+  // 13.5: freight and duty join the landed goods here, as part of what the stock cost, so
+  // closing stock carries the share of them that has not yet sold.
+  const allPurchases = addSeries(I.purchases, importedPurchases, OS.freight, OS.duty, OS.transitLanded)
   for (let m = 0; m < MONTHS; m++) {
     invOpening[m] = m === 0 ? ob.inventory : invClosing[m - 1]
     invSubtotal[m] = invOpening[m] + allPurchases[m]
@@ -1879,7 +1967,8 @@ function computeThreeWayForecast (rawInputs, options) {
       // up to costOfSales (item 13.2's finding, 2026-09-25): without them a forecast trading
       // overseas listed lines that fell short of the total beneath them. Mike's ruling of
       // 2026-09-04 made the exchange movement its own direct-cost line; all four are zero with
-      // the overseas tick off.
+      // the overseas tick off. Since 13.5 freight and duty are additions to stock in the
+      // landing month, like the goods — closing inventory takes back whatever has not sold.
       importedStock: addSeries(importedPurchases, OS.transitLanded),
       overseasFreight: OS.freight,
       overseasDuty: OS.duty,
@@ -1961,6 +2050,12 @@ function computeThreeWayForecast (rawInputs, options) {
        */
       overseas: {
         enabled: I.overseas.enabled,
+        // 13.5. `importedPurchases` is in the firm's own currency; `overseasSales` is as
+        // entered, in `overseasSalesCurrency`, and `overseasRevenue` is its conversion.
+        currencies: I.currencies.map(function (c) { return { code: c.code, rate: c.rate } }),
+        importedPurchasesCurrency: I.overseas.importedPurchasesCurrency,
+        overseasSalesCurrency: I.overseas.overseasSalesCurrency,
+        unconverted: OS.unconverted,
         importedPurchases: importedPurchases.slice(),
         deposits: OS.deposits,
         freight: OS.freight,
@@ -2008,7 +2103,9 @@ function computeThreeWayForecast (rawInputs, options) {
        */
       stockInTransit: {
         openingDeposits: opening.stockInTransitDeposits,
+        // As entered, in `balanceCurrency`. `balancePaid` is its conversion.
         balanceOwing: I.stockInTransit.balanceOwing,
+        balanceCurrency: I.stockInTransit.balanceCurrency,
         landing: I.stockInTransit.landing.slice(),
         landedValue: OS.transitLanded,
         balancePaid: OS.transitBalancePaid,
@@ -2225,8 +2322,27 @@ function computeThreeYearForecast (rawInputs, options) {
     // rest alone. Inheriting the previous year instead makes an omitted year mean
     // "the same again", which is both the safe reading and the useful one.
     const resolved = resolveInputs(own, previousResolved)
+    // 🔴 STOCK ALREADY AT SEA IS AN OPENING FACT, NOT TRADING THAT REPEATS (found
+    // 2026-09-28, fixed on Mike's yes). "The same again" is right for sales and overheads;
+    // inherited here it re-landed last year's container in the same month and paid its whole
+    // balance a second time. A later year that says nothing lands nothing, and owes only the
+    // balance on the deposits still at sea — the same pro-rata rule as the landing itself
+    // (Mike, 2026-09-05). What is still at sea stays a deposit, as it does at any year end.
+    if (y > 0 && !(own.stockInTransit && typeof own.stockInTransit === 'object')) {
+      const before = years[y - 1].schedules.stockInTransit
+      const stillAtSea = before.openingDeposits > 0 ? before.notLanded / before.openingDeposits : 0
+      resolved.stockInTransit = {
+        balanceOwing: before.balanceOwing * stillAtSea,
+        balanceCurrency: before.balanceCurrency,
+        landing: zeroes()
+      }
+    }
     const inputs = y === 0 ? resolved : carryForward(years[y - 1], resolved, asWritten ? yearOneShareholders : null)
-    years.push(computeThreeWayForecast(inputs, { sourceFidelity: asWritten, yearIndex: y }))
+    years.push(computeThreeWayForecast(inputs, {
+      sourceFidelity: asWritten,
+      yearIndex: y,
+      fxMove: options && options.fxMove
+    }))
     previousResolved = resolved
   }
 
@@ -2292,8 +2408,9 @@ function importedRevenuePreview (rawInputs) {
   const worked = overseasSchedule(
     Object.assign({}, I.overseas, { importedRevenueOverride: blanks() }),
     I.gstRate,
-    { balanceOwing: 0, landing: zeroes() },
-    0
+    { balanceOwing: 0, balanceCurrency: '', landing: zeroes() },
+    0,
+    { purchases: I.currencies, sales: I.currencies }
   )
   return {
     importedRevenue: worked.importedRevenue.slice(),
@@ -2301,10 +2418,94 @@ function importedRevenuePreview (rawInputs) {
   }
 }
 
+/** Every payment to or for an overseas supplier, excluding GST, across a forecast's years. */
+function paidOverseas (forecast) {
+  return forecast.years.reduce(function (total, yr) {
+    const p = yr.cashFlow.payments
+    const rows = [p.overseasDeposits, p.overseasSupplierBalance, p.overseasFreight,
+      p.overseasDuty, p.stockInTransitBalance]
+    return total + rows.reduce(function (a, row) {
+      return a + row.reduce(function (x, v) { return x + v }, 0)
+    }, 0)
+  }, 0)
+}
+
+/** Everything collected from overseas customers across a forecast's years. */
+function receivedOverseas (forecast) {
+  return forecast.years.reduce(function (total, yr) {
+    return total + yr.schedules.overseas.overseasCollections.reduce(function (x, v) { return x + v }, 0)
+  }, 0)
+}
+
+/**
+ * "What if the exchange rate moves" — the two tiles on step 4 (item 13.5, drawing approved
+ * by Mike 2026-09-26).
+ *
+ * 🔴 SHOWN, NOT CHARGED. The forecast itself uses the rates entered; this runs it again with
+ * every rate on one side moved together and reports the difference. That is what replaced
+ * the two 10% allowances, which charged an assumed loss as though it had happened.
+ *
+ * Each side moves on its own: a fall in the NZ dollar makes stock dearer, a rise makes
+ * overseas receipts worth less, and the two settings are separate (ruled 2026-09-04). Moving
+ * both in one run would mix the two effects in the lowest bank balance.
+ *
+ * Only amounts in a foreign currency move — a forecast in the firm's own currency returns
+ * zero on both sides, and `applies` says there was nothing to move.
+ *
+ * @param {object} rawInputs the same shape `computeThreeYearForecast` takes
+ * @param {object} [computed] that forecast, when the caller has already built it — the
+ *   route has, and building it a second time would only cost a third run.
+ * @returns {{applies: boolean,
+ *   purchases: {move: number, extraPaid: number, lowestCash: {without: object, with: object}},
+ *   sales: {move: number, lessReceived: number, lowestCash: {without: object, with: object}}}}
+ *   `move` is the share each rate moved by: negative is the NZ dollar falling.
+ */
+function exchangeRateWhatIf (rawInputs, computed) {
+  const supplied = (rawInputs && typeof rawInputs === 'object') ? rawInputs : {}
+  const first = Array.isArray(supplied.years) ? (supplied.years[0] || {}) : supplied
+  const I = resolveInputs(first)
+  const buyMove = -I.overseas.fxAllowancePct
+  const sellMove = I.overseas.salesFxAllowancePct
+  const applies = I.currencies.length > 0
+
+  const base = computed || computeThreeYearForecast(rawInputs)
+  // Nothing in a foreign currency, nothing to move — and no reason to run it twice more.
+  const dearer = applies ? computeThreeYearForecast(rawInputs, { fxMove: { purchases: buyMove } }) : base
+  const weaker = applies ? computeThreeYearForecast(rawInputs, { fxMove: { sales: sellMove } }) : base
+
+  // The currencies each side actually uses, as the drawing's tiles name them — the orders'
+  // currencies on one, the customers' on the other — each with its rate before and after.
+  const buyingIn = landingsOf(I.overseas).map(function (L) { return L.currency })
+  if (I.stockInTransit.balanceOwing) { buyingIn.push(I.stockInTransit.balanceCurrency) }
+  const sellingIn = I.overseas.overseasSales.some(function (v) { return v }) ? [I.overseas.overseasSalesCurrency] : []
+  const ratesFor = function (codes, move) {
+    return I.currencies
+      .filter(function (c) { return codes.includes(c.code) })
+      .map(function (c) { return { code: c.code, rate: c.rate, moved: c.rate * (1 + move) } })
+  }
+
+  return {
+    applies,
+    purchases: {
+      move: buyMove,
+      rates: ratesFor(buyingIn, buyMove),
+      extraPaid: paidOverseas(dearer) - paidOverseas(base),
+      lowestCash: { without: base.summary.lowestCash, with: dearer.summary.lowestCash }
+    },
+    sales: {
+      move: sellMove,
+      rates: ratesFor(sellingIn, sellMove),
+      lessReceived: receivedOverseas(base) - receivedOverseas(weaker),
+      lowestCash: { without: base.summary.lowestCash, with: weaker.summary.lowestCash }
+    }
+  }
+}
+
 module.exports = {
   computeThreeWayForecast,
   computeThreeYearForecast,
   importedRevenuePreview,
+  exchangeRateWhatIf,
   carryForward,
   DEFAULTS,
   ASSET_KEYS,

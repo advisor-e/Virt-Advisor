@@ -24,11 +24,14 @@ export default {
   name: 'HeroStrip',
 
   props: {
-    /** How many cells sit side by side on a wide screen. */
+    /**
+     * How many cells sit side by side on a wide screen. Two is the Three-Way Forecast's
+     * exchange-rate what-if (item 13.5), one tile per side of the trade.
+     */
     columns: {
       type: Number,
       default: 4,
-      validator: n => n === 3 || n === 4
+      validator: n => n === 2 || n === 3 || n === 4
     },
     /**
      * True while the figures on screen are left over from a previous, superseded
@@ -50,9 +53,11 @@ export default {
   gap: 0;
   box-shadow: 0 12px 32px -12px #002b6466;
 }
+.herostrip.cols-2 { grid-template-columns: repeat(2, 1fr); }
 .herostrip.cols-3 { grid-template-columns: repeat(3, 1fr); }
 .herostrip.cols-4 { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 700px) {
+  .herostrip.cols-2,
   .herostrip.cols-3,
   .herostrip.cols-4 { grid-template-columns: 1fr 1fr; gap: 14px 0; }
 }
