@@ -375,7 +375,7 @@ function buildDraftMessages (input) {
     '',
     'Rules:',
     '- Use only what the owner said. Never add a date, number, name, place or promise they did not say.',
-    '- Rewrite the owner\'s meaning in this style. Keep at most one short phrase in their own words, and only if it is distinctive and suits this style; list it in "keptPhrases".',
+    '- Keep the owner\'s own strongest phrases in their words where they are vivid; do not smooth them into generic language. List them in "keptPhrases".',
     '- Write in New Zealand English spelling (recognise, organisation, colour).',
     '- At most ' + s.maxWords + ' words.',
     input.modelElements.length

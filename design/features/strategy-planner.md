@@ -1711,7 +1711,9 @@ file is the mentor's content.
 from a real recorded segment, the five statements each written in two styles. Mike judges them,
 and fewer than seven usable with light edits means it is not earning its place. **The Wordsmith
 Lab** (`scripts/wordsmith-lab.js`, his yes 2026-09-29) re-runs that bench through the saved
-instructions and scores each step, so he judges only drafts that pass the machine checks. After
+instructions and runs the code's own checks on each step. Its style measures are ours and unproven:
+what makes a good draft, and who judges it, is Mike's open decision (2026-09-29) — he declined
+hand-marked must-keep phrases as rules drawn from one sample. After
 it is built: the time from pressing Wordsmith to approved text, and how much of each draft
 survives unedited.
 
