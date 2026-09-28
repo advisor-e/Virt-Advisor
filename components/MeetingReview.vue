@@ -73,7 +73,9 @@
 
       template(v-if="!editing")
         h5.mrev-h5 What we covered
-        p.is-size-6 {{ displayedCovered }}
+        //- Line breaks kept: a strategy session's summary is one approved block per concept
+        //- (item 8.4, Decision J). A single-paragraph summary reads exactly as before.
+        p.is-size-6.mrev-covered {{ displayedCovered }}
 
         template(v-if="summary.actions && summary.actions.length")
           h5.mrev-h5 What we agreed
@@ -703,6 +705,7 @@ export default {
 .mrev-hd { display: flex; align-items: baseline; gap: 0.6rem; }
 .mrev-h4 { font-weight: 700; margin: 1.4rem 0 0.6rem; }
 .mrev-h5 { font-weight: 700; margin: 1rem 0 0.3rem; }
+.mrev-covered { white-space: pre-line; }
 .mrev-list { list-style: disc; padding-left: 1.2rem; }
 .mrev-list li { padding: 0.15rem 0; }
 

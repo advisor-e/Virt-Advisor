@@ -225,7 +225,50 @@ function encodeScope (scope) {
   if (suggestion) { encoded.suggestion = suggestion }
   const edits = normaliseEdits(scope.edits)
   if (Object.keys(edits).length) { encoded.edits = edits }
+  const timing = normaliseTiming(scope.timing)
+  if (timing) { encoded.timing = timing }
   return JSON.stringify(encoded)
+}
+
+/** A clock time as the screen's time box sends it: `HH:MM`, 24-hour. */
+const CLOCK = /^([01]\d|2[0-3]):[0-5]\d$/
+
+/** Ten hours is longer than any one concept or break in a working day. */
+const MAX_MINUTES = 600
+
+/**
+ * The session's run sheet, bounded. Item 8.4, slice 3 — screen 7 of
+ * `design/mockups/strategy-session-recording.html`, approved for build 2026-09-28.
+ *
+ * Mike's rulings: a time allowance on each CONCEPT, a step showing their subtotal, every clock
+ * time worked out from one start time; a break between any two concepts; a "Day 2 starts" row
+ * with that day's own start. Break and day rows are keys in a step's `items` like any card
+ * (`break-…`, `day-…`); this holds only their numbers.
+ *
+ * ⚠ AN ENTRY THAT FAILS ITS SHAPE IS DROPPED, NEVER REFUSED HERE, for `normaliseEdits`' reason:
+ * a stored row must always decode, and a wrong minute count cannot be placed on a clock anyway.
+ *
+ * @param {*} raw - `{ startsAt: 'HH:MM'|null, minutes: {key: n}, days: {key: 'HH:MM'} }`
+ * @returns {{startsAt: (string|null), minutes: Object<string, number>, days: Object<string, string>}|null}
+ */
+function normaliseTiming (raw) {
+  if (isNil(raw) || typeof raw !== 'object' || Array.isArray(raw)) { return null }
+  const minutes = {}
+  const rawMinutes = (raw.minutes && typeof raw.minutes === 'object' && !Array.isArray(raw.minutes)) ? raw.minutes : {}
+  Object.keys(rawMinutes).slice(0, MAX_SCOPE_ENTRIES * 2).forEach((key) => {
+    const n = rawMinutes[key]
+    if (key.length <= MAX_KEY && Number.isInteger(n) && n >= 0 && n <= MAX_MINUTES) { minutes[key] = n }
+  })
+  const days = {}
+  const rawDays = (raw.days && typeof raw.days === 'object' && !Array.isArray(raw.days)) ? raw.days : {}
+  Object.keys(rawDays).slice(0, MAX_STEPS).forEach((key) => {
+    if (key.length <= MAX_KEY && CLOCK.test(String(rawDays[key]))) { days[key] = rawDays[key] }
+  })
+  return {
+    startsAt: CLOCK.test(String(raw.startsAt)) ? raw.startsAt : null,
+    minutes,
+    days
+  }
 }
 
 /**
@@ -294,7 +337,7 @@ function decodeScope (raw) {
   // saved before the step builder existed has no `steps` key at all; it comes back as an
   // empty list and the page decides what to do with that, rather than this module
   // inventing a step nobody named.
-  const empty = { domains: [], frameworks: [], steps: [], suggestion: null, edits: {} }
+  const empty = { domains: [], frameworks: [], steps: [], suggestion: null, edits: {}, timing: null }
   if (isNil(raw)) { return empty }
   let parsed = raw
   if (typeof raw === 'string') {
@@ -309,7 +352,9 @@ function decodeScope (raw) {
     // comes back as null — distinct from a suggestion that returned nothing.
     suggestion: normaliseSuggestion(parsed.suggestion),
     // A session nobody has edited has no `edits` key, and comes back as an empty map.
-    edits: normaliseEdits(parsed.edits)
+    edits: normaliseEdits(parsed.edits),
+    // A session nobody has timed comes back null — distinct from one timed at zero minutes.
+    timing: normaliseTiming(parsed.timing)
   }
 }
 
@@ -542,12 +587,15 @@ async function setScope (sessionId, firmId, scope) {
 
   let toEncode = scope
   const isObject = scope && typeof scope === 'object' && !Array.isArray(scope)
-  if (isObject && (isNil(scope.suggestion) || isNil(scope.edits))) {
+  // 🔴 AND THE RUN SHEET (item 8.4, slice 3), for the same reason again: the screens that
+  // save the ticks and the page edits do not carry the timing, and must not erase it.
+  if (isObject && (isNil(scope.suggestion) || isNil(scope.edits) || isNil(scope.timing))) {
     const existing = await getSession(id, firm)
     const stored = existing && existing.scope ? existing.scope : {}
     const keep = {}
     if (isNil(scope.suggestion) && stored.suggestion) { keep.suggestion = stored.suggestion }
     if (isNil(scope.edits) && stored.edits) { keep.edits = stored.edits }
+    if (isNil(scope.timing) && stored.timing) { keep.timing = stored.timing }
     toEncode = Object.assign({}, scope, keep)
   }
 

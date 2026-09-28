@@ -250,3 +250,105 @@ describe('the step builder is the advisor naming his own session', () => {
     expect(w.emitted()['steps-changed']).toBeUndefined()
   })
 })
+
+describe('🔴 the run sheet — item 8.4, slice 3 (screen 7, approved 2026-09-28)', () => {
+  const TIMING = () => ({ startsAt: '09:00', minutes: { porters: 30, 'market-diffusion': 40 }, days: {} })
+
+  function mountTimed (timing, withSteps) {
+    return mountWithBuefy(StrategyStepBuilder, {
+      propsData: { cards: CARDS, steps: withSteps || steps(), sessionLabel: 'Example client', timing: timing || TIMING() }
+    })
+  }
+
+  function lastTiming (w) {
+    const events = w.emitted()['timing-changed']
+    return events[events.length - 1][0]
+  }
+
+  test('without a run sheet — the manager\'s standard session — no timing is offered at all', () => {
+    const w = mount()
+    expect(w.find('.ssb-mins').exists()).toBe(false)
+    expect(w.find('.ssb-addbreak').exists()).toBe(false)
+    expect(w.find('.ssb-total').exists()).toBe(false)
+  })
+
+  test('a step shows the subtotal of its concepts and its span', () => {
+    const w = mountTimed()
+    expect(w.vm.stepTotal(0)).toContain('9:00–10:10')
+    expect(w.vm.sheet.steps[0].minutes).toBe(70)
+  })
+
+  test('a changed minute count emits the whole run sheet, never mutating its prop', () => {
+    const timing = TIMING()
+    const w = mountTimed(timing)
+    w.vm.setMinutes('porters', '45')
+    expect(lastTiming(w).minutes).toEqual({ porters: 45, 'market-diffusion': 40 })
+    expect(timing.minutes.porters).toBe(30)
+  })
+
+  test.each([['', 'cleared'], ['-3', 'negative'], ['601', 'over ten hours'], ['abc', 'not a number']])(
+    'a minute box that is %p (%s) removes the figure rather than storing it', (value) => {
+      const w = mountTimed()
+      w.vm.setMinutes('porters', value)
+      expect(lastTiming(w).minutes).toEqual({ 'market-diffusion': 40 })
+    }
+  )
+
+  test('the start time and a day\'s start are emitted; clearing one stores none', () => {
+    const w = mountTimed()
+    w.vm.setStart('08:15')
+    expect(lastTiming(w).startsAt).toBe('08:15')
+    w.vm.setStart('')
+    expect(lastTiming(w).startsAt).toBeNull()
+    w.vm.setDay('day-aaaaaa', '09:30')
+    expect(lastTiming(w).days).toEqual({ 'day-aaaaaa': '09:30' })
+    w.vm.setDay('day-aaaaaa', '')
+    expect(lastTiming(w).days).toEqual({})
+  })
+
+  test('"+ Add a break here" puts the break right after that row, even mid-step', () => {
+    const w = mountTimed()
+    w.vm.addRow('s1', 0, 'break')
+    const s1 = emitted(w)[0]
+    expect(s1.items[0]).toBe('porters')
+    expect(s1.items[1]).toMatch(/^break-[0-9a-f]{6}$/)
+    expect(s1.items[2]).toBe('market-diffusion')
+  })
+
+  test('a break shows as its own row, runs the clock, and is not counted as a concept', () => {
+    const withBreak = steps()
+    withBreak[0].items = ['porters', 'break-abcdef', 'market-diffusion']
+    const w = mountTimed({ startsAt: '09:00', minutes: { porters: 30, 'break-abcdef': 15, 'market-diffusion': 40 }, days: {} }, withBreak)
+    expect(w.vm.rowsIn(withBreak[0]).map(r => r.kind)).toEqual(['card', 'break', 'card'])
+    expect(w.vm.spanFor('market-diffusion')).toBe('9:45–10:25')
+    expect(w.vm.sheet.steps[0].minutes).toBe(70)
+    expect(w.vm.placedCount).toBe(3)
+  })
+
+  test('a day row numbers its day and restarts the clock at its own time', () => {
+    const withDay = steps()
+    withDay[1].items = ['day-abcdef', 'product-life-cycle']
+    const w = mountTimed({ startsAt: '09:00', minutes: { 'product-life-cycle': 20 }, days: { 'day-abcdef': '08:30' } }, withDay)
+    expect(w.vm.dayOf('day-abcdef')).toBe(2)
+    expect(w.vm.spanFor('product-life-cycle')).toBe('8:30–8:50')
+  })
+
+  test('the footer appears once a start time is set, and not before', () => {
+    const w = mountTimed()
+    expect(w.find('.ssb-total').exists()).toBe(true)
+    const none = mountTimed({ startsAt: null, minutes: {}, days: {} })
+    expect(none.find('.ssb-total').exists()).toBe(false)
+    expect(none.vm.spanFor('porters')).toBe('')
+  })
+})
+
+test('"+ Start the next day here" puts a day row right after that row (Mike\'s wording, 2026-09-28)', () => {
+  const w = mountWithBuefy(StrategyStepBuilder, {
+    propsData: { cards: CARDS, steps: steps(), timing: { startsAt: '09:00', minutes: {}, days: {} } }
+  })
+  w.vm.addRow('s1', 1, 'day')
+  const s1 = emitted(w)[0]
+  expect(s1.items[2]).toMatch(/^day-[0-9a-f]{6}$/)
+  w.vm.addRow('no-such-step', 0, 'day')
+  expect(w.emitted()['steps-changed']).toHaveLength(1)
+})

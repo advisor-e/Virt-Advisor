@@ -188,7 +188,9 @@
         :cards="placeableCards"
         :steps="planStepDefs"
         :session-label="sessionLabel"
+        :timing="planTiming"
         @steps-changed="onStepsChanged"
+        @timing-changed="onTimingChanged"
       )
 
     template(v-if="!loading && step === 'run'")
@@ -203,64 +205,104 @@
       //- headings a client would recognise from the agenda they were handed.
       p.sp-cap(v-if="!runSteps.length") {{ $t('strategyPlanner.steps.nothingToRun') }}
 
-      section.sp-runstep(v-for="(runStep, i) in runSteps" :key="'rs' + i")
-        h4.sp-h {{ runStep.name }}
+      //- Item 8.4, slice 4: recording the session one concept at a time (screens 1-3, 5, 6).
+      strategy-session-recorder(
+        v-if="sessionId && runSteps.length"
+        ref="recorder"
+        :api-token="apiToken"
+        :client-id="clientId || ''"
+        @state-changed="onRecorderState"
+      )
 
-        template(v-for="card in runStep.cards")
-          //- 🔴 A CONCEPT WITH AN APPROVED CARD USES IT. Porter's was designed on
-          //- 2026-09-16 (strategy-planner.html screen 2c) as five force boxes, each
-          //- carrying the deck's own question, with Existing Rivalry as the centre — and
-          //- it was built. Replacing it with a grid derived from the Word template lost
-          //- all five prompts and the fifth force. Mike, 2026-09-17: "i saw much better
-          //- graphics in a design 6 or 8 sessions ago - what happened??"
-          strategy-capture-card(
-            v-if="card.kind === 'framework'"
-            :key="card.key"
-            :framework="card.framework"
-            :entries="entriesFor(card.framework.conceptId || card.framework.id)"
-            :eyebrow="card.eyebrow"
-            :teachable="isTeachable(card.framework)"
-            :firm-name="firmBrand.name || ''"
-            :firm-colour="firmBrand.colour || undefined"
-            :firm-logo="firmBrand.logo || ''"
-            :text-edits="textEdits"
-            editable
-            class="sp-card"
-            @text-edited="onTextEdited"
-            @field-opened="onFrameworkFieldOpened(card.framework, $event)"
-            @field-changed="onFrameworkFieldChanged(card.framework, $event)"
-            @field-typing="onFrameworkFieldTyping(card.framework, $event)"
-          )
+      .sp-runwrap
+        .sp-runmain
+          section.sp-runstep(v-for="(runStep, i) in runSteps" :key="'rs' + i")
+            h4.sp-h {{ runStep.name }}
 
-          //- Everything else: the concept's own fill-in table, read from Mike's
-          //- workbooks. Only 2 of the 52 have an approved framework card of their own
-          //- (Porter's 5 Forces and the 8 Profit Levers) — counted 2026-09-21.
-          strategy-concept-capture(
-            v-else
-            :key="card.key"
-            :name="card.visit.name"
-            :capture="card.visit.capture"
-            :concept-summary="card.visit.conceptSummary"
-            :helps-client-to="card.visit.helpsClientTo"
-            :teaching-form="card.visit.teachingForm"
-            :page-words="card.visit.pageWords"
-            :concept-id="card.visit.conceptId"
-            :entries="entriesFor(card.visit.conceptId)"
-            :client-id="clientId || ''"
-            :client-name="clientName"
-            :token="apiToken"
-            :eyebrow="card.eyebrow"
-            :firm-name="firmBrand.name || ''"
-            :firm-colour="firmBrand.colour || undefined"
-            :firm-logo="firmBrand.logo || ''"
-            :text-edits="textEdits"
-            :agenda-items="agendaGroups"
-            editable
-            @text-edited="onTextEdited"
-            @field-opened="onVisitFieldOpened(card.visit, $event)"
-            @field-changed="onVisitFieldChanged(card.visit, $event)"
-            @fields-changed="onVisitFieldsChanged(card.visit, $event)"
-            @field-typing="onVisitFieldTyping(card.visit, $event)"
+            template(v-for="card in runStep.cards")
+              //- Decision B: a segment starts only when the advisor presses this. The live card
+              //- carries a red edge and the word "recording" instead of the button.
+              .sp-recbar(v-if="sessionId" :key="'rb' + card.key" :class="{ 'is-live': isLiveCard(card), 'is-paused': isLiveCard(card) && recState.paused }")
+                //- Screen 11: while paused the card says so, in amber, never "recording".
+                span.sp-live(v-if="isLiveCard(card)" :class="{ 'is-paused': recState.paused }")
+                  | ● {{ $t(recState.paused ? 'strategyPlanner.recording.statePaused' : 'strategyPlanner.recording.stateRecording') }}
+                b-button(v-else size="is-small" outlined type="is-danger" @click="recordCard(card)")
+                  | {{ $t('strategyPlanner.recording.record') }}
+
+              //- 🔴 A CONCEPT WITH AN APPROVED CARD USES IT. Porter's was designed on
+              //- 2026-09-16 (strategy-planner.html screen 2c) as five force boxes, each
+              //- carrying the deck's own question, with Existing Rivalry as the centre — and
+              //- it was built. Replacing it with a grid derived from the Word template lost
+              //- all five prompts and the fifth force. Mike, 2026-09-17: "i saw much better
+              //- graphics in a design 6 or 8 sessions ago - what happened??"
+              strategy-capture-card(
+                v-if="card.kind === 'framework'"
+                :key="card.key"
+                :framework="card.framework"
+                :entries="entriesFor(card.framework.conceptId || card.framework.id)"
+                :eyebrow="card.eyebrow"
+                :teachable="isTeachable(card.framework)"
+                :firm-name="firmBrand.name || ''"
+                :firm-colour="firmBrand.colour || undefined"
+                :firm-logo="firmBrand.logo || ''"
+                :text-edits="textEdits"
+                editable
+                class="sp-card"
+                @text-edited="onTextEdited"
+                @field-opened="onFrameworkFieldOpened(card.framework, $event)"
+                @field-changed="onFrameworkFieldChanged(card.framework, $event)"
+                @field-typing="onFrameworkFieldTyping(card.framework, $event)"
+              )
+
+              //- Everything else: the concept's own fill-in table, read from Mike's
+              //- workbooks. Only 2 of the 52 have an approved framework card of their own
+              //- (Porter's 5 Forces and the 8 Profit Levers) — counted 2026-09-21.
+              strategy-concept-capture(
+                v-else
+                :key="card.key"
+                :name="card.visit.name"
+                :capture="card.visit.capture"
+                :concept-summary="card.visit.conceptSummary"
+                :helps-client-to="card.visit.helpsClientTo"
+                :teaching-form="card.visit.teachingForm"
+                :page-words="card.visit.pageWords"
+                :concept-id="card.visit.conceptId"
+                :entries="entriesFor(card.visit.conceptId)"
+                :client-id="clientId || ''"
+                :client-name="clientName"
+                :token="apiToken"
+                :eyebrow="card.eyebrow"
+                :firm-name="firmBrand.name || ''"
+                :firm-colour="firmBrand.colour || undefined"
+                :firm-logo="firmBrand.logo || ''"
+                :text-edits="textEdits"
+                :agenda-items="agendaGroups"
+                editable
+                @text-edited="onTextEdited"
+                @field-opened="onVisitFieldOpened(card.visit, $event)"
+                @field-changed="onVisitFieldChanged(card.visit, $event)"
+                @fields-changed="onVisitFieldsChanged(card.visit, $event)"
+                @field-typing="onVisitFieldTyping(card.visit, $event)"
+              )
+
+              //- Screen 10: each of this concept's transcribed segments, summarised under its
+              //- own headings, for the advisor and client to edit and approve (slice 2).
+              strategy-concept-summary(
+                v-for="seg in summarySegmentsFor(card)"
+                :key="'sum' + seg.n"
+                :api-token="apiToken"
+                :meeting-id="recState.meetingId"
+                :segment="seg"
+              )
+
+        //- Screens 8 and 9: the timed agenda above the cards when a start time is set, and the
+        //- countdown in the corner (the agenda's position ruled by Mike, 2026-09-28).
+        aside.sp-runside
+          strategy-run-agenda(
+            :steps="planStepDefs"
+            :cards="placeableCards"
+            :timing="planTiming"
+            :live="recState.live"
           )
 
     template(v-if="!loading && step === 'objectives'")
@@ -347,6 +389,9 @@ import StrategyGrowthWheel from '~/components/strategy/StrategyGrowthWheel.vue'
 import StrategyPlanDocument from '~/components/strategy/StrategyPlanDocument.vue'
 import StrategyPlanMark from '~/components/strategy/StrategyPlanMark.vue'
 import StrategyStepBuilder from '~/components/strategy/StrategyStepBuilder.vue'
+import StrategySessionRecorder from '~/components/strategy/StrategySessionRecorder.vue'
+import StrategyConceptSummary from '~/components/strategy/StrategyConceptSummary.vue'
+import StrategyRunAgenda from '~/components/strategy/StrategyRunAgenda.vue'
 import { isPlaceableConcept } from '~/utils/strategyCards'
 import { isDevHost } from '~/utils/devHost'
 import { rolesFrom, namedRoles } from '~/utils/orgChart'
@@ -394,7 +439,18 @@ const AUTOSAVE_PAUSE_MS = 1200
 export default {
   name: 'StrategyPlannerPage',
 
-  components: { StrategyScopeMenu, StrategyStepBuilder, StrategyCaptureCard, StrategyConceptCapture, StrategyGrowthWheel, StrategyPlanDocument, StrategyPlanMark },
+  components: {
+    StrategyScopeMenu,
+    StrategyStepBuilder,
+    StrategyCaptureCard,
+    StrategyConceptCapture,
+    StrategyGrowthWheel,
+    StrategyPlanDocument,
+    StrategyPlanMark,
+    StrategySessionRecorder,
+    StrategyConceptSummary,
+    StrategyRunAgenda
+  },
 
   /** `firmBrand` and `loadFirmBrand` — the advisor firm's brand for the plan (item 16). */
   mixins: [firmBrand],
@@ -479,6 +535,17 @@ export default {
        * `{ '<conceptId>#<sheet>': { '<block>': 'words' } }`, as the session stores it.
        */
       textEdits: {},
+      /**
+       * The session's run sheet — item 8.4, slice 3: the start time, the minutes on each
+       * concept and break, and each later day's start. Saved with the scope; the clock times
+       * themselves are worked out, never stored (`utils/sessionTiming.js`).
+       */
+      planTiming: { startsAt: null, minutes: {}, days: {} },
+      /**
+       * The recording, as the recorder last reported it — item 8.4, slice 4. `live` is the
+       * concept being recorded now; `segments` is the server's own view of every segment.
+       */
+      recState: { meetingId: '', segments: [], live: null, paused: false },
       /**
        * Each ticked concept's real fill-in table, keyed by concept id, as
        * `GET /api/strategy/concepts/:id/capture` returns it. Loaded when the
@@ -1247,7 +1314,8 @@ export default {
           body: JSON.stringify({
             domains: [],
             frameworks: this.chosen,
-            steps: this.stepsToSave(this.planStepDefs)
+            steps: this.stepsToSave(this.planStepDefs),
+            timing: this.planTiming
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
@@ -1635,7 +1703,8 @@ export default {
           body: JSON.stringify({
             domains: [],
             frameworks: this.chosen,
-            steps: this.stepsToSave(next)
+            steps: this.stepsToSave(next),
+            timing: this.planTiming
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
@@ -1643,6 +1712,56 @@ export default {
       } catch (e) {
         this.error = this.$t('strategyPlanner.errors.stepsSaveFailed')
       }
+    },
+
+    /**
+     * The concept a Run session card records — its id, and its name as the advisor sees it.
+     * @param {{kind: string, key: string, framework?: object, visit?: object}} card
+     * @returns {{key: string, conceptId: string, label: string}}
+     */
+    recordingTarget (card) {
+      if (card.kind === 'framework') {
+        return { key: card.key, conceptId: card.framework.conceptId || card.framework.id, label: card.framework.name }
+      }
+      return { key: card.key, conceptId: card.visit.conceptId, label: card.visit.name }
+    },
+
+    /** "Record this section" on a card (Decision B). */
+    recordCard (card) {
+      if (this.$refs.recorder) { this.$refs.recorder.recordCard(this.recordingTarget(card)) }
+    },
+
+    /** @param {object} card @returns {boolean} whether this card is being recorded now */
+    isLiveCard (card) {
+      return Boolean(this.recState.live && this.recState.live.key === card.key)
+    },
+
+    /** The recorder's report: which concept is live, and every segment's state. */
+    onRecorderState (state) {
+      this.recState = state
+    },
+
+    /**
+     * This card's transcribed segments — each one's summary goes under the card (screen 10).
+     * A long concept that rolled over to "part 2" has a summary per part.
+     * @param {object} card
+     * @returns {Array<object>}
+     */
+    summarySegmentsFor (card) {
+      if (!this.recState.meetingId) { return [] }
+      const conceptId = this.recordingTarget(card).conceptId
+      return this.recState.segments.filter(s => s.conceptId === conceptId && s.state === 'done')
+    },
+
+    /**
+     * The step builder changed a time. Saved the same way, and with the same failure rule, as
+     * a change to the steps: the scope is written whole, so it goes through `onStepsChanged`.
+     * @param {{startsAt: (string|null), minutes: object, days: object}} next
+     * @returns {Promise<void>}
+     */
+    async onTimingChanged (next) {
+      this.planTiming = next
+      await this.onStepsChanged(this.planStepDefs)
     },
 
     /**
@@ -1716,8 +1835,9 @@ export default {
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
         const body = await res.json()
         this.sessionId = body.sessionId
-        // A new session starts with every page exactly as drawn.
+        // A new session starts with every page exactly as drawn, and with no times set.
         this.textEdits = {}
+        this.planTiming = { startsAt: null, minutes: {}, days: {} }
         // Stage 7: this is a new session, not a reopened one, so no banner — and the bar
         // goes now that `mostRecentSession` sees a session id.
         this.reopenedAt = null
@@ -1913,6 +2033,10 @@ export default {
           ? scope.suggestion.concepts.slice()
           : []
         this.textEdits = (scope.edits && typeof scope.edits === 'object') ? scope.edits : {}
+        // The run sheet as saved, or an empty one for a session nobody has timed yet.
+        this.planTiming = scope.timing
+          ? { startsAt: scope.timing.startsAt || null, minutes: scope.timing.minutes || {}, days: scope.timing.days || {} }
+          : { startsAt: null, minutes: {}, days: {} }
 
         // Every typed box, keyed exactly as the screen keys them.
         const entries = {}
@@ -2353,6 +2477,41 @@ export default {
 .sp-rail-step:disabled { cursor: default; opacity: 0.45; }
 
 .sp-card { margin-bottom: 1.1rem; }
+
+/* Item 8.4, slice 4 — the timed agenda sits ABOVE the cards, and only when a start time is set
+   (Mike, 2026-09-28). Beside them it took a column even when it had nothing to show, and his
+   first real recording found Porter's 5 Forces squeezed into what was left. Every card keeps
+   the full width of the page; the countdown stays in the corner. */
+.sp-runwrap { display: flex; flex-direction: column; gap: 1rem; }
+.sp-runside { order: -1; max-width: 34rem; }
+/* 🔴 THE BAR IS THE TOP OF ITS OWN CARD (Mike, 2026-09-28). Sitting in the gap between two cards
+   it read as the foot of the card ABOVE, so a press meant for the concept just finished would
+   start recording the next one. Joined to the card below — no gap, the card's border and wash
+   carried up around it — it reads as that card's header, where the drawing puts the button. */
+.sp-recbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 1.25rem 0 0;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #d5e1ee;
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  background: #f1f6fb;
+}
+/* Named, not `*`: each card rounds its own corners from inside its component, and only a rule
+   naming the card's root outranks it — the first try left a notch where bar met card. */
+.sp-recbar + .scc,
+.sp-recbar + .scc2 {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+/* The live card: the recorder's own red, as the drawing's red edge. */
+.sp-recbar.is-live { border-top: 3px solid #d32f2f; }
+.sp-live { color: #d32f2f; font-weight: 700; font-size: 0.85rem; }
+.sp-live.is-paused { color: #b36b00; }
+.sp-recbar.is-live.is-paused { border-top-color: #b36b00; }
 .sp-section { margin: 1.4rem 0; }
 .sp-h { font-size: 0.85rem; font-weight: 700; margin: 0 0 0.2rem; color: #002b64; }
 .sp-cap { font-size: 0.8rem; color: #5b6f8a; margin: 0 0 0.8rem; max-width: 80ch; }

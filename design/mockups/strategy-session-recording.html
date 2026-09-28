@@ -163,18 +163,49 @@
   .decision h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
   .decision p { margin: 0 0 6px; }
   .rec { font-weight: 600; color: var(--ink); }
+  .later { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--warn); border: 1px dashed var(--warn); border-radius: 4px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
   .against { color: var(--eg); font-size: 13px; }
+
+  /* timing (added 2026-09-28) */
+  .tbody { padding: 14px; display: grid; gap: 12px; }
+  .startrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13.5px; }
+  .startrow b { color: var(--ink); }
+  .inp { display: inline-block; border: 1px solid var(--line); border-radius: 5px; padding: 2px 8px; min-width: 52px; text-align: right; font-variant-numeric: tabular-nums; background: var(--bg); color: var(--ink); font-weight: 600; }
+  .tstep { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .tstephead { background: var(--wash); padding: 8px 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13.5px; }
+  .tstephead b { color: var(--ink); }
+  .sub { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 700; font-size: 12.5px; }
+  .trow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 7px 12px; border-top: 1px solid var(--line); font-size: 13px; }
+  .trow .when { font-variant-numeric: tabular-nums; color: var(--eg); font-size: 12.5px; white-space: nowrap; }
+  .trow.brk { background: repeating-linear-gradient(135deg, var(--wash) 0 8px, var(--bg) 8px 16px); color: var(--eg); }
+  .trow.live { box-shadow: inset 4px 0 0 var(--rec); }
+  .trow.past { color: var(--eg); }
+  .trow.past .when { text-decoration: line-through; }
+  .addbrk { font-size: 12px; color: var(--accent); padding: 5px 12px; border-top: 1px dashed var(--line); }
+  .total { font-size: 13px; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .runwrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  @media (min-width: 760px) { .runwrap { grid-template-columns: minmax(0, 1fr) 260px; } }
+  .agenda { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; align-self: start; }
+  .agenda h5 { margin: 0; padding: 8px 12px; background: var(--wash); color: var(--ink); font-size: 13px; }
+  .side { display: grid; gap: 10px; align-content: start; }
+  .count { justify-self: end; background: var(--bg); border: 2px solid var(--accent); border-radius: 10px; padding: 6px 12px; text-align: center; box-shadow: var(--shadow); }
+  .count .big { font-size: 22px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .count .what { font-size: 11px; color: var(--eg); }
+  .count.over { border-color: var(--crit); }
+  .count.over .big { color: var(--crit); }
+  .behind { font-size: 12.5px; color: var(--crit); font-weight: 700; padding: 7px 12px; border-top: 1px solid var(--line); background: var(--critwash); }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <p class="eyebrow">Strategy Planner · Run session · item 8.4 · drawn 2026-09-25 · not approved · not built</p>
+  <p class="eyebrow">Strategy Planner · Run session · item 8.4 · drawn 2026-09-25 · timing added 2026-09-28 (screens 7–9) · concept summaries added 2026-09-28 (screen 10) · <b>APPROVED FOR BUILD by Mike 2026-09-28</b> (first build: screens 1, 2, 3, 5–10; as committed in 976533c2) · first build built 2026-09-28 · screen 11 added 2026-09-28 and BUILT the same day on Mike's rulings of K–N and its wording — no separate approval of the drawing, on his word: "dont need another drawing, lets get this done"</p>
   <h1>Recording a strategy session in sections</h1>
   <p class="lede">Each concept card in Run session becomes <b>its own short recording</b>. The advisor presses the card's
     record button, and pressing the next card's button closes the one before. Each section is turned into text
     <b>as soon as it closes</b> and its audio is deleted straight after. The words then land in <b>the box that
-    was open when they were spoken</b>. The advisor keeps, edits or rejects each one. At the end the sections join
+    was open when they were spoken</b>. The advisor keeps, edits or rejects each one.
+    <span class="later">second build — screen 4, not in the first build</span> At the end the sections join
     into one transcript, so Meeting Review's summary and coaching notes work as they do now.</p>
   <p class="lede">This joins two things you've already asked for: <b>Decisions 10 and 11</b> of the planner drawing
     (16 Sep), and <b>your option on 8.4</b> (24 Sep), <i>"clicking a section starts its own recording … saved per
@@ -305,7 +336,7 @@
         <div class="forces">
           <div class="field"><h5>Customers</h5><p class="q">Are customers likely to be motivated to pay premium prices…</p><div class="typed">Price-led; loyal to the brand but not to us</div></div>
           <div class="field open"><h5>Suppliers</h5><p class="q">Is there competition amongst your suppliers? Do they actively compete for your business, and if you had to shift to a new supplier, how easy would it be?</p><div class="typed empty"></div>
-            <p class="claim">● What's said now goes here</p></div>
+            <p class="claim">● What's said now goes here <span class="later">second build — screen 4, not in the first build</span></p></div>
           <div class="field"><h5>Substitutes</h5><p class="q">What are the alternatives to your product or service?…</p><div class="typed empty"></div></div>
         </div>
       </div>
@@ -323,7 +354,7 @@
     reaches OpenAI's limit. <span class="dec">Decision E</span></p>
 
   <!-- ───────────────────────────── SCREEN 4 ───────────────────────────── -->
-  <h2>4 · The words arrive in their boxes, and nothing goes in until the advisor keeps it</h2>
+  <h2>4 · The words arrive in their boxes, and nothing goes in until the advisor keeps it <span class="later">second build</span></h2>
   <p class="cap">Once a section has been turned into text, each passage appears <b>under the box that was open when it
     was spoken</b>. It shows what was actually said, with who said it, and beneath that the sentence an advisor would
     have typed. Nothing enters the box until the advisor presses <b>Keep</b>. This is Decision 11: the clock decides
@@ -393,12 +424,206 @@
       <span class="sec done">5 · Productive Habits</span>
     </div>
     <div class="banner ok"><b>Recording finished. 5 sections, 52 minutes, all turned into text, all audio deleted.</b>
-      Words still waiting in boxes: 7. <span class="btn small" style="margin-left:8px">Read my reports</span></div>
+      Summaries still waiting for approval: 1. <span class="btn small" style="margin-left:8px">Read my reports</span></div>
+    <p class="muted" style="margin:0 14px 14px">Second build adds: "Words still waiting in boxes: 7."
+      <span class="later">second build — screen 4, not in the first build</span></p>
   </div>
   <p class="cap">The five transcripts join in order, each shifted by its start time, into <b>one</b> meeting transcript.
     Meeting Review's Meeting Summary and My Coaching Notes read that one transcript exactly as they do today.
     <b>"Read my reports"</b> is the label you approved on 7 Sep, reused, not new. Words not yet kept stay offered in
     their boxes afterwards, so the advisor can finish sorting them after the client leaves.</p>
+
+  <!-- ═════════════════════════ TIMING — added 2026-09-28 ═════════════════════════ -->
+  <h2>7 · Build session: minutes beside each concept, and every clock time worked out</h2>
+  <p class="cap"><b>Added 2026-09-28 on Mike's yes. Not approved.</b> His rulings: a time allowance on each
+    <b>concept</b>; a step shows the <b>subtotal</b> of its concepts; every clock time <b>works itself out</b> from one start
+    time; a <b>break</b> can sit between any two concepts, even mid-step. Modelled on his <i>Team Workshop Run Sheet</i>:
+    one typed start, minutes per row, each row starting when the one before finishes. The step names, "Build the
+    session's steps", "The session's steps" and "Add a step" are the screen's own words today.
+    <span class="dec">Decision H</span> <span class="dec">Decision I</span></p>
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span class="on">2 · Build session</span><span>3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="tbody">
+      <div class="startrow"><b>Build the session's steps</b><span class="grow"></span>
+        Session starts <span class="inp">9:00 am</span></div>
+      <div class="tstep">
+        <div class="tstephead"><b>1 · Set the scene</b><span class="grow"></span><span class="muted">1 concept</span>
+          <span class="sub">20 min · 9:00–9:20</span></div>
+        <div class="trow"><span>Our Session Objective <span class="muted">(framing and agenda — recording segment 1)</span></span>
+          <span class="inp">20</span><span class="when">9:00–9:20</span></div>
+        <div class="addbrk">+ Add a break here</div>
+      </div>
+      <div class="tstep">
+        <div class="tstephead"><b>2 · Choose Your Competition Fronts</b><span class="grow"></span><span class="muted">2 concepts</span>
+          <span class="sub">70 min · 9:20–10:45</span></div>
+        <div class="trow"><span>Business Owner Expectations</span><span class="inp">30</span><span class="when">9:20–9:50</span></div>
+        <div class="trow brk"><span>Break</span><span class="inp">15</span><span class="when">9:50–10:05</span></div>
+        <div class="trow"><span>Porter's 5 Forces</span><span class="inp">40</span><span class="when">10:05–10:45</span></div>
+        <div class="addbrk">+ Add a break here</div>
+      </div>
+      <div class="startrow"><span class="btn ghost small">Add a step</span><span class="grow"></span>
+        <span class="total">Finishes 10:45 am · 90 min of concepts · 15 min of breaks</span></div>
+    </div>
+  </div>
+  <p class="cap">The advisor types <b>only the start time and the minutes</b>; every other time is worked out. The break
+    in step 2 runs the clock (step 2 spans 9:20–10:45) but is <b>not</b> in its subtotal of 70 minutes, as ruled. A break
+    closes the recording; the next card's button starts a fresh segment under the same consent. Sample steps and
+    minutes are invented for the drawing.</p>
+
+  <h2>8 · Run session: the timed agenda, and the countdown in the corner</h2>
+  <p class="cap">The countdown counts down <b>the live concept's own minutes</b>, which is the same unit as a recording
+    segment, so the two always agree. The agenda beside the cards shows every item with its time. Items already done are
+    struck through.</p>
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span>2 · Build session</span><span class="on">3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="strip"><span class="dot"></span><b>Recording</b><span>Section 4 · Porter's 5 Forces (part 2)</span>
+      <span class="clock">02:20</span><span class="grow"></span>
+      <span class="btn ghost small">End recording</span><span class="btn danger small">Stop and delete everything</span></div>
+    <div class="frame">
+      <div class="runwrap">
+        <div>
+          <p class="runhead">Choose Your Competition Fronts</p>
+          <div class="card live"><div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span>
+            <span class="clock" style="color:var(--rec)">● 27:20</span></div>
+            <p class="muted" style="margin:10px 14px">…the card as on screen 3…</p></div>
+        </div>
+        <div class="side"><div class="count"><div class="big">12:40</div><div class="what">left · Porter's 5 Forces</div></div>
+        <div class="agenda">
+          <h5>Today's agenda</h5>
+          <div class="trow past"><span>Our Session Objective</span><span></span><span class="when">9:00–9:20</span></div>
+          <div class="trow past"><span>Business Owner Expectations</span><span></span><span class="when">9:20–9:50</span></div>
+          <div class="trow past brk"><span>Break</span><span></span><span class="when">9:50–10:05</span></div>
+          <div class="trow live"><span><b>Porter's 5 Forces</b></span><span></span><span class="when">10:05–10:45</span></div>
+          <div class="trow"><span>Blue Ocean Strategy</span><span></span><span class="when">10:45–11:15</span></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap">The countdown is small and sits in the corner, as asked. It never stops a recording and never moves
+    the advisor on. The 25-minute / 20 MB split (Decision E) still happens underneath, and nothing about the countdown
+    changes when it does: the segment becomes "part 2" and the countdown keeps counting the concept.</p>
+
+  <h2>9 · A concept runs over</h2>
+  <p class="cap">What happens at zero is Decision G. Drawn here as recommended: the countdown turns red and counts the
+    overrun, the recording carries on, and the agenda says how far behind the session is and when it will now finish.
+    The times the advisor planned in Build session are <b>not</b> changed. <span class="dec">Decision G</span></p>
+  <div class="screen">
+    <div class="frame">
+      <div class="runwrap">
+        <div><p class="runhead">Choose Your Competition Fronts</p>
+          <div class="card live"><div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span>
+            <span class="clock" style="color:var(--rec)">● 43:10</span></div>
+            <p class="muted" style="margin:10px 14px">…the card as on screen 3…</p></div></div>
+        <div class="side"><div class="count over"><div class="big">+3:10</div><div class="what">over · Porter's 5 Forces</div></div>
+        <div class="agenda">
+          <h5>Today's agenda</h5>
+          <div class="trow live"><span><b>Porter's 5 Forces</b></span><span></span><span class="when">10:05–10:45</span></div>
+          <div class="trow"><span>Blue Ocean Strategy</span><span></span><span class="when">10:45–11:15</span></div>
+          <div class="behind">Running 3 min behind · now finishing 11:18</div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════ SCREEN 10 — added 2026-09-28 ═════════════════════ -->
+  <h2>10 · Each concept's summary, edited and approved by the advisor and client</h2>
+  <p class="cap"><b>Added 2026-09-28 on Mike's yes. Not approved.</b> His ruling: the advisor and client edit and
+    approve <b>each concept segment's short summary</b>, never its transcript, and the approved summaries are then
+    joined. Once a segment is turned into text, its summary appears under its card, written under the concept's
+    <b>own headings</b>: here Porter's capture table (<i>How Customers May Change</i>, <i>What Substitutes May
+    Emerge</i>, <i>How Suppliers May Change</i>, <i>What New Entrants May Emerge</i>). The client approves on the
+    advisor's screen; the app records the advisor's confirmation that they did, as the consent tick does. This is part
+    of the <b>first</b> build. <span class="dec">Decision J</span></p>
+  <div class="screen">
+    <div class="frame">
+      <p class="runhead">Choose Your Competition Fronts</p>
+      <div class="card">
+        <div class="cardtop"><b>Porter's 5 Forces</b><span class="grow"></span>
+          <span class="sec done">section 3 · text ready · audio deleted</span></div>
+        <div style="padding:12px 14px">
+          <p class="lbl" style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--eg);margin:0 0 6px">Summary of this concept · draft</p>
+          <div class="field" style="margin:0 0 8px">
+            <h5>How Suppliers May Change</h5>
+            <div class="typed">Only two powder-coating suppliers are close enough to use, and one is full until March. If the other raises its price, the business has no alternative.</div>
+          </div>
+          <div class="field" style="margin:0 0 8px">
+            <h5>What Substitutes May Emerge</h5>
+            <div class="typed">A national hardware chain began stocking a flat-pack version last year.</div>
+          </div>
+          <div class="field" style="margin:0 0 8px">
+            <h5>What New Entrants May Emerge</h5>
+            <div class="typed">A local fabricator has started offering coating as well, though only for its own work so far.</div>
+          </div>
+          <div class="field" style="margin:0 0 10px">
+            <h5>How Customers May Change</h5>
+            <div class="typed empty">Nothing was said about this.</div>
+          </div>
+          <p style="margin:0 0 8px;font-size:13px"><span style="display:inline-block;width:14px;height:14px;border:1.5px solid var(--eg);border-radius:3px;vertical-align:-2px;margin-right:6px"></span>The client has read this summary and agrees with it</p>
+          <div class="acts"><span class="btn small">Approve summary</span><span class="btn ghost small">Edit</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="cardtop"><b>Business Owner Expectations</b><span class="grow"></span>
+          <span class="sec done">summary approved · 9:48 am</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap"><b>An edit clears an earlier approval</b>, exactly as Meeting Review's summary does today
+    (<code>saveSummaryEdit</code>): approved words that are then changed must never still read as approved. A heading
+    nobody spoke about says so rather than being filled in. <b>The word-for-word transcript is never shown here for
+    editing</b>; it stays exactly as spoken. The client's words in the sample are invented for the drawing, and the
+    chain's name is left out on purpose.</p>
+
+  <!-- ═════════════════════ SCREEN 11 — added 2026-09-28, NOT APPROVED ═════════════════════ -->
+  <h2>11 · Nothing said for 3 minutes: the recording pauses itself, and carries on when someone speaks</h2>
+  <p class="cap"><b>Drawn 2026-09-28 on Mike's word. Not approved.</b> His words, asked how to fix a silent section:
+    <i>"if AI detects the converstaion stops for more than 3mins - can it pause until it starts again?"</i>, then
+    <i>"do the design - its a better overall fix"</i>. <b>No AI is involved</b>: the browser measures how loud the
+    microphone is, on the laptop itself, and sends nothing anywhere to do it. After 3 minutes below the silence level the
+    recording pauses; the moment someone speaks it carries on, in the same section, with no press.
+    <span class="dec">Decision K</span> <span class="dec">Decision L</span> <span class="dec">Decision M</span>
+    <span class="dec">Decision N</span></p>
+
+  <div class="note">
+    <h3>The impact test, stated before the design</h3>
+    <ul>
+      <li><b>The problem.</b> The live walk on 2026-09-28 sent three silent sections to OpenAI, paid for three summaries
+        of nothing, and marked the session failed while the screen said all was well. A real session has quiet spells —
+        a break nobody pressed "Take a break" for, a client reading a page — and each is audio sent and paid for with
+        nothing in it.</li>
+      <li><b>How we'll know.</b> On a real test session with a staged 5-minute silence: minutes of audio sent, before and
+        after (the silence should not be sent); the number of sections that come back empty (should be none that were
+        long silences); and the first words after each resume checked in the transcript — a clipped word is the risk
+        this carries, and it is counted, not assumed away.</li>
+      <li><b>What already does this job.</b> "Take a break" — but only when the advisor remembers to press it, and a
+        quiet spell mid-concept is not a break.</li>
+    </ul>
+  </div>
+
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span>2 · Build session</span><span class="on">3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="strip" style="background:var(--wash)"><span class="dot" style="background:var(--warn)"></span><b style="color:var(--warn)">Paused — nothing heard for 3 minutes</b>
+      <span>Section 3 · Porter's 5 Forces</span><span class="clock">14:02</span><span class="grow"></span>
+      <span class="btn ghost small">Take a break</span><span class="btn ghost small">End recording</span><span class="btn danger small">Stop and delete everything</span></div>
+    <div class="secs">
+      <span class="sec done">1 · Our Session Objective · text ready · audio deleted</span>
+      <span class="sec done">2 · Business Owner Expectations · text ready · audio deleted</span>
+      <span class="sec work">3 · Porter's 5 Forces · paused 14:02</span>
+    </div>
+    <p class="muted" style="margin:10px 14px 14px">Recording carries on as soon as someone speaks.</p>
+  </div>
+  <p class="cap">The strip turns from red to amber, so nobody believes the room is being recorded while it is not. The
+    clock stops at the moment of the pause. The moment the microphone hears speech, the strip is red again and the same
+    section carries on — no press, no new section, no second consent. The quiet minutes are not in the audio sent to
+    OpenAI.</p>
+
+  <div class="screen">
+    <div class="strip"><span class="dot"></span><b>Recording</b><span>Section 3 · Porter's 5 Forces</span>
+      <span class="clock">14:03</span><span class="grow"></span>
+      <span class="btn ghost small">Take a break</span><span class="btn ghost small">End recording</span><span class="btn danger small">Stop and delete everything</span></div>
+  </div>
+  <p class="cap">…and a moment later, recording again. The countdown in the corner kept counting through the pause
+    (Decision M).</p>
 
   <!-- ───────────────────────────── HOW IT WORKS ───────────────────────────── -->
   <h2>How it works underneath</h2>
@@ -428,6 +653,11 @@
     words, and the recommendation stays beneath it.</p>
 
   <div class="decision"><h3>Decision A · what one section is</h3>
+    <p><b>RULED BY MIKE 2026-09-28:</b> <i>"we can split the recording sessions into a prompt per content piece added.
+      framing the session and running the agenda can be 1 piece but after that, owners expectations vs porters 5 forces
+      as examples, would each be their own 'concept segment' - recordings can then be combine once edited/approved by
+      advisor and client"</i>. The same day he ruled the first build to be screens 1, 2, 3, 5 and 6, with screen 4
+      second (item 15.14).</p>
     <p class="rec">Recommended: one concept card.</p>
     <p>That matches your "each presentation has a response section". One concept's discussion fits comfortably under
       the 25-minute limit, and a failure loses one concept, not a whole step.</p>
@@ -435,6 +665,9 @@
       past 27 minutes, and one failure would then lose all four.</p></div>
 
   <div class="decision"><h3>Decision B · how a section starts</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should each concept segment start recording only when the advisor
+      presses that card's 'Record this section' button, with pressing the next card's button closing the one before —
+      instead of recording starting by itself when the advisor opens a box in a new card?"</i></p>
     <p class="rec">Recommended: the advisor presses the card's button, as your option says. Pressing another card's
       button closes the one before.</p>
     <p>It's deliberate, so a recording never starts because the advisor clicked into a box to type.</p>
@@ -442,13 +675,16 @@
       all. But it would also start recording when an advisor only meant to type, with the client unaware.</p></div>
 
   <div class="decision"><h3>Decision C · consent</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should the advisor read the consent line once, in the first
+      framing-and-agenda segment, with that one consent covering every later concept segment of the same session —
+      instead of reading the consent line again at the start of every concept segment?"</i></p>
     <p class="rec">Recommended: consent once per session, spoken into the first section, covering every section after it.</p>
     <p>It's one meeting under the approved wording, "I'd like to record our meeting", and you confirmed on 16 Sep that
       a planning session counts as a meeting.</p>
     <p class="against">Against: asking at every section would be tiresome and would undercut the approved line, which
       already asks about the whole meeting.</p></div>
 
-  <div class="decision"><h3>Decision D · when the words arrive</h3>
+  <div class="decision"><h3>Decision D · when the words arrive <span class="later">second build</span></h3>
     <p class="rec">Recommended: as each section is turned into text, during the session.</p>
     <p>A failure shows within minutes (your point on 8.4), and an advisor can keep words during a natural pause instead
       of facing everything at the end.</p>
@@ -456,15 +692,104 @@
       They only appear in cards the conversation has already moved past, but that is the risk.</p></div>
 
   <div class="decision"><h3>Decision E · a section that runs long</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should a concept segment close by itself and carry on as 'part 2' of
+      the same card when it reaches 25 minutes or 20 MB, whichever comes first — instead of relying on the advisor to
+      press a button when a warning appears?"</i> — with <i>"good thinking - perhaps a small count-down time in the
+      corner of the screen will help people stay focused??"</i> What it counts from, his words the same day: <i>"the build
+      section should have a time allowance next to each content in the agenda. this way, when pushed thru to 'run
+      session' the agenda show the items and time allowance per section, as well as the count down"</i> — with his run
+      sheet (start and stop times, lunch breaks) as the example. Then, declining a time per step: <i>"make it fit each
+      concept - almost like sub totals of time per section but yes, the numbers should auto calculate from a start time
+      and time per concept"</i>. And yes to a break row, with its own minutes, between any two concepts, even
+      mid-step. Drawn as screens 7–9, with Decisions G, H and I.</p>
     <p class="rec">Recommended: at 25 minutes it closes by itself and carries on as "part 2" of the same card, with no gap.</p>
     <p>No file can reach OpenAI's 25 MB limit, whatever the advisor forgets to press.</p>
     <p class="against">Against: a warning asking the advisor to press something would keep them in control, but it asks
       for attention at exactly the moment they're listening to a client.</p></div>
 
-  <div class="decision"><h3>Decision F · how a kept suggestion enters the box</h3>
+  <div class="decision"><h3>Decision F · how a kept suggestion enters the box <span class="later">second build</span></h3>
     <p class="rec">Recommended: added beneath what's already typed, never replacing it. Nothing enters a box without Keep.</p>
     <p>What the advisor typed in the room is the most reliable record, and the AI's wording is only a suggestion.</p>
     <p class="against">Against: replacing would keep boxes shorter, but it would silently discard the advisor's own words.</p></div>
+
+  <div class="decision"><h3>Decision G · a concept that runs over (timing, screen 9)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should a concept that runs over show a red '+ minutes over' countdown
+      and a 'Running … behind · now finishing …' line on the agenda, while the planned times from Build session stay
+      unchanged — instead of every later start time on the agenda moving to match the overrun?"</i></p>
+    <p class="rec">Recommended: at zero the countdown turns red and counts the overrun. The recording carries on. The
+      agenda says how far behind the session is and when it will now finish. The planned times stay as the advisor set
+      them.</p>
+    <p>The advisor sees the cost of staying on a concept while the client is still talking, and decides. Nothing is
+      taken out of their hands mid-conversation.</p>
+    <p class="against">Against: moving every later start time to match would keep the agenda "true", but the client
+      would watch the plan they agreed to rewrite itself, and the record of what was planned would be lost.</p></div>
+
+  <div class="decision"><h3>Decision H · a session that runs over two days (timing, screen 7)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should the advisor be able to add a 'Day 2 starts' row between any two
+      concepts, with that day's own start time, so a two-day workshop stays one session and one plan — instead of each
+      day having to be a separate session with its own plan?"</i></p>
+    <p class="rec">Recommended: a "Day 2 starts" row the advisor can add between any two concepts, carrying that day's own
+      start time, inside the same session — as his run sheet has one sheet per day, each with its own start.</p>
+    <p>One session stays one plan and one client document, however many days it takes.</p>
+    <p class="against">Against: making each day its own session would need nothing new, but the plan would then be split
+      across two documents that have to be joined by hand.</p></div>
+
+  <div class="decision"><h3>Decision I · the run sheet's Purpose and Resource required columns (timing, screen 7)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should the first build use Build session's existing step purpose box
+      for the run sheet's Purpose column, and add a Resource required column later once the timing is in use — instead
+      of adding a Purpose box and a Resource required box beside every concept now?"</i></p>
+    <p class="rec">Recommended: add neither for now.</p>
+    <p>Build session already gives each <b>step</b> a purpose ("What this step is for (the advisor sees it; the client never
+      does)"), and each concept already carries its own "helps your client to" line. Nothing in the planner yet reads a
+      list of resources.</p>
+    <p class="against">Against: a Resource required box per concept would let the advisor prepare the room from the plan
+      itself — the job that column does on his run sheet.</p></div>
+
+  <div class="decision"><h3>Decision J · a summary still unapproved when the recording ends (screen 10)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b>, to <i>"Should the joined Meeting Summary be built only from the concept
+      summaries the client has approved, with any still waiting kept on their cards to finish later — instead of joining
+      every summary at the end with the unapproved ones marked as not approved?"</i></p>
+    <p class="rec">Recommended: the joined Meeting Summary is made only from approved concept summaries. One still
+      waiting stays on its card, so the advisor can finish it with the client later, and "Read my reports" says how many
+      are still waiting.</p>
+    <p>Nothing the client never agreed to reaches a document with the client's name on it.</p>
+    <p class="against">Against: joining every summary regardless, with unapproved ones marked, would give a complete
+      report at once, but a client could read words they never agreed.</p></div>
+
+  <div class="decision"><h3>Decision K · what counts as silence (screen 11)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b> — quieter than a quarter of the advisor's own level, measured on the consent
+      line, for 3 minutes without a break.</p>
+    <p class="rec">Recommended: quieter than a quarter of the advisor's own speaking level, measured while the advisor
+      reads the consent line — for 3 minutes without a break, Mike's figure.</p>
+    <p>Every room and microphone is different; a fixed level would pause on a quiet speaker in one room and never pause
+      in a noisy one. The consent line is already the advisor's voice at a known moment, so the level is set per session
+      with nothing extra to do.</p>
+    <p class="against">Against: one fixed level for every session is simpler, but it would be wrong somewhere every
+      day.</p></div>
+
+  <div class="decision"><h3>Decision L · the paused minutes and the clock (screen 11)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b> — each pause's start and end are noted and the minutes added back.</p>
+    <p class="rec">Recommended: the app notes when each pause started and ended, and adds the paused minutes back when
+      the section's words come back, so every quote keeps its real time on the clock.</p>
+    <p>Without it, every word after a pause would carry a time too early by the length of the pause — wrong in the
+      reports, and wrong for the second build, which puts words in boxes by the clock.</p>
+    <p class="against">Against: leaving the times as they come back is less work, and wrong after the first pause.</p></div>
+
+  <div class="decision"><h3>Decision M · the countdown during a pause (screen 11)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b> — the countdown keeps counting through a pause.</p>
+    <p class="rec">Recommended: it keeps counting. A concept's time allowance is time in the room, and a quiet spell
+      spends it.</p>
+    <p class="against">Against: stopping it would reward silence with extra time the agenda does not have.</p></div>
+
+  <div class="decision"><h3>Decision N · a section with no words in it at all (screen 11)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b> — transcribed but empty; the session finishes normally; the summary shows
+      "Nothing was said about this." under each heading with no AI call.</p>
+    <p class="rec">Recommended: it counts as turned into text but empty; the session finishes normally, and that
+      concept's summary shows "Nothing was said about this." under each heading, without asking the AI.</p>
+    <p><b>The pause does not remove this case.</b> A card pressed and moved on from inside 3 minutes is silent and never
+      pauses. Today such a section marks the whole session failed and pays for a summary of nothing — found on the
+      2026-09-28 walk.</p>
+    <p class="against">Against: leaving it as it is means a single quiet card fails a whole session's reports.</p></div>
 
   <!-- ───────────────────────────── WORDING ───────────────────────────── -->
   <h2>Every new word on this page is ours, and needs your ruling</h2>
@@ -472,17 +797,27 @@
     <table class="m">
       <thead><tr><th>Where</th><th>Our wording</th></tr></thead>
       <tbody>
-        <tr><td>Card button</td><td>Record this section</td></tr>
-        <tr><td>The open box, while recording</td><td>● What's said now goes here</td></tr>
-        <tr><td>Strip</td><td>Recording · Section 3 · Porter's 5 Forces · 06:12</td></tr>
-        <tr><td>Strip buttons</td><td>End recording · Stop and delete everything</td></tr>
-        <tr><td>Section states</td><td>recording · turning into text… · text ready · audio deleted · couldn't be turned into text</td></tr>
-        <tr><td>Long section</td><td>Porter's 5 Forces (part 2)</td></tr>
-        <tr><td>Under a box</td><td>Heard · Suggested wording · Keep · Edit · Reject · Move to another box</td></tr>
-        <tr><td>Empty box note</td><td>Nothing was said while this box was open.</td></tr>
-        <tr><td>Tray</td><td>Said while no box was open (2) · Move to a box · Leave it in the transcript only</td></tr>
-        <tr><td>Failure banner</td><td>Section 2 (Blue Ocean Strategy) couldn't be turned into text. Its audio has been deleted, as it always is. Anything you typed in that card is safe. Recording carries on with this section.</td></tr>
-        <tr><td>Finished banner</td><td>Recording finished. 5 sections, 52 minutes, all turned into text, all audio deleted. Words still waiting in boxes: 7.</td></tr>
+        <tr><td>Card button</td><td>Record this section <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>The open box, while recording <span class="later">second build</span></td><td>● What's said now goes here</td></tr>
+        <tr><td>Strip</td><td>Recording · Section 3 · Porter's 5 Forces · 06:12 <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Strip buttons</td><td>End recording <b>— ✅ approved by Mike 2026-09-28</b> · Stop and delete everything <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Section states</td><td>recording · turning into text… · text ready · audio deleted · couldn't be turned into text <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Long section</td><td>Porter's 5 Forces (part 2) <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Under a box <span class="later">second build</span></td><td>Heard · Suggested wording · Keep · Edit · Reject · Move to another box</td></tr>
+        <tr><td>Empty box note <span class="later">second build</span></td><td>Nothing was said while this box was open.</td></tr>
+        <tr><td>Tray <span class="later">second build</span></td><td>Said while no box was open (2) · Move to a box · Leave it in the transcript only</td></tr>
+        <tr><td>Failure banner</td><td>Section 2 (Blue Ocean Strategy) couldn't be turned into text. Its audio has been deleted, as it always is. Anything you typed in that card is safe. Recording carries on with this section. <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Finished banner</td><td>Recording finished. 5 sections, 52 minutes, all turned into text, all audio deleted. Summaries still waiting for approval: 1. <b>— ✅ approved by Mike 2026-09-28</b> <i>(Second build adds: Words still waiting in boxes: 7.)</i></td></tr>
+        <tr><td>Timing · Build session</td><td>Session starts <b>— ✅ approved by Mike 2026-09-28</b> · min <b>— ✅ approved</b> · + Add a break here · Break <b>— ✅ approved</b> · Finishes 10:45 am · 90 min of concepts · 15 min of breaks <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Timing · Run session</td><td>Today's agenda <b>— ✅ approved</b> · 12:40 left · +3:10 over <b>— ✅ approved</b> · Running 3 min behind · now finishing 11:18 <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Timing · a second day (Decision H)</td><td>Day 2 starts (Day 3 starts, and so on) <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Screen 11 · the strip while paused</td><td>Paused — nothing heard for 3 minutes <b>— ✅ approved by Mike 2026-09-28</b> · Recording carries on as soon as someone speaks. <b>— ✅ approved</b></td></tr>
+        <tr><td>Screen 11 · a paused section's chip</td><td>paused 14:02 <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>The alarm when a recording stops unasked (asked while building, not drawn)</td><td>Meeting Review's own, reused word for word: Recording stopped unexpectedly at 06:12 · Your screen locked or the browser tab was suspended. 6 minutes were saved and can still be transcribed. Nothing after 06:12 was captured. · Resume recording <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Strip button for a break (asked while building, not drawn)</td><td>Take a break <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>A concept summary the AI could not write (asked while building, not drawn)</td><td>This summary couldn't be written. · Write it again <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Timing · the link that adds a day row (asked while building, not drawn)</td><td>+ Start the next day here <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Concept summary (screen 10)</td><td>Summary of this concept · draft <b>— ✅ approved</b> · Nothing was said about this. <b>— ✅ approved</b> · The client has read this summary and agrees with it <b>— ✅ approved</b> · Approve summary · Edit <b>— ✅ approved</b> · summary approved · 9:48 am <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
       </tbody>
     </table>
   </div>
@@ -503,8 +838,12 @@
         nothing here may be described as covered by it.</li>
       <li><b>Live proof needs a real browser, the OpenAI key and a database</b>, which means the desktop or UAT. The laptop
         can build and test it, but it can't record a real session.</li>
-      <li><b>The strategy meeting type's name</b> is yours to word. It sits at mentor level with the other eleven and
-        cascades as they do.</li>
+      <li><b>Screen 11 can clip the first word or two after a pause.</b> The browser only knows someone is speaking once
+        the sound has started, so the recording resumes a fraction of a second late. It can be made smaller, never zero;
+        the impact test above counts it on a real session rather than assuming it away.</li>
+      <li><b>The strategy meeting type's name — RULED BY MIKE 2026-09-28: "Strategy Session".</b> It sits at mentor
+        level with the other eleven and cascades as they do, and it is the name the Meeting Summary is told the meeting
+        was.</li>
     </ul>
   </div>
 

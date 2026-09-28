@@ -69,8 +69,11 @@ describe('a meeting type carries its own name', () => {
     // ⚠ This pins the MIGRATION, not a rule. When Mike renames a type in mentor mode the
     // names diverge by design, and this test is then wrong and goes — it is not a licence
     // to keep them in step.
+    // Only the types that NAME a tree came from one. 'Strategy Session' (item 8.4, Mike's
+    // name, 2026-09-28) names none, and a type with no tree is exactly what the next test
+    // exists to allow.
     const trees = require('../../data/logic_trees.json').trees
-    mo.meetingScenarios().forEach((s) => {
+    mo.meetingScenarios().filter(s => s.treeId).forEach((s) => {
       const tree = trees.filter(t => t.id === s.treeId)[0]
       expect(tree).toBeDefined()
       expect(s.name).toBe(tree.name)

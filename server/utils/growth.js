@@ -1,5 +1,6 @@
 const { readFileSync } = require('fs')
 const { resolve } = require('path')
+const { fenceUntrusted } = require('./promptSafety')
 
 let _data = null
 
@@ -27,8 +28,15 @@ function conversationHasGrowthStage (conversationHistory) {
 /**
  * Formats the full Growth Fundamentals reference for inclusion in the AI context.
  * If a specific stage name is detected in the history, that stage's detail is highlighted first.
+ *
+ * @param {Array<{content: string}>} conversationHistory
+ * @param {Array<{name: string, description: string}>} [aspects] - the nine as resolved for this
+ *   firm (`growthAspects.loadResolvedAspects`); the shipped nine when absent. A description a
+ *   manager edited on the Mentor Hub is typed text, so it is fenced as data, exactly as the
+ *   logic-tree tab fences its edited fields; the shipped wording is left as it always was.
+ * @returns {string}
  */
-function formatGrowthFundamentalsForPrompt (conversationHistory) {
+function formatGrowthFundamentalsForPrompt (conversationHistory, aspects) {
   const data = loadGrowthData()
   const historyText = (conversationHistory || []).map(m => m.content || '').join(' ')
 
@@ -62,8 +70,11 @@ function formatGrowthFundamentalsForPrompt (conversationHistory) {
   lines.push('')
 
   lines.push('### 9 Growth Aspects (balanced areas to address at every stage)')
-  for (const aspect of data.growthAspects) {
-    lines.push(`- **${aspect.name}:** ${aspect.description}`)
+  const shipped = {}
+  data.growthAspects.forEach((a) => { shipped[a.name] = a.description })
+  for (const aspect of (aspects || data.growthAspects)) {
+    const d = aspect.description === shipped[aspect.name] ? aspect.description : fenceUntrusted(aspect.description)
+    lines.push(`- **${aspect.name}:** ${d}`)
   }
   lines.push('')
 

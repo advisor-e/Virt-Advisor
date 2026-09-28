@@ -9,23 +9,30 @@
 
 ---
 
-## 2026-09-27 · Laptop · branch `feat/advisor-progress`
+## 2026-09-28 (second session) · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed. 11 ahead of master, 0 behind — all of it in PR #136 (open, not merged).
-Green: 636 suites / 13,810 tests.**
+**Clean and pushed; 24 ahead of `master` (this note's own commit included), 0 behind. All in PR #139** (open, mergeable; title
+and description updated today to include 15.17).
 
-**Closed on Mike's word:** 16 — the Business Performance Report carries the advisor's firm on its
-cover and every footer, through `mixins/firmBrand.js` (shared with the Strategy Planner).
-**Worked:** 15.2 — drawing approved ([`mockups/growth-aspect-questions.html`](mockups/growth-aspect-questions.html)),
-first part built: the 98 questions in `data/growth-fundamentals.json` and the wheel's button. His
-call: proceed. **Fixed at shutdown:** the report opened with the stale banner outside loopback,
-because its first figures call went out before the sign-in was read.
+**Closed on Mike's word:** 15.17. Cultural Core Values was drawn from Organisational Review
+p11, approved and built; it shows on Run session and in the plan. Its row stays an agenda row
+on page 2, because the loader refuses a mixed deck.
 
-**FOR THE DESKTOP:**
-- Merging #134 and #136: item 16 ends DONE — keep #136's closure, drop #134's parked entry. Keep
-  #134's closures of 16.1 and 13.2, and #136's of 15.24.
-- `growthAspects` now carry `questions`, and the Process Improvement and Governance descriptions
-  changed on Mike's rulings. They reach the Virtual Advisor's prompt.
-- 15.2's Mentor Hub tab needs `FirmManagerHub.vue` — not started; it waits for #134.
+**15.14 Wordsmith, proceed, in hand here:** scoped, and ZDR and impact test checked.
+**Privacy ruled by Mike:** it may send the Alignment Statements segment's spoken words to
+OpenAI, recorded in `CLAUDE.md`. **Next: Mike judges the ten-draft test** at
+https://claude.ai/artifact/Ru1ZaarwJ2i9ooEpGPQ9h9. His edits and thoughts are in that page's
+`notes` collection, which you read with ArtifactData. Seven or more usable of ten means draw
+the screens. Known weaknesses to date: the two styles barely differ, "Bayou" is dictation's
+mishearing of "Bay of Plenty", and the spelling is American.
 
-**In hand, not touched today:** 15.17, 15.20, 8.4.
+**8.4 next:** screen 4 still needs Decisions D and F from Mike.
+
+**FOR THE DESKTOP:** 8.4 is still not on `master` (PR #139), so 15.13's two insertions still
+wait. Shared files changed: `CLAUDE.md` (privacy exception), `strategy-planner.md`,
+`ARTEFACTS.md`, the to-do files, `scripts/build-concept-graphics.js`,
+`components/strategy/concepts/index.js`, and the counts in `conceptGraphics.test.js`
+(43 drawings, 36 self-titled).
+
+**In hand here:** 8.4, 15.14, 15.20. Local test data only: dev firm "dev-firm-001" now has a
+compliance declaration, and dev sessions 176–178 exist.

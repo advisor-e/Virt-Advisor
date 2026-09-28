@@ -7,6 +7,16 @@
 
   .ssb-bar
     span.ssb-hint {{ $t('strategyPlanner.steps.hint') }}
+    //- Item 8.4, slice 3: the one time the advisor types. Every other time is worked out.
+    span.ssb-starts(v-if="timing")
+      span.ssb-starts-label {{ $t('strategyPlanner.timing.sessionStarts') }}
+      b-input(
+        type="time"
+        size="is-small"
+        :value="timing.startsAt || ''"
+        :aria-label="$t('strategyPlanner.timing.sessionStarts')"
+        @input="setStart"
+      )
 
   .ssb-body
     //- LEFT — what has not been placed yet. Decision 2: the screen opens with
@@ -94,6 +104,8 @@
           //- The count the approved drawing puts on every step head, so a step's weight
           //- reads at a glance rather than by counting chips.
           span.ssb-step-count {{ $tc('strategyPlanner.steps.stepCount', cardsIn(step).length, { count: cardsIn(step).length }) }}
+          //- The subtotal of this step's concepts; a break runs its span but not its minutes.
+          span.ssb-step-time(v-if="timing") {{ stepTotal(i) }}
           .ssb-step-tools
             b-button(
               size="is-small"
@@ -135,23 +147,87 @@
           //- a choice rather than as unfinished work.
           p.ssb-step-empty(v-if="!cardsIn(step).length") {{ $t('strategyPlanner.steps.stepEmpty') }}
 
-          .ssb-chip.is-placed(
-            v-for="card in cardsIn(step)"
-            :key="card.key"
-            :draggable="true"
-            @dragstart="onDragStart(card.key, $event)"
-            @dragend="onDragEnd"
-          )
-            .ssb-chip-main
-              span.ssb-chip-name {{ card.name }}
-              span.ssb-chip-tag(v-if="card.tag") {{ card.tag }}
-              span.ssb-chip-deck(v-if="card.deck") {{ card.deck }}
-            b-button(
-              size="is-small"
-              type="is-text"
-              :aria-label="$t('strategyPlanner.steps.takeOut')"
-              @click="takeOut(card.key)"
-            ) ✕
+          template(v-for="row in rowsIn(step)")
+            .ssb-chip.is-placed(
+              v-if="row.kind === 'card'"
+              :key="row.key"
+              :draggable="true"
+              @dragstart="onDragStart(row.key, $event)"
+              @dragend="onDragEnd"
+            )
+              .ssb-chip-main
+                span.ssb-chip-name {{ row.card.name }}
+                span.ssb-chip-tag(v-if="row.card.tag") {{ row.card.tag }}
+                span.ssb-chip-deck(v-if="row.card.deck") {{ row.card.deck }}
+              template(v-if="timing")
+                b-input.ssb-mins(
+                  type="number"
+                  size="is-small"
+                  min="0"
+                  max="600"
+                  :value="minutesFor(row.key)"
+                  :aria-label="row.card.name + ' — ' + $t('strategyPlanner.timing.min')"
+                  @input="setMinutes(row.key, $event)"
+                )
+                span.ssb-unit {{ $t('strategyPlanner.timing.min') }}
+                span.ssb-when {{ spanFor(row.key) }}
+              b-button(
+                size="is-small"
+                type="is-text"
+                :aria-label="$t('strategyPlanner.steps.takeOut')"
+                @click="takeOut(row.key)"
+              ) ✕
+
+            //- A break: its minutes run the clock and join no step's subtotal (Mike, 2026-09-28).
+            .ssb-chip.is-placed.is-break(v-else-if="row.kind === 'break'" :key="row.key")
+              .ssb-chip-main
+                span.ssb-chip-name {{ $t('strategyPlanner.timing.break') }}
+              b-input.ssb-mins(
+                type="number"
+                size="is-small"
+                min="0"
+                max="600"
+                :value="minutesFor(row.key)"
+                :aria-label="$t('strategyPlanner.timing.break') + ' — ' + $t('strategyPlanner.timing.min')"
+                @input="setMinutes(row.key, $event)"
+              )
+              span.ssb-unit {{ $t('strategyPlanner.timing.min') }}
+              span.ssb-when {{ spanFor(row.key) }}
+              b-button(
+                size="is-small"
+                type="is-text"
+                :aria-label="$t('strategyPlanner.steps.takeOut')"
+                @click="takeOut(row.key)"
+              ) ✕
+
+            //- "Day 2 starts": that day's own start time restarts the clock (Decision H).
+            .ssb-chip.is-placed.is-day(v-else :key="row.key")
+              .ssb-chip-main
+                span.ssb-chip-name {{ $t('strategyPlanner.timing.dayStarts', { n: dayOf(row.key) }) }}
+              b-input(
+                type="time"
+                size="is-small"
+                :value="timing.days[row.key] || ''"
+                :aria-label="$t('strategyPlanner.timing.dayStarts', { n: dayOf(row.key) })"
+                @input="setDay(row.key, $event)"
+              )
+              b-button(
+                size="is-small"
+                type="is-text"
+                :aria-label="$t('strategyPlanner.steps.takeOut')"
+                @click="takeOut(row.key)"
+              ) ✕
+
+            //- 🔴 AFTER EVERY ROW, NOT ONLY AT THE STEP'S FOOT. Mike ruled a break may sit
+            //- between ANY two concepts, even mid-step; the drawing shows the link once per
+            //- step, and a break added only at the foot could never reach the middle.
+            .ssb-addrow(v-if="timing" :key="row.key + '+'")
+              a.ssb-addbreak(href="#" @click.prevent="addRow(step.key, row.index, 'break')") {{ $t('strategyPlanner.timing.addBreak') }}
+              //- Mike's wording, 2026-09-28: a new day's start row, placed like a break.
+              a.ssb-addbreak(href="#" @click.prevent="addRow(step.key, row.index, 'day')") {{ $t('strategyPlanner.timing.addDay') }}
+
+      p.ssb-total(v-if="timing && sheet.finishesAt !== null")
+        | {{ $t('strategyPlanner.timing.finishes', { time: finishesLabel, concepts: sheet.conceptMinutes, breaks: sheet.breakMinutes }) }}
 
       b-button.ssb-add(type="is-primary" outlined icon-left="plus" @click="addStep") {{ $t('strategyPlanner.steps.addStep') }}
 </template>
@@ -183,8 +259,23 @@
  * ⚠ SSR: the drag handlers only ever run from a real browser event, and nothing here
  * touches `window` or `document` at load, in data() or in a computed.
  *
+ * 🔴 THE RUN SHEET (item 8.4, slice 3) APPEARS ONLY WHEN `timing` IS PASSED. The advisor's
+ * session passes it; the manager's standard-session screen does not, and stays as it was —
+ * a firm's standard is a set of steps, not a timetable for a meeting nobody has booked.
+ * Screen 7 of `design/mockups/strategy-session-recording.html`, approved 2026-09-28.
+ *
  * Vue 2, Options API, Pug.
  */
+import {
+  computeTiming,
+  formatClock,
+  newRowKey,
+  isBreakKey,
+  isDayKey,
+  BREAK_PREFIX,
+  DAY_PREFIX
+} from '~/utils/sessionTiming'
+
 export default {
   name: 'StrategyStepBuilder',
 
@@ -223,7 +314,17 @@ export default {
      * component either way (Decision C's ladder is the only thing that differs), because
      * two step builders would drift the moment one gained a fix the other did not.
      */
-    showPurpose: { type: Boolean, default: false }
+    showPurpose: { type: Boolean, default: false },
+
+    /**
+     * The session's run sheet, or null for no timing at all (the manager's screen).
+     * @type {{startsAt: (string|null), minutes: Object<string, number>, days: Object<string, string>}|null}
+     */
+    timing: {
+      type: Object,
+      default: null,
+      validator: t => t === null || (typeof t === 'object' && typeof t.minutes === 'object' && typeof t.days === 'object')
+    }
   },
 
   data () {
@@ -243,6 +344,27 @@ export default {
         step.items.forEach((key) => { seen[key] = true })
       })
       return seen
+    },
+
+    /** @returns {Object<string, object>} every placeable card, by key */
+    cardByKey () {
+      const map = {}
+      this.cards.forEach((c) => { map[c.key] = c })
+      return map
+    },
+
+    /**
+     * The run sheet worked out — every row's times, each step's subtotal and the totals.
+     * @returns {object|null} null when this screen is not timing anything
+     */
+    sheet () {
+      if (!this.timing) { return null }
+      return computeTiming({ steps: this.steps, timing: this.timing, isCard: key => Boolean(this.cardByKey[key]) })
+    },
+
+    /** @returns {string} the finishing time as the footer prints it, e.g. "10:45 am" */
+    finishesLabel () {
+      return this.sheet ? formatClock(this.sheet.finishesAt, true) : ''
     },
 
     /** @returns {number} how many of the scoped cards have been placed */
@@ -313,6 +435,112 @@ export default {
       return step.items
         .map(key => this.cards.find(c => c.key === key))
         .filter(Boolean)
+    },
+
+    /**
+     * A step's rows in order: its cards and, when timing, its break and day rows.
+     * `index` is the row's position in `step.items`, so a break can be put right after it.
+     * @param {{items: string[]}} step
+     * @returns {Array<{key: string, kind: string, index: number, card?: object}>}
+     */
+    rowsIn (step) {
+      const rows = []
+      step.items.forEach((key, index) => {
+        if (this.cardByKey[key]) {
+          rows.push({ key, kind: 'card', index, card: this.cardByKey[key] })
+        } else if (this.timing && isBreakKey(key)) {
+          rows.push({ key, kind: 'break', index })
+        } else if (this.timing && isDayKey(key)) {
+          rows.push({ key, kind: 'day', index })
+        }
+      })
+      return rows
+    },
+
+    /** @param {string} key @returns {number|string} the row's minutes, or '' when none */
+    minutesFor (key) {
+      const n = this.timing && this.timing.minutes[key]
+      return Number.isInteger(n) ? n : ''
+    },
+
+    /** @param {string} key @returns {string} the row's times, e.g. "9:20–9:50" */
+    spanFor (key) {
+      const row = this.sheet && this.sheet.rows[key]
+      if (!row || row.start === null) { return '' }
+      return formatClock(row.start) + '–' + formatClock(row.end)
+    },
+
+    /** @param {string} key @returns {number} which day a day row begins */
+    dayOf (key) {
+      const row = this.sheet && this.sheet.rows[key]
+      return row ? row.day : 2
+    },
+
+    /**
+     * A step's subtotal and span, e.g. "70 min · 9:20–10:45".
+     * @param {number} i
+     * @returns {string}
+     */
+    stepTotal (i) {
+      const s = this.sheet && this.sheet.steps[i]
+      if (!s) { return '' }
+      const total = this.$t('strategyPlanner.timing.minutes', { minutes: s.minutes })
+      return s.start === null ? total : total + ' · ' + formatClock(s.start) + '–' + formatClock(s.end)
+    },
+
+    /**
+     * Emits the whole new run sheet. The page owns it and saves it with the scope.
+     * @param {function(object): void} change - edits a copy
+     * @returns {void}
+     */
+    commitTiming (change) {
+      const next = {
+        startsAt: this.timing.startsAt || null,
+        minutes: Object.assign({}, this.timing.minutes),
+        days: Object.assign({}, this.timing.days)
+      }
+      change(next)
+      /** The complete run sheet `{startsAt, minutes, days}`, every time. */
+      this.$emit('timing-changed', next)
+    },
+
+    /** @param {string} value - `HH:MM` from the time box, or '' when cleared @returns {void} */
+    setStart (value) {
+      this.commitTiming((t) => { t.startsAt = value || null })
+    },
+
+    /**
+     * @param {string} key
+     * @param {string|number} value - what the number box holds
+     * @returns {void}
+     */
+    setMinutes (key, value) {
+      const n = parseInt(value, 10)
+      this.commitTiming((t) => {
+        if (Number.isInteger(n) && n >= 0 && n <= 600) { t.minutes[key] = n } else { delete t.minutes[key] }
+      })
+    },
+
+    /** @param {string} key @param {string} value `HH:MM` or '' @returns {void} */
+    setDay (key, value) {
+      this.commitTiming((t) => {
+        if (value) { t.days[key] = value } else { delete t.days[key] }
+      })
+    },
+
+    /**
+     * Put a break, or a new day's start, right after one row of a step.
+     * @param {string} stepKey
+     * @param {number} afterIndex - position in the step's items
+     * @param {'break'|'day'} kind
+     * @returns {void}
+     */
+    addRow (stepKey, afterIndex, kind) {
+      const next = this.clone()
+      const target = next.find(s => s.key === stepKey)
+      if (!target) { return }
+      target.items.splice(afterIndex + 1, 0, newRowKey(kind === 'day' ? DAY_PREFIX : BREAK_PREFIX))
+      this.commit(next)
     },
 
     /** @param {{name: string}} step @param {number} i @returns {string} */
@@ -500,6 +728,19 @@ export default {
   background: #fff;
 }
 .ssb-hint { color: #5b6f8a; font-size: 0.82rem; }
+.ssb-bar { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.ssb-starts { margin-left: auto; display: inline-flex; align-items: center; gap: 0.5rem; }
+.ssb-starts-label { font-size: 0.85rem; color: #23405f; }
+.ssb-step-time { color: #002b64; font-weight: 700; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.ssb-mins { width: 4.8rem; }
+.ssb-unit { font-size: 0.78rem; color: #5b6f8a; }
+.ssb-when { font-size: 0.78rem; color: #5b6f8a; font-variant-numeric: tabular-nums; min-width: 6.5rem; text-align: right; }
+/* A break reads as time out of the session, not as a concept. */
+.ssb-chip.is-break { background: repeating-linear-gradient(135deg, #f1f6fb 0 8px, #fff 8px 16px); }
+.ssb-chip.is-day { border-style: dashed; }
+.ssb-addrow { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.1rem 0 0.35rem 0.25rem; }
+.ssb-addbreak { font-size: 0.75rem; }
+.ssb-total { font-weight: 700; color: #002b64; font-variant-numeric: tabular-nums; margin: 0.25rem 0 0.75rem; }
 
 .ssb-body {
   display: grid;

@@ -72,7 +72,7 @@
         tbody
           tr(v-for="h in history" :key="h.id")
             td {{ $t('firmForecastTrendThresholds.history.version', { version: h.version }) }}
-            td.is-size-7.has-text-grey {{ h.created_by }}
+            td.is-size-7.has-text-grey {{ h.saved_by }}
             td.is-size-7.has-text-grey {{ h.created_at }}
             td.has-text-right
               b-button(size="is-small" type="is-light" @click="restore(h.id)") {{ $t('firmForecastTrendThresholds.actions.restore') }}

@@ -122,6 +122,11 @@ const DRAWINGS = [
   { file: 'strategy-concept-porters.html', svg: 1, conceptId: 'porters-5-forces' },
   { file: 'strategy-concept-technology-points.html', svg: 1, conceptId: 'technology-points' },
 
+  // Organisational Review p11, approved by Mike 2026-09-28 (item 15.17). Its row stays an
+  // AGENDA row on page 2: every row of that deck is one, and the loader refuses a mixed deck.
+  // The drawing is found by concept id, never by page.
+  { file: 'strategy-concept-cultural-core-values.html', svg: 1, conceptId: 'define-the-cultural-core-values' },
+
   // 🔴 THE ONLY DRAWING WITH A LIVE REGION IN IT — its AGENDA block is the session's
   // own step list, Mike's ruling of 2026-09-23. `bindAgendaSlot` handles it; every
   // other drawing is fixed artwork and passes through untouched.

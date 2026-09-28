@@ -21,6 +21,7 @@ const {
 } = require('../server/utils/promptContributions')
 const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesForPrompt, formatSectionDescriptionsForPrompt } = require('../server/utils/summaries')
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
+const { loadResolvedAspects, readScopeConfig: readGrowthAspectConfig } = require('../server/utils/growthAspects')
 const { formatReportModelsForPrompt } = require('../server/utils/reportModels')
 const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree, treeDescription } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
@@ -585,7 +586,9 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     firmCoachingDomain = null,
     // What this level has put in force under item 4.31 — its own material plus the
     // offers it has accepted. Already resolved by the caller.
-    firmContributions = null
+    firmContributions = null,
+    // The nine Growth Aspects as resolved for this firm (item 15.2); null = shipped wording.
+    growthAspects = null
   } = options || {}
 
   const orgTemplates = getOrgTemplates(orgTemplateIds || null, firmTemplates)
@@ -607,7 +610,7 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const firmContributionsText = formatContributionsForPrompt(firmContributions)
   const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
   const growthText = includeGrowthStage
-    ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }])
+    ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }], growthAspects)
     : null
   const profileText = advisorProfile
     ? `\n\nADVISOR PROFILE: ${fenceUntrusted(formatAdvisorProfile(advisorProfile))}`
@@ -2256,6 +2259,9 @@ async function handleQuery (rawBody, res, identity) {
   // recurses up the tier chain and absorbs a storage fault itself — it never
   // rejects — so it needs no readForSession wrapper.
   const firmMethodGuides = await loadResolvedGuideOverrides(firmId, loadFirmConfig)
+  // The nine Growth Aspects with the Mentor Hub's edits applied (item 15.2). Never rejects;
+  // the worst case is the shipped wording.
+  const firmGrowthAspects = await loadResolvedAspects(firmId, readGrowthAspectConfig)
 
   if (!query || !query.trim()) {
     sendError(res, 400, 'QUERY_REQUIRED', 'Query is required')
@@ -3730,6 +3736,7 @@ async function handleQuery (rawBody, res, identity) {
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
       includeSummaries: false,
       includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
+      growthAspects: firmGrowthAspects,
       maxTemplates: 25,
       excludeSections: ['get-organised', 'get-the-job'],
       firmTemplates,
@@ -4193,7 +4200,7 @@ async function handleQuery (rawBody, res, identity) {
 
   // Include Growth Fundamentals reference once the advisor has selected a growth stage
   const includeGrowth = mode === 'client' && conversationHasGrowthStage(trimmedHistory)
-  const growthText = includeGrowth ? formatGrowthFundamentalsForPrompt(trimmedHistory) : null
+  const growthText = includeGrowth ? formatGrowthFundamentalsForPrompt(trimmedHistory, firmGrowthAspects) : null
 
   // Section descriptions always included for client/discover modes so AI can tier-match from the start
   const sectionDescText = (mode === 'client' || mode === 'discover') ? formatSectionDescriptionsForPrompt() : null

@@ -189,6 +189,16 @@ approves it. The app writes; the advisor publishes.
 transcript is retained on a clock the firm sets. Deletion is a scheduled job that must be provable,
 not a best effort.
 
+**An unfinished recording's audio is held 7 working days, then destroyed** *(Mike's ruling,
+2026-09-28, item 8.5)*: *"hold it for 7 working days in case the parties are trying to work
+through an issue"* — Monday to Friday, weekends skipped, public holidays counted as ordinary days.
+Counted from when audio last arrived; any text already made keeps its own clock. The advisor sees
+each one on the recording page, above the new-meeting box, with his warning in solid red — *"You
+only have 7 working days to get this completed before it is deleted."* — and the recorder's own
+approved buttons, "Use what was captured" and "Stop and delete". No drawing, on his word: *"no
+need to make a big deal out of it"*. Code: `meetingPurge.purgeAbandoned`, `workingDays.js`,
+`GET /api/meeting/recordings/unfinished`, `components/MeetingUnfinished.vue`.
+
 **P9 · Mechanical measures are computed in code and never asked of the AI.** Talk-time ratio,
 question counts, silences, jargon density — arithmetic over a timestamped transcript. Routing them
 through a model converts a fact that cannot be wrong into a claim that can.

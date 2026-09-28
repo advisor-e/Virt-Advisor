@@ -7,6 +7,10 @@
     "design/features/meeting-review.md §3 ('Where the observation points are edited'), and",
     "the approved drawing design/mockups/meeting-review.html Stage A.",
     "",
+    "THE TWELFTH, `strategy_session` — 'Strategy Session' — IS MIKE'S OWN, named 2026-09-28 for a",
+    "Strategy Planner session recorded in concept segments (item 8.4). It names no logic tree, and",
+    "its name is what the Meeting Summary is told the meeting was.",
+    "",
     "🔴 THE ELEVEN TYPES BELOW ARE A SUGGESTION, NOT MIKE'S LIST. They were picked from",
     "data/logic_trees.json by the session that drafted the design on 2026-09-01, under a",
     "rule (the old P12) that nobody had asked for. His words on being shown it, 2026-09-02:",
@@ -134,6 +138,11 @@
       "id": "public_speaking",
       "name": "Get the Job - Public Speaking & Seminar Delivery",
       "treeId": "public_speaking",
+      "points": []
+    },
+    {
+      "id": "strategy_session",
+      "name": "Strategy Session",
       "points": []
     }
   ]

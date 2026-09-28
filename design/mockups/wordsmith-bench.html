@@ -1,0 +1,247 @@
+<title>Wordsmith Test Drafts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+  :root {
+    --ground: #eef2f6; --card: #ffffff; --ink: #0f2540; --body: #2c3e52; --muted: #5d6f84;
+    --line: #d6dee8; --accent: #002b64; --accent-soft: #e3ebf6; --said-bg: #f4f6f9;
+    --field-bg: #ffffff; --ok: #1f7a4d; --warn: #9a5b00;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --sans: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground: #0b1624; --card: #122235; --ink: #e8f0fa; --body: #cfdcea; --muted: #97aac0;
+      --line: #22384f; --accent: #8fb8ee; --accent-soft: #1a3150; --said-bg: #0f1d2e;
+      --field-bg: #0d1b2b; --ok: #62c795; --warn: #e2a64a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground: #0b1624; --card: #122235; --ink: #e8f0fa; --body: #cfdcea; --muted: #97aac0;
+    --line: #22384f; --accent: #8fb8ee; --accent-soft: #1a3150; --said-bg: #0f1d2e;
+    --field-bg: #0d1b2b; --ok: #62c795; --warn: #e2a64a;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--ground); color: var(--body); font-family: var(--sans); font-size: 15px; line-height: 1.55; padding-inline: 16px; padding-block: 28px 64px; }
+  main { max-width: 860px; margin: 0 auto; display: grid; gap: 28px; }
+  header { display: grid; gap: 10px; }
+  .eyebrow { font-size: 12px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  h1 { margin: 0; color: var(--ink); font-size: 1.7rem; line-height: 1.2; text-wrap: balance; }
+  .lede { margin: 0; max-width: 65ch; }
+  .status { font-size: 13px; color: var(--muted); }
+  .status.bad { color: var(--warn); }
+  nav.styles { display: flex; flex-wrap: wrap; gap: 8px; }
+  nav.styles button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--card); color: var(--body); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+  nav.styles button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--card); font-weight: 600; }
+  nav.styles button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .brief { background: var(--accent-soft); border-radius: 10px; padding: 12px 16px; display: grid; gap: 2px; }
+  .brief b { color: var(--ink); }
+  article.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; gap: 16px; }
+  .card-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .card-head h2 { margin: 0; color: var(--ink); font-size: 1.25rem; }
+  .card-head .tag { font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+  .block { display: grid; gap: 6px; }
+  .label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .said { background: var(--said-bg); border-radius: 8px; padding: 12px 14px; margin: 0; white-space: pre-wrap; color: var(--body); font-size: 14px; }
+  textarea { width: 100%; resize: vertical; border: 1px solid var(--line); background: var(--field-bg); color: var(--ink); border-radius: 8px; padding: 12px 14px; }
+  textarea.statement { font-family: var(--serif); font-size: 1.15rem; line-height: 1.5; min-height: 110px; }
+  textarea.thoughts { font-family: var(--sans); font-size: 14px; min-height: 90px; }
+  .why { margin: 0; font-size: 14px; color: var(--body); border-left: 3px solid var(--line); padding-left: 12px; }
+  .row-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); }
+  .saved { color: var(--ok); }
+  button.reset { font: inherit; font-size: 12px; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; text-decoration: underline; }
+  .guide { background: var(--said-bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 12px; }
+  .guide h3 { margin: 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .guide p, .guide ul { margin: 0; font-size: 14px; max-width: 70ch; }
+  .guide ul { padding-left: 18px; display: grid; gap: 4px; }
+  .guide .src { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+  .guide a { color: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) { article.card { transition: border-color .2s; } }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">Item 15.14 · Wordsmith test · 28 Sep 2026</div>
+    <h1>Your Alignment Statements, drafted two ways</h1>
+    <p class="lede">For each statement: what you said, what Wordsmith drafted, and why it drafted it that way. Rewrite the draft if you want to, then put your thoughts underneath. Everything saves as you type.</p>
+    <div class="status" id="status">Connecting the save…</div>
+  </header>
+
+  <nav class="styles" aria-label="Choose a style">
+    <button type="button" id="tab-A" data-style="A" aria-pressed="true">A · Bank loan, professional</button>
+    <button type="button" id="tab-B" data-style="B" aria-pressed="false">B · Staff room poster, humble but positive</button>
+  </nav>
+
+  <div class="brief" id="brief"></div>
+  <section id="cards" style="display:grid;gap:20px"></section>
+</main>
+
+<script type="application/json" id="data">{"styles":{"A":{"purpose":"This supports a bank loan application.","style":"We need to sound professional; educated people will review our submission."},"B":{"purpose":"This is to put on a poster and hang in our staff room.","style":"We want to sound humble but positive."}},"cards":[{"id":"A-Vision","style":"A","name":"Vision","said":"So um we run a suspension business and we want to be the best suspension businessUh the Bayou plentyI I think there's a huge amount of confusion for a lot of buyers um of suspension they're not really sure how to set things up so I'd like us to be like really good at suspension but also to be known as the best for communicating how to make it work for the average RiderUm and how to and to be known for the people that take all the jargon out and make it easy for people that that's what I want to be known for","statement":"We aim to be the leading suspension business in the Bayou, recognized for our ability to simplify suspension setup for riders. Our goal is to eliminate confusion and communicate effectively, making suspension accessible and understandable for every rider.","why":"I focused on your desire to be the best suspension business and emphasized clarity in communication, which you highlighted. I left out some informal phrases to maintain a professional tone suitable for a bank loan application. The wording aims to reflect a clear and ambitious vision for the future."},{"id":"A-Purpose","style":"A","name":"Purpose","said":"I think the purpose is toProvideConsistent racing results for people that want better suspensionUm at a price thatAllows them to feel like a factory RiderBut still affordable for the average weekend WarriorUm the purpose is to improve Rider safety to improve the overall writing skill level of riders because they're not ridingI'm scared or frightened of their bike they can have more confidence so we want to see our Riders faster and safer and enjoying the sport","statement":"Our purpose is to deliver consistent racing results for riders seeking better suspension, enabling them to feel like factory riders while remaining affordable for the average weekend warrior. We strive to enhance rider safety and skill, allowing them to ride with confidence and enjoy the sport.","why":"I retained your focus on improving rider safety and skill, as well as the balance between performance and affordability. I omitted some repetitive phrases to streamline the statement. The wording reflects a professional tone that conveys the deeper motivation behind your business."},{"id":"A-Values","style":"A","name":"Values","said":"Our values here is that we want to be known as Craftsmen if if there's a failure or or a piece of equipment that doesn't work correctly then we want to be fair to the customer and fear of the business um it's not about you know giving everything away every time but we certainly want people to know that ifIn doubt we'll pay out um you know we want them to know that if they go and invest money with us that will do everything within our power to make sure they get a fantastic result","statement":"We value craftsmanship and fairness in our business practices. In the event of equipment failure, we are committed to being fair to our customers and ensuring they receive excellent results from their investment.","why":"I kept your emphasis on craftsmanship and fairness, which are central to your values. I simplified some of the language to enhance clarity and professionalism. The statement is designed to resonate with both customers and stakeholders, reflecting ethical business practices."},{"id":"A-Mission","style":"A","name":"Mission","said":"I guess you could say our mission is to buildTo bootA League ofFuture professional motocross Riders that represent New Zealand on the grand stageOur mission is to you know yes we want to make sure that the racing is better and people are faster that we know that most Riders get to professional level and they've never learned the skills or never had the equipment to really dial in a bike and so they struggle to take the next level so we want to we want to have New Zealand standing proudly withMotocross Riders that represent our country because we've helped build it from the grass up","statement":"Our mission is to cultivate a league of future professional motocross riders who will represent New Zealand on the grand stage. We aim to improve racing performance by equipping riders with the necessary skills and equipment to succeed.","why":"I focused on your goal of developing future riders and enhancing their skills while representing New Zealand. I streamlined the language for clarity and professionalism, omitting some informal phrases. This statement is crafted to align with stakeholders' expectations for measurable outcomes."},{"id":"A-Strategy","style":"A","name":"Strategy","said":"The strategy is toUse technologyThat works stay away from the Wizardry that add a whole lot of expense but doesn't addThat much value and to really put theEmphasis on on education so to that end it's as much about the suspension valvingIs equally comparable to then dialing in at the track so therefore it's a combination of quality parts and really good education so that's using an app to make to really educate our people to get a racist Edge","statement":"Our strategy involves leveraging technology that adds real value while prioritizing education. We focus on quality parts and effective communication, utilizing an app to provide riders with the knowledge they need to gain a competitive edge.","why":"I kept your focus on technology and education as central to your strategy while ensuring clarity in the language. I removed some informal expressions to maintain a professional tone. This statement is structured to communicate a clear and actionable approach to achieving your vision."},{"id":"B-Vision","style":"B","name":"Vision","said":"So um we run a suspension business and we want to be the best suspension businessUh the Bayou plentyI I think there's a huge amount of confusion for a lot of buyers um of suspension they're not really sure how to set things up so I'd like us to be like really good at suspension but also to be known as the best for communicating how to make it work for the average RiderUm and how to and to be known for the people that take all the jargon out and make it easy for people that that's what I want to be known for","statement":"We aim to be the best suspension business in the Bayou, recognized for our clear communication and ability to simplify suspension setups for the average rider.","why":"I kept your focus on being the best suspension business and emphasized your intent to communicate effectively with customers. I left out the mention of confusion among buyers, as it could sound negative. The wording reflects a humble yet positive vision for the future."},{"id":"B-Purpose","style":"B","name":"Purpose","said":"I think the purpose is toProvideConsistent racing results for people that want better suspensionUm at a price thatAllows them to feel like a factory RiderBut still affordable for the average weekend WarriorUm the purpose is to improve Rider safety to improve the overall writing skill level of riders because they're not ridingI'm scared or frightened of their bike they can have more confidence so we want to see our Riders faster and safer and enjoying the sport","statement":"Our purpose is to provide consistent racing results for riders seeking better suspension, ensuring safety and confidence while making the sport enjoyable and accessible.","why":"I retained your emphasis on improving rider safety and skill, along with the affordability aspect. I omitted phrases like 'factory rider' to maintain a humble tone. The statement is designed to connect with both customers and stakeholders about the deeper reasons behind your business."},{"id":"B-Values","style":"B","name":"Values","said":"Our values here is that we want to be known as Craftsmen if if there's a failure or or a piece of equipment that doesn't work correctly then we want to be fair to the customer and fear of the business um it's not about you know giving everything away every time but we certainly want people to know that ifIn doubt we'll pay out um you know we want them to know that if they go and invest money with us that will do everything within our power to make sure they get a fantastic result","statement":"We value craftsmanship and fairness, ensuring that if there's a failure, we will be fair to our customers while striving to deliver fantastic results.","why":"I focused on the core values of craftsmanship and fairness, reflecting your commitment to customer satisfaction. I left out specific phrases about not giving everything away to keep the tone humble. This statement conveys how you engage with customers and the principles guiding your decisions."},{"id":"B-Mission","style":"B","name":"Mission","said":"I guess you could say our mission is to buildTo bootA League ofFuture professional motocross Riders that represent New Zealand on the grand stageOur mission is to you know yes we want to make sure that the racing is better and people are faster that we know that most Riders get to professional level and they've never learned the skills or never had the equipment to really dial in a bike and so they struggle to take the next level so we want to we want to have New Zealand standing proudly withMotocross Riders that represent our country because we've helped build it from the grass up","statement":"Our mission is to nurture future professional motocross riders from New Zealand, helping them gain the skills and equipment needed to excel in the sport.","why":"I highlighted the goal of building future riders and omitted specific details about racing improvements to keep the focus on nurturing talent. This aligns with your vision while addressing stakeholders about the milestones necessary for success."},{"id":"B-Strategy","style":"B","name":"Strategy","said":"The strategy is toUse technologyThat works stay away from the Wizardry that add a whole lot of expense but doesn't addThat much value and to really put theEmphasis on on education so to that end it's as much about the suspension valvingIs equally comparable to then dialing in at the track so therefore it's a combination of quality parts and really good education so that's using an app to make to really educate our people to get a racist Edge","statement":"Our strategy is to leverage effective technology while emphasizing education, combining quality parts with the knowledge to help riders gain a competitive edge.","why":"I maintained your focus on technology and education, ensuring the message is clear about how you plan to achieve your vision. I left out the mention of 'wizardry' to keep the tone straightforward and humble. This statement speaks directly to board members about your overarching philosophy."}]}</script>
+<script type="application/json" id="guide">{"Vision":{"doc":"Speaking to your stakeholders: where you see the business in future, and when. Page 7 of your Alignment document puts Vision in the Being domain. It answers Where and When, and delivers Contextual Awareness.","best":["A picture of a future the business can actually reach, with a finish line, so everyone will know when it has been achieved (Collins & Porras).","Pitched as a stretch: a 10 to 30 year goal with roughly 50 to 70 per cent odds, which the team still believes it can hit.","Described vividly enough that people can picture it. It turns the vision from words into pictures.","Specific to this business. \"Recognised leader in the insurance field\" fails because any firm could say it (Collis & Rukstad)."],"differs":"Vision can be reached and carries a date. Purpose is never finished. In your method, Mission is the next milestone on the way to the Vision, and Strategy is how you intend to get there.","tension":"Best practice mostly writes the vision for the people inside the business; your document writes it for stakeholders. Both expect a when. You gave no date, so neither draft has one.","sources":[{"name":"Collins & Porras, Building Your Company's Vision, HBR 1996","url":"https://hbr.org/1996/09/building-your-companys-vision"},{"name":"Collis & Rukstad, Can You Say What Your Strategy Is?, HBR 2008","url":"https://hbr.org/2008/04/can-you-say-what-your-strategy-is"}]},"Purpose":{"doc":"Speaking to both Customers and Stakeholders: why you do what you do beyond economic requirement. Page 7 puts Purpose in the Knowing domain. It answers Why, and delivers Frameworks.","best":["The reason the business exists beyond making money. It lasts indefinitely and is never achieved: \"a guiding star on the horizon, forever pursued but never reached\" (Collins & Porras).","Found by asking \"why is that important?\" five times, starting from what the business makes.","A common form is \"To [contribution] so that [impact]\" (Simon Sinek).","It does not have to be unique, and \"maximise shareholder wealth\" is never a purpose."],"differs":"Vision says where you are going; Purpose says why. Values guide how you behave on the way. Drucker, and Collis & Rukstad, call this statement the \"mission\". In your method it is Purpose.","tension":"Your page 7 warns that the \"discover your WHY\" fashion ignores the other four domains. Much of the web's best practice (Sinek) puts WHY first. Your method treats Purpose as one of five statements in balance, not the master statement.","sources":[{"name":"Collins & Porras, Building Your Company's Vision, HBR 1996","url":"https://hbr.org/1996/09/building-your-companys-vision"},{"name":"Simon Sinek, Find Your Why","url":"https://simonsinek.com/stories/learn-simons-simple-exercise-for-finding-your-why"},{"name":"Drucker Institute, Drucker on Mission","url":"https://drucker.institute/wp-content/uploads/2018/08/Reading_Drucker-on-Mission.pdf"}]},"Values":{"doc":"Speaking to both Customers and Stakeholders: the social element, meaning how your action or inaction affects others, and what guides your decisions about how you deal with people inside and outside the business. Page 7 puts Values in the Relating domain. It answers Who, and delivers Networks.","best":["A few principles, five or six at most, that actually decide behaviour. More than that usually means practices or strategies mixed in (Collins & Porras).","The test: would we keep this value if it cost us? Real values \"inflict pain\" (Lencioni).","Separate true core values from aspirational ones, from permission-to-play ones such as honesty, which every business must meet anyway, and from accidental ones (Lencioni).","Built into hiring, reviews, promotion and dismissal. Avoid bland words: integrity, teamwork and customer focus appear on half the Fortune 100's lists, and on Enron's."],"differs":"Purpose is why the business exists. Values are how its people treat others while pursuing it. Unlike Strategy, values do not change when the market does.","tension":"Your document frames values by their effect on others, which is close to Lencioni's behaviour test. Your \"if in doubt, we'll pay out\" is exactly the kind of costly decision rule best practice asks for.","sources":[{"name":"Lencioni, Make Your Values Mean Something, HBR 2002","url":"https://hbr.org/2002/07/make-your-values-mean-something"},{"name":"Collins & Porras, Building Your Company's Vision, HBR 1996","url":"https://hbr.org/1996/09/building-your-companys-vision"}]},"Mission":{"doc":"Speaking to Stakeholders: what milestone needs to be achieved within a specified timeframe, the mission period, to ensure the success of the longer-term Vision. Page 7 puts Mission in the Having domain. It answers What, and delivers Influence.","best":["The sources disagree most here, and fall into three camps.","Camp 1: mission means the reason the business exists, and it lasts forever. Drucker says it \"should fit on a T-shirt\"; Collis & Rukstad call it \"why we exist\".","Camp 2: mission means what we do, and for whom (Bain).","Camp 3: mission means a bold goal with a finish line and a date. Collins & Porras use NASA's moon landing as the example. Your document sits in this camp: one measurable milestone, a date, and a clear step towards the Vision."],"differs":"In your method, Mission is the next staging post, Vision is the destination, and Strategy is the route. Readers from camp 1 will take a milestone mission for a purpose statement, so it helps to say which kind this is in the plan.","tension":"Your mission, a league of future professional riders representing New Zealand, has no timeframe or measure yet. By your document's own definition it is incomplete. Wordsmith should ask for the date and the measure, never invent them.","sources":[{"name":"Drucker Institute, Drucker on Mission","url":"https://drucker.institute/wp-content/uploads/2018/08/Reading_Drucker-on-Mission.pdf"},{"name":"Bain, Mission and Vision Statements","url":"https://www.bain.com/insights/management-tools-mission-and-vision-statements/"},{"name":"Collins & Porras, Building Your Company's Vision, HBR 1996","url":"https://hbr.org/1996/09/building-your-companys-vision"}]},"Strategy":{"doc":"Speaking to Board Members and Owners: the over-arching philosophy about how you intend to achieve the Vision. Page 7 puts Strategy in the Doing domain. It answers How, and delivers Leverage.","best":["A short statement of choices, not a plan. Collis & Rukstad suggest 35 words or fewer covering three things: the objective (one measurable, time-bound goal), the scope (which customers, where, and what you will not do) and the advantage (why customers choose you, and what you do that others cannot combine).","Lafley & Martin put it as two choices at the heart: where to play and how to win.","Two tests: could a competitor say the same thing? Does it say what you will not do? A plan that never says what you won't do is not a strategy (Martin)."],"differs":"Strategy is the one statement of the five expected to change as conditions change; Purpose and Values stay. Mission is the what-by-when; Strategy is the how.","tension":"Best practice puts the measurable objective inside the strategy; your document puts it in the Mission. Your strategy, technology that works rather than wizardry, plus education, quality parts and an app, names the advantage well. It doesn't yet name the scope: which riders it is not for.","sources":[{"name":"Collis & Rukstad, Can You Say What Your Strategy Is?, HBR 2008","url":"https://hbr.org/2008/04/can-you-say-what-your-strategy-is"},{"name":"Roger Martin, The Big Lie of Strategic Planning, HBR 2014","url":"https://hbr.org/2014/01/the-big-lie-of-strategic-planning"},{"name":"Roger Martin on strategy (Lenny's Newsletter)","url":"https://www.lennysnewsletter.com/p/the-ultimate-guide-to-strategy-roger-martin"}]}}</script>
+<script>
+(function () {
+  var DATA = JSON.parse(document.getElementById('data').textContent)
+  var GUIDE = JSON.parse(document.getElementById('guide').textContent)
+
+  function guideBlock (name) {
+    var g = GUIDE[name]
+    if (!g) { return null }
+    var box = el('div', 'guide')
+    box.appendChild(el('div', 'label', 'What a ' + name + ' statement is for, and how it should be built'))
+    function part (title, node) { var w = el('div'); w.style.display = 'grid'; w.style.gap = '4px'; w.appendChild(el('h3', null, title)); w.appendChild(node); box.appendChild(w) }
+    part('Your Alignment document says', el('p', null, g.doc))
+    var ul = el('ul')
+    g.best.forEach(function (t) { ul.appendChild(el('li', null, t)) })
+    part('Best practice says', ul)
+    part('How it differs from the statements around it', el('p', null, g.differs))
+    part('Where the two disagree, and what it means for your draft', el('p', null, g.tension))
+    var src = el('div', 'src')
+    src.appendChild(el('span', null, 'Sources:'))
+    g.sources.forEach(function (s) {
+      var a = el('a', null, s.name)
+      a.href = s.url; a.target = '_blank'; a.rel = 'noopener'
+      src.appendChild(a)
+    })
+    box.appendChild(src)
+    return box
+  }
+  var notes = {}
+  var db = null
+  var timers = {}
+  var current = 'A'
+  var statusEl = document.getElementById('status')
+
+  function el (tag, cls, text) {
+    var e = document.createElement(tag)
+    if (cls) { e.className = cls }
+    if (text != null) { e.textContent = text }
+    return e
+  }
+
+  function setStatus (text, bad) {
+    statusEl.textContent = text
+    statusEl.className = 'status' + (bad ? ' bad' : '')
+  }
+
+  function save (id, foot) {
+    if (!db) { foot.textContent = 'Not saved: this view cannot save.'; return }
+    clearTimeout(timers[id])
+    foot.textContent = 'Saving…'
+    foot.className = ''
+    timers[id] = setTimeout(function () {
+      var n = notes[id] || {}
+      db.doc('notes/' + id).set({ edited: n.edited == null ? null : n.edited, thoughts: n.thoughts || '', updatedAt: new Date().toISOString() })
+        .then(function () { foot.textContent = 'Saved'; foot.className = 'saved' })
+        .catch(function (err) { foot.textContent = 'Not saved (' + ((err && err.code) || 'error') + '). Try typing again.'; foot.className = '' })
+    }, 700)
+  }
+
+  function render () {
+    var s = DATA.styles[current]
+    var brief = document.getElementById('brief')
+    brief.textContent = ''
+    var p1 = el('div'); p1.appendChild(el('b', null, 'Purpose: ')); p1.appendChild(document.createTextNode(s.purpose))
+    var p2 = el('div'); p2.appendChild(el('b', null, 'Style: ')); p2.appendChild(document.createTextNode(s.style))
+    brief.appendChild(p1); brief.appendChild(p2)
+
+    var host = document.getElementById('cards')
+    host.textContent = ''
+    DATA.cards.filter(function (c) { return c.style === current }).forEach(function (c) {
+      var n = notes[c.id] || {}
+      var card = el('article', 'card')
+      var head = el('div', 'card-head')
+      head.appendChild(el('h2', null, c.name))
+      head.appendChild(el('span', 'tag', 'Style ' + c.style))
+      card.appendChild(head)
+
+      var b1 = el('div', 'block')
+      b1.appendChild(el('div', 'label', 'What you said'))
+      b1.appendChild(el('p', 'said', c.said || '(nothing dictated)'))
+      card.appendChild(b1)
+
+      var b2 = el('div', 'block')
+      var l2 = el('label', 'label', 'Wordsmith’s statement (edit it here)')
+      var ta = el('textarea', 'statement')
+      ta.id = 'st-' + c.id
+      l2.htmlFor = ta.id
+      ta.value = n.edited != null ? n.edited : c.statement
+      b2.appendChild(l2); b2.appendChild(ta)
+      var f2 = el('div', 'row-foot')
+      var reset = el('button', 'reset', 'Put back Wordsmith’s draft')
+      reset.type = 'button'
+      var foot = el('span', n.updatedAt ? 'saved' : '', n.updatedAt ? 'Saved' : '')
+      f2.appendChild(reset); f2.appendChild(foot)
+      b2.appendChild(f2)
+      card.appendChild(b2)
+
+      var b3 = el('div', 'block')
+      b3.appendChild(el('div', 'label', 'Why Wordsmith wrote it this way'))
+      b3.appendChild(el('p', 'why', c.why))
+      card.appendChild(b3)
+
+      var gb = guideBlock(c.name)
+      if (gb) { card.appendChild(gb) }
+
+      var b4 = el('div', 'block')
+      var l4 = el('label', 'label', 'Your thoughts on this statement')
+      var tb = el('textarea', 'thoughts')
+      tb.id = 'th-' + c.id
+      l4.htmlFor = tb.id
+      tb.placeholder = 'Is it usable? What would you change, and why?'
+      tb.value = n.thoughts || ''
+      b4.appendChild(l4); b4.appendChild(tb)
+      card.appendChild(b4)
+
+      ta.addEventListener('input', function () {
+        notes[c.id] = notes[c.id] || {}
+        notes[c.id].edited = ta.value === c.statement ? null : ta.value
+        save(c.id, foot)
+      })
+      tb.addEventListener('input', function () {
+        notes[c.id] = notes[c.id] || {}
+        notes[c.id].thoughts = tb.value
+        save(c.id, foot)
+      })
+      reset.addEventListener('click', function () {
+        ta.value = c.statement
+        notes[c.id] = notes[c.id] || {}
+        notes[c.id].edited = null
+        save(c.id, foot)
+      })
+      host.appendChild(card)
+    })
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('nav.styles button'), function (b) {
+    b.addEventListener('click', function () {
+      current = b.getAttribute('data-style')
+      Array.prototype.forEach.call(document.querySelectorAll('nav.styles button'), function (x) {
+        x.setAttribute('aria-pressed', String(x === b))
+      })
+      render()
+    })
+  })
+
+  render()
+
+  if (window.claude && window.claude.use) {
+    window.claude.use('db').then(function (d) {
+      if (!d) { setStatus('This view cannot save. Open the page on claude.ai to keep your edits and thoughts.', true); return }
+      db = d
+      return db.collection('notes').get().then(function (snap) {
+        var docs = (snap && snap.docs) || snap || []
+        docs.forEach(function (doc) {
+          var id = doc.id || (doc.ref && doc.ref.id)
+          var v = typeof doc.data === 'function' ? doc.data() : (doc.data || doc)
+          if (id && v) { notes[id] = v }
+        })
+        setStatus('Your edits and thoughts save as you type.')
+        render()
+      })
+    }).catch(function () { setStatus('Could not load earlier notes. New typing still tries to save.', true) })
+  } else {
+    setStatus('This view cannot save. Open the page on claude.ai to keep your edits and thoughts.', true)
+  }
+})()
+</script>
