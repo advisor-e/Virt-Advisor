@@ -95,7 +95,9 @@ describe('what the screen may see', () => {
       closedAt: null,
       bytes: 9,
       audioDeleted: true,
-      attributionConfident: true
+      attributionConfident: true,
+      summaryState: null,
+      summaryApproved: false
     })
   })
 })

@@ -40,6 +40,7 @@ jest.mock('../../server/utils/firmOverlay', () => ({
 }))
 
 const https = require('https')
+const conceptSummary = require('../../server/utils/conceptSummary')
 const store = require('../../server/utils/meetingAudioStore')
 const review = require('../../server/routes/meetingReview')
 const seg = require('../../server/routes/meetingSegments')
@@ -110,10 +111,24 @@ const GOOD = JSON.stringify({
   ]
 })
 
-/** Wait until every segment job has finished. */
+/** Wait until every segment and summary job has finished. */
 async function drain () {
-  for (let i = 0; i < 50 && seg.segmentJobs.size; i += 1) {
+  for (let i = 0; i < 50 && (seg.segmentJobs.size || seg.summaryJobs.size); i += 1) {
     await new Promise(resolve => setTimeout(resolve, 5))
+  }
+}
+
+/** A summary as the model call would hand it back, stood in for so no test reaches OpenAI. */
+function draftSummary (sections) {
+  return {
+    generatedAt: '2026-09-28T10:00:00.000Z',
+    model: 'test',
+    provider: 'test',
+    sections: sections || [{ heading: 'How Suppliers May Change', text: 'Only two coating suppliers nearby.' }],
+    editedSections: null,
+    editedAt: null,
+    approvedAt: null,
+    clientAgreed: false
   }
 }
 
@@ -123,7 +138,8 @@ beforeEach(() => {
   mockNextForm = { fields: {}, files: {} }
   spies = [
     jest.spyOn(console, 'log').mockImplementation(() => {}),
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    jest.spyOn(console, 'error').mockImplementation(() => {}),
+    jest.spyOn(conceptSummary, 'generate').mockImplementation(() => Promise.resolve(draftSummary()))
   ]
 })
 afterEach(() => { spies.forEach(s => s.mockRestore()); jest.restoreAllMocks() })
@@ -466,5 +482,151 @@ describe('uploads', () => {
     const broken = makeRes()
     await seg.uploadSegmentChunk(req(id, { params: { n: '1' } }), broken)
     expect(bodyOf(broken).error.code).toBe('PARSE_ERROR')
+  })
+})
+
+describe('🔴 each concept\'s summary, approved by the advisor and client (slice 2)', () => {
+  /** A finished, transcribed one-segment session whose summary has been written. */
+  async function transcribedSession () {
+    openaiReplies(200, GOOD)
+    const id = newSession()
+    store.writeVoiceReference(id, Buffer.from('VOICE'), 'audio/webm')
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'porters-5-forces')
+    seg.closeSegment(req(id), makeRes())
+    await drain()
+    return id
+  }
+
+  function summaryReq (id, extra = {}) {
+    return req(id, { params: { n: '1' }, body: extra.body || {} })
+  }
+
+  test('a summary is written as soon as the segment is text, from its words alone', async () => {
+    const id = await transcribedSession()
+    expect(store.readSegmentSummary(id, 1).sections[0].text).toBe('Only two coating suppliers nearby.')
+    expect(store.readMeta(id).segments[0].summaryState).toBe('ready')
+    const call = conceptSummary.generate.mock.calls[0][0]
+    expect(call.segments.map(r => r.text)).toEqual(['the client spoke first', 'and the advisor replied'])
+    expect(JSON.stringify(call)).not.toContain(id)
+  })
+
+  test('a summary that could not be written says so on the segment', async () => {
+    conceptSummary.generate.mockImplementation(() => Promise.reject(new Error('model down')))
+    const id = await transcribedSession()
+    expect(store.readMeta(id).segments[0].summaryState).toBe('failed')
+    expect(store.readSegmentSummary(id, 1)).toBeNull()
+  })
+
+  test('approval needs the client\'s agreement ticked — nothing else approves', async () => {
+    const id = await transcribedSession()
+    const refused = makeRes()
+    seg.approveSegmentSummary(summaryReq(id, { body: {} }), refused)
+    expect(bodyOf(refused).error.code).toBe('CLIENT_NOT_AGREED')
+    expect(store.readSegmentSummary(id, 1).approvedAt).toBeNull()
+
+    const ok = makeRes()
+    seg.approveSegmentSummary(summaryReq(id, { body: { clientAgreed: true } }), ok)
+    expect(ok._body.approved).toBe(true)
+    expect(store.readSegmentSummary(id, 1).clientAgreed).toBe(true)
+    expect(store.readMeta(id).segments[0].summaryApprovedAt).toBeTruthy()
+  })
+
+  test('an edit changes the words, keeps the AI\'s draft beside them, and clears the approval', async () => {
+    const id = await transcribedSession()
+    seg.approveSegmentSummary(summaryReq(id, { body: { clientAgreed: true } }), makeRes())
+    const res = makeRes()
+    seg.saveSegmentSummary(summaryReq(id, { body: { sections: [{ heading: 'How Suppliers May Change', text: 'One coater is full until March.' }] } }), res)
+    expect(res._body.saved).toBe(true)
+    const stored = store.readSegmentSummary(id, 1)
+    expect(stored.editedSections[0].text).toBe('One coater is full until March.')
+    expect(stored.sections[0].text).toBe('Only two coating suppliers nearby.')
+    expect(stored.approvedAt).toBeNull()
+    expect(store.readMeta(id).segments[0].summaryApprovedAt).toBeNull()
+
+    const read = makeRes()
+    seg.getSegmentSummary(summaryReq(id), read)
+    expect(read._body.sections[0].text).toBe('One coater is full until March.')
+  })
+
+  test('an edit cannot invent a heading', async () => {
+    const id = await transcribedSession()
+    const res = makeRes()
+    seg.saveSegmentSummary(summaryReq(id, { body: { sections: [{ heading: 'Our Secret Plan', text: 'x' }] } }), res)
+    expect(bodyOf(res).error.code).toBe('BAD_EDIT')
+  })
+
+  test('an approved summary is never written over by a second run', async () => {
+    const id = await transcribedSession()
+    seg.approveSegmentSummary(summaryReq(id, { body: { clientAgreed: true } }), makeRes())
+    const res = makeRes()
+    seg.regenerateSegmentSummary(summaryReq(id), res)
+    expect(bodyOf(res).error.code).toBe('SUMMARY_APPROVED')
+    await seg.runSegmentSummary(id, 1)
+    expect(conceptSummary.generate).toHaveBeenCalledTimes(1)
+  })
+
+  test('a failed summary can be written again', async () => {
+    conceptSummary.generate.mockImplementationOnce(() => Promise.reject(new Error('down')))
+    const id = await transcribedSession()
+    const res = makeRes()
+    seg.regenerateSegmentSummary(summaryReq(id), res)
+    expect(res._status).toBe(202)
+    await drain()
+    expect(store.readMeta(id).segments[0].summaryState).toBe('ready')
+  })
+
+  test('a section not yet turned into text has no summary to read', () => {
+    const id = newSession()
+    recordSegment(id, 'A')
+    const res = makeRes()
+    seg.getSegmentSummary(summaryReq(id), res)
+    expect(bodyOf(res).error.code).toBe('NO_SEGMENT')
+  })
+
+  test('a single-file meeting has no concept summaries', () => {
+    const { meetingId } = store.createMeeting({ firmId: FIRM, advisor: ADVISOR, retentionMonths: 18 })
+    const res = makeRes()
+    seg.getSegmentSummary(req(meetingId, { params: { n: '1' } }), res)
+    expect(bodyOf(res).error.code).toBe('NOT_SEGMENTED')
+  })
+
+  test('a colleague cannot read, edit or approve another advisor\'s summaries', async () => {
+    const id = await transcribedSession()
+    const stranger = { firmId: FIRM, advisorId: 'someone-else', params: { meetingId: id, n: '1' }, body: { clientAgreed: true } }
+    const res = makeRes()
+    seg.approveSegmentSummary(stranger, res)
+    expect(res._status).toBe(404)
+  })
+
+  test('editing or approving a summary that was never written is refused', async () => {
+    conceptSummary.generate.mockImplementation(() => Promise.reject(new Error('down')))
+    const id = await transcribedSession()
+    const edit = makeRes()
+    seg.saveSegmentSummary(summaryReq(id, { body: { sections: [] } }), edit)
+    expect(bodyOf(edit).error.code).toBe('NO_SUMMARY')
+    const approve = makeRes()
+    seg.approveSegmentSummary(summaryReq(id, { body: { clientAgreed: true } }), approve)
+    expect(bodyOf(approve).error.code).toBe('NO_SUMMARY')
+  })
+
+  test('🔴 Decision J: the Meeting Summary holds only what the client approved, and no model is asked', async () => {
+    const id = await transcribedSession()
+    review.finishRecording(req(id), makeRes())
+    await drain()
+
+    // Not yet approved: the Meeting Summary is empty, and says one is waiting.
+    await review.runReports(id, { points: [], scenarioName: 'Strategy Session' })
+    let report = store.readReport(id, 'summary')
+    expect(report.covered).toBe('')
+    expect(report.waitingForApproval).toBe(1)
+    expect(report.model).toBeNull()
+
+    seg.approveSegmentSummary(summaryReq(id, { body: { clientAgreed: true } }), makeRes())
+    await review.runReports(id, { points: [], scenarioName: 'Strategy Session' })
+    report = store.readReport(id, 'summary')
+    expect(report.covered).toContain('Only two coating suppliers nearby.')
+    expect(report.actions).toEqual([])
+    expect(report.composedFromConcepts.map(c => c.n)).toEqual([1])
   })
 })

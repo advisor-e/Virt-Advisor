@@ -1532,9 +1532,17 @@ deletion in `meetingAudioStore.js`, the clip in `transcriptionClient.js`, and th
 Session" type in `data/meeting-observations.json`. Each segment is transcribed as it closes and its
 audio destroyed at once; the clip is destroyed when the recording ends; the joined transcript is
 what Meeting Review's reports read. **A later segment transcribed without the clip is recorded as
-not confident**, since only segment 1 has the consent line to anchor on. Not yet built: concept
-summaries (slice 2), timing (slice 3), the Run session screen (slice 4). **Never run against real
-OpenAI or a real microphone** — that proof needs the desktop or UAT. Every ruling below
+not confident**, since only segment 1 has the consent line to anchor on. **Slice 2 is built too
+(2026-09-28): the concept summaries' backend** — `server/utils/conceptSummary.js` and four routes on
+`/api/meeting/recordings/:id/segments/:n/summary` (read, edit, write again, approve). Each summary is
+written as soon as its segment is text, under the concept's own capture headings (one section under
+the concept's name when it has none — 13 of the 48 today), with "nothing said" left empty rather
+than filled. Approval needs `clientAgreed: true`, the screen's tick; an edit clears it; an approved
+summary is never written over. **Decision J is enforced in `runReports`**: a strategy session's
+Meeting Summary is composed from approved concept summaries only, with no model call and no
+extracted actions. Not yet built: timing (slice 3), the Run session screen (slice 4), which is where
+screen 10 is drawn. **Never run against real OpenAI or a real microphone** — that proof needs the
+desktop or UAT. Every ruling below
 is Mike's, 2026-09-28.
 
 **Order.** *"perhaps the ability to record the session and summarise would be first place to

@@ -891,6 +891,11 @@ server.post('/api/meeting/recordings/:meetingId/voice-reference', firmAuth, meet
 server.post('/api/meeting/recordings/:meetingId/segments', firmAuth, meetingSegmentsRoute.openNextSegment)
 server.post('/api/meeting/recordings/:meetingId/segments/close', firmAuth, meetingSegmentsRoute.closeSegment)
 server.post('/api/meeting/recordings/:meetingId/segments/:n/chunk', firmAuth, meetingSegmentsRoute.uploadSegmentChunk)
+// Slice 2 — each concept's summary, edited and approved by the advisor and client (screen 10).
+server.get('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.getSegmentSummary)
+server.put('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.saveSegmentSummary)
+server.post('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.regenerateSegmentSummary)
+server.post('/api/meeting/recordings/:meetingId/segments/:n/summary/approve', firmAuth, meetingSegmentsRoute.approveSegmentSummary)
 
 // Slice 3 — the two reports. `firmAuth` only, like the recording routes above: each of these
 // guards on the ADVISOR as well as the firm inside `ownedMeeting`, because Brief P2 gives a

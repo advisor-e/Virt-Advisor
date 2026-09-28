@@ -748,11 +748,18 @@ async function runReports (meetingId, ctx) {
   }
 
   try {
-    const summary = await generateSummary({
-      transcript,
-      scenarioName: ctx.scenarioName,
-      apiKey: process.env.OPENAI_API_KEY
-    })
+    const meta = store.readMeta(meetingId)
+    // 🔴 DECISION J (item 8.4, Mike 2026-09-28): a strategy session's Meeting Summary is built
+    // ONLY from the concept summaries the client approved — no model call, and no word the
+    // client never saw. A single-file meeting keeps its generated summary, unchanged.
+    const summary = (meta && meta.segmented)
+      ? require('../utils/conceptSummary').composeMeetingSummary(
+        meta.segments, n => store.readSegmentSummary(meetingId, n))
+      : await generateSummary({
+        transcript,
+        scenarioName: ctx.scenarioName,
+        apiKey: process.env.OPENAI_API_KEY
+      })
     store.writeReport(meetingId, 'summary', summary)
   } catch (err) {
     console.error('[meeting-review] summary generation failed:', err.message)

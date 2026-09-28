@@ -111,7 +111,11 @@ function publicSegments (meta) {
     closedAt: s.closedAt || null,
     bytes: s.bytes || 0,
     audioDeleted: Boolean(s.audioDeletedAt),
-    attributionConfident: typeof s.attributionConfident === 'boolean' ? s.attributionConfident : null
+    attributionConfident: typeof s.attributionConfident === 'boolean' ? s.attributionConfident : null,
+    // Slice 2: where the concept's summary has got to, and whether the client approved it —
+    // what the finished banner's "Summaries still waiting for approval" counts.
+    summaryState: s.summaryState || null,
+    summaryApproved: Boolean(s.summaryApprovedAt)
   }))
 }
 

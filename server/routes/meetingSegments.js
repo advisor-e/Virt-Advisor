@@ -33,6 +33,10 @@ const store = require('../utils/meetingAudioStore')
 const { createTranscriptionClient, REFERENCE_MIME_TYPES } = require('../utils/transcriptionClient')
 const { logSuffixNoFallback } = require('../utils/aiProvider')
 const { allSettled, joinTranscripts, publicSegments } = require('../utils/meetingSegments')
+// Called through the module object so a test can stand in for the model call.
+const conceptSummary = require('../utils/conceptSummary')
+const frameworks = require('../utils/strategyFrameworks')
+const captureForms = require('../utils/strategyCaptureForms')
 
 /** The same callback wrapper `meetingReview.js` uses around formidable v2's parse(). */
 function parseForm (form, req) {
@@ -105,6 +109,9 @@ async function runSegmentTranscription (meetingId, n) {
       attributionConfident: confident
     })
     store.updateSegment(meetingId, n, { state: 'done', attributionConfident: confident })
+    // Slice 2: the concept's summary is written as soon as its words exist, so the advisor and
+    // client can approve it while the concept is fresh (screen 10).
+    runSegmentSummary(meetingId, n)
   } catch (err) {
     console.error('[meeting-segments] segment ' + n + ' transcription failed:', err.message)
     store.updateSegment(meetingId, n, { state: 'failed' })
@@ -124,6 +131,60 @@ async function runSegmentTranscription (meetingId, n) {
     }
     segmentJobs.delete(key)
     settle(meetingId)
+  }
+}
+
+/**
+ * Concept-summary jobs in flight, keyed `<meetingId>:<n>`.
+ * @type {Map<string, string>}
+ */
+const summaryJobs = new Map()
+
+/**
+ * The headings a segment's summary is written under, from its concept's own capture table.
+ * @param {object} seg - one entry of `meta.segments`
+ * @returns {{headings: Array<string>, conceptName: string}}
+ */
+function headingsForSegment (seg) {
+  const concept = seg.conceptId ? frameworks.getConcept(seg.conceptId) : null
+  const capture = concept ? captureForms.captureForConcept(concept) : null
+  return {
+    headings: conceptSummary.headingsFor(concept, capture, seg.label),
+    conceptName: (concept && concept.name) || seg.label
+  }
+}
+
+/**
+ * Write one segment's concept summary (item 8.4, slice 2).
+ *
+ * ⚠ AN APPROVED SUMMARY IS NEVER OVERWRITTEN. A second run — a retry, a regenerate pressed
+ * twice — must not replace words the client has agreed to with fresh ones they have not seen.
+ *
+ * @param {string} meetingId
+ * @param {number} n
+ * @returns {Promise<void>}
+ */
+async function runSegmentSummary (meetingId, n) {
+  const key = meetingId + ':' + n
+  if (summaryJobs.has(key)) { return }
+  const meta = store.readMeta(meetingId)
+  const seg = ((meta && meta.segments) || []).filter(s => s.n === n)[0]
+  const text = store.readSegmentTranscript(meetingId, n)
+  const existing = store.readSegmentSummary(meetingId, n)
+  if (!seg || !text || (existing && existing.approvedAt)) { return }
+
+  summaryJobs.set(key, 'writing')
+  store.updateSegment(meetingId, n, { summaryState: 'writing' })
+  try {
+    const { headings, conceptName } = headingsForSegment(seg)
+    const summary = await conceptSummary.generate({ segments: text.segments || [], conceptName, headings })
+    store.writeSegmentSummary(meetingId, n, summary)
+    store.updateSegment(meetingId, n, { summaryState: 'ready', summaryApprovedAt: null })
+  } catch (err) {
+    console.error('[meeting-segments] segment ' + n + ' summary failed:', err.message)
+    store.updateSegment(meetingId, n, { summaryState: 'failed' })
+  } finally {
+    summaryJobs.delete(key)
   }
 }
 
@@ -398,6 +459,141 @@ function finishSegmented (meta, res) {
   }
 }
 
+// ── Concept summaries (slice 2, screen 10) ──────────────────────────────────────────
+
+/**
+ * The owned, segmented meeting and one of its transcribed segments — or an error already sent.
+ * Unlike the recording routes, these work after the recording has finished: an advisor may
+ * finish approving summaries after the client has left.
+ */
+function transcribedSegment (req, res) {
+  const meta = ownedMeeting(req, res)
+  if (!meta) { return null }
+  if (!meta.segmented) {
+    sendError(res, 409, 'NOT_SEGMENTED', 'This recording is not a strategy session.')
+    return null
+  }
+  const n = parseInt(req.params.n, 10)
+  const seg = (meta.segments || []).filter(s => s.n === n)[0]
+  if (!seg || seg.state !== 'done') {
+    sendError(res, 404, 'NO_SEGMENT', 'That section has not been turned into text.')
+    return null
+  }
+  return { meta, seg, n }
+}
+
+/**
+ * GET /api/meeting/recordings/:meetingId/segments/:n/summary  (advisor)
+ *
+ * One concept's summary, and where writing it has got to.
+ *
+ * @route GET /api/meeting/recordings/:meetingId/segments/:n/summary
+ * @returns {{state: (string|null), summary: (object|null), sections: Array<object>}}
+ */
+function getSegmentSummary (req, res) {
+  const found = transcribedSegment(req, res)
+  if (!found) { return }
+  const summary = store.readSegmentSummary(found.meta.meetingId, found.n)
+  res.send(200, {
+    state: found.seg.summaryState || null,
+    summary,
+    // What the screen shows: the edited words if the advisor and client changed them.
+    sections: conceptSummary.currentSections(summary)
+  })
+}
+
+/**
+ * PUT /api/meeting/recordings/:meetingId/segments/:n/summary  (advisor)
+ *
+ * The advisor's and client's edit. The words under each heading change; the headings do not.
+ *
+ * ⚠ AN EDIT CLEARS ANY EXISTING APPROVAL, as Meeting Review's own summary does: words approved
+ * and then changed must never still read as approved.
+ *
+ * @route PUT /api/meeting/recordings/:meetingId/segments/:n/summary
+ * @param {object} req.body - `{ sections: [{heading, text}] }`
+ * @returns {{saved: true, sections: Array<object>}}
+ */
+function saveSegmentSummary (req, res) {
+  const found = transcribedSegment(req, res)
+  if (!found) { return }
+  const summary = store.readSegmentSummary(found.meta.meetingId, found.n)
+  if (!summary) { return sendError(res, 404, 'NO_SUMMARY', 'This section has no summary yet.') }
+
+  const headings = (summary.sections || []).map(s => s.heading)
+  const checked = conceptSummary.validateEdit((req.body || {}).sections, headings)
+  if (!checked.ok) { return sendError(res, 400, 'BAD_EDIT', checked.error) }
+
+  try {
+    store.writeSegmentSummary(found.meta.meetingId, found.n, {
+      ...summary,
+      editedSections: checked.sections,
+      editedAt: new Date().toISOString(),
+      approvedAt: null,
+      clientAgreed: false
+    })
+    store.updateSegment(found.meta.meetingId, found.n, { summaryApprovedAt: null })
+    res.send(200, { saved: true, sections: checked.sections })
+  } catch (err) {
+    console.error('[meeting-segments] summary edit failed:', err.message)
+    return sendError(res, 500, 'MEETING_ERROR', 'Could not save that summary')
+  }
+}
+
+/**
+ * POST /api/meeting/recordings/:meetingId/segments/:n/summary/approve  (advisor)
+ *
+ * The advisor approves one concept's summary, confirming the client has read and agrees with it.
+ *
+ * 🔴 THE CLIENT'S AGREEMENT IS REQUIRED, NOT ASSUMED. The screen's tick — *"The client has read
+ * this summary and agrees with it"* (approved 2026-09-28) — arrives as `clientAgreed: true`, and
+ * nothing else approves. This app has no client login, so this is the advisor's confirmation that
+ * the client agreed, in the same way the consent tick is.
+ *
+ * @route POST /api/meeting/recordings/:meetingId/segments/:n/summary/approve
+ * @param {object} req.body - `{ clientAgreed: true }`
+ * @returns {{approved: true, at: string}}
+ */
+function approveSegmentSummary (req, res) {
+  const found = transcribedSegment(req, res)
+  if (!found) { return }
+  if ((req.body || {}).clientAgreed !== true) {
+    return sendError(res, 400, 'CLIENT_NOT_AGREED', 'Tick that the client has read and agrees with this summary first.')
+  }
+  const summary = store.readSegmentSummary(found.meta.meetingId, found.n)
+  if (!summary) { return sendError(res, 404, 'NO_SUMMARY', 'This section has no summary yet.') }
+
+  try {
+    const at = new Date().toISOString()
+    store.writeSegmentSummary(found.meta.meetingId, found.n, { ...summary, approvedAt: at, clientAgreed: true })
+    store.updateSegment(found.meta.meetingId, found.n, { summaryApprovedAt: at })
+    res.send(200, { approved: true, at })
+  } catch (err) {
+    console.error('[meeting-segments] summary approval failed:', err.message)
+    return sendError(res, 500, 'MEETING_ERROR', 'Could not approve that summary')
+  }
+}
+
+/**
+ * POST /api/meeting/recordings/:meetingId/segments/:n/summary  (advisor)
+ *
+ * Write the summary again — when the first attempt failed, or the draft missed the point. Refused
+ * once approved: the client has agreed to those words.
+ *
+ * @route POST /api/meeting/recordings/:meetingId/segments/:n/summary
+ * @returns {{started: true}}
+ */
+function regenerateSegmentSummary (req, res) {
+  const found = transcribedSegment(req, res)
+  if (!found) { return }
+  const existing = store.readSegmentSummary(found.meta.meetingId, found.n)
+  if (existing && existing.approvedAt) {
+    return sendError(res, 409, 'SUMMARY_APPROVED', 'This summary is approved. Edit it instead.')
+  }
+  runSegmentSummary(found.meta.meetingId, found.n)
+  res.send(202, { started: true })
+}
+
 /** See `meetingReview.mountable`: Restify asserts a synchronous handler takes `next`. */
 function mountable (fn) {
   return function (req, res, next) {
@@ -411,6 +607,12 @@ module.exports = {
   uploadSegmentChunk,
   openNextSegment: mountable(openNextSegment),
   closeSegment: mountable(closeSegment),
+  getSegmentSummary: mountable(getSegmentSummary),
+  saveSegmentSummary: mountable(saveSegmentSummary),
+  approveSegmentSummary: mountable(approveSegmentSummary),
+  regenerateSegmentSummary: mountable(regenerateSegmentSummary),
+  runSegmentSummary,
+  summaryJobs,
   finishSegmented,
   startPending,
   closeLiveSegment,

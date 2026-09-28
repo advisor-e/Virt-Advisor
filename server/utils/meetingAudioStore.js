@@ -691,9 +691,15 @@ function _segmentStem (n) {
 /** A segment's text file: `seg-003-text.json`. */
 function _segmentTextName (n) { return _segmentStem(n) + '-text.json' }
 
-/** Is this a segment's text — anything `destroyTranscript` must take? */
+/** A segment's concept summary: `seg-003-summary.json` (item 8.4, slice 2). */
+function _segmentSummaryName (n) { return _segmentStem(n) + '-summary.json' }
+
+/**
+ * Is this a segment's text or summary — anything `destroyTranscript` must take?
+ * A concept summary is written from the client's own words, so it expires with them.
+ */
 function _isSegmentTextFile (name) {
-  return name.indexOf(SEGMENT_PREFIX) === 0 && /-text\.json$/.test(name)
+  return name.indexOf(SEGMENT_PREFIX) === 0 && /-(text|summary)\.json$/.test(name)
 }
 
 /** The meeting, refusing one that is not a segmented session still recording. */
@@ -908,6 +914,23 @@ function writeSegmentTranscript (meetingId, n, transcript) {
   )
 }
 
+/** Store one segment's concept summary. It expires with the text — see `_isSegmentTextFile`. */
+function writeSegmentSummary (meetingId, n, summary) {
+  fs.writeFileSync(
+    path.join(_meetingDir(meetingId), _segmentSummaryName(n)),
+    JSON.stringify(summary, null, 2)
+  )
+}
+
+/** One segment's concept summary, or null when none has been written. */
+function readSegmentSummary (meetingId, n) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(_meetingDir(meetingId), _segmentSummaryName(n)), 'utf8'))
+  } catch (_e) {
+    return null
+  }
+}
+
 /** Does any segment's text remain? What the expiry sweep asks before skipping a meeting. */
 function hasSegmentText (meetingId) {
   try {
@@ -952,6 +975,8 @@ module.exports = {
   readSegmentTranscript,
   hasSegmentText,
   hasAudio,
+  writeSegmentSummary,
+  readSegmentSummary,
   audioRoot,
   createMeeting,
   listMeetingIds,
