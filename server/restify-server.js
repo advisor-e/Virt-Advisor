@@ -132,6 +132,7 @@ const depreciationRatesRoute = require('./routes/depreciationRates')
 const countrySchedulesRoute = require('./routes/countrySchedules')
 const taxRatesRoute = require('./routes/taxRates')
 const sellDownRoute = require('./routes/forecastSellDown')
+const growthAspectsRoute = require('./routes/growthAspects')
 const benchmarkerRoute = require('./routes/benchmarker')
 const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
@@ -141,6 +142,7 @@ const industryVocabularyRoute = require('./routes/industryVocabulary')
 const aiReadinessRoute = require('./routes/aiReadiness')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
+const meetingSegmentsRoute = require('./routes/meetingSegments')
 const registerRetentionRoute = require('./routes/registerRetentionRoutes')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const complianceRoute = require('./routes/compliance')
@@ -709,6 +711,21 @@ server.get('/api/firm-manager/sell-down', ...fmGuard, sellDownRoute.getForManage
 server.post('/api/firm-manager/sell-down', ...fmGuard, sellDownRoute.save)
 server.get('/api/firm-manager/sell-down/history', ...fmGuard, sellDownRoute.history)
 server.post('/api/firm-manager/sell-down/restore', ...fmGuard, sellDownRoute.restore)
+// The nine Growth Aspects' descriptions and Mike's questions behind them (item 15.2),
+// cascading through all four manager tiers on the standard rules. Same guard as the
+// sell-down ladder above; advisors read the resolved wording through
+// GET /api/strategy/frameworks, never through these.
+server.get('/api/firm-manager/growth-aspects', ...fmGuard, growthAspectsRoute.getForManager)
+server.post('/api/firm-manager/growth-aspects/questions', ...fmGuard, growthAspectsRoute.addQuestion)
+server.put('/api/firm-manager/growth-aspects/questions', ...fmGuard, growthAspectsRoute.editQuestion)
+server.post('/api/firm-manager/growth-aspects/questions/off', ...fmGuard, growthAspectsRoute.setQuestionOff)
+server.post('/api/firm-manager/growth-aspects/questions/use-inherited', ...fmGuard, growthAspectsRoute.useInheritedQuestion)
+server.post('/api/firm-manager/growth-aspects/questions/keep-mine', ...fmGuard, growthAspectsRoute.keepMineQuestion)
+server.put('/api/firm-manager/growth-aspects/description', ...fmGuard, growthAspectsRoute.editDescription)
+server.post('/api/firm-manager/growth-aspects/description/use-inherited', ...fmGuard, growthAspectsRoute.useInheritedDescription)
+server.post('/api/firm-manager/growth-aspects/description/keep-mine', ...fmGuard, growthAspectsRoute.keepMineDescription)
+server.get('/api/firm-manager/growth-aspects/history', ...fmGuard, growthAspectsRoute.history)
+server.post('/api/firm-manager/growth-aspects/restore', ...fmGuard, growthAspectsRoute.restore)
 // The instructions the AI is given when it builds a model, and the three settings a
 // manager may change on them (Mike, 2026-08-21). Same shape and same guard as the tax
 // rules above: one set of routes for every tier, scoped to `req.firmId` from the verified
@@ -861,8 +878,26 @@ server.post('/api/meeting/recordings', firmAuth, complianceRoute.requireDeclarat
 server.post('/api/meeting/recordings/:meetingId/consent', firmAuth, mr.confirmConsent)
 server.post('/api/meeting/recordings/:meetingId/chunk', firmAuth, mr.uploadChunk)
 server.post('/api/meeting/recordings/:meetingId/finish', firmAuth, mr.finishRecording)
+// Item 8.5: the advisor's own unfinished recordings, and when each one's audio will be destroyed.
+// Registered before the `:meetingId` read below; the router prefers the static path regardless.
+server.get('/api/meeting/recordings/unfinished', firmAuth, mr.listUnfinished)
 server.get('/api/meeting/recordings/:meetingId', firmAuth, mr.getRecording)
 server.del('/api/meeting/recordings/:meetingId', firmAuth, mr.deleteRecording)
+
+// A strategy session recorded in concept segments (item 8.4, drawing approved 2026-09-28).
+// Behind the same choke point as above: a session is started by POST /api/meeting/recordings
+// with `segmented: true`, so the compliance gate still governs whether one can exist.
+server.post('/api/meeting/recordings/:meetingId/voice-reference', firmAuth, meetingSegmentsRoute.uploadVoiceReference)
+server.post('/api/meeting/recordings/:meetingId/segments', firmAuth, meetingSegmentsRoute.openNextSegment)
+server.post('/api/meeting/recordings/:meetingId/segments/close', firmAuth, meetingSegmentsRoute.closeSegment)
+server.post('/api/meeting/recordings/:meetingId/segments/:n/chunk', firmAuth, meetingSegmentsRoute.uploadSegmentChunk)
+// Screen 11: a finished pause, so its minutes are added back to later words' times.
+server.post('/api/meeting/recordings/:meetingId/segments/:n/pauses', firmAuth, meetingSegmentsRoute.recordPause)
+// Slice 2 — each concept's summary, edited and approved by the advisor and client (screen 10).
+server.get('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.getSegmentSummary)
+server.put('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.saveSegmentSummary)
+server.post('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.regenerateSegmentSummary)
+server.post('/api/meeting/recordings/:meetingId/segments/:n/summary/approve', firmAuth, meetingSegmentsRoute.approveSegmentSummary)
 
 // Slice 3 — the two reports. `firmAuth` only, like the recording routes above: each of these
 // guards on the ADVISOR as well as the firm inside `ownedMeeting`, because Brief P2 gives a

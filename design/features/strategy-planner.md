@@ -855,10 +855,12 @@ framing page among agenda rows lost its page number, its title and its drawing; 
 titled-concepts registry gained a duplicate key, caught by the lint rather than by the count
 guarding it — that guard now counts concepts, which is what it always meant.
 
-**What is left is ONE framework with a real slide and no drawing** — **Define the Cultural Core
-Values**, Organisational Review p11, his numbered five-part list and the Belongs / Behave /
-Believe circle. Item **15.17**. *Drafting Tender Proposals* is the other unrunnable row and is
-not a gap: his own summary calls it general reading.
+☑ **Define the Cultural Core Values is drawn and built** — Organisational Review p11, his
+numbered five-part list and the Belongs / Behave / Believe circle, from
+[`strategy-concept-cultural-core-values.html`](../mockups/strategy-concept-cultural-core-values.html),
+approved by Mike 2026-09-28 (item 15.17). Its row stays an agenda row on page 2; the drawing is
+found by concept id. *Drafting Tender Proposals* is now the one unrunnable row and is not a gap:
+his own summary calls it general reading.
 
 
 ### 7a. The in-card calculators — what stage 7 used to be, and why it is not
@@ -1153,9 +1155,8 @@ from a list of the nine**, and the wheel counts those. No model reads an objecti
 | | |
 |---|---|
 | **The three objective tests** — *"Can a failing objective reach the plan"* (the session an advisor runs) | Ruled *"flag it, never block"* and drawn as Yes/No badges. Not in the build. |
-| **The Mentor Hub authoring tab** | Needs `FirmManagerHub.vue`, active on the desktop. |
-| **Voice recording** | A strategy session is a **Meeting Review meeting type** (*"Voice recording the session"*, the session an advisor runs) — the Planner builds no recorder. It inherits that feature's gates: **a firm records nothing until it has made the Compliance declaration** (built 2026-09-10), and **a first real recording waits on OpenAI switching ZDR on** — signed 2026-09-23, approved 2026-09-24. A lawyer and staff consultation are the firm's own, never gates (Mike's rulings; [`meeting-review.md`](meeting-review.md) §4). **The typed capture must stand alone until ZDR is on.** Sections, item 8.4: [`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html), drawn 2026-09-25, not approved. |
-| **The 98 Growth Aspect questions — the Mentor Hub tab and the AI's suggestions** | Item **15.2**, drawn and approved 2026-09-27: [`../mockups/growth-aspect-questions.html`](../mockups/growth-aspect-questions.html). **Built:** all 98 stored word for word in `data/growth-fundamentals.json`, opened per aspect from the coverage wheel, pinned by `tests/unit/growthAspectQuestions.test.js`. **Not built:** the Mentor Hub tab, which waits for PR #134 because both change `FirmManagerHub.vue`; and the AI naming the aspect as a recorded section closes, which stands on item 8.4. |
+| **Voice recording** | A strategy session is a **Meeting Review meeting type** (*"Voice recording the session"*, the session an advisor runs) — the Planner builds no recorder. It inherits that feature's gates: **a firm records nothing until it has made the Compliance declaration** (built 2026-09-10), and **a first real recording waits on OpenAI switching ZDR on** — signed 2026-09-23, approved 2026-09-24. A lawyer and staff consultation are the firm's own, never gates (Mike's rulings; [`meeting-review.md`](meeting-review.md) §4). **The typed capture must stand alone until ZDR is on.** Sections, item 8.4: [`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html), drawn 2026-09-25, not approved. **Mike's rulings of 2026-09-28 on segments and Wordsmith: §9b.** |
+| **The AI naming the aspect as a recorded section closes (15.2's screen 2)** | Stands on item 8.4's section recording and is carried on its note. The 98 questions themselves are built: stored word for word in `data/growth-fundamentals.json`, opened per aspect from the coverage wheel, and edited on the hub's **Growth Aspect Questions** tab at all four managing tiers on the standard cascade ([`../mockups/growth-aspect-questions.html`](../mockups/growth-aspect-questions.html), screens 3 and 3b). |
 | **The aspect descriptions on the wheel labels** | Mike's own deferral, 2026-09-16. |
 | **Everything the redirection opened** | How each of the 21 teaching and 9 capture forms is drawn · how a step's slides lay out on a page · how a manager ADDS a concept at each tier (Mike's request, 2026-09-17, mentor cascading down). **None of this is designed. Do not assume it from the September drawing.** *(One thing has LEFT this row: the document's assembly ORDER is Pivot's anatomy, census §1. And one thing has left the FEATURE: the "Where To Start??" routing flow, withdrawn by Mike on 2026-09-17 — see the box at the top.)* |
 
@@ -1530,6 +1531,160 @@ paragraphs take 19–273 more characters; circle labels about 7.
    view, so a lower page would have reported "fits" whatever it hit.
 3. **A failed save reuses the page's own message** (*"That box could not be saved…"*) and leaves
    the box open with the words in it, rather than adding an unapproved sentence.
+
+## 9b. Recording a session in concept segments, then Wordsmith — built 2026-09-28
+
+Items **8.4** (recording, built) and **15.14** (Wordsmith, built second, after the recording — which is built). Drawing:
+[`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html),
+**approved for build by Mike on 2026-09-28** — *"i approve the drawing to build"* — as committed in
+`976533c2`; every decision and label on it ruled one question at a time. Screen 11 was added and
+built the same day on his rulings without a separate approval, on his word. Screen 4 — words placed
+into the boxes, the AI's tidied wording (Decisions D and F, unruled) — is the **second build**, not
+built. How the old version of this block read is on the history page.
+
+**How it works.** A strategy session is a Meeting Review meeting of type **"Strategy Session"**,
+recorded **one concept at a time**:
+
+- **Record.** "Record this section" sits on top of each Run session card; pressing another card
+  closes the live section and opens its own. Consent is read once, in the first section, through
+  Meeting Review's own panel (record → speak → confirm). "Take a break" closes the live section;
+  "End recording" finishes; "Stop and delete everything" destroys every section. A tab the system
+  suspends raises Meeting Review's own red alarm, with "Resume recording".
+- **Size and silence.** A section rolls over to "part 2" at 25 minutes or 20 MB. After **3 minutes
+  quieter than a quarter of the advisor's own level** (measured on the consent line, in the
+  browser, nothing sent) the recording pauses, in amber, and carries on at the first sound; the
+  paused minutes are added back to later words' times. The countdown keeps counting.
+- **Text and deletion.** Each section is transcribed as it closes and its audio destroyed at once,
+  whether or not that worked. The advisor is told apart by an 8-second clip of their own voice cut
+  from the consent line, destroyed when the recording ends; a later section transcribed without it
+  is recorded as not confident. A section in which nothing was said is transcribed and empty.
+- **Summaries.** Each section's summary is written under its concept's own capture headings (one
+  section under its name for the 13 concepts with none); a silent section's has every heading empty
+  and asks no AI. The advisor and client edit it — never the transcript — and approve it with the
+  tick "The client has read this summary and agrees with it". **Decision J:** the joined Meeting
+  Summary is composed from approved summaries only, with no model call.
+- **Timing.** Build session puts minutes beside each concept, breaks and "Day N starts" rows
+  anywhere, and works every clock time out from one start time (`utils/sessionTiming.js`, saved as
+  `scope.timing`). Run session shows the timed agenda above the cards when a start time is set,
+  and the countdown in the corner — red, with "Running N min behind", on an overrun.
+
+**Code.** `server/routes/meetingSegments.js`, `server/utils/meetingSegments.js`,
+`server/utils/conceptSummary.js`, `meetingAudioStore.js`, `transcriptionClient.js`;
+`components/strategy/StrategySessionRecorder.vue`, `StrategyRunAgenda.vue`,
+`StrategyConceptSummary.vue`, `StrategyStepBuilder.vue`; `pages/strategy-planner.vue`.
+
+**Differences from the drawing, each deliberate:** the live card says "recording" (or "paused")
+rather than showing its own clock — the strip carries it; the agenda sits above the cards, not
+beside them (a column beside them squeezed every card — Mike's first recording found it); "+ Add a
+break here" follows every row, not only each step's foot; the finished banner shows only when
+every section was turned into text, as its approved words claim. Added while building, each on
+Mike's wording: "+ Start the next day here", "Take a break", "This summary couldn't be written." /
+"Write it again", and Meeting Review's alarm reused word for word.
+
+**Proven, and not.** Walked on the laptop in a built app with real OpenAI calls: a test-tone
+microphone through record, break, resume and end, every piece of audio destroyed with logged
+proof; a test sound file through a real 3-minute pause and resume; and **Mike's own voice** — a
+word-perfect transcript, the advisor named by the clip throughout. **Not measured:** whether a
+first word is clipped after a pause, a two-person room, and real persistence (the laptop has no
+MySQL).
+
+Every ruling below is Mike's, 2026-09-28.
+
+**Order.** *"perhaps the ability to record the session and summarise would be first place to
+start. Meeting Review code elsewhere in this app should be referred to - read the code, not just
+the notes."* The first build is the drawing's screens 1, 2, 3, 5 and 6, ending in Meeting Review's
+existing Meeting Summary. Screen 4 (words placed into boxes, and the AI's tidied wording) comes
+second. That is Decision 11's tidy (§5), **not** Wordsmith.
+
+**One segment per concept (Decision A).** *"we can split the recording sessions into a prompt per
+content piece added. framing the session and running the agenda can be 1 piece but after that,
+owners expectations vs porters 5 forces as examples, would each be their own 'concept segment' -
+recordings can then be combine once edited/approved by advisor and client"*. Each segment is its
+own file, which keeps every file under OpenAI's 25 MB limit. That limit is what item 8.4 was
+filed for, because `runTranscription` sends the whole meeting as one file.
+
+**What is edited is the segment's summary, never its transcript** (his yes, the same day). The
+word-for-word transcript stays exactly as spoken, for two reasons in the code:
+`clientCopyRequests.js` stores a client's correction *beside* the transcript and never in it, and
+My Coaching Notes check every quote against the transcript (`meetingReports.js`). The advisor and
+client approve each segment's short summary in the room. The client approves on the advisor's
+screen, because this app has no client login. The approved summaries are then joined. **Screen 10,
+approved and built 2026-09-28**: each summary is written under the concept's own capture
+headings, and an edit clears an earlier approval, as `saveSummaryEdit` does today. **Decision J
+RULED (his yes):** the joined Meeting Summary is built only from summaries the client approved; any
+still waiting stay on their cards to finish later.
+
+**A segment starts only when the advisor presses (Decision B).** Mike's yes to: each concept segment
+starts recording only when the advisor presses that card's "Record this section" button, and
+pressing the next card's button closes the one before. Recording never starts because a box was
+opened.
+
+**Consent once per session (Decision C).** Mike's yes to: the advisor reads the consent line once,
+in the first framing-and-agenda segment, and that one consent covers every later concept segment of
+the same session. Every later segment carries the first segment's confirmed consent, so the server's
+refusal to transcribe without it (`finishRecording`) still holds for each segment. The consent
+line is also where the advisor's 8-second voice clip is taken.
+
+**A long segment splits itself (Decision E).** Mike's yes to: a concept segment closes by itself
+and carries on as "part 2" of the same card at **25 minutes or 20 MB, whichever comes first**.
+Size, because OpenAI's limit is 25 MB, and the 0.9 MB-a-minute rate was measured once, in one
+browser. The server already counts each recording's bytes as the pieces arrive (`meta.bytes`).
+He added, the same day: *"perhaps a small count-down time in the corner of the screen will help
+people stay focused??"* The planner then held no planned time per concept, and he answered what it
+counts from: *"the build section should have a time allowance next to each content in the agenda.
+this way, when pushed thru to 'run session' the agenda show the items and time allowance per
+section, as well as the count down. I have a basic 'run sheet' that gives an example of setting time
+for a session, it allows for lunch breaks etc - each section as a start and stop time for this
+purpose"*. **Screens 7–9, approved and built 2026-09-28**, with Decisions G (a concept that runs
+over), H (a second day) and I (the run sheet's Purpose and Resource columns). **G RULED (his yes, 2026-09-28):** an overrun shows a red "+ minutes over" countdown
+and a "Running … behind · now finishing …" line on the agenda; the planned times from Build session
+never move. **H RULED (his yes):** a "Day 2 starts" row, with that day's own start time, can sit
+between any two concepts, so a two-day workshop stays one session and one plan. **I RULED (his
+yes):** the run sheet's Purpose column is Build session's existing step purpose box; a Resource
+required column waits until the timing is in use. His run sheet is
+the example it was drawn from — `Team Workshop Run Sheet.xlsx` in
+`C:\Documents\Visual Code Projects\Strategy Planner` (outside the repo): one typed start time per
+day, minutes per row, each row's start = the previous finish, breaks and reviews as ordinary rows.
+**The time sits on each CONCEPT, and a step is their subtotal** — Mike, 2026-09-28, declining a
+time per step: *"make it fit each concept - almost like sub totals of time per section but yes, the
+numbers should auto calculate from a start time and time per concept"*. So the countdown counts the
+live concept's minutes, the same unit as a recording segment. **Breaks** (Mike's yes, 2026-09-28):
+the advisor can add a break row with its own minutes between any two concepts, even mid-step. Its
+minutes run the clock but join no step's subtotal, and recording closes for it ("Take a break").
+Its label, "Break", he approved the same day. **Measured afterwards by** the
+navigation timeline, which already records when each box opens: planned minutes against actual
+minutes, per concept.
+
+**Wordsmith, in his words.** *"the 'wordsmith' function is where AI listens to the conversation,
+asks the advisor and client for the purpose of the notes and the style they want them summarised
+in ex answer - 'This supports a bank loan or This is to put on a poster and hang in our staff
+room' and style - 'we want to sound humble but positive or we need to sound professional, educated
+people will review our submission' and then the wordsmit summaries and edits the key points to be
+used for stated purpose"*. **The gain:** *"save time for advisor and client trying to 'craft the
+perefect message'"*. It works from the recorded concept segments, not from the typed boxes; he
+declined a typed-box version. The purpose and style answers are words a person gave, so they are
+moderated and fenced as untrusted input. **Privacy (Mike's yes, 2026-09-28):** Wordsmith may send
+the spoken words of the Alignment Statements segment to OpenAI under Meeting Review's four
+conditions — that segment only — recorded as the second named use in `CLAUDE.md`'s exception.
+Checked against the twelve ZDR rules at scoping the same day: it passes as scoped.
+
+**Nothing from the recording leaves the app** (settles Meeting Review's P13 for this feature).
+*"the entire conversation wont be sent outside, it will just create the wordings in the strategic
+plan"* · *"the RECORDINGS never leave the app"* · the approved wording goes into the final planning
+report PDF, and *"after it leaves the app - who the client chooses to send it to is over to
+them"*.
+
+**Scope: Alignment Statements only, for now.** *"this feature should be limited to the 'alignment
+statements' section only"*, confirmed as *"yes - for now. once built we can see if it should also
+be available in other sections"*. That concept (15.28) has five named statements, Vision, Purpose,
+Values, Mission and Strategy, plus a three-column table. Its own instruction already asks for
+purpose and audience: *"say them in words the team, the customers and the community each
+understand."*
+
+**How Wordsmith will be measured** (impact test, stated before design): a bench of ten drafts
+from a real recorded segment, the five statements each written in two styles. Mike judges them,
+and fewer than seven usable with light edits means it is not earning its place. After it is built:
+the time from pressing Wordsmith to approved text, and how much of each draft survives unedited.
 
 ## 10. Where it lives
 

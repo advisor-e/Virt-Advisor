@@ -249,7 +249,11 @@ await, or any Node 16/18/20 built-in. Backend files are CommonJS (`require`/
   stripped** — the exception covers the *spoken content only*, so the other half of the rule above
   is untouched; **(c)** nothing derived from it leaves the firm
   ([`design/features/meeting-review.md`](design/features/meeting-review.md) P13); **(d)** the audio
-  is destroyed once transcribed. **This does not generalise, and it is not precedent.** Another
+  is destroyed once transcribed. **One further use, ruled by Mike 2026-09-28 (item 15.14):
+  Wordsmith** may send the spoken words of the **Alignment Statements** segment of a consented
+  Strategy Session to the model, under (a)–(d) — that segment only, never the rest of the session.
+  It is a second named use, decided by him, not a widening of the rule. **This does not
+  generalise, and it is not precedent.** Another
   feature wanting to send personal data to a model is a fresh decision for Mike, not an inference
   from this one. *(Granted ahead of the build: as of 2026-09-01 nothing in the repository sends
   anything, and this exists so the rule is not re-argued at build time.)*

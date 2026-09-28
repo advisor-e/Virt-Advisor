@@ -66,6 +66,29 @@ const CHUNKING_STRATEGY = 'auto'
 const UPLOAD_FILENAME = 'recording.webm'
 
 /**
+ * The label a known voice comes back under, when the advisor's clip is sent with a segment.
+ *
+ * 🔴 A STRATEGY SESSION IS RECORDED IN SEGMENTS (item 8.4, drawing approved 2026-09-28), and
+ * only the FIRST segment opens with the consent line. `attributeSpeakers`' anchor — whoever
+ * speaks first is the advisor — is therefore true of segment 1 and false of every other: a
+ * client who speaks first in segment 4 would swap every label in it, confidently. OpenAI's
+ * documented fix is a 2–10 second clip of a known speaker, sent with each file
+ * (`known_speaker_references[]`, design/openai/SPEECH-TO-TEXT-GUIDE-2026-09-24.md). The
+ * browser cuts it from the consent line, so it is the ADVISOR's voice, never the client's.
+ *
+ * ⚠ IT IS A VOICE SAMPLE USED TO TELL A PERSON APART, and that is why it lives only as long
+ * as the session's audio and is destroyed with it (`meetingAudioStore.destroyAudio`). Mike
+ * approved the drawing that carries it, with the risk stated, on 2026-09-28.
+ */
+const ADVISOR_SPEAKER_NAME = 'advisor'
+
+/**
+ * The audio types the clip may declare. It travels as a data URL, whose type OpenAI reads, so
+ * a type is checked against this list rather than copied from a request into the upload.
+ */
+const REFERENCE_MIME_TYPES = ['audio/webm', 'audio/ogg', 'audio/mp4', 'audio/mpeg', 'audio/wav']
+
+/**
  * Socket inactivity timeout. Generous: transcribing an hour of audio is not a page render,
  * and this is an IDLE guard rather than a total-duration cap — bytes arriving reset it, so
  * only a genuine stall trips it.
@@ -185,9 +208,11 @@ function parseDiarizedResponse (parsed) {
  * 🔴 THE ANCHOR IS THE CONSENT LINE, AND THAT IS THE WHOLE DESIGN. Brief §3: the advisor
  * speaks the consent wording, and speaks it FIRST, so whoever opens the recording is the
  * advisor. The legal foundation and the technical anchor are the same sentence. This is why
- * no voice sample is stored anywhere in this feature — a stored sample held so software can
- * recognise a person is biometric data, special-category under UK and EU law, and it is
- * unnecessary.
+ * a single-file meeting keeps no voice sample — a sample held so software can recognise a
+ * person is biometric data, special-category under UK and EU law, and here it is unnecessary.
+ * A SEGMENTED strategy session is the one exception: its later segments have no consent line
+ * to anchor on, so the advisor's clip travels with them (`knownAdvisor`, and
+ * `ADVISOR_SPEAKER_NAME` for why and for how long it lives).
  *
  * ⚠ AND IT IS WHY THE CONSENT LINE MUST NOT BE SHORTENED, MOVED, OR READ BY THE CLIENT.
  * Any of those three breaks attribution SILENTLY — every "did I use a metaphor" check becomes
@@ -200,15 +225,19 @@ function parseDiarizedResponse (parsed) {
  * person.
  *
  * @param {Array<object>} segments - from `parseDiarizedResponse`
+ * @param {string} [knownAdvisor] - the name the advisor's clip was sent under; when given, it
+ *   replaces the first-speaker anchor entirely
  * @returns {{segments: Array<object>, advisorSpeaker: (string|null), speakerCount: number,
  *   confident: boolean}}
  */
-function attributeSpeakers (segments) {
+function attributeSpeakers (segments, knownAdvisor) {
   const rows = Array.isArray(segments) ? segments : []
   const speakers = []
   rows.forEach((s) => {
     if (!speakers.includes(s.speaker)) { speakers.push(s.speaker) }
   })
+
+  if (knownAdvisor) { return attributeByKnownVoice(rows, speakers, knownAdvisor) }
 
   const advisorSpeaker = rows.length ? rows[0].speaker : null
   const confident = speakers.length >= 2
@@ -224,6 +253,49 @@ function attributeSpeakers (segments) {
     speakerCount: speakers.length,
     confident
   }
+}
+
+/**
+ * Label every segment when the advisor's clip was sent with the file.
+ *
+ * 🔴 A SEGMENT THE CLIP NEVER MATCHED IS NOT GIVEN TO THE CLIENT. If no segment comes back
+ * under the advisor's name, either the advisor said nothing or the match failed — and the
+ * second would make the advisor's own words read as the client's. Every row is `unknown` and
+ * the result is not confident, so the failure shows rather than blurs (§5 trap 1).
+ *
+ * @param {Array<object>} rows
+ * @param {Array<string>} speakers
+ * @param {string} knownAdvisor - the name the advisor's clip was sent under
+ * @returns {{segments: Array<object>, advisorSpeaker: (string|null), speakerCount: number,
+ *   confident: boolean}}
+ */
+function attributeByKnownVoice (rows, speakers, knownAdvisor) {
+  const matched = speakers.includes(knownAdvisor)
+  return {
+    segments: rows.map(s => ({
+      ...s,
+      role: !matched ? 'unknown' : (s.speaker === knownAdvisor ? 'advisor' : 'client')
+    })),
+    advisorSpeaker: matched ? knownAdvisor : null,
+    speakerCount: speakers.length,
+    confident: matched
+  }
+}
+
+/**
+ * The advisor's clip as the data URL OpenAI expects, or null when there is none.
+ *
+ * @param {{buffer: Buffer, mime: string}} [reference]
+ * @returns {string|null}
+ * @throws {Error} when a clip is supplied with a type outside `REFERENCE_MIME_TYPES`
+ */
+function referenceDataUrl (reference) {
+  if (!reference) { return null }
+  if (!Buffer.isBuffer(reference.buffer) || reference.buffer.length === 0) { return null }
+  if (!REFERENCE_MIME_TYPES.includes(reference.mime)) {
+    throw new Error('transcriptionClient: the voice reference has an audio type that is not allowed')
+  }
+  return 'data:' + reference.mime + ';base64,' + reference.buffer.toString('base64')
 }
 
 /**
@@ -278,6 +350,9 @@ function createTranscriptionClient (opts) {
    * @param {Buffer} params.buffer - the assembled recording
    * @param {string} [params.model] - defaults to DIARIZING_MODEL
    * @param {number} [params.timeout] - socket inactivity ms
+   * @param {{buffer: Buffer, mime: string}} [params.advisorReference] - the advisor's voice
+   *   clip. When given, the advisor is whoever the clip matches rather than whoever spoke
+   *   first — see `ADVISOR_SPEAKER_NAME`.
    * @returns {Promise<{segments: Array<object>, text: string, dropped: number,
    *   advisorSpeaker: (string|null), speakerCount: number, confident: boolean,
    *   model: string, bytes: number, latencyMs: number}>}
@@ -295,14 +370,21 @@ function createTranscriptionClient (opts) {
       ? params.timeout
       : DEFAULT_TIMEOUT_MS
     const boundary = '----advisorE' + Date.now().toString(16)
+    const referenceUrl = referenceDataUrl(params && params.advisorReference)
+
+    const fields = [
+      { name: 'model', value: model },
+      { name: 'response_format', value: DIARIZED_FORMAT },
+      { name: 'chunking_strategy', value: CHUNKING_STRATEGY }
+    ]
+    if (referenceUrl) {
+      fields.push({ name: 'known_speaker_names[]', value: ADVISOR_SPEAKER_NAME })
+      fields.push({ name: 'known_speaker_references[]', value: referenceUrl })
+    }
 
     const body = buildMultipartBody(
       boundary,
-      [
-        { name: 'model', value: model },
-        { name: 'response_format', value: DIARIZED_FORMAT },
-        { name: 'chunking_strategy', value: CHUNKING_STRATEGY }
-      ],
+      fields,
       {
         name: 'file',
         filename: UPLOAD_FILENAME,
@@ -331,7 +413,7 @@ function createTranscriptionClient (opts) {
     }
 
     const read = parseDiarizedResponse(parsed)
-    const attributed = attributeSpeakers(read.segments)
+    const attributed = attributeSpeakers(read.segments, referenceUrl ? ADVISOR_SPEAKER_NAME : null)
 
     return {
       segments: attributed.segments,
@@ -354,9 +436,12 @@ module.exports = {
   DIARIZED_FORMAT,
   UPLOAD_FILENAME,
   TRANSCRIPTIONS_PATH,
+  ADVISOR_SPEAKER_NAME,
+  REFERENCE_MIME_TYPES,
   buildMultipartBody,
   readSegment,
   parseDiarizedResponse,
   attributeSpeakers,
+  referenceDataUrl,
   createTranscriptionClient
 }

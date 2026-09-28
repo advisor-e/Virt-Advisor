@@ -370,6 +370,62 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.17 · One framework has a real teaching slide and no drawing - Cultural Core Values.**
+✅ **Closed 2026-09-28 by Mike ("done").**
+
+- **His rulings:** proceed, 2026-09-25; the drawing approved 2026-09-28 (*"yes"*, asked as
+  approving it exactly as it stands); built on his yes the same day.
+- **What was done:** Organisational Review p11 drawn by the Brief's §0 method —
+  [`strategy-concept-cultural-core-values.html`](../mockups/strategy-concept-cultural-core-values.html),
+  24 spans from his text layer, his two green arrows as his own picture at his page's own
+  placement. Beside his 150dpi render the arrows differ in 0.01% of pixels or fewer. Built into
+  `components/strategy/concepts/DefineTheCulturalCoreValues.vue` by the generator.
+- **What proves it:** `conceptGraphics.test.js` (the component matches the approved drawing, the
+  frame is on it, the counts 43 and 36). Walked in a browser on the built app: the drawing shows
+  on the Run session card and in Produce plan, with the firm's mark. Commit:
+  `git log --grep "(15.17)"`.
+- **Stated, not a gap:** the row stays an AGENDA row on page 2 — every Organisational Review row
+  is one and the loader refuses a mixed deck; the drawing is found by concept id. It has no
+  fill-in table because none of his templates is one. Drafting Tender Proposals stays
+  unrunnable, as he ruled. The earlier work under this number (eight stage directions deleted,
+  two framing pages added, their agenda wired 2026-09-25) was finished before.
+
+**8.5 · A recording that is never finished keeps its audio on the server for ever.**
+✅ **Closed 2026-09-28 by Mike ("done").**
+
+- **Found** 2026-09-28 while building 8.4: audio was destroyed only on finish or "Stop and
+  delete", so a closed tab left a client's audio on disk with no end date.
+- **His rulings, the same day:** *"hold it for 7 working days in case the parties are trying to
+  work through an issue. however, if this is the case, a warning needs to show in solid red text
+  that they only have 7 working days to get it completed before it is deleted."* Working days are
+  Monday to Friday, public holidays counted as ordinary days. No drawing: *"no need to make a big
+  deal out of it. get the feature finished - you have my wording"*.
+- **What proves it:** `meetingPurge.purgeAbandoned` destroys the audio at the deadline and not a
+  minute before, leaving any text on its own clock (`meetingPurge.test.js`); the count across
+  weekends (`workingDays.test.js`); the owner-only list (`meetingReview.routes.test.js`); finish
+  and delete acting on the right recording (`meetingUnfinished.component.test.js`). Recorded in
+  `meeting-review.md` P8. Commit: `git log --grep "(8.5"`.
+- **Not done here:** seen in a browser or run against a real server's disk — UAT's check.
+
+**15.2 · The hundred questions behind the nine Growth Aspects.**
+✅ **Closed 2026-09-28 by Mike ("done").**
+
+- **His rulings:** proceed, 2026-09-25; the drawing and its decisions A–D and wording, 2026-09-27;
+  and on 2026-09-28 *"i'd like to be able to add a question to a section via this hub page -
+  cascade down to other levels and available at each lower level - of course, anything they add
+  only affects them and levels BELOW them"*, on the standard rules (`tier-cascade.md` P3, P11).
+  Artefact: [`../mockups/growth-aspect-questions.html`](../mockups/growth-aspect-questions.html),
+  screens 1, 3 and 3b approved.
+- **What proves it:** all 98 of his questions stored word for word
+  (`growthAspectQuestions.test.js`); the wheel opens each aspect's questions; the Growth Aspect
+  Questions hub tab at all four tiers, where a tier adds, edits and switches off questions and
+  descriptions for itself and below, and a question rewritten above is offered as Use theirs /
+  Keep mine. The planner's wheel and the Virtual Advisor read each firm's resolved wording.
+  Tests in `tests/unit/growthAspects*.test.js`, `growthPrompt.test.js` and
+  `firmGrowthAspectQuestions.component.test.js`; walked live as mentor and firm manager.
+  Commit: `git log --grep "(15.2"`.
+- **Not built:** screen 2, the AI putting an aspect's questions forward as a recorded section
+  closes. It stands on item 8.4's section recording, and is carried on 8.4's note on Mike's yes.
 **10.2 · Hub screens show English written by the backend, so it never translates.**
 ✅ **Closed 2026-09-28 by Mike ("yes" — done)**, the day it was fixed. It was filed on 2026-09-25 as
 what item 10.1 (`1375c0eb`) left behind, and nothing had touched it since.

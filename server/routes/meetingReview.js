@@ -303,7 +303,9 @@ async function startRecording (req, res) {
       advisorName: req.advisorName || null,
       scenarioId: body.scenarioId || null,
       clientId,
-      retentionMonths: resolved.months
+      retentionMonths: resolved.months,
+      // A strategy session records one concept at a time (item 8.4) — see meetingSegments.js.
+      segmented: body.segmented === true
     })
     res.send(201, {
       meetingId,
@@ -335,6 +337,9 @@ function confirmConsent (req, res) {
   try {
     const at = new Date().toISOString()
     store.updateMeta(meta.meetingId, { consentConfirmedAt: at })
+    // A strategy session may already have closed a segment while the line was being spoken;
+    // it waited for this tick, and is transcribed now (item 8.4, Decision C).
+    if (meta.segmented) { require('./meetingSegments').startPending(meta.meetingId) }
     res.send(200, { confirmed: true, at })
   } catch (err) {
     return serverError(res, err, 'record that confirmation')
@@ -474,6 +479,10 @@ function finishRecording (req, res) {
   const meta = ownedMeeting(req, res)
   if (!meta) { return }
 
+  // A strategy session is transcribed segment by segment and joined (item 8.4). The same
+  // consent rule is enforced there, before anything else.
+  if (meta.segmented) { return require('./meetingSegments').finishSegmented(meta, res) }
+
   if (!meta.consentConfirmedAt) {
     return sendError(res, 409, 'CONSENT_NOT_CONFIRMED',
       'This recording has no confirmed consent, so it cannot be transcribed. Confirm that everyone agreed, or stop and delete it.')
@@ -516,10 +525,13 @@ function getRecording (req, res) {
 
   const transcript = store.readTranscript(meta.meetingId)
   const job = jobs.get(meta.meetingId)
+  // A strategy session's state lives on its record, and "transcribed" is the recorder's "done".
+  const segmentedState = meta.state === 'transcribed' ? 'done' : meta.state
 
   res.send(200, {
     meetingId: meta.meetingId,
-    state: job ? job.state : meta.state,
+    state: meta.segmented ? segmentedState : (job ? job.state : meta.state),
+    segments: meta.segmented ? require('../utils/meetingSegments').publicSegments(meta) : undefined,
     error: job ? job.error : null,
     chunkCount: meta.chunkCount || 0,
     bytes: meta.bytes || 0,
@@ -530,6 +542,82 @@ function getRecording (req, res) {
     audioDeleted: Boolean(meta.audioDeletedAt),
     audioDeletionFailed: Boolean(meta.audioDeletionFailed)
   })
+}
+
+/**
+ * The meeting-type names this firm sees, by id — for naming an unfinished recording.
+ *
+ * Resolved through the firm's cascade, as `presetFor` does, so a type the firm renamed shows its
+ * firm's name. A lookup that fails falls back to the platform's names rather than failing the
+ * list: an advisor told "a recording will be deleted" must see it even if a name cannot load.
+ *
+ * @param {object} req
+ * @returns {Promise<Object<string, string>>}
+ */
+async function meetingTypeNames (req) {
+  const names = {}
+  obs.meetingScenarios().forEach((s) => { names[s.id] = s.name })
+  try {
+    const observationRoutes = require('./meetingObservations')
+    const resolved = await obs.loadResolvedObservations(req.firmId, observationRoutes.readScopeConfig)
+    Object.keys(resolved || {}).forEach((id) => {
+      if (resolved[id] && resolved[id].name) { names[id] = resolved[id].name }
+    })
+  } catch (err) {
+    console.error('[meeting-review] meeting type names fell back to the platform list:', err.message)
+  }
+  return names
+}
+
+/**
+ * GET /api/meeting/recordings/unfinished  (advisor)
+ *
+ * This advisor's recordings that were started and never finished, and when each one's audio will
+ * be destroyed. Item 8.5 — Mike's ruling, 2026-09-28: held 7 working days, with a warning in
+ * solid red that the advisor has that long to complete it.
+ *
+ * 🔴 WITHOUT THIS THE WARNING HAS NOWHERE TO GO. The recorder holds a recording's id only in the
+ * open browser tab, so a closed tab lost the recording to the advisor while its audio stayed on
+ * the server. Owner only (P2): a colleague's unfinished recording is not listed.
+ *
+ * ⚠ A recording being transcribed right now is not "unfinished" and is left out, so the advisor
+ * is never offered a second finish of one already under way.
+ *
+ * @route GET /api/meeting/recordings/unfinished
+ * @returns {{recordings: Array<{meetingId: string, scenarioId: (string|null),
+ *   meetingType: (string|null), clientId: (string|null), createdAt: string,
+ *   lastActivityAt: (string|null), deleteAfter: (string|null), consentConfirmed: boolean,
+ *   segmented: boolean}>}}
+ */
+async function listUnfinished (req, res) {
+  try {
+    const { audioDeleteAfter } = require('../utils/meetingPurge')
+    const names = await meetingTypeNames(req)
+    const recordings = []
+    store.listMeetingIds().forEach((id) => {
+      const meta = store.readMeta(id)
+      if (!store.isOwnedBy(meta, req.firmId, req.advisorId)) { return }
+      if (!store.hasAudio(id)) { return }
+      const job = jobs.get(id)
+      if ((job && job.state === 'transcribing') || meta.state === 'finishing') { return }
+      const due = audioDeleteAfter(meta)
+      recordings.push({
+        meetingId: id,
+        scenarioId: meta.scenarioId || null,
+        meetingType: (meta.scenarioId && names[meta.scenarioId]) || null,
+        clientId: meta.clientId || null,
+        createdAt: meta.createdAt,
+        lastActivityAt: meta.lastActivityAt || null,
+        deleteAfter: due ? due.toISOString() : null,
+        consentConfirmed: Boolean(meta.consentConfirmedAt),
+        segmented: Boolean(meta.segmented)
+      })
+    })
+    recordings.sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)))
+    res.send(200, { recordings })
+  } catch (err) {
+    return serverError(res, err, 'list your unfinished recordings')
+  }
 }
 
 /**
@@ -660,11 +748,18 @@ async function runReports (meetingId, ctx) {
   }
 
   try {
-    const summary = await generateSummary({
-      transcript,
-      scenarioName: ctx.scenarioName,
-      apiKey: process.env.OPENAI_API_KEY
-    })
+    const meta = store.readMeta(meetingId)
+    // 🔴 DECISION J (item 8.4, Mike 2026-09-28): a strategy session's Meeting Summary is built
+    // ONLY from the concept summaries the client approved — no model call, and no word the
+    // client never saw. A single-file meeting keeps its generated summary, unchanged.
+    const summary = (meta && meta.segmented)
+      ? require('../utils/conceptSummary').composeMeetingSummary(
+        meta.segments, n => store.readSegmentSummary(meetingId, n))
+      : await generateSummary({
+        transcript,
+        scenarioName: ctx.scenarioName,
+        apiKey: process.env.OPENAI_API_KEY
+      })
     store.writeReport(meetingId, 'summary', summary)
   } catch (err) {
     console.error('[meeting-review] summary generation failed:', err.message)
@@ -987,6 +1082,8 @@ function mountable (fn) {
 }
 
 module.exports = {
+  // Shared with meetingSegments.js, so a strategy session's routes check ownership the same way.
+  ownedMeeting,
   DIARIZING_MODEL,
   getRetention,
   setRetention,
@@ -997,6 +1094,7 @@ module.exports = {
   uploadChunk,
   finishRecording: mountable(finishRecording),
   getRecording: mountable(getRecording),
+  listUnfinished,
   deleteRecording: mountable(deleteRecording),
   runTranscription,
   readScopeConfig,

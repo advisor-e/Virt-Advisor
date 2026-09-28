@@ -44,20 +44,13 @@ const sessionProcess = require('../utils/sessionProcess')
 const { tierOfScope } = require('../utils/tierChain')
 const { loadFirmConfig, saveFirmConfig, getVersionHistory, restoreVersion } = require('../utils/firmOverlay')
 const { sendError } = require('../utils/sendError')
+const growthAspects = require('../utils/growthAspects')
 
 /**
  * Bounds one request body's entry list. The Action Plan alone is 24 boxes, so this has to
  * clear a whole table being saved at once and still refuse a bulk import.
  */
 const MAX_ENTRIES_PER_SAVE = 60
-
-/**
- * The nine Growth Aspects from `data/growth-fundamentals.json` — name, one-line description,
- * and Mike's 98 questions behind them (item 15.2), which the coverage wheel opens per aspect.
- * Sent to the screen only; nothing here reaches a model.
- */
-const GROWTH_ASPECTS = (require('../../data/growth-fundamentals.json').growthAspects || [])
-  .map(a => ({ name: a.name, description: a.description, questions: a.questions || [] }))
 
 /**
  * The caller's firm, or null when the token carried none.
@@ -78,15 +71,9 @@ function firmOf (req) {
  * @route GET /api/strategy/frameworks
  * @param {object} req - firmAuth-verified; optional `?planningDomain=` filter
  * @param {object} res
- * @returns {200} { success, planningDomains, frameworks, timestamp }
+ * @returns {200} { success, planningDomains, frameworks, closingFrameworks, growthAspects, timestamp }
  */
-// eslint-disable-next-line require-await -- see below
 async function getFrameworks (req, res) {
-  // ⚠ `async` THOUGH NOTHING IS AWAITED, AND IT IS NOT OPTIONAL. Restify accepts a
-  // handler that is async with (req, res), or callback-based with (req, res, next), and
-  // REFUSES a plain two-argument function — it throws at mount time, so the whole backend
-  // fails to start rather than this one route failing. Caught by
-  // tests/unit/serverMounts.test.js, which exists for exactly this.
   try {
     const domain = req.query && req.query.planningDomain
     // 🔴 CLOSERS ARE EXCLUDED FROM `frameworks`, and that is not tidiness. Screen 1 builds
@@ -107,9 +94,10 @@ async function getFrameworks (req, res) {
       // Never on a Session Scope table, because they are never chosen.
       closingFrameworks: frameworks.closingFrameworks(),
       // The nine Growth Aspects, for the coverage check. Orientation 1's own instruction:
-      // "Objectives should be tested against the 9 Growth Aspects." Names and descriptions
-      // come from data/growth-fundamentals.json, where they already lived.
-      growthAspects: GROWTH_ASPECTS,
+      // "Objectives should be tested against the 9 Growth Aspects." Each carries Mike's
+      // questions for the wheel (item 15.2), with the Mentor Hub's edits applied for this
+      // firm's tier chain. Never rejects — the worst case is the shipped wording.
+      growthAspects: await growthAspects.loadResolvedAspects(firmOf(req), growthAspects.readScopeConfig),
       timestamp: new Date().toISOString()
     })
   } catch (err) {
@@ -391,7 +379,9 @@ async function putScope (req, res) {
     const done = await store.setScope(req.params.id, firmId, {
       domains: Array.isArray(body.domains) ? body.domains : [],
       frameworks: chosen,
-      steps: Array.isArray(body.steps) ? body.steps : []
+      steps: Array.isArray(body.steps) ? body.steps : [],
+      // The run sheet (item 8.4, slice 3). Absent means "keep what is stored" — see setScope.
+      timing: body.timing
     })
     if (!done) {
       sendError(res, 404, 'NOT_FOUND', 'No such planning session')

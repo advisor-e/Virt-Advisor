@@ -287,3 +287,7 @@ data/dev-owner-focus-tasks.json
 # as every sibling above: a practice save on a machine with no MySQL must never be committed.
 # The PLATFORM session is data/session-processes.json and IS committed.
 data/dev-session-processes.json
+
+# Dev-only Growth Aspect Questions store (item 15.2). Keyed by SCOPE, ignored for the same
+# reason as every sibling above. The shipped wording is data/growth-fundamentals.json.
+data/dev-growth-aspect-questions.json

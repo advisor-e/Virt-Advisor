@@ -214,6 +214,12 @@ export const CONCEPT_GRAPHICS = {
       '~/components/strategy/concepts/TechnologyPoints.vue'
     )
   ],
+  'define-the-cultural-core-values': [
+    () => import(
+      /* webpackChunkName: 'concept-define-the-cultural-core-values' */
+      '~/components/strategy/concepts/DefineTheCulturalCoreValues.vue'
+    )
+  ],
   'our-session-objective': [
     () => import(
       /* webpackChunkName: 'concept-our-session-objective' */
@@ -305,6 +311,7 @@ export const CONCEPT_TITLED = {
   'sales-process-review': true,
   'porters-5-forces': true,
   'technology-points': true,
+  'define-the-cultural-core-values': true,
   'our-session-objective': true,
   'collaborative-thinking': true,
   'alignment-statements': true

@@ -485,7 +485,11 @@ describe('the hub menu — the sidebar itself', () => {
     //
     // ⚠ AND 25 ON 2026-09-24, when Owner Focus Tasks joined the END of "Model Inputs" (item
     // 5.4 — all four tiers in Mike's own words). Appended, so the index assertions still hold.
-    expect(tabLabels(wrapper)).toHaveLength(25)
+    //
+    // ⚠ AND 26 ON 2026-09-28, when Growth Aspect Questions joined the END of "Your AI coach"
+    // (item 15.2 — all four tiers in Mike's own words). It lands at index 9, after Client Copy
+    // Request, so the four index assertions below are untouched and the fifth pins it.
+    expect(tabLabels(wrapper)).toHaveLength(26)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -493,6 +497,7 @@ describe('the hub menu — the sidebar itself', () => {
     expect(tabLabels(wrapper)[6]).toBe('firmTemplateLibrary.tab')
     expect(tabLabels(wrapper)[7]).toBe('firmManagerHub.tabs.meetingReview')
     expect(tabLabels(wrapper)[8]).toBe('firmManagerHub.tabs.clientCopyRequest')
+    expect(tabLabels(wrapper)[9]).toBe('firmManagerHub.tabs.growthAspectQuestions')
   })
 
   it('gives the mentor a Model Inputs heading holding only what it is entitled to', async () => {
@@ -612,7 +617,9 @@ describe('the hub menu — the sidebar itself', () => {
     ])
     // ⚠ AND 21 ON 2026-09-24: Owner Focus Tasks, appended to the END of "Model Inputs" (item
     // 5.4), on all four tiers in Mike's own words.
-    expect(tabLabels(wrapper)).toHaveLength(21)
+    // ⚠ AND 22 ON 2026-09-28: Growth Aspect Questions, appended to the END of "Your AI coach"
+    // (item 15.2), on all four tiers in Mike's own words.
+    expect(tabLabels(wrapper)).toHaveLength(22)
     expect(tabLabels(wrapper)).not.toContain('firmManagerHub.tabs.teamCaseStudies')
     expect(tabLabels(wrapper)).toContain('firmManagerHub.tabs.caseReviews')
   })

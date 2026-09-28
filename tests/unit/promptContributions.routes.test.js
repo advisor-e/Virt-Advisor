@@ -326,7 +326,7 @@ describe('🔴 a later change from above', () => {
 
 describe('version history, which is what makes bad material undoable', () => {
   it('returns the versions of this scope\'s own material', async () => {
-    overlay.getVersionHistory.mockResolvedValue([{ id: 7, version: 2, created_by: 'a@b.c' }])
+    overlay.getVersionHistory.mockResolvedValue([{ id: 7, version: 2, saved_by: 'a@b.c' }])
     const res = makeMockRes()
     await routes.history(makeReq(FIRM), res)
     expect(res._body.history).toHaveLength(1)
