@@ -191,6 +191,7 @@ function buildSortMessages (input) {
     'Rules:',
     '- Sort by MEANING. People rarely name the statement they are talking about.',
     '- Give every line the owner spoke about a statement — all of it, not just the clearest line. A statement is later written only from its lines.',
+    '- The transcript breaks wherever the speaker paused, often mid-sentence. A line that continues the one before it belongs to the same statement: follow a passage to its end.',
     '- Only CLIENT and UNKNOWN lines. ADVISOR lines are questions, not the owner\'s words.',
     '- One line belongs to one statement only. Lines that fit none are left out.',
     '- A statement nobody spoke about gets an empty list. That is always better than a stretch.',
@@ -309,6 +310,47 @@ function validateStyle (reply) {
 // ── Step 4: draft ─────────────────────────────────────────────────────────────────────────
 
 /**
+ * What each setting means for the words on the page. One terse line of settings, beside a rule
+ * to keep the owner's phrases, produced two styles that read alike in 8 of 10 pairs (the Lab,
+ * 2026-09-29); a setting has to say what it changes.
+ */
+const SETTING_GUIDE = {
+  sentenceLength: {
+    short: 'Short sentences, twelve words or fewer each.',
+    medium: 'Sentences of about twelve to twenty words.',
+    long: 'One or two full, flowing sentences.'
+  },
+  formality: {
+    plain: 'Everyday words a person would say out loud. Contractions are fine.',
+    professional: 'Precise, measured business language. No contractions, no slang, no filler.',
+    formal: 'Formal written language suited to an official document. No contractions.'
+  },
+  jargon: {
+    avoid: 'No industry or business jargon; say it the way a customer would understand it.',
+    allow: 'Industry terms are fine where the reader will know them.'
+  },
+  voice: {
+    we: 'Speak as "we".',
+    'the-business': 'Speak about the business in the third person ("the business", "it"), never "we".'
+  }
+}
+
+/**
+ * @param {object} st - settings from `validateStyle`
+ * @returns {string}
+ */
+function settingsText (st) {
+  return [
+    SETTING_GUIDE.sentenceLength[st.sentenceLength],
+    SETTING_GUIDE.formality[st.formality],
+    SETTING_GUIDE.jargon[st.jargon],
+    SETTING_GUIDE.voice[st.voice],
+    st.tone.length ? 'It should feel ' + st.tone.join(', ') + '.' : '',
+    st.audience ? 'The reader is ' + st.audience + ': lead with what matters most to them.' : ''
+  ].filter(Boolean).map(line => '- ' + line).join('\n')
+}
+
+/**
  * @param {object} input
  * @param {object} input.statement
  * @param {Array<object>} input.quotes - verified quotes for this statement
@@ -328,13 +370,12 @@ function buildDraftMessages (input) {
     'What a ' + s.name + ' statement is. Where the Alignment document and best practice differ, follow the Alignment document:',
     definitionText(s),
     '',
-    'Writing settings: sentences ' + st.sentenceLength + '; formality ' + st.formality + '; jargon ' + st.jargon +
-      '; speak as ' + (st.voice === 'we' ? '"we"' : '"the business"') +
-      (st.tone.length ? '; tone ' + st.tone.join(', ') : '') + (st.audience ? '; written for ' + st.audience : '') + '.',
+    'How to write it. The same words will also be written for other purposes and styles, so this version must sound unmistakably like its own purpose and style:',
+    settingsText(st),
     '',
     'Rules:',
     '- Use only what the owner said. Never add a date, number, name, place or promise they did not say.',
-    '- Keep the owner\'s own strongest phrases in their words where they are vivid; do not smooth them into generic language.',
+    '- Rewrite the owner\'s meaning in this style. Keep at most one short phrase in their own words, and only if it is distinctive and suits this style; list it in "keptPhrases".',
     '- Write in New Zealand English spelling (recognise, organisation, colour).',
     '- At most ' + s.maxWords + ' words.',
     input.modelElements.length

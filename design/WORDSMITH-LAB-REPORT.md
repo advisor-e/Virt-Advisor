@@ -8,13 +8,13 @@
 |---|---:|
 | Drafts written | 20 |
 | Drafts passing every check | 20 |
-| …on the first try | 20 |
+| …on the first try | 19 |
 | Questions raised for the room | 10 |
-| Share of the client's words that reached a statement (lowest run) | 76% |
+| Share of the client's words that reached a statement (lowest run) | 85% |
 | Quotes thrown away (not in the transcript) | 0 |
 | Statements given quotes nobody said about them | 2 |
 | Statements left empty that were spoken about | 0 |
-| Statement pairs where the two styles drafted near-identical text | 8 |
+| Statement pairs where the two styles drafted near-identical text | 0 |
 | Runs that failed | 0 |
 
 ## Case: mike-dictation
@@ -32,59 +32,59 @@ Quotes used: "So um we run a suspension business and we want to be the best susp
 Questions for the room: By when do you want this to be true?
 
 - **A** (attempt 1) ✅
-  > We will be known as the best suspension business and the best at communicating how to make it work for the average rider. We will take all the jargon out and make it easy for people.
-  *Why:* This keeps the owner’s ambition and distinctive focus on making suspension understandable for the average rider. No timeframe has been added because the owner did not provide one.
+  > We aim to become the leading suspension business, recognised for our expertise and clear explanations. We will make suspension setup understandable for everyday riders, without confusing them with technical language.
+  *Why:* The vision leads with the intended business position and highlights clear rider guidance as its distinction. No timeframe has been added because the owner did not provide one.
 - **B** (attempt 1) ✅
-  > We want to be the best suspension business, known as the best for communicating how to make it work for the average rider. We want to take all the jargon out and make it easy for people.
-  *Why:* This keeps the owner’s ambition and distinctive focus on making suspension understandable for everyday riders. No timeframe was given, so none has been added.
+  > We’ll be known for making suspension easy for everyday riders. We aim to be the best at suspension and explaining it.
+  *Why:* The draft leads with how staff can help riders, then states the ambition in plain, positive words. No timeframe was added because the owner didn’t give one.
 
 ### Purpose
 
 Quotes used: "I think the purpose is to" · "Consistent racing results for people that want better suspension" · "Um the purpose is to improve Rider safety to improve the overall writing skill level of riders because they're not riding" · "I'm scared or frightened of their bike they can have more confidence so we want to see our Riders faster and safer and enjoying the sport"
 
 - **A** (attempt 1) ✅
-  > We want to see our riders faster and safer and enjoying the sport, with more confidence in their bike, improved riding skills and consistent racing results.
-  *Why:* This centres the purpose on riders’ safety, confidence and enjoyment, while retaining the owner’s emphasis on skill and racing results.
+  > We exist to help riders achieve dependable race results with suspension that supports safer riding. We want riders to build their skills and confidence, ride faster and enjoy the sport.
+  *Why:* Dependable race results lead to emphasise consistency for bank reviewers. Safety, skill, confidence and enjoyment explain why the business matters to riders.
 - **B** (attempt 1) ✅
-  > We want to improve rider safety and skill so riders can have more confidence. We want to see our riders faster and safer and enjoying the sport.
-  *Why:* This centres on safety, confidence and enjoyment as the reasons behind the business. It keeps your strongest phrase and sounds positive without making a promise.
+  > We’re here to help riders stay safe and feel confident. We want them to build skills and enjoy riding. We want to help them race faster, more consistently.
+  *Why:* Safety and confidence come first, giving staff a clear reason behind their work. The statement also reflects the owner’s hopes for riders’ skills, enjoyment and racing results.
 
 ### Values
 
 Quotes used: "Our values here is that we want to be known as Craftsmen if if there's a failure or or a piece of equipment that doesn't work correctly then we want to be fair to the customer and fear of the business um it's not about you know giving everything away every time but we certainly want people to know that if" · "In doubt we'll pay out um you know we want them to know that if they go and invest money with us that will do everything within our power to make sure they get a fantastic result"
 
 - **A** (attempt 1) ✅
-  > We want to be known as craftsmen. When equipment fails, we balance fairness to the customer and the business: “In doubt we'll pay out.” We do everything within our power to make sure customers who invest with us get a fantastic result.
-  *Why:* This keeps the owner's clear rule for resolving doubt while balancing customer care with fairness to the business.
+  > We treat customers and our business fairly when equipment fails or does not work correctly. We favour the customer when there is doubt about whether to pay. We value skilled workmanship and do everything within our control to achieve excellent results for customers.
+  *Why:* The statement leads with fairness to both customers and the business, reflecting the bank audience’s interests. It then makes the approach to payment decisions, workmanship and customer outcomes explicit.
 - **B** (attempt 1) ✅
-  > We want to be known as craftsmen. If equipment fails, we want to be fair to the customer and the business. In doubt we'll pay out. When people invest with us, we do everything within our power to make sure they get a fantastic result.
-  *Why:* This keeps the owner's clear rule for handling doubt, balanced with fairness to both the customer and the business.
+  > We put care and skill into our work. When equipment fails, we're fair to customers and our business. In doubt we'll pay out. We do all we can to give customers great results.
+  *Why:* We lead with care and skill to speak to staff. Fairness to both sides and the payout rule show what guides decisions.
 
 ### Mission
 
-Quotes used: "I guess you could say our mission is to build" · "Our mission is to you know yes we want to make sure that the racing is better and people are faster that we know that most Riders get to professional level and they've never learned the skills or never had the equipment to really dial in a bike and so they struggle to take the next level so we want to we want to have New Zealand standing proudly with" · "Motocross Riders that represent our country because we've helped build it from the grass up"
+Quotes used: "I guess you could say our mission is to build" · "Future professional motocross Riders that represent New Zealand on the grand stage" · "Our mission is to you know yes we want to make sure that the racing is better and people are faster that we know that most Riders get to professional level and they've never learned the skills or never had the equipment to really dial in a bike and so they struggle to take the next level so we want to we want to have New Zealand standing proudly with" · "Motocross Riders that represent our country because we've helped build it from the grass up"
 
 Questions for the room: By when should this milestone be reached? · How will you measure that it has been reached?
 
 - **A** (attempt 1) ✅
-  > We want New Zealand standing proudly with motocross riders that represent our country. We aim to build it from the grass up by helping riders gain the skills and equipment to really dial in a bike.
-  *Why:* This connects rider development to representing New Zealand, retaining the owner’s strongest phrases. No dated or measurable milestone was supplied, so none has been invented.
+  > We will help motocross riders gain the skills and equipment needed to progress into professional racing. We aim to develop riders who represent New Zealand in international competition.
+  *Why:* The draft leads with practical rider development and identifies international representation as the intended outcome. No timeframe or numerical target was provided, so neither has been added.
 - **B** (attempt 1) ✅
-  > We want riders to have the skills and equipment to really dial in a bike. We want New Zealand standing proudly with motocross riders that represent our country because we've helped build it from the grass up.
-  *Why:* The draft keeps the focus on riders’ skills, equipment and national pride, using the owner’s strongest phrases. No date or measure was provided, so none was added.
+  > We want to help riders build skills and improve their bikes. We aim to help them race better and go faster. We’re working towards motocross riders who proudly represent New Zealand.
+  *Why:* We’ve led with helping riders, giving staff a clear, shared purpose. The owner gave no date or measurable milestone, so we haven’t invented either.
 
 ### Strategy
 
-Quotes used: "The strategy is to" · "Use technology" · "Emphasis on on education so to that end it's as much about the suspension valving"
+Quotes used: "The strategy is to" · "Use technology" · "Emphasis on on education so to that end it's as much about the suspension valving" · "Is equally comparable to then dialing in at the track so therefore it's a combination of quality parts and really good education so that's using an app to make to really educate our people to get a racist Edge"
 
 Questions for the room: Which customers or work is this strategy not for?
 
 - **A** (attempt 1) ✅
-  > We use technology and emphasise education, with a focus on suspension valving.
-  *Why:* This preserves the owner's stated approach without inventing a competitive advantage. The owner did not specify which customers or markets the business serves.
+  > We pair well-made suspension parts with education, treating both as equally important to performance. We use an app to help people understand suspension adjustments and improve their performance on track.
+  *Why:* The statement leads with the combination of product quality and education, then explains how technology supports performance. The owner did not clearly define target customers or the market served.
 - **B** (attempt 1) ✅
-  > We use technology with an emphasis on education, including suspension valving.
-  *Why:* This keeps technology and education as the approach, with suspension valving making it specific. The owner did not say which customers or markets the business will serve.
+  > We help our people learn through an app. We pair well-made parts with lessons on fine-tuning at the track. We value both equally to help our people race better.
+  *Why:* Learning comes first for staff, with equal weight given to parts and trackside adjustments. The owner did not specify which customers or places the business serves.
 
 
 ## Case: invented-cafe
@@ -100,44 +100,44 @@ Settings: {"sentenceLength":"medium","formality":"plain","jargon":"avoid","voice
 Quotes used: "Honestly I see three cafes across Hamilton by 2032, each one the place locals meet before work."
 
 - **grant** (attempt 1) ✅
-  > By 2032, the business will have three cafes across Hamilton, each one the place locals meet before work.
-  *Why:* The statement sets a clear timeframe and scale, while preserving the owner's vivid description of each cafe's place in local life.
+  > By 2032, the business will operate three cafes across Hamilton, each a meeting place for residents before work.
+  *Why:* The statement leads with a measurable regional goal and deadline, then describes the intended community role of each cafe.
 - **website** (attempt 1) ✅
-  > By 2032, we’ll have three cafes across Hamilton, each one the place locals meet before work.
-  *Why:* We kept the clear scale, place and timeframe, alongside the warm picture of locals meeting before work.
+  > We’ll be where neighbours meet before their working day starts, with three Hamilton cafés by 2032.
+  *Why:* This leads with the everyday gathering place locals can picture, then gives the clear goal, location and timeframe.
 
 ### Purpose
 
 Quotes used: "Because a town needs somewhere people actually talk to each other, not just grab and go."
 
 - **grant** (attempt 1) ✅
-  > The business exists because a town needs somewhere people actually talk to each other, not just grab and go.
-  *Why:* The statement keeps the owner's direct explanation of why the business matters to the town, preserving the contrast between conversation and simply grabbing and going.
+  > The business exists to give the town a place for conversation, rather than somewhere people only make quick purchases.
+  *Why:* This centres the town’s need for social connection, making the community benefit clear without adding claims beyond the owner’s words.
 - **website** (attempt 1) ✅
-  > We’re here because a town needs somewhere people actually talk to each other, not just grab and go.
-  *Why:* This keeps the owner’s clear reason for being, with a warm, direct opening that speaks as the business.
+  > We’re here so people in our town have somewhere to stop for a friendly chat.
+  *Why:* This puts conversation at the heart of why the business exists, using warm, everyday language for website visitors.
 
 ### Values
 
 Quotes used: "We are not chasing the drive-through crowd, that is not who we are for."
 
 - **grant** (attempt 1) ✅
-  > The business is not chasing the drive-through crowd; that is not who it is for.
-  *Why:* This preserves the owner's clear boundary about whom the business serves without inventing broader principles.
+  > The business does not seek to attract customers looking for drive-through service.
+  *Why:* This states a clear boundary about whom the business serves, without adding unsupported principles or commitments.
 - **website** (attempt 1) ✅
-  > We are not chasing the drive-through crowd — that is not who we are for.
-  *Why:* Kept the owner's clear boundary about who the business is for, without inventing principles or promises they did not state.
+  > We know we’re not for everyone, and we don’t try to attract the drive-through crowd.
+  *Why:* This keeps the focus on who the business chooses to serve, with a softer, conversational tone. It avoids adding values or promises the owner hasn’t expressed.
 
 ### Mission
 
 Quotes used: "We need the second cafe open and paying for itself within eighteen months, doing about four hundred coffees a day."
 
 - **grant** (attempt 1) ✅
-  > The business will have the second cafe open and paying for itself within eighteen months, doing about four hundred coffees a day.
-  *Why:* This states a clear milestone, timeframe and daily measure while retaining the owner's direct language.
-- **website** (attempt 1) ✅
-  > Within eighteen months, we aim to have our second cafe open and paying for itself, doing about four hundred coffees a day.
-  *Why:* This keeps the owner's clear milestone, timeframe and daily measure, using their straightforward language in a warm, approachable way.
+  > Within eighteen months, the business will operate a second café that covers its costs. This café will serve approximately four hundred coffees daily within that same timeframe.
+  *Why:* The statement leads with a financially sustainable second café, then gives the daily sales measure. It retains the owner's timeframe and approximate target without adding commitments.
+- **website** (attempt 2) ✅
+  > We aim to welcome you to our second cafe within eighteen months. By then, we want it covering its costs and serving around four hundred cups of coffee daily.
+  *Why:* We lead with welcoming customers, then state the timeframe, daily coffee target and need to cover costs in everyday language.
 
 ### Strategy
 
@@ -146,9 +146,9 @@ Quotes used: "We roast our own beans on site and we train every barista for six 
 Questions for the room: Which customers or work is this strategy not for?
 
 - **grant** (attempt 1) ✅
-  > The business differentiates itself from the chains by roasting its own beans on site and training every barista for six weeks before they serve anyone.
-  *Why:* The statement centres on the owner's two concrete points of difference: on-site roasting and training before service. The owner did not specify target customers or geographic scope.
+  > The business distinguishes itself from chains by roasting coffee beans on its premises. It requires every barista to complete six weeks of training before serving customers.
+  *Why:* The statement leads with the business’s stated difference from chains and supports it with specific operating choices. The owner did not identify target customers or the area served.
 - **website** (attempt 1) ✅
-  > We roast our own beans on site, and we train every barista for six weeks before they serve anyone. The chains will never do that.
-  *Why:* Your own words show how you stand apart from chains through roasting and training. You haven’t specified which customers or locations you serve.
+  > We roast the coffee beans here and spend six weeks teaching each barista. We don't let them serve you until they've completed all that training.
+  *Why:* This centres the choices customers experience: roasting on site and completing training before serving. The owner didn't identify particular customers or an area the business serves.
 

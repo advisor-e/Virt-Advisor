@@ -238,6 +238,17 @@ describe('step 4 — draft', () => {
     expect(user.content).toContain('- too-long: 50 words')
   })
 
+  it('turns every setting into its own writing instruction, so two styles are told different things', () => {
+    const plain = ws.buildDraftMessages(base)[0].content
+    const formal = ws.buildDraftMessages(Object.assign({}, base, { settings: { sentenceLength: 'long', formality: 'formal', jargon: 'allow', voice: 'the-business', tone: [], audience: '' } }))[0].content
+    expect(plain).toContain('twelve words or fewer')
+    expect(plain).toContain('Contractions are fine')
+    expect(plain).toContain('The reader is staff')
+    expect(formal).toContain('official document')
+    expect(formal).toContain('never "we"')
+    expect(formal).not.toContain('It should feel')
+  })
+
   it('asks for an empty missing list when there is nothing for the model to judge', () => {
     const [system] = ws.buildDraftMessages(Object.assign({}, base, { statement: byName('Values'), modelElements: [], settings: Object.assign({}, settings, { tone: [], audience: '', voice: 'the-business' }) }))
     expect(system.content).toContain('empty list')
