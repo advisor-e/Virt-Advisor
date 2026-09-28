@@ -855,10 +855,12 @@ framing page among agenda rows lost its page number, its title and its drawing; 
 titled-concepts registry gained a duplicate key, caught by the lint rather than by the count
 guarding it — that guard now counts concepts, which is what it always meant.
 
-**What is left is ONE framework with a real slide and no drawing** — **Define the Cultural Core
-Values**, Organisational Review p11, his numbered five-part list and the Belongs / Behave /
-Believe circle. Item **15.17**. *Drafting Tender Proposals* is the other unrunnable row and is
-not a gap: his own summary calls it general reading.
+☑ **Define the Cultural Core Values is drawn and built** — Organisational Review p11, his
+numbered five-part list and the Belongs / Behave / Believe circle, from
+[`strategy-concept-cultural-core-values.html`](../mockups/strategy-concept-cultural-core-values.html),
+approved by Mike 2026-09-28 (item 15.17). Its row stays an agenda row on page 2; the drawing is
+found by concept id. *Drafting Tender Proposals* is now the one unrunnable row and is not a gap:
+his own summary calls it general reading.
 
 
 ### 7a. The in-card calculators — what stage 7 used to be, and why it is not

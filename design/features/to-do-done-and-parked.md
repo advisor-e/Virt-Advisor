@@ -370,6 +370,26 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.17 · One framework has a real teaching slide and no drawing - Cultural Core Values.**
+✅ **Closed 2026-09-28 by Mike ("done").**
+
+- **His rulings:** proceed, 2026-09-25; the drawing approved 2026-09-28 (*"yes"*, asked as
+  approving it exactly as it stands); built on his yes the same day.
+- **What was done:** Organisational Review p11 drawn by the Brief's §0 method —
+  [`strategy-concept-cultural-core-values.html`](../mockups/strategy-concept-cultural-core-values.html),
+  24 spans from his text layer, his two green arrows as his own picture at his page's own
+  placement. Beside his 150dpi render the arrows differ in 0.01% of pixels or fewer. Built into
+  `components/strategy/concepts/DefineTheCulturalCoreValues.vue` by the generator.
+- **What proves it:** `conceptGraphics.test.js` (the component matches the approved drawing, the
+  frame is on it, the counts 43 and 36). Walked in a browser on the built app: the drawing shows
+  on the Run session card and in Produce plan, with the firm's mark. Commit:
+  `git log --grep "(15.17)"`.
+- **Stated, not a gap:** the row stays an AGENDA row on page 2 — every Organisational Review row
+  is one and the loader refuses a mixed deck; the drawing is found by concept id. It has no
+  fill-in table because none of his templates is one. Drafting Tender Proposals stays
+  unrunnable, as he ruled. The earlier work under this number (eight stage directions deleted,
+  two framing pages added, their agenda wired 2026-09-25) was finished before.
+
 **8.5 · A recording that is never finished keeps its audio on the server for ever.**
 ✅ **Closed 2026-09-28 by Mike ("done").**
 

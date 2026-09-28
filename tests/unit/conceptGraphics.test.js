@@ -249,7 +249,8 @@ describe('the firm frame is on every drawing, identically', () => {
     // titles itself or does not. Emitting it per drawing produced a duplicate key,
     // which the lint caught and this count would not have. 35 from 2026-09-26: Alignment
     // Statements, one entry across six sheets, each opening on its own 50px title (15.28).
-    expect((block.match(/: true/g) || []).length).toBe(35)
+    // 36 from 2026-09-28: Cultural Core Values (15.17).
+    expect((block.match(/: true/g) || []).length).toBe(36)
     expect(block).not.toContain('vertical-integration')
     expect(block).toContain('porters-5-forces')
   })

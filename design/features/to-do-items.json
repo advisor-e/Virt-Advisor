@@ -143,31 +143,6 @@
       "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.14). Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "15.17",
-      "name": "One framework has a real teaching slide and no drawing - Cultural Core Values",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-23"
-      },
-      "why": "Define the Cultural Core Values is scoped, ticked and run like any other framework, and then teaches nothing: its slide exists and has never been drawn, so the advisor gets a name and the client's plan gets a near-empty page.",
-      "risk": "It is the LAST of the twelve, so it is the one row standing between the planner and every scoped framework teaching something. Small and contained - one drawing by the section 0 method, an approved artefact, and the generator - but it needs Mike's approval on the drawing before anything ships, as all 35 did.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-23 - 'lets get the remaining 12 frameworks sorted before we deal with this', then 'read them closely - slide 4 in organisational review DOES NOT contain business development stages', which forced the decks open rather than their titles compared."
-      },
-      "touches": "A new drawing in design/mockups/ by the section 0 method and its ARTEFACTS.md row; scripts/build-concept-graphics.js DRAWINGS; the count guards in tests/unit/conceptGraphics.test.js, which pin 35 svgs and 34 titled concepts.",
-      "note": "PROCEED ON MIKE'S WORD 2026-09-25. WHAT REMAINS: Define the Cultural Core Values still has no drawing and no capture form, so it is one of two concepts that cannot run - Drafting Tender Proposals is the other, deliberately. THE PAGE IS ORGANISATIONAL REVIEW p11 and it is REAL - his numbered Values/Beliefs/Behaviour/Personality/Hierarchy list, and a circle split Belongs / Behave / Believe with two green arrows. Draw it by the section 0 method for his approval, or bring it in through 15.20's converter, which turned this very page to clean vector on 2026-09-23. The other work done under this number - eight stage directions deleted, two framing pages added, their agenda wired 2026-09-25 - is finished.",
-      "comment": "2026-09-23 - filed as nine stage directions, then rewritten to what survives his ruling. His challenge disproved a page mapping built from extracted titles; every claim here is from a 150dpi render of his own slide."
-    },
-    {
       "ref": "15.18",
       "name": "The advisor never sees the worked answer Mike wrote on a ruled table",
       "rankedByMike": false,
