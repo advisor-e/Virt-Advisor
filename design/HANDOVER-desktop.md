@@ -9,24 +9,24 @@
 
 ---
 
-## 2026-09-28 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-28 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed. 642 suites / 13,924 tests green on Node 14.15, audit PASS. 10 ahead, 0 behind
-`master`** — PR #134 and #137 were merged today on Mike's instruction, so the next `/startup`
-proposes a PR.
+**Clean and pushed. 21 ahead, 0 behind `master` — all of it in PR #138 (open, not merged).
+Green: 645 suites / 13,929 tests on Node 14.15, audit PASS.** Run tests, commits and pushes with
+the 14.15 folder first on PATH (item 22.2).
 
-**Closed: 13.5** (four slices — `779f5cd7`, `9722719c`, `637a83a4`, and the records).
-**Fixed:** the Handbook's U+FFFD refusal; years 2 and 3 re-landing opening stock in transit; the
-manager console's missing-figures guard (tiles and posture switch). **Filed: 22.2** — this
-machine's default Node is 20; run tests, commits and pushes with the 14.15 folder first on PATH, as
-its note says. **In hand here:** nothing; 13.5's marker is cleared.
+**Closed on Mike's word:** 10.2 — the hub's backend sends facts and the screens word them; the
+client copy request screen translated whole, English unchanged. **Parked:** 8.3, with a REMINDERS
+DUE box in `npm run check:branch` from 15 Dec 2026 (`design/features/reminders.json`).
+**Fixed:** a saved 2- or 3-year forecast reopened as one year (`1c866a94`).
+**In hand here:** 15.13 — drawn, approved, own parts built; waits on 8.4 reaching master.
 
 ### 🔴 FOR THE LAPTOP
 
-- Merge `master` first — the laptop is 18 behind it.
-- 15.2's Mentor Hub tab no longer waits: #134 is merged and `FirmManagerHub.vue` is free.
-- Shared files changed today: `ThreeWayForecastIntake.vue`, `ThreeWayForecastReport.vue`,
-  `threeWayForecastModel.js`, `importShipmentModel.js`, `threeWayForecastSavedShape.js`,
-  `HeroStrip.vue` (now takes 2 columns), `ManagerConsole.vue`, and `en.json` under
-  `report.threeWayForecast`. `fxAllowancePct` / `salesFxAllowancePct` are now what-if settings,
-  not costs.
+- 15.13 needs two insertions in files 8.4 holds — the panel into `StrategyConceptCapture.vue`, the
+  plan page into `pages/strategy-planner.vue`. Nothing touched them here; say when 8.4 is merged.
+- Shared files changed: `threeWayForecastSavedShape.js` (5 new keys), `en.json`
+  (`strategyPlanner.reportImport`, `clientCopyRequestDetail`, `firmClientCopyRequests.units`),
+  `data/strategy-frameworks.json` (`importReport` on one concept), `strategyCaptureForms.js`,
+  `scripts/check-branch-state.js`, `.claude/commands/startup.md`.
+- Your copy of 15.2 and 15.14 is newer than ours; keep yours on merge.
