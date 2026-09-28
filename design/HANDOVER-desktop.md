@@ -11,9 +11,9 @@
 
 ## 2026-09-28 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed. 21 ahead, 0 behind `master` — all of it in PR #138 (open, not merged).
-Green: 645 suites / 13,929 tests on Node 14.15, audit PASS.** Run tests, commits and pushes with
-the 14.15 folder first on PATH (item 22.2).
+**Clean and pushed. PR #138 MERGED into `master` 2026-09-28 on Mike's word (`8d4f1f6d`) — all
+of this session's work is on `master`. Green: 645 suites / 13,929 tests on Node 14.15, audit
+PASS.** Run tests, commits and pushes with the 14.15 folder first on PATH (item 22.2).
 
 **Closed on Mike's word:** 10.2 — the hub's backend sends facts and the screens word them; the
 client copy request screen translated whole, English unchanged. **Parked:** 8.3, with a REMINDERS
@@ -23,6 +23,7 @@ DUE box in `npm run check:branch` from 15 Dec 2026 (`design/features/reminders.j
 
 ### 🔴 FOR THE LAPTOP
 
+- Merge `master` first — #138 landed, and your next push is refused until you do.
 - 15.13 needs two insertions in files 8.4 holds — the panel into `StrategyConceptCapture.vue`, the
   plan page into `pages/strategy-planner.vue`. Nothing touched them here; say when 8.4 is merged.
 - Shared files changed: `threeWayForecastSavedShape.js` (5 new keys), `en.json`
