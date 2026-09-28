@@ -101,3 +101,52 @@ describe('what the screen may see', () => {
     })
   })
 })
+
+describe('🔴 Decision L — the paused minutes are added back (screen 11)', () => {
+  const rows = [
+    { start: 10, end: 12, text: 'before any pause' },
+    { start: 60, end: 64, text: 'after the first pause' },
+    { start: 90, end: 95, text: 'after both pauses' }
+  ]
+
+  test('every row at or after a pause moves later by its length; two pauses add up', () => {
+    const out = ms.restorePausedTime(rows, [{ at: 80, duration: 300 }, { at: 30, duration: 200 }])
+    expect(out.map(r => r.start)).toEqual([10, 260, 590])
+    expect(out.map(r => r.end)).toEqual([12, 264, 595])
+  })
+
+  test('a row starting exactly where a pause fell is the first word after it', () => {
+    expect(ms.restorePausedTime([{ start: 30, end: 31 }], [{ at: 30, duration: 200 }])[0].start).toBe(230)
+  })
+
+  test.each([[null], [undefined], [[]], [[{ at: -1, duration: 10 }]], [[{ at: 5, duration: 0 }]], [[{ at: 'x', duration: 5 }]], [[null]]])(
+    'no usable pause (%p) leaves every time as it was', (pauses) => {
+      expect(ms.restorePausedTime(rows, pauses).map(r => r.start)).toEqual([10, 60, 90])
+    }
+  )
+
+  test('no rows is no rows', () => {
+    expect(ms.restorePausedTime(null, [{ at: 1, duration: 1 }])).toEqual([])
+  })
+})
+
+describe('🔴 Decision N — a section in which nothing was said', () => {
+  test('counts as transcribed, adds no rows, and neither earns nor spoils confidence', () => {
+    const joined = ms.joinTranscripts(
+      [seg(1, 'done', T0), seg(2, 'done', T1)],
+      n => n === 1
+        ? text([{ role: 'advisor', start: 0, end: 1, text: 'x' }], true)
+        : { segments: [], attributionConfident: false, speakerCount: 0 }
+    )
+    expect(joined.transcribedSegments).toBe(2)
+    expect(joined.segments).toHaveLength(1)
+    expect(joined.attributionConfident).toBe(true)
+    expect(joined.missingSegments).toEqual([])
+  })
+
+  test('a session of nothing but silence is transcribed, and never called confident', () => {
+    const joined = ms.joinTranscripts([seg(1, 'done', T0)], () => ({ segments: [] }))
+    expect(joined.transcribedSegments).toBe(1)
+    expect(joined.attributionConfident).toBe(false)
+  })
+})

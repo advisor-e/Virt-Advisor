@@ -222,8 +222,10 @@
             template(v-for="card in runStep.cards")
               //- Decision B: a segment starts only when the advisor presses this. The live card
               //- carries a red edge and the word "recording" instead of the button.
-              .sp-recbar(v-if="sessionId" :key="'rb' + card.key" :class="{ 'is-live': isLiveCard(card) }")
-                span.sp-live(v-if="isLiveCard(card)") ● {{ $t('strategyPlanner.recording.stateRecording') }}
+              .sp-recbar(v-if="sessionId" :key="'rb' + card.key" :class="{ 'is-live': isLiveCard(card), 'is-paused': isLiveCard(card) && recState.paused }")
+                //- Screen 11: while paused the card says so, in amber, never "recording".
+                span.sp-live(v-if="isLiveCard(card)" :class="{ 'is-paused': recState.paused }")
+                  | ● {{ $t(recState.paused ? 'strategyPlanner.recording.statePaused' : 'strategyPlanner.recording.stateRecording') }}
                 b-button(v-else size="is-small" outlined type="is-danger" @click="recordCard(card)")
                   | {{ $t('strategyPlanner.recording.record') }}
 
@@ -542,7 +544,7 @@ export default {
        * The recording, as the recorder last reported it — item 8.4, slice 4. `live` is the
        * concept being recorded now; `segments` is the server's own view of every segment.
        */
-      recState: { meetingId: '', segments: [], live: null },
+      recState: { meetingId: '', segments: [], live: null, paused: false },
       /**
        * Each ticked concept's real fill-in table, keyed by concept id, as
        * `GET /api/strategy/concepts/:id/capture` returns it. Loaded when the
@@ -2483,10 +2485,31 @@ export default {
   .sp-runwrap { grid-template-columns: minmax(0, 1fr) 17rem; }
   .sp-runside { order: 0; position: sticky; top: 1rem; align-self: start; }
 }
-.sp-recbar { display: flex; justify-content: flex-end; margin-bottom: 0.35rem; }
+/* 🔴 THE BAR IS THE TOP OF ITS OWN CARD (Mike, 2026-09-28). Sitting in the gap between two cards
+   it read as the foot of the card ABOVE, so a press meant for the concept just finished would
+   start recording the next one. Joined to the card below — no gap, the card's border and wash
+   carried up around it — it reads as that card's header, where the drawing puts the button. */
+.sp-recbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 1.25rem 0 0;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid #d5e1ee;
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  background: #f1f6fb;
+}
+.sp-recbar + * {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
 /* The live card: the recorder's own red, as the drawing's red edge. */
-.sp-recbar.is-live { border-top: 3px solid #d32f2f; padding-top: 0.35rem; }
+.sp-recbar.is-live { border-top: 3px solid #d32f2f; }
 .sp-live { color: #d32f2f; font-weight: 700; font-size: 0.85rem; }
+.sp-live.is-paused { color: #b36b00; }
+.sp-recbar.is-live.is-paused { border-top-color: #b36b00; }
 .sp-section { margin: 1.4rem 0; }
 .sp-h { font-size: 0.85rem; font-weight: 700; margin: 0 0 0.2rem; color: #002b64; }
 .sp-cap { font-size: 0.8rem; color: #5b6f8a; margin: 0 0 0.8rem; max-width: 80ch; }

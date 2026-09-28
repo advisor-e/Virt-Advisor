@@ -57,6 +57,7 @@ function joinTranscripts (segments, readText) {
   let confident = true
   let transcribed = 0
   let speakerCount = 0
+  let silent = 0
 
   rows.forEach((seg) => {
     const text = seg.state === 'done' ? readText(seg.n) : null
@@ -65,6 +66,9 @@ function joinTranscripts (segments, readText) {
       return
     }
     transcribed += 1
+    // Decision N: a section in which nothing was said is transcribed and empty. It says
+    // nothing about who spoke, so it neither earns nor spoils the session's confidence.
+    if (!text.segments.length) { silent += 1; return }
     const started = Date.parse(seg.startedAt)
     const offset = (isFinite(started) && isFinite(origin)) ? Math.max(0, (started - origin) / 1000) : 0
     text.segments.forEach((row) => {
@@ -86,10 +90,38 @@ function joinTranscripts (segments, readText) {
     segments: joined,
     text: texts.join('\n'),
     speakerCount,
-    attributionConfident: transcribed > 0 && confident,
+    attributionConfident: transcribed - silent > 0 && confident,
     segmentCount: rows.length,
+    // Sections turned into text, silent ones included — what decides whether the session
+    // finished (Decision N), as distinct from how many rows it holds.
+    transcribedSegments: transcribed,
     missingSegments: missing
   }
+}
+
+/**
+ * Put the paused minutes back into a segment's times (Decision L, Mike 2026-09-28).
+ *
+ * 🔴 WHY. When nothing is heard for 3 minutes the browser pauses the recording (screen 11), so
+ * the paused minutes are not in the audio and every word after a pause comes back from OpenAI
+ * too early by the pause's length. Each pause is noted as where it fell in the RECORDED audio
+ * (`at`, seconds) and how long it lasted (`duration`); every row at or after it moves later by
+ * that much. Pauses are applied in order, so two pauses add up.
+ *
+ * @param {Array<object>} rows - the segment's transcript rows, `start`/`end` in recorded seconds
+ * @param {Array<{at: number, duration: number}>} pauses
+ * @returns {Array<object>} new rows with real times
+ */
+function restorePausedTime (rows, pauses) {
+  const list = (Array.isArray(pauses) ? pauses : [])
+    .filter(p => p && isFinite(p.at) && isFinite(p.duration) && p.at >= 0 && p.duration > 0)
+    .sort((a, b) => a.at - b.at)
+  return (Array.isArray(rows) ? rows : []).map((row) => {
+    const start = Number(row.start) || 0
+    const end = Number(row.end) || 0
+    const shift = list.filter(p => start >= p.at).reduce((sum, p) => sum + p.duration, 0)
+    return { ...row, start: start + shift, end: end + shift }
+  })
 }
 
 /**
@@ -123,5 +155,6 @@ module.exports = {
   SETTLED_STATES,
   allSettled,
   joinTranscripts,
+  restorePausedTime,
   publicSegments
 }

@@ -1559,8 +1559,28 @@ because its approved words say so — a failed section has already said so in it
 controls were not drawn and were ruled while building, all Mike's words on 2026-09-28: **"Take a
 break"** on the strip; a failed summary's **"This summary couldn't be written." / "Write it
 again"**; and **Meeting Review's own interruption alarm**, reused word for word, whose **"Resume
-recording"** carries the concept on as its next part. **The first build is complete; none of it has
-run against a real microphone or real OpenAI** — that proof is the desktop's or UAT's. **Never run against real OpenAI or a real microphone** — that proof needs the
+recording"** carries the concept on as its next part. **The first build is complete.** Walked on
+the laptop 2026-09-28 in a built app, with Chrome's test-tone microphone and real OpenAI calls:
+recording, the clip, a break, resume and the end all worked, and every piece of audio was destroyed
+with logged proof. A real voice has not yet been recorded through it.
+
+**That walk found a silent section mishandled** — the tone has no words, every section came back
+empty, the session was marked failed while the screen said "all turned into text", and three
+summaries were paid for with nothing to summarise. Mike, asked how to fix it: *"if AI detects the
+converstaion stops for more than 3mins - can it pause until it starts again?"*, then *"do the
+design - its a better overall fix"*. **Screen 11, built 2026-09-28** on his rulings, one question at
+a time: **K** silence is under a quarter of the advisor's own level, measured on the consent line, for
+3 minutes; **L** each pause's place and length are sent to the server (`POST …/segments/:n/pauses`)
+and added back to later words' times (`meetingSegments.restorePausedTime`); **M** the countdown keeps
+counting; **N** a silent section is transcribed and empty — the session finishes, and its summary is
+every heading empty with no AI call (`conceptSummary.emptySummary`). The browser measures loudness
+itself; nothing is sent to do it. **Walked live the same day** with a test sound file (tone, 190 s of
+silence, tone): paused at 3:11, resumed on the tone, the 10.25 s pause reported, the silent section
+finished as transcribed with no AI call, all audio destroyed. **Risk carried:** a first word after a
+pause can be clipped — unmeasured until a real voice is recorded. **Two more fixes from the walk, on
+Mike's yes:** each "Record this section" bar is now joined to the top of its own card — in the gap
+between cards it read as the foot of the card above, inviting a press that would file a recording
+under the wrong concept; and the finished banner counts "1 section", "1 minute" in the singular. **Never run against real OpenAI or a real microphone** — that proof needs the
 desktop or UAT. Every ruling below
 is Mike's, 2026-09-28.
 

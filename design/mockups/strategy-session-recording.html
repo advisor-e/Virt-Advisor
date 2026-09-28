@@ -199,7 +199,7 @@
 <body>
 <div class="wrap">
 
-  <p class="eyebrow">Strategy Planner · Run session · item 8.4 · drawn 2026-09-25 · timing added 2026-09-28 (screens 7–9) · concept summaries added 2026-09-28 (screen 10) · <b>APPROVED FOR BUILD by Mike 2026-09-28</b> (first build: screens 1, 2, 3, 5–10; as committed in 976533c2) · not built</p>
+  <p class="eyebrow">Strategy Planner · Run session · item 8.4 · drawn 2026-09-25 · timing added 2026-09-28 (screens 7–9) · concept summaries added 2026-09-28 (screen 10) · <b>APPROVED FOR BUILD by Mike 2026-09-28</b> (first build: screens 1, 2, 3, 5–10; as committed in 976533c2) · first build built 2026-09-28 · screen 11 added 2026-09-28 and BUILT the same day on Mike's rulings of K–N and its wording — no separate approval of the drawing, on his word: "dont need another drawing, lets get this done"</p>
   <h1>Recording a strategy session in sections</h1>
   <p class="lede">Each concept card in Run session becomes <b>its own short recording</b>. The advisor presses the card's
     record button, and pressing the next card's button closes the one before. Each section is turned into text
@@ -574,6 +574,57 @@
     editing</b>; it stays exactly as spoken. The client's words in the sample are invented for the drawing, and the
     chain's name is left out on purpose.</p>
 
+  <!-- ═════════════════════ SCREEN 11 — added 2026-09-28, NOT APPROVED ═════════════════════ -->
+  <h2>11 · Nothing said for 3 minutes: the recording pauses itself, and carries on when someone speaks</h2>
+  <p class="cap"><b>Drawn 2026-09-28 on Mike's word. Not approved.</b> His words, asked how to fix a silent section:
+    <i>"if AI detects the converstaion stops for more than 3mins - can it pause until it starts again?"</i>, then
+    <i>"do the design - its a better overall fix"</i>. <b>No AI is involved</b>: the browser measures how loud the
+    microphone is, on the laptop itself, and sends nothing anywhere to do it. After 3 minutes below the silence level the
+    recording pauses; the moment someone speaks it carries on, in the same section, with no press.
+    <span class="dec">Decision K</span> <span class="dec">Decision L</span> <span class="dec">Decision M</span>
+    <span class="dec">Decision N</span></p>
+
+  <div class="note">
+    <h3>The impact test, stated before the design</h3>
+    <ul>
+      <li><b>The problem.</b> The live walk on 2026-09-28 sent three silent sections to OpenAI, paid for three summaries
+        of nothing, and marked the session failed while the screen said all was well. A real session has quiet spells —
+        a break nobody pressed "Take a break" for, a client reading a page — and each is audio sent and paid for with
+        nothing in it.</li>
+      <li><b>How we'll know.</b> On a real test session with a staged 5-minute silence: minutes of audio sent, before and
+        after (the silence should not be sent); the number of sections that come back empty (should be none that were
+        long silences); and the first words after each resume checked in the transcript — a clipped word is the risk
+        this carries, and it is counted, not assumed away.</li>
+      <li><b>What already does this job.</b> "Take a break" — but only when the advisor remembers to press it, and a
+        quiet spell mid-concept is not a break.</li>
+    </ul>
+  </div>
+
+  <div class="screen">
+    <div class="rail"><span>1 · Scope session</span><span>2 · Build session</span><span class="on">3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+    <div class="strip" style="background:var(--wash)"><span class="dot" style="background:var(--warn)"></span><b style="color:var(--warn)">Paused — nothing heard for 3 minutes</b>
+      <span>Section 3 · Porter's 5 Forces</span><span class="clock">14:02</span><span class="grow"></span>
+      <span class="btn ghost small">Take a break</span><span class="btn ghost small">End recording</span><span class="btn danger small">Stop and delete everything</span></div>
+    <div class="secs">
+      <span class="sec done">1 · Our Session Objective · text ready · audio deleted</span>
+      <span class="sec done">2 · Business Owner Expectations · text ready · audio deleted</span>
+      <span class="sec work">3 · Porter's 5 Forces · paused 14:02</span>
+    </div>
+    <p class="muted" style="margin:10px 14px 14px">Recording carries on as soon as someone speaks.</p>
+  </div>
+  <p class="cap">The strip turns from red to amber, so nobody believes the room is being recorded while it is not. The
+    clock stops at the moment of the pause. The moment the microphone hears speech, the strip is red again and the same
+    section carries on — no press, no new section, no second consent. The quiet minutes are not in the audio sent to
+    OpenAI.</p>
+
+  <div class="screen">
+    <div class="strip"><span class="dot"></span><b>Recording</b><span>Section 3 · Porter's 5 Forces</span>
+      <span class="clock">14:03</span><span class="grow"></span>
+      <span class="btn ghost small">Take a break</span><span class="btn ghost small">End recording</span><span class="btn danger small">Stop and delete everything</span></div>
+  </div>
+  <p class="cap">…and a moment later, recording again. The countdown in the corner kept counting through the pause
+    (Decision M).</p>
+
   <!-- ───────────────────────────── HOW IT WORKS ───────────────────────────── -->
   <h2>How it works underneath</h2>
   <div class="flow">
@@ -705,6 +756,41 @@
     <p class="against">Against: joining every summary regardless, with unapproved ones marked, would give a complete
       report at once, but a client could read words they never agreed.</p></div>
 
+  <div class="decision"><h3>Decision K · what counts as silence (screen 11)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b> — quieter than a quarter of the advisor's own level, measured on the consent
+      line, for 3 minutes without a break.</p>
+    <p class="rec">Recommended: quieter than a quarter of the advisor's own speaking level, measured while the advisor
+      reads the consent line — for 3 minutes without a break, Mike's figure.</p>
+    <p>Every room and microphone is different; a fixed level would pause on a quiet speaker in one room and never pause
+      in a noisy one. The consent line is already the advisor's voice at a known moment, so the level is set per session
+      with nothing extra to do.</p>
+    <p class="against">Against: one fixed level for every session is simpler, but it would be wrong somewhere every
+      day.</p></div>
+
+  <div class="decision"><h3>Decision L · the paused minutes and the clock (screen 11)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b> — each pause's start and end are noted and the minutes added back.</p>
+    <p class="rec">Recommended: the app notes when each pause started and ended, and adds the paused minutes back when
+      the section's words come back, so every quote keeps its real time on the clock.</p>
+    <p>Without it, every word after a pause would carry a time too early by the length of the pause — wrong in the
+      reports, and wrong for the second build, which puts words in boxes by the clock.</p>
+    <p class="against">Against: leaving the times as they come back is less work, and wrong after the first pause.</p></div>
+
+  <div class="decision"><h3>Decision M · the countdown during a pause (screen 11)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b> — the countdown keeps counting through a pause.</p>
+    <p class="rec">Recommended: it keeps counting. A concept's time allowance is time in the room, and a quiet spell
+      spends it.</p>
+    <p class="against">Against: stopping it would reward silence with extra time the agenda does not have.</p></div>
+
+  <div class="decision"><h3>Decision N · a section with no words in it at all (screen 11)</h3>
+    <p><b>RULED BY MIKE 2026-09-28: yes</b> — transcribed but empty; the session finishes normally; the summary shows
+      "Nothing was said about this." under each heading with no AI call.</p>
+    <p class="rec">Recommended: it counts as turned into text but empty; the session finishes normally, and that
+      concept's summary shows "Nothing was said about this." under each heading, without asking the AI.</p>
+    <p><b>The pause does not remove this case.</b> A card pressed and moved on from inside 3 minutes is silent and never
+      pauses. Today such a section marks the whole session failed and pays for a summary of nothing — found on the
+      2026-09-28 walk.</p>
+    <p class="against">Against: leaving it as it is means a single quiet card fails a whole session's reports.</p></div>
+
   <!-- ───────────────────────────── WORDING ───────────────────────────── -->
   <h2>Every new word on this page is ours, and needs your ruling</h2>
   <div class="tablewrap">
@@ -725,6 +811,8 @@
         <tr><td>Timing · Build session</td><td>Session starts <b>— ✅ approved by Mike 2026-09-28</b> · min <b>— ✅ approved</b> · + Add a break here · Break <b>— ✅ approved</b> · Finishes 10:45 am · 90 min of concepts · 15 min of breaks <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
         <tr><td>Timing · Run session</td><td>Today's agenda <b>— ✅ approved</b> · 12:40 left · +3:10 over <b>— ✅ approved</b> · Running 3 min behind · now finishing 11:18 <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
         <tr><td>Timing · a second day (Decision H)</td><td>Day 2 starts (Day 3 starts, and so on) <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
+        <tr><td>Screen 11 · the strip while paused</td><td>Paused — nothing heard for 3 minutes <b>— ✅ approved by Mike 2026-09-28</b> · Recording carries on as soon as someone speaks. <b>— ✅ approved</b></td></tr>
+        <tr><td>Screen 11 · a paused section's chip</td><td>paused 14:02 <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
         <tr><td>The alarm when a recording stops unasked (asked while building, not drawn)</td><td>Meeting Review's own, reused word for word: Recording stopped unexpectedly at 06:12 · Your screen locked or the browser tab was suspended. 6 minutes were saved and can still be transcribed. Nothing after 06:12 was captured. · Resume recording <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
         <tr><td>Strip button for a break (asked while building, not drawn)</td><td>Take a break <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
         <tr><td>A concept summary the AI could not write (asked while building, not drawn)</td><td>This summary couldn't be written. · Write it again <b>— ✅ approved by Mike 2026-09-28</b></td></tr>
@@ -750,6 +838,9 @@
         nothing here may be described as covered by it.</li>
       <li><b>Live proof needs a real browser, the OpenAI key and a database</b>, which means the desktop or UAT. The laptop
         can build and test it, but it can't record a real session.</li>
+      <li><b>Screen 11 can clip the first word or two after a pause.</b> The browser only knows someone is speaking once
+        the sound has started, so the recording resumes a fraction of a second late. It can be made smaller, never zero;
+        the impact test above counts it on a real session rather than assuming it away.</li>
       <li><b>The strategy meeting type's name — RULED BY MIKE 2026-09-28: "Strategy Session".</b> It sits at mentor
         level with the other eleven and cascades as they do, and it is the name the Meeting Summary is told the meeting
         was.</li>

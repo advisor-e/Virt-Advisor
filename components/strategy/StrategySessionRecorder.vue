@@ -18,10 +18,12 @@
 
   //- ── The strip, while recording (screen 3) ───────────────────────────────
   //- During a break nothing records, so the red "Recording" line goes; the two ways out stay.
-  .ssr-strip(v-if="stage === 'recording' || stage === 'break'" :class="{ 'is-break': stage === 'break' }")
+  .ssr-strip(v-if="stage === 'recording' || stage === 'break'" :class="{ 'is-break': stage === 'break', 'is-paused': paused }")
     template(v-if="stage === 'recording'")
       span.ssr-dot
-      b.ssr-rec {{ $t('strategyPlanner.recording.strip') }}
+      //- Screen 11: amber while paused, so nobody believes the room is being recorded.
+      b.ssr-rec(v-if="paused") {{ $t('strategyPlanner.recording.paused') }}
+      b.ssr-rec(v-else) {{ $t('strategyPlanner.recording.strip') }}
       span {{ $t('strategyPlanner.recording.section', { n: liveN, label: liveLabel }) }}
       span.ssr-clock {{ clock(segmentSeconds) }}
     span.ssr-grow
@@ -29,6 +31,7 @@
     b-button(v-if="stage === 'recording'" size="is-small" outlined :loading="busy" @click="takeBreak") {{ $t('strategyPlanner.recording.takeBreak') }}
     b-button(size="is-small" outlined type="is-primary" :loading="busy" @click="endRecording") {{ $t('strategyPlanner.recording.end') }}
     b-button(size="is-small" outlined type="is-danger" :loading="busy" @click="deleteAll") {{ $t('strategyPlanner.recording.deleteAll') }}
+  p.ssr-note(v-if="stage === 'recording' && paused") {{ $t('strategyPlanner.recording.pausedNote') }}
 
   //- ── The alarm: Meeting Review's own, word for word (Mike, 2026-09-28) ──────────
   //- An operating system can suspend a backgrounded tab, and there is no second take with a
@@ -58,7 +61,8 @@
     //- The approved banner claims every section was turned into text, so it is only shown
     //- when that is true; a failed section has already said so in its own banner above.
     template(v-if="!failedSegments.length")
-      b {{ $t('strategyPlanner.recording.finishedLead', { sections: segments.length, minutes: totalMinutes }) }}
+      //- "1 section", "1 minute" in the singular (Mike, 2026-09-28).
+      b {{ $t('strategyPlanner.recording.finishedLead', { sections: $tc('strategyPlanner.recording.sectionsCount', segments.length, { count: segments.length }), minutes: $tc('strategyPlanner.recording.minutesCount', totalMinutes, { count: totalMinutes }) }) }}
       |  {{ $t('strategyPlanner.recording.finishedWaiting', { count: waitingForApproval }) }}
     b-button.ml-2(size="is-small" type="is-primary" tag="a" :href="'/meeting-review?meeting=' + meetingId")
       | {{ $t('strategyPlanner.recording.reports') }}
@@ -106,6 +110,21 @@ const CLIP_MS = 8000
 /** How often segment states are asked after they close. */
 const POLL_MS = 4000
 
+// ── Screen 11: pause after 3 minutes of silence (Mike, 2026-09-28) ─────────────────
+// No AI: the browser measures loudness itself and sends nothing to do it.
+
+/** Mike's figure: nothing heard for this long, and the recording pauses. */
+const SILENCE_SECONDS = 180
+
+/** How often the microphone's loudness is read. */
+const LEVEL_MS = 250
+
+/** Decision K: silence is quieter than a quarter of the advisor's own speaking level. */
+const SILENCE_SHARE = 0.25
+
+/** A floor for a consent line that measured nothing — a muted microphone, say. */
+const FALLBACK_SILENCE = 0.01
+
 export default {
   name: 'StrategySessionRecorder',
 
@@ -136,7 +155,9 @@ export default {
       segmentSeconds: 0,
       sessionSeconds: 0,
       /** The recording stopped without being asked — a locked screen, a suspended tab. */
-      interrupted: false
+      interrupted: false,
+      /** Screen 11: paused because nothing has been heard for 3 minutes. */
+      paused: false
     }
   },
 
@@ -164,6 +185,11 @@ export default {
     savedMinutes () {
       return Math.floor(this.sessionSeconds / 60)
     }
+  },
+
+  watch: {
+    /** The page's live card follows the pause (screen 11). */
+    paused () { this.emitState() }
   },
 
   mounted () {
@@ -261,6 +287,9 @@ export default {
         await this.openSegment(this.pendingCard, 1)
         this.beginCapture()
         this.captureVoiceClip()
+        // Screen 11: the meter starts now, so the consent line sets the silence level (K).
+        this._calibration = []
+        this.startLevelMeter()
         await this.holdWakeLock()
         this.startClock()
         this.stage = 'consent2'
@@ -277,6 +306,8 @@ export default {
       this.busy = true
       try {
         await this.call('POST', '/api/meeting/recordings/' + this.meetingId + '/consent')
+        this.setSilenceLevel()
+        this._lastSoundAt = Date.now()
         this.stage = 'recording'
       } catch (err) {
         this.fatal = err.message
@@ -309,8 +340,104 @@ export default {
       const startedAt = (part > 1 && this.live) ? this.live.startedAt : Date.now()
       this.live = { key: card.key, conceptId: card.conceptId, label: card.label, part, startedAt }
       this._segmentStartedAt = Date.now()
+      this._segmentPausedMs = 0
+      this.paused = false
+      this._lastSoundAt = Date.now()
       this.segmentSeconds = 0
       this.emitState()
+    },
+
+    // ── Screen 11: pause after 3 minutes of silence ────────────────────────────
+
+    /** Read the microphone's loudness every quarter second, on this machine only. */
+    startLevelMeter () {
+      const Ctx = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext)
+      if (!Ctx || !this._stream) { return }
+      try {
+        this._audio = new Ctx()
+        const analyser = this._audio.createAnalyser()
+        analyser.fftSize = 1024
+        this._audio.createMediaStreamSource(this._stream).connect(analyser)
+        const samples = new Float32Array(analyser.fftSize)
+        this._meter = setInterval(() => {
+          analyser.getFloatTimeDomainData(samples)
+          let sum = 0
+          for (let i = 0; i < samples.length; i += 1) { sum += samples[i] * samples[i] }
+          this.onLevel(Math.sqrt(sum / samples.length), Date.now())
+        }, LEVEL_MS)
+      } catch (e) {
+        // No meter means no auto-pause; recording itself is unaffected.
+      }
+    },
+
+    /**
+     * One loudness reading. During the consent line it calibrates; while recording it pauses
+     * after 3 minutes of silence and resumes on the first sound.
+     * @param {number} level - root-mean-square of the samples, 0 to 1
+     * @param {number} now - ms
+     */
+    onLevel (level, now) {
+      if (this.stage === 'consent2') {
+        this._calibration = (this._calibration || []).concat([level])
+        return
+      }
+      if (this.stage !== 'recording') { return }
+      const heard = level >= (this._silenceLevel || FALLBACK_SILENCE)
+      if (heard) {
+        this._lastSoundAt = now
+        if (this.paused) { this.resumeFromPause(now) }
+      } else if (!this.paused && now - (this._lastSoundAt || now) >= SILENCE_SECONDS * 1000) {
+        this.pauseForSilence(now)
+      }
+    },
+
+    /**
+     * Decision K: a quarter of the advisor's own speaking level, taken from the consent line —
+     * the level they reach nine readings in ten while speaking, so their pauses do not drag it down.
+     */
+    setSilenceLevel () {
+      const sorted = (this._calibration || []).slice().sort((a, b) => a - b)
+      const speaking = sorted.length ? sorted[Math.floor(sorted.length * 0.9)] : 0
+      this._silenceLevel = Math.max(FALLBACK_SILENCE, speaking * SILENCE_SHARE)
+    },
+
+    /** Pause the live recorder, noting where the pause falls in the recorded audio (L). */
+    pauseForSilence (now) {
+      if (!this._recorder || this._recorder.state !== 'recording') { return }
+      try { this._recorder.pause() } catch (e) { return }
+      this.paused = true
+      this._pauseStartedAt = now
+      this._pauseAtRecorded = this.recordedSeconds(now)
+    },
+
+    /** Someone spoke: carry on in the same section, and report the pause so its minutes return (L). */
+    resumeFromPause (now) {
+      if (!this.paused) { return }
+      try { if (this._recorder && this._recorder.state === 'paused') { this._recorder.resume() } } catch (e) { /* stopped */ }
+      const duration = (now - this._pauseStartedAt) / 1000
+      this._segmentPausedMs = (this._segmentPausedMs || 0) + (now - this._pauseStartedAt)
+      this.paused = false
+      const n = this.liveN
+      ;(this._uploads = this._uploads || []).push(
+        this.call('POST', '/api/meeting/recordings/' + this.meetingId + '/segments/' + n + '/pauses', {
+          at: this._pauseAtRecorded,
+          duration
+        }).catch(() => { /* a lost pause shifts later times; the words themselves are safe */ })
+      )
+    },
+
+    /** Seconds of audio this segment holds: wall time since it opened, less its pauses. */
+    recordedSeconds (now) {
+      const pausedNow = this.paused ? now - this._pauseStartedAt : 0
+      return Math.max(0, (now - (this._segmentStartedAt || now) - (this._segmentPausedMs || 0) - pausedNow) / 1000)
+    },
+
+    stopLevelMeter () {
+      if (this._meter) { clearInterval(this._meter); this._meter = null }
+      if (this._audio) {
+        try { this._audio.close() } catch (e) { /* closed */ }
+        this._audio = null
+      }
     },
 
     /** Start a MediaRecorder for the live segment. A fresh one per segment: its own file. */
@@ -364,6 +491,8 @@ export default {
       this._recorder = null
       // Every asked-for stop — a card, a roll-over, a break, the end — answers the alarm too.
       this.interrupted = false
+      // A pause that ends with the section has no later words to move, so it is not reported.
+      this.paused = false
       if (!recorder || recorder.state === 'inactive') { return Promise.all(this._uploads || []) }
       return new Promise((resolve) => {
         recorder.onstop = () => { Promise.all(this._uploads || []).then(resolve, resolve) }
@@ -505,14 +634,17 @@ export default {
 
     /** Tell the page what is live and what each segment is doing. */
     emitState () {
-      // Payload: { meetingId, segments (server view), live: {key, conceptId, label, startedAt}|null }
-      this.$emit('state-changed', { meetingId: this.meetingId, segments: this.segments, live: this.live })
+      // Payload: { meetingId, segments (server view), live: {key, conceptId, label, startedAt}|null,
+      //            paused: boolean — screen 11, so the live card stops saying "recording" }
+      this.$emit('state-changed', { meetingId: this.meetingId, segments: this.segments, live: this.live, paused: this.paused })
     },
 
     chipClass (s) {
+      // A paused section is amber, as screen 11 draws it — never the red that means recording.
+      const pausedNow = this.paused && s.n === this.liveN
       return {
-        'is-now': s.state === 'recording',
-        'is-work': s.state === 'closed' || s.state === 'transcribing',
+        'is-now': s.state === 'recording' && !pausedNow,
+        'is-work': pausedNow || s.state === 'closed' || s.state === 'transcribing',
         'is-done': s.state === 'done',
         'is-fail': s.state === 'failed'
       }
@@ -522,7 +654,9 @@ export default {
     chipText (s) {
       const t = key => this.$t('strategyPlanner.recording.' + key)
       const parts = [s.n, s.label]
-      if (s.state === 'recording') { parts.push(t('stateRecording') + ' ' + this.clock(this.segmentSeconds)) }
+      if (s.state === 'recording') {
+        parts.push(t(this.paused && s.n === this.liveN ? 'statePaused' : 'stateRecording') + ' ' + this.clock(this.segmentSeconds))
+      }
       if (s.state === 'closed' || s.state === 'transcribing') { parts.push(t('stateTranscribing')) }
       if (s.state === 'done') { parts.push(t('stateReady')) }
       if (s.state === 'failed') { parts.push(t('stateFailed')) }
@@ -539,8 +673,9 @@ export default {
     startClock () {
       this.stopClock()
       this._clock = setInterval(() => {
-        this.sessionSeconds += 1
-        this.segmentSeconds = Math.floor((Date.now() - (this._segmentStartedAt || Date.now())) / 1000)
+        // While paused the clock stops: those minutes are not being recorded (screen 11).
+        if (!this.paused) { this.sessionSeconds += 1 }
+        this.segmentSeconds = Math.floor(this.recordedSeconds(Date.now()))
         if (this.segmentSeconds >= ROLL_SECONDS) { this.rollOver() }
         if (this.sessionSeconds % (POLL_MS / 1000) === 0) { this.poll() }
       }, 1000)
@@ -566,6 +701,8 @@ export default {
     /** Stop capture and release every device this component opened. */
     teardown () {
       this.stopClock()
+      this.stopLevelMeter()
+      this.paused = false
       if (this._poll) { clearTimeout(this._poll); this._poll = null }
       if (this._clipTimer) { clearTimeout(this._clipTimer); this._clipTimer = null }
       if (this._recorder && this._recorder.state !== 'inactive') {
@@ -619,6 +756,11 @@ export default {
 }
 /* Danger red, as the Meeting Review recorder uses it, so "recording" reads at a glance. */
 .ssr-strip.is-break { background: #f1f6fb; }
+/* Screen 11: amber while paused — not the red that says the room is being recorded. */
+.ssr-strip.is-paused { background: #f1f6fb; }
+.ssr-strip.is-paused .ssr-dot { background: #b36b00; }
+.ssr-strip.is-paused .ssr-rec { color: #b36b00; }
+.ssr-note { font-size: 0.8rem; color: #6b7f99; margin: -0.25rem 0 0.5rem 0.85rem; }
 .ssr-dot { width: 10px; height: 10px; border-radius: 50%; background: #ff0000; }
 .ssr-rec { color: #d32f2f; }
 .ssr-clock { font-variant-numeric: tabular-nums; font-weight: 700; }

@@ -630,3 +630,71 @@ describe('🔴 each concept\'s summary, approved by the advisor and client (slic
     expect(report.composedFromConcepts.map(c => c.n)).toEqual([1])
   })
 })
+
+describe('🔴 screen 11 on the server — pauses and silent sections (Decisions L and N)', () => {
+  const SILENT = JSON.stringify({ text: '', segments: [] })
+
+  test('a silent section finishes the session normally, with an empty summary and no model asked', async () => {
+    openaiReplies(200, SILENT)
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'A')
+    review.finishRecording(req(id), makeRes())
+    await drain()
+    expect(store.readMeta(id).state).toBe('transcribed')
+    expect(store.readTranscript(id).segments).toEqual([])
+    expect(conceptSummary.generate).not.toHaveBeenCalled()
+    expect(store.readSegmentSummary(id, 1).sections.every(s => s.text === null)).toBe(true)
+    expect(store.readMeta(id).segments[0].summaryState).toBe('ready')
+  })
+
+  test('a recorded pause moves the later words back to their real time', async () => {
+    openaiReplies(200, JSON.stringify({ text: 'x', segments: [{ speaker: 'advisor', start: 50, end: 52, text: 'after the pause' }] }))
+    const id = newSession()
+    store.writeVoiceReference(id, Buffer.from('VOICE'), 'audio/webm')
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'A')
+    const res = makeRes()
+    seg.recordPause(req(id, { params: { n: '1' }, body: { at: 40, duration: 240 } }), res)
+    expect(res._status).toBe(201)
+    seg.closeSegment(req(id), makeRes())
+    await drain()
+    expect(store.readSegmentTranscript(id, 1).segments[0].start).toBe(290)
+  })
+
+  test.each([
+    ['no numbers', {}],
+    ['a negative place', { at: -1, duration: 10 }],
+    ['no length', { at: 5, duration: 0 }],
+    ['longer than a day', { at: 5, duration: 90000 }]
+  ])('a pause with %s is refused', (_label, body) => {
+    const id = newSession()
+    recordSegment(id, 'A')
+    const res = makeRes()
+    seg.recordPause(req(id, { params: { n: '1' }, body }), res)
+    expect(bodyOf(res).error.code).toBe('BAD_PAUSE')
+  })
+
+  test('a section whose words are back can no longer take a pause', async () => {
+    openaiReplies(200, SILENT)
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'A')
+    seg.closeSegment(req(id), makeRes())
+    await drain()
+    const res = makeRes()
+    seg.recordPause(req(id, { params: { n: '1' }, body: { at: 1, duration: 5 } }), res)
+    expect(bodyOf(res).error.code).toBe('SEGMENT_SETTLED')
+  })
+
+  test('a single-file meeting, or a colleague, cannot record a pause', () => {
+    const { meetingId } = store.createMeeting({ firmId: FIRM, advisor: ADVISOR, retentionMonths: 18 })
+    const one = makeRes()
+    seg.recordPause(req(meetingId, { params: { n: '1' }, body: { at: 1, duration: 5 } }), one)
+    expect(bodyOf(one).error.code).toBe('NOT_SEGMENTED')
+    const id = newSession()
+    const two = makeRes()
+    seg.recordPause({ firmId: FIRM, advisorId: 'someone-else', params: { meetingId: id, n: '1' }, body: { at: 1, duration: 5 } }, two)
+    expect(two._status).toBe(404)
+  })
+})

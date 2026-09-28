@@ -276,3 +276,13 @@ describe('🔴 Decision J — the Meeting Summary is built only from approved co
     expect(cs.currentSections({})).toEqual([])
   })
 })
+
+describe('🔴 Decision N — the summary of a silent section', () => {
+  test('every heading empty, unapproved, and no model named because none was asked', () => {
+    const s = cs.emptySummary(['A', 'B'])
+    expect(s.sections).toEqual([{ heading: 'A', text: null }, { heading: 'B', text: null }])
+    expect(s.model).toBeNull()
+    expect(s.approvedAt).toBeNull()
+    expect(cs.emptySummary(undefined).sections).toEqual([])
+  })
+})

@@ -213,6 +213,26 @@ async function generate (args) {
 }
 
 /**
+ * The summary of a section in which nothing was said (Decision N, Mike 2026-09-28): every
+ * heading empty, so the screen shows "Nothing was said about this." — and no model is asked.
+ *
+ * @param {Array<string>} headings
+ * @returns {object} the stored summary shape, unapproved
+ */
+function emptySummary (headings) {
+  return {
+    generatedAt: new Date().toISOString(),
+    model: null,
+    provider: null,
+    sections: (Array.isArray(headings) ? headings : []).map(heading => ({ heading, text: null })),
+    editedSections: null,
+    editedAt: null,
+    approvedAt: null,
+    clientAgreed: false
+  }
+}
+
+/**
  * The words a summary now stands on: the edited ones if the advisor and client changed them.
  * @param {object} summary
  * @returns {Array<{heading: string, text: (string|null)}>}
@@ -296,6 +316,7 @@ module.exports = {
   buildMessages,
   validate,
   generate,
+  emptySummary,
   currentSections,
   validateEdit,
   composeMeetingSummary

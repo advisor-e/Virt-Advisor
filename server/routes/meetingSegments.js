@@ -32,7 +32,7 @@ const { sendError } = require('../utils/sendError')
 const store = require('../utils/meetingAudioStore')
 const { createTranscriptionClient, REFERENCE_MIME_TYPES } = require('../utils/transcriptionClient')
 const { logSuffixNoFallback } = require('../utils/aiProvider')
-const { allSettled, joinTranscripts, publicSegments } = require('../utils/meetingSegments')
+const { allSettled, joinTranscripts, restorePausedTime, publicSegments } = require('../utils/meetingSegments')
 // Called through the module object so a test can stand in for the model call.
 const conceptSummary = require('../utils/conceptSummary')
 const frameworks = require('../utils/strategyFrameworks')
@@ -99,10 +99,13 @@ async function runSegmentTranscription (meetingId, n) {
       ' speakers=' + result.speakerCount + ' clip=' + (reference ? 'yes' : 'no') +
       ' confident=' + confident)
 
+    // Decision L: the minutes the browser paused for are added back, so every quote keeps its
+    // real time on the clock.
+    const seg = ((store.readMeta(meetingId) || {}).segments || []).filter(s => s.n === n)[0]
     store.writeSegmentTranscript(meetingId, n, {
       model: result.model,
       createdAt: new Date().toISOString(),
-      segments: result.segments,
+      segments: restorePausedTime(result.segments, seg && seg.pauses),
       text: result.text,
       droppedSegments: result.dropped,
       speakerCount: result.speakerCount,
@@ -177,7 +180,12 @@ async function runSegmentSummary (meetingId, n) {
   store.updateSegment(meetingId, n, { summaryState: 'writing' })
   try {
     const { headings, conceptName } = headingsForSegment(seg)
-    const summary = await conceptSummary.generate({ segments: text.segments || [], conceptName, headings })
+    const spoken = text.segments || []
+    // Decision N: nothing was said, so there is nothing to summarise and no model is asked —
+    // every heading reads "Nothing was said about this."
+    const summary = spoken.length
+      ? await conceptSummary.generate({ segments: spoken, conceptName, headings })
+      : conceptSummary.emptySummary(headings)
     store.writeSegmentSummary(meetingId, n, summary)
     store.updateSegment(meetingId, n, { summaryState: 'ready', summaryApprovedAt: null })
   } catch (err) {
@@ -238,7 +246,9 @@ function settle (meetingId) {
 
   try {
     const joined = joinTranscripts(meta.segments, n => store.readSegmentTranscript(meetingId, n))
-    const transcribedAny = joined.segments.length > 0
+    // Decision N: a session whose sections were turned into text has finished, even if some —
+    // or all — were silent. Only a session where nothing could be transcribed has failed.
+    const transcribedAny = joined.transcribedSegments > 0
     if (transcribedAny) {
       store.writeTranscript(meetingId, {
         meetingId,
@@ -428,6 +438,45 @@ async function uploadSegmentChunk (req, res) {
   }
 }
 
+/** A section's pauses past this are a fault, not a quiet room. */
+const MAX_PAUSES = 100
+
+/**
+ * POST /api/meeting/recordings/:meetingId/segments/:n/pauses  (advisor)
+ *
+ * One finished pause: where it fell in the section's RECORDED audio and how long it lasted, so
+ * the paused minutes can be added back to every later word's time (screen 11, Decision L).
+ *
+ * @route POST /api/meeting/recordings/:meetingId/segments/:n/pauses
+ * @param {object} req.body - `{ at: number, duration: number }`, both seconds
+ * @returns {{recorded: true, pauses: number}}
+ */
+function recordPause (req, res) {
+  const meta = ownedMeeting(req, res)
+  if (!meta) { return }
+  if (!meta.segmented) { return sendError(res, 409, 'NOT_SEGMENTED', 'This recording is not a strategy session.') }
+  const n = parseInt(req.params.n, 10)
+  const seg = (meta.segments || []).filter(s => s.n === n)[0]
+  // Only a section whose words have not come back yet can still have its times corrected.
+  if (!seg || !['recording', 'closed'].includes(seg.state)) {
+    return sendError(res, 409, 'SEGMENT_SETTLED', 'That section can no longer take a pause.')
+  }
+  const body = req.body || {}
+  const at = Number(body.at)
+  const duration = Number(body.duration)
+  if (!isFinite(at) || !isFinite(duration) || at < 0 || duration <= 0 || duration > 24 * 60 * 60) {
+    return sendError(res, 400, 'BAD_PAUSE', 'A pause needs where it fell and how long it lasted, in seconds')
+  }
+  const pauses = (seg.pauses || []).slice(0, MAX_PAUSES - 1).concat([{ at, duration }])
+  try {
+    store.updateSegment(meta.meetingId, n, { pauses })
+    res.send(201, { recorded: true, pauses: pauses.length })
+  } catch (err) {
+    console.error('[meeting-segments] pause not recorded:', err.message)
+    return sendError(res, 500, 'MEETING_ERROR', 'Could not record that pause')
+  }
+}
+
 /**
  * "End recording" on a strategy session — the segmented half of
  * `meetingReview.finishRecording`, which hands over here.
@@ -607,6 +656,7 @@ module.exports = {
   uploadSegmentChunk,
   openNextSegment: mountable(openNextSegment),
   closeSegment: mountable(closeSegment),
+  recordPause: mountable(recordPause),
   getSegmentSummary: mountable(getSegmentSummary),
   saveSegmentSummary: mountable(saveSegmentSummary),
   approveSegmentSummary: mountable(approveSegmentSummary),

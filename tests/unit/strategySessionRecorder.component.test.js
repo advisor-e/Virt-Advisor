@@ -35,6 +35,8 @@ class FakeRecorder {
   }
 
   start (ms) { this.state = 'recording'; this.timeslice = ms }
+  pause () { this.state = 'paused' }
+  resume () { this.state = 'recording' }
   stop () {
     this.state = 'inactive'
     if (this.onstop) { this.onstop() }
@@ -313,4 +315,114 @@ describe('the alarm — Meeting Review\'s own, word for word (Mike, 2026-09-28)'
     expect(w.vm.fatal).toBe('Permission denied')
     expect(w.vm.interrupted).toBe(true)
   })
+})
+
+describe('🔴 screen 11 — pause after 3 minutes of silence (Mike, 2026-09-28)', () => {
+  const T = 5000000
+
+  /** A session whose consent line was read at a speaking level of 0.4. */
+  async function calibrated () {
+    const w = mount()
+    w.vm.recordCard(PORTER)
+    await w.vm.startFirst()
+    for (let i = 0; i < 20; i += 1) { w.vm.onLevel(i < 2 ? 0 : 0.4, T) }
+    await w.vm.agree()
+    w.vm._lastSoundAt = T
+    return w
+  }
+
+  test('Decision K: silence is a quarter of the advisor\'s own level, read from the consent line', async () => {
+    const w = await calibrated()
+    expect(w.vm._silenceLevel).toBeCloseTo(0.1)
+  })
+
+  test('a consent line that measured nothing falls back to a floor rather than zero', async () => {
+    const w = mount()
+    w.vm.recordCard(PORTER)
+    await w.vm.startFirst()
+    await w.vm.agree()
+    expect(w.vm._silenceLevel).toBe(0.01)
+  })
+
+  test('it pauses at 3 minutes of quiet, and not a moment before', async () => {
+    const w = await calibrated()
+    w.vm.onLevel(0.05, T + 179000)
+    expect(w.vm.paused).toBe(false)
+    w.vm.onLevel(0.05, T + 180000)
+    expect(w.vm.paused).toBe(true)
+    expect(FakeRecorder.made[0].state).toBe('paused')
+  })
+
+  test('speech below the silence level counts as quiet; speech above it resets the clock', async () => {
+    const w = await calibrated()
+    w.vm.onLevel(0.2, T + 100000)
+    w.vm.onLevel(0.05, T + 250000)
+    expect(w.vm.paused).toBe(false)
+  })
+
+  test('Decision L: the first sound resumes the same section and reports where the pause fell and how long it lasted', async () => {
+    const w = await calibrated()
+    w.vm._segmentStartedAt = T
+    w.vm.onLevel(0.05, T + 180000)
+    const segmentsBefore = calls.filter(c => /\/segments$/.test(c.url)).length
+    w.vm.onLevel(0.4, T + 480000)
+    await flush()
+    expect(w.vm.paused).toBe(false)
+    expect(FakeRecorder.made[0].state).toBe('recording')
+    const pause = calls.find(c => /\/segments\/1\/pauses$/.test(c.url))
+    expect(pause.body).toEqual({ at: 180, duration: 300 })
+    expect(calls.filter(c => /\/segments$/.test(c.url))).toHaveLength(segmentsBefore)
+  })
+
+  test('the section\'s clock stops while paused — those minutes are not being recorded', async () => {
+    const w = await calibrated()
+    w.vm._segmentStartedAt = T
+    w.vm.onLevel(0.05, T + 180000)
+    expect(w.vm.recordedSeconds(T + 400000)).toBe(180)
+  })
+
+  test('the chip says "paused" while paused', async () => {
+    const w = await calibrated()
+    w.vm.onLevel(0.05, T + 180000)
+    expect(w.vm.chipText({ n: 1, label: 'P', state: 'recording' })).toContain('statePaused')
+  })
+
+  test('a section ended while paused has no later words to move, so no pause is reported', async () => {
+    const w = await calibrated()
+    w.vm.onLevel(0.05, T + 180000)
+    await w.vm.takeBreak()
+    expect(w.vm.paused).toBe(false)
+    expect(calls.some(c => /\/pauses$/.test(c.url))).toBe(false)
+  })
+
+  test('readings outside a recording — before consent, during a break — change nothing', async () => {
+    const w = await calibrated()
+    await w.vm.takeBreak()
+    w.vm.onLevel(0, T + 999999)
+    expect(w.vm.paused).toBe(false)
+  })
+})
+
+test('🔴 screen 11: while paused, the chip is amber and the page is told, so nothing still says "recording"', async () => {
+  const w = mount()
+  w.vm.recordCard(PORTER)
+  await w.vm.startFirst()
+  await w.vm.agree()
+  w.vm._lastSoundAt = 1
+  w.vm.onLevel(0, 1 + 180000)
+  await w.vm.$nextTick()
+  const cls = w.vm.chipClass({ n: w.vm.liveN, state: 'recording' })
+  expect(cls['is-now']).toBe(false)
+  expect(cls['is-work']).toBe(true)
+  const events = w.emitted()['state-changed']
+  expect(events[events.length - 1][0].paused).toBe(true)
+})
+
+test('the finished banner counts sections and minutes in the singular when there is one (Mike, 2026-09-28)', async () => {
+  const w = mount()
+  const tc = jest.fn((key, n) => key + ':' + n)
+  w.vm.$tc = tc
+  await w.setData({ stage: 'done', segments: [{ n: 1, state: 'done', summaryApproved: true }], sessionSeconds: 60 })
+  expect(tc).toHaveBeenCalledWith('strategyPlanner.recording.sectionsCount', 1, { count: 1 })
+  expect(tc).toHaveBeenCalledWith('strategyPlanner.recording.minutesCount', 1, { count: 1 })
 })
