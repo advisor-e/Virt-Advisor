@@ -8098,5 +8098,12 @@
       "version": "Version {version}",
       "restore": "Restore"
     }
+  },
+  "meetingUnfinished": {
+    "warning": "You only have 7 working days to get this completed before it is deleted.",
+    "finish": "Use what was captured",
+    "delete": "Stop and delete",
+    "finishing": "Turning the recording into a transcript",
+    "reports": "Read my reports"
   }
 }

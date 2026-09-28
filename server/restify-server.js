@@ -878,6 +878,9 @@ server.post('/api/meeting/recordings', firmAuth, complianceRoute.requireDeclarat
 server.post('/api/meeting/recordings/:meetingId/consent', firmAuth, mr.confirmConsent)
 server.post('/api/meeting/recordings/:meetingId/chunk', firmAuth, mr.uploadChunk)
 server.post('/api/meeting/recordings/:meetingId/finish', firmAuth, mr.finishRecording)
+// Item 8.5: the advisor's own unfinished recordings, and when each one's audio will be destroyed.
+// Registered before the `:meetingId` read below; the router prefers the static path regardless.
+server.get('/api/meeting/recordings/unfinished', firmAuth, mr.listUnfinished)
 server.get('/api/meeting/recordings/:meetingId', firmAuth, mr.getRecording)
 server.del('/api/meeting/recordings/:meetingId', firmAuth, mr.deleteRecording)
 

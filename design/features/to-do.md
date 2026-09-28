@@ -51,9 +51,8 @@ repository sees; the two never both appear, and the build stops if they would.
 | 14 | **10.2** Hub screens show English written by the backend, so it never translates ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 15 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 16 | **10.3** Depreciation Rates, Forecast Trend Thresholds and Property Tax Rules become one hub page ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 17 | **8.5** A recording that is never finished keeps its audio on the server for ever ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**Seventeen live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Sixteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

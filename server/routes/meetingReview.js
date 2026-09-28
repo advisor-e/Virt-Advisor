@@ -545,6 +545,82 @@ function getRecording (req, res) {
 }
 
 /**
+ * The meeting-type names this firm sees, by id — for naming an unfinished recording.
+ *
+ * Resolved through the firm's cascade, as `presetFor` does, so a type the firm renamed shows its
+ * firm's name. A lookup that fails falls back to the platform's names rather than failing the
+ * list: an advisor told "a recording will be deleted" must see it even if a name cannot load.
+ *
+ * @param {object} req
+ * @returns {Promise<Object<string, string>>}
+ */
+async function meetingTypeNames (req) {
+  const names = {}
+  obs.meetingScenarios().forEach((s) => { names[s.id] = s.name })
+  try {
+    const observationRoutes = require('./meetingObservations')
+    const resolved = await obs.loadResolvedObservations(req.firmId, observationRoutes.readScopeConfig)
+    Object.keys(resolved || {}).forEach((id) => {
+      if (resolved[id] && resolved[id].name) { names[id] = resolved[id].name }
+    })
+  } catch (err) {
+    console.error('[meeting-review] meeting type names fell back to the platform list:', err.message)
+  }
+  return names
+}
+
+/**
+ * GET /api/meeting/recordings/unfinished  (advisor)
+ *
+ * This advisor's recordings that were started and never finished, and when each one's audio will
+ * be destroyed. Item 8.5 — Mike's ruling, 2026-09-28: held 7 working days, with a warning in
+ * solid red that the advisor has that long to complete it.
+ *
+ * 🔴 WITHOUT THIS THE WARNING HAS NOWHERE TO GO. The recorder holds a recording's id only in the
+ * open browser tab, so a closed tab lost the recording to the advisor while its audio stayed on
+ * the server. Owner only (P2): a colleague's unfinished recording is not listed.
+ *
+ * ⚠ A recording being transcribed right now is not "unfinished" and is left out, so the advisor
+ * is never offered a second finish of one already under way.
+ *
+ * @route GET /api/meeting/recordings/unfinished
+ * @returns {{recordings: Array<{meetingId: string, scenarioId: (string|null),
+ *   meetingType: (string|null), clientId: (string|null), createdAt: string,
+ *   lastActivityAt: (string|null), deleteAfter: (string|null), consentConfirmed: boolean,
+ *   segmented: boolean}>}}
+ */
+async function listUnfinished (req, res) {
+  try {
+    const { audioDeleteAfter } = require('../utils/meetingPurge')
+    const names = await meetingTypeNames(req)
+    const recordings = []
+    store.listMeetingIds().forEach((id) => {
+      const meta = store.readMeta(id)
+      if (!store.isOwnedBy(meta, req.firmId, req.advisorId)) { return }
+      if (!store.hasAudio(id)) { return }
+      const job = jobs.get(id)
+      if ((job && job.state === 'transcribing') || meta.state === 'finishing') { return }
+      const due = audioDeleteAfter(meta)
+      recordings.push({
+        meetingId: id,
+        scenarioId: meta.scenarioId || null,
+        meetingType: (meta.scenarioId && names[meta.scenarioId]) || null,
+        clientId: meta.clientId || null,
+        createdAt: meta.createdAt,
+        lastActivityAt: meta.lastActivityAt || null,
+        deleteAfter: due ? due.toISOString() : null,
+        consentConfirmed: Boolean(meta.consentConfirmedAt),
+        segmented: Boolean(meta.segmented)
+      })
+    })
+    recordings.sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)))
+    res.send(200, { recordings })
+  } catch (err) {
+    return serverError(res, err, 'list your unfinished recordings')
+  }
+}
+
+/**
  * DELETE /api/meeting/recordings/:meetingId  (advisor)
  *
  * "Stop and delete" — available for the whole recording, not only at consent step two
@@ -1011,6 +1087,7 @@ module.exports = {
   uploadChunk,
   finishRecording: mountable(finishRecording),
   getRecording: mountable(getRecording),
+  listUnfinished,
   deleteRecording: mountable(deleteRecording),
   runTranscription,
   readScopeConfig,

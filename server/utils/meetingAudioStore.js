@@ -209,6 +209,9 @@ function createMeeting (owner) {
     segmented: Boolean(owner && owner.segmented),
     segments: [],
     createdAt: new Date().toISOString(),
+    // When audio last arrived. An unfinished recording's audio is held 7 working days from here
+    // and then destroyed (item 8.5, `meetingPurge.purgeAbandoned`).
+    lastActivityAt: new Date().toISOString(),
     // Consent is not claimed at creation. Recording starts first, the advisor speaks, and
     // only then is this set — the order the approved two-step screen exists to enforce.
     consentConfirmedAt: null,
@@ -315,7 +318,7 @@ function appendChunk (meetingId, seq, buffer) {
   // retry after a flaky upload — is one file and one count, not two.
   const counted = listChunks(meetingId)
   const bytes = counted.reduce((sum, c) => sum + c.size, 0)
-  updateMeta(meetingId, { chunkCount: counted.length, bytes })
+  updateMeta(meetingId, { chunkCount: counted.length, bytes, lastActivityAt: new Date().toISOString() })
   return { chunkCount: counted.length, bytes }
 }
 
@@ -416,6 +419,19 @@ function destroyAudio (meetingId) {
   const after = fs.readdirSync(dir).filter(_isAudioFile)
 
   return { removed, bytesRemoved, audioRemains: after.length > 0 }
+}
+
+/**
+ * Does any audio of this meeting remain on disk? What the abandoned-recording sweep asks.
+ * @param {string} meetingId
+ * @returns {boolean}
+ */
+function hasAudio (meetingId) {
+  try {
+    return fs.readdirSync(_meetingDir(meetingId)).some(_isAudioFile)
+  } catch (_e) {
+    return false
+  }
 }
 
 /**
@@ -803,7 +819,11 @@ function appendSegmentChunk (meetingId, n, seq, buffer) {
   updateSegment(meetingId, n, { chunkCount: counted.length, bytes: segmentBytes })
   const all = readMeta(meetingId)
   const bytes = (all.segments || []).reduce((sum, s) => sum + (s.bytes || 0), 0)
-  updateMeta(meetingId, { bytes, chunkCount: (all.segments || []).reduce((sum, s) => sum + (s.chunkCount || 0), 0) })
+  updateMeta(meetingId, {
+    bytes,
+    chunkCount: (all.segments || []).reduce((sum, s) => sum + (s.chunkCount || 0), 0),
+    lastActivityAt: new Date().toISOString()
+  })
   return { segmentBytes, bytes, rollOver: segmentBytes >= SEGMENT_ROLL_BYTES }
 }
 
@@ -931,6 +951,7 @@ module.exports = {
   writeSegmentTranscript,
   readSegmentTranscript,
   hasSegmentText,
+  hasAudio,
   audioRoot,
   createMeeting,
   listMeetingIds,

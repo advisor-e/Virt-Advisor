@@ -353,6 +353,23 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**8.5 · A recording that is never finished keeps its audio on the server for ever.**
+✅ **Closed 2026-09-28 by Mike ("done").**
+
+- **Found** 2026-09-28 while building 8.4: audio was destroyed only on finish or "Stop and
+  delete", so a closed tab left a client's audio on disk with no end date.
+- **His rulings, the same day:** *"hold it for 7 working days in case the parties are trying to
+  work through an issue. however, if this is the case, a warning needs to show in solid red text
+  that they only have 7 working days to get it completed before it is deleted."* Working days are
+  Monday to Friday, public holidays counted as ordinary days. No drawing: *"no need to make a big
+  deal out of it. get the feature finished - you have my wording"*.
+- **What proves it:** `meetingPurge.purgeAbandoned` destroys the audio at the deadline and not a
+  minute before, leaving any text on its own clock (`meetingPurge.test.js`); the count across
+  weekends (`workingDays.test.js`); the owner-only list (`meetingReview.routes.test.js`); finish
+  and delete acting on the right recording (`meetingUnfinished.component.test.js`). Recorded in
+  `meeting-review.md` P8. Commit: `git log --grep "(8.5"`.
+- **Not done here:** seen in a browser or run against a real server's disk — UAT's check.
+
 **15.2 · The hundred questions behind the nine Growth Aspects.**
 ✅ **Closed 2026-09-28 by Mike ("done").**
 

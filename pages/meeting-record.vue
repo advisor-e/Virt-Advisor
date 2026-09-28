@@ -77,6 +77,10 @@
     b-message(v-else-if="loadError" type="is-danger" size="is-small") {{ loadError }}
 
     template(v-else-if="!started")
+      //- Item 8.5: recordings this advisor started and never finished, each with the red
+      //- 7-working-day warning. Shown nothing when there are none.
+      meeting-unfinished(:api-token="apiToken")
+
       .box
         b-field(label="What kind of meeting?" label-position="on-border")
           b-select(v-model="scenarioId" expanded)
@@ -141,6 +145,7 @@
  */
 
 import MeetingRecorder from '~/components/MeetingRecorder.vue'
+import MeetingUnfinished from '~/components/MeetingUnfinished.vue'
 import { isDevHost } from '~/utils/devHost'
 
 // TODO: update these keys to match how Advisor-e stores auth in localStorage
@@ -151,7 +156,7 @@ const AUTH_STORAGE = {
 
 export default {
   name: 'MeetingRecordPage',
-  components: { MeetingRecorder },
+  components: { MeetingRecorder, MeetingUnfinished },
 
   data () {
     return {

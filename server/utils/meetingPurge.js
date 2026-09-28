@@ -38,6 +38,7 @@
  */
 
 const store = require('./meetingAudioStore')
+const { addWorkingDays } = require('./workingDays')
 
 /** How often the sweep runs once the server is up. Daily is well inside any month-long clock. */
 const SWEEP_INTERVAL_MS = 24 * 60 * 60 * 1000
@@ -169,6 +170,90 @@ function purgeExpired (now) {
 }
 
 /**
+ * How long an unfinished recording's audio is held. Mike's ruling, 2026-09-28 (item 8.5):
+ * *"hold it for 7 working days in case the parties are trying to work through an issue"* —
+ * Monday to Friday, weekends skipped, public holidays counted as ordinary days.
+ */
+const ABANDONED_HOLD_WORKING_DAYS = 7
+
+/**
+ * When an unfinished recording's audio will be destroyed: 7 working days after audio last
+ * arrived. Meetings recorded before item 8.5 have no `lastActivityAt` and count from creation,
+ * the earlier of the two — which only ever brings a long-abandoned recording's deletion forward.
+ *
+ * @param {object} meta
+ * @returns {Date|null}
+ */
+function audioDeleteAfter (meta) {
+  if (!meta) { return null }
+  return addWorkingDays(meta.lastActivityAt || meta.createdAt, ABANDONED_HOLD_WORKING_DAYS)
+}
+
+/**
+ * Destroy the audio of every recording that was never finished, once its hold has run out.
+ *
+ * 🔴 WHY THIS EXISTS. Audio was destroyed in only two places — when a recording is finished
+ * and transcribed, and on "Stop and delete". A closed tab, a flat laptop or an advisor who
+ * walked away left a client's audio on this server with no end date, while the consent line
+ * promises *"the recording itself is deleted as soon as that's done"*. Found 2026-09-28 while
+ * building item 8.4; it was true of single-file recordings too.
+ *
+ * ⚠ AUDIO ONLY. Any text already made from it keeps its own clock (`purgeExpired`). The rule is
+ * "audio still on disk past its hold", not a list of states, so a transcription job lost to a
+ * server restart is caught by it as surely as an abandoned tab.
+ *
+ * @param {Date} [now]
+ * @returns {{scanned: number, abandoned: number, filesRemoved: number, bytesRemoved: number,
+ *   failures: Array<string>}}
+ */
+function purgeAbandoned (now) {
+  const at = now instanceof Date ? now : new Date()
+  const result = { scanned: 0, abandoned: 0, filesRemoved: 0, bytesRemoved: 0, failures: [] }
+
+  store.listMeetingIds().forEach((id) => {
+    let meta = null
+    try {
+      meta = store.readMeta(id)
+    } catch (_e) {
+      result.failures.push(id)
+      return
+    }
+    if (!meta || !store.hasAudio(id)) { return }
+    result.scanned += 1
+
+    const due = audioDeleteAfter(meta)
+    if (!due || at.getTime() < due.getTime()) { return }
+
+    let proof
+    try {
+      proof = store.destroyAudio(id)
+    } catch (_e) {
+      result.failures.push(id)
+      return
+    }
+    if (proof.audioRemains) {
+      result.failures.push(id)
+      try { store.updateMeta(id, { audioDeletionFailed: true }) } catch (_e) { /* named above */ }
+      return
+    }
+
+    result.abandoned += 1
+    result.filesRemoved += proof.removed
+    result.bytesRemoved += proof.bytesRemoved
+    try {
+      store.updateMeta(id, {
+        state: meta.state === 'transcribed' ? meta.state : 'abandoned',
+        audioDeletedAt: at.toISOString()
+      })
+    } catch (_e) {
+      // The audio is gone, which is the promise. A stamp that would not write is not a failure.
+    }
+  })
+
+  return result
+}
+
+/**
  * Run the sweep now, and then daily, logging what each pass did.
  *
  * ⚠ THE TIMER IS `unref`'d, so it never holds the process open. A scheduled sweep that kept a
@@ -200,6 +285,23 @@ function startSweeping (options) {
       // eslint-disable-next-line no-console
       console.error('[meeting-purge] sweep failed:', err.message)
     }
+    try {
+      const a = purgeAbandoned()
+      if (a.abandoned || a.failures.length) {
+        // eslint-disable-next-line no-console
+        console.log('[meeting-purge] unfinished recordings: scanned=' + a.scanned +
+          ' abandoned=' + a.abandoned + ' files=' + a.filesRemoved + ' bytes=' + a.bytesRemoved +
+          ' failures=' + a.failures.length)
+      }
+      if (a.failures.length) {
+        // eslint-disable-next-line no-console
+        console.error('[meeting-purge] COULD NOT DESTROY AUDIO of ' + a.failures.length +
+          ' meeting(s): ' + a.failures.join(', '))
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[meeting-purge] unfinished-recording sweep failed:', err.message)
+    }
   }
 
   run()
@@ -210,8 +312,11 @@ function startSweeping (options) {
 
 module.exports = {
   SWEEP_INTERVAL_MS,
+  ABANDONED_HOLD_WORKING_DAYS,
   expiryOf,
   isExpired,
   purgeExpired,
+  audioDeleteAfter,
+  purgeAbandoned,
   startSweeping
 }

@@ -411,3 +411,51 @@ describe('transcription, and the audio that must not survive it', () => {
     expect(JSON.stringify(res._body)).not.toContain('what the client said')
   })
 })
+
+describe('🔴 the advisor\'s unfinished recordings, and when each is deleted (item 8.5)', () => {
+  function listFor (overrides) {
+    const res = makeMockRes()
+    return routes.listUnfinished(makeReq(overrides), res).then(() => res)
+  }
+
+  test('an unfinished recording is listed with its type\'s name and its deletion deadline', async () => {
+    const id = seedMeeting({ consent: false })
+    store.updateMeta(id, { lastActivityAt: '2026-09-28T10:00:00.000Z' })
+    const res = await listFor()
+    const row = res._body.recordings.find(r => r.meetingId === id)
+    expect(row.deleteAfter).toBe('2026-10-07T10:00:00.000Z')
+    expect(row.meetingType).toBeTruthy()
+    expect(row.consentConfirmed).toBe(false)
+  })
+
+  test('a colleague at the same firm never sees another advisor\'s recording', async () => {
+    const id = seedMeeting({ advisor: 'adv-someone-else' })
+    const res = await listFor()
+    expect(res._body.recordings.map(r => r.meetingId)).not.toContain(id)
+  })
+
+  test('a recording with no audio left is not listed', async () => {
+    const id = seedMeeting()
+    store.destroyAudio(id)
+    const res = await listFor()
+    expect(res._body.recordings.map(r => r.meetingId)).not.toContain(id)
+  })
+
+  test('a recording being transcribed right now is not offered a second finish', async () => {
+    const id = seedMeeting()
+    routes.jobs.set(id, { state: 'transcribing', startedAt: Date.now(), error: null })
+    const res = await listFor()
+    expect(res._body.recordings.map(r => r.meetingId)).not.toContain(id)
+    routes.jobs.delete(id)
+  })
+
+  test('a store that fails answers safely rather than with its message', async () => {
+    const spy = jest.spyOn(store, 'listMeetingIds').mockImplementation(() => { throw new Error('EACCES /secret') })
+    const err = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const res = await listFor()
+    expect(res._status).toBe(500)
+    expect(JSON.stringify(res._body)).not.toContain('/secret')
+    spy.mockRestore()
+    err.mockRestore()
+  })
+})

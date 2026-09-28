@@ -426,27 +426,7 @@
       "touches": "components/FirmManagerHub.vue (NAV_GROUPS, TAB_TIERS and the three panels); FirmDepreciationRates.vue, FirmForecastTrendThresholds.vue and FirmPropertyTaxRules.vue as sections of one new page; tests/unit/hubTabTiers.test.js; the page's name and section headings, which are Mike's wording.",
       "note": "NOT SCOPED. Drawn for approval first, with the impact test run at scoping. Tax Rates is not in his list and stays its own tab - it was split from Depreciation Rates on his ruling of 2026-09-09. Three of these tabs also show a blank 'saved by' in their version history, raised with Mike the same day.",
       "comment": "2026-09-28 - filed on Mike's instruction while 15.2's hub tab was being built. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "8.5",
-      "name": "A recording that is never finished keeps its audio on the server for ever",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "a promise made aloud to a client is broken",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Audio is destroyed only when a recording is finished or stop-and-delete is pressed. A closed tab, a flat laptop or an advisor who walks away leaves it on disk with no end date; the nightly sweep removes text only.",
-      "risk": "The consent line promises the client the recording is deleted once transcribed. The advisor cannot even find an unfinished recording again: the recorder keeps its id only in the open tab, and no screen lists one, so the warning Mike ruled needs a home that does not yet exist.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-28 - found while building 8.4 slice 1. Mike declined a 24-hour deletion and ruled, his words: \"no, hold it for 7 working days in case the parties are trying to work through an issue. however, if this is the case, a warning needs to show in solid red text that they only have 7 working days to get it completed before it is deleted.\""
-      },
-      "touches": "server/utils/meetingPurge.js (the nightly sweep); meetingAudioStore.js (last activity on a recording); a screen where an advisor sees an unfinished recording and finishes it, with the red warning - not designed; MeetingRecorder.vue, which cannot reopen a recording today; covers single-file meetings and 8.4's segmented sessions alike.",
-      "note": "RULED BY MIKE 2026-09-28: an unfinished recording is held 7 WORKING DAYS, then its audio is deleted, and a warning in SOLID RED TEXT tells the advisor they have 7 working days to complete it before it is deleted. OPEN: where that warning shows and how the advisor completes the recording - no screen can find an unfinished one today, so it needs a drawing and its wording approved. What counts as a working day (weekends only, or public holidays too) is not yet ruled.",
-      "comment": "2026-09-28 - filed on Mike's ruling. Score and scoreReason are ours; he has not ranked it. Added at the foot of the list so his ranking above is untouched."
     }
+
   ]
 }

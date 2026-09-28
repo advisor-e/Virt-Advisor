@@ -208,3 +208,76 @@ describe('🔴 the clock is the one the client was shown', () => {
     expect(store.readTranscript(longOne)).not.toBeNull()
   })
 })
+
+describe('🔴 an unfinished recording\'s audio is held 7 working days, then destroyed (item 8.5)', () => {
+  const { purgeAbandoned, audioDeleteAfter, ABANDONED_HOLD_WORKING_DAYS } = require('../../server/utils/meetingPurge')
+
+  // Monday 2026-09-28, 10:00 UTC. Seven working days later is Wednesday 2026-10-07, 10:00.
+  const LAST = '2026-09-28T10:00:00.000Z'
+
+  function unfinished (opts = {}) {
+    const { meetingId } = store.createMeeting({ firmId: FIRM, advisor: 'adv-1', retentionMonths: 18 })
+    store.appendChunk(meetingId, 1, Buffer.from('CLIENT AUDIO'))
+    store.updateMeta(meetingId, { lastActivityAt: opts.last || LAST })
+    if (opts.text) { store.writeTranscript(meetingId, { segments: [] }) }
+    return meetingId
+  }
+
+  test('the hold is Mike\'s seven working days, counted from when audio last arrived', () => {
+    expect(ABANDONED_HOLD_WORKING_DAYS).toBe(7)
+    expect(audioDeleteAfter({ lastActivityAt: LAST }).toISOString()).toBe('2026-10-07T10:00:00.000Z')
+  })
+
+  test('a meeting from before 8.5, with no last-activity stamp, counts from its creation', () => {
+    expect(audioDeleteAfter({ createdAt: LAST }).toISOString()).toBe('2026-10-07T10:00:00.000Z')
+    expect(audioDeleteAfter(null)).toBeNull()
+  })
+
+  test('one minute before the deadline the audio is kept', () => {
+    const id = unfinished()
+    purgeAbandoned(new Date('2026-10-07T09:59:00.000Z'))
+    expect(store.hasAudio(id)).toBe(true)
+  })
+
+  test('at the deadline the audio is destroyed and the recording is marked abandoned', () => {
+    const id = unfinished()
+    const r = purgeAbandoned(new Date('2026-10-07T10:00:00.000Z'))
+    expect(store.hasAudio(id)).toBe(false)
+    expect(r.abandoned).toBeGreaterThanOrEqual(1)
+    const meta = store.readMeta(id)
+    expect(meta.state).toBe('abandoned')
+    expect(meta.audioDeletedAt).toBeTruthy()
+  })
+
+  test('audio only: any text already made keeps its own clock', () => {
+    const id = unfinished({ text: true })
+    purgeAbandoned(new Date('2026-12-01T00:00:00.000Z'))
+    expect(store.hasAudio(id)).toBe(false)
+    expect(store.readTranscript(id)).not.toBeNull()
+  })
+
+  test('a finished meeting with no audio left is not touched', () => {
+    const id = unfinished()
+    store.destroyAudio(id)
+    store.updateMeta(id, { state: 'transcribed' })
+    purgeAbandoned(new Date('2026-12-01T00:00:00.000Z'))
+    expect(store.readMeta(id).state).toBe('transcribed')
+  })
+
+  test('a deletion that did not happen is a failure, and written onto the record', () => {
+    const id = unfinished()
+    const spy = jest.spyOn(store, 'destroyAudio').mockReturnValue({ removed: 0, bytesRemoved: 0, audioRemains: true })
+    const r = purgeAbandoned(new Date('2026-12-01T00:00:00.000Z'))
+    expect(r.failures).toContain(id)
+    expect(store.readMeta(id).audioDeletionFailed).toBe(true)
+    spy.mockRestore()
+  })
+
+  test('a store that throws is reported, not fatal', () => {
+    const id = unfinished()
+    const spy = jest.spyOn(store, 'destroyAudio').mockImplementation(() => { throw new Error('disk') })
+    const r = purgeAbandoned(new Date('2026-12-01T00:00:00.000Z'))
+    expect(r.failures).toContain(id)
+    spy.mockRestore()
+  })
+})
