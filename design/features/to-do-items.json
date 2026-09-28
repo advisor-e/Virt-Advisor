@@ -110,6 +110,10 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-28"
+      },
       "why": "Formal strategic planning starts by assessing the current position - staff, customer and supplier feedback, financial analysis, economic outlook. The three-way forecast and the performance reports already hold much of the financial half, and nothing carries it across.",
       "risk": "An advisor retypes figures the app already holds, or skips the assessment. The review must also say what CANNOT be imported: staff, customer and supplier feedback and the economic outlook are named by Mike as part of the same component, and no report in this app holds any of them.",
       "askedBy": {
@@ -117,8 +121,8 @@
         "ours": false,
         "detail": "2026-09-22 - in his own words: \"i want you to make a task to review the 3 way forecast model and the financial assessment reports / performance reports (in the perf reports section) to see what could be 'pulled in' by clicking an import button\"."
       },
-      "touches": "CONCEPT_MODELS in server/utils/strategyFrameworks.js (only /owner-expectations today); loadModelPrints in pages/strategy-planner.vue; the concept assess-current-position-by-reviewing-pre-meeting-data-sectio in data/strategy-frameworks.json; the saved-report store (server/utils/savedReports.js) as the source.",
-      "note": "PROCEED ON MIKE'S WORD 2026-09-28. IMPACT TEST PASSED. Problem: his Strategic Orientation p2 step names the Financial Performance Reports, and its form holds customer rows only. Measure: headline figures reaching that step and the plan PDF untyped - 0 today - each equal to its report's own screen. Route: 15.23's model print (read saved inputs, re-run the model's route, print; nothing copied). HIS DECISION B: the whole Business Performance Report inside the card, every page and chart; the three-way forecast is left out of this step. HELD NOWHERE: staff, customer and supplier feedback, economic outlook. DRAWN AND APPROVED TO BUILD FROM 2026-09-28: design/mockups/strategy-current-position-import.html - A-D ruled (D: the plan prints the report's Executive Summary page alone), wording approved. NOT BUILT.",
+      "touches": "CONCEPT_IMPORT_REPORTS in server/utils/strategyFrameworks.js; strategyCaptureForms.js; the concept assess-current-position-by-reviewing-pre-meeting-data-sectio in data/strategy-frameworks.json; the new panel, plan page, mixin and util; and, once 8.4 has merged, StrategyConceptCapture.vue and pages/strategy-planner.vue.",
+      "note": "PROCEED ON MIKE'S WORD 2026-09-28. Approved drawing: design/mockups/strategy-current-position-import.html (the whole Business Performance Report in the card, his no-report message, the plan printing its Executive Summary). Impact measure: figures reaching the step and plan untyped - 0 today. BUILT 2026-09-28, tested, NOT YET ON SCREEN: the concept's importReport, the save guard's marker, utils/reportImport.js, mixins/businessReportImport.js, components/strategy/StrategyReportImport.vue and StrategyReportPlanPage.vue. WAITS ON 8.4 REACHING MASTER, on his yes: two insertions in files 8.4 holds - the panel into StrategyConceptCapture.vue (saving its brought-in marker), the plan page into pages/strategy-planner.vue. Then walk it in a browser beside the drawing.",
       "comment": "2026-09-28 - Mike: proceed, after the impact test. The test found saved multi-year forecasts reopening as one year; fixed first on his yes (1c866a94). Filed 2026-09-22 with 15.14 and 15.15; score ours, not ranked by him."
     },
     {

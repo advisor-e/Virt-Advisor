@@ -6155,6 +6155,16 @@
       "placeholder": "Record it as it comes up…",
       "choose": "Choose…"
     },
+    "reportImport": {
+      "heading": "This client's Business Performance Report",
+      "savedLine": "{client} has a saved Business Performance Report for {period}.",
+      "bringIn": "Bring in the Business Performance Report",
+      "fresh": "Worked out fresh from the saved report each time. Nothing is copied into the session.",
+      "meta": "{period} · saved {date} by {name} · {n} pages",
+      "again": "Bring in again",
+      "againNote": "Picks up any change saved to the report since.",
+      "none": "Sorry - no completed Business Performance Report currently exists for this client. Please complete the report via the Model Library directly, and then you may try to import again."
+    },
     "capture": {
       "noTableMeasured": "There is no fill-in table for this concept yet. Talk it through and record it in your own notes.",
       "teachingNotDrawn": "The diagram from the slide is not on this screen yet — present it from the deck."

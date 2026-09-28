@@ -36,7 +36,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
 | 1 | **15.2** The hundred questions behind the nine Growth Aspects ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-27 |
-| 2 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 2 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | **desktop**, since 2026-09-28 |
 | 3 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 4 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 5 | **15.17** One framework has a real teaching slide and no drawing - Cultural Core Values ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |

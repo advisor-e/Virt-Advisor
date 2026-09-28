@@ -408,6 +408,15 @@ const CONCEPT_SOURCES = ['session-scope-table', 'agenda', 'framing-page', 'deck-
  */
 const CONCEPT_MODELS = ['/owner-expectations']
 
+/**
+ * The saved reports a concept card may bring in beside its own capture, by catalogue route
+ * (item 15.13, design/mockups/strategy-current-position-import.html). Unlike a model, the
+ * report is someone else's finished work: the card keeps its own boxes and the report comes
+ * in only when the advisor asks. A whitelist for the same reason as CONCEPT_MODELS — a route
+ * with no hosted screen behind it would put an empty panel in front of a client.
+ */
+const CONCEPT_IMPORT_REPORTS = ['/dashboard-reports']
+
 /** Whether a capture form was matched to one of Mike's fill-in templates, or not yet. */
 const CAPTURE_BASES = ['measured', 'unmeasured']
 
@@ -474,6 +483,14 @@ function buildConcept (raw, knownIds) {
   if (raw.model && raw.captureTemplate) {
     throw fail('BAD_CONCEPT', 'Concept "' + id + '" runs a model and names a capture template.')
   }
+  if (raw.importReport !== undefined && !CONCEPT_IMPORT_REPORTS.includes(raw.importReport)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" brings in report "' + raw.importReport +
+      '", which is not one of ' + CONCEPT_IMPORT_REPORTS.join(', ') + '.')
+  }
+  // A model already is the card's whole capture; a report brought in beside it would be two.
+  if (raw.importReport && raw.model) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" runs a model and brings in a report.')
+  }
   if (raw.lastPage !== undefined &&
     (!Number.isInteger(raw.lastPage) || raw.lastPage <= raw.page)) {
     throw fail('BAD_CONCEPT', 'Concept "' + id + '" has a lastPage that does not follow its page.')
@@ -523,7 +540,8 @@ function buildConcept (raw, knownIds) {
     lastPage: raw.lastPage || null,
     // Mike's own words off the concept's pages, read by machine — the card's lead-in.
     pageWords: raw.pageWords || [],
-    model: raw.model || null
+    model: raw.model || null,
+    importReport: raw.importReport || null
   }
 }
 
@@ -846,6 +864,7 @@ module.exports = {
   frameworkForConcept,
   CONCEPT_SOURCES,
   CONCEPT_MODELS,
+  CONCEPT_IMPORT_REPORTS,
   CAPTURE_BASES,
   // exported so a test can check an authored record without reaching into the file
   buildFramework,

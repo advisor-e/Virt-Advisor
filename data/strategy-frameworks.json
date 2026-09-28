@@ -1019,7 +1019,8 @@
       "teachingForm": null,
       "captureForm": "attribute-rows-entity-columns",
       "captureTemplate": "Customer & Skills Review",
-      "captureFormBasis": "measured"
+      "captureFormBasis": "measured",
+      "importReport": "/dashboard-reports"
     },
     {
       "id": "determine-the-business-strategic-objective-and-document-the",

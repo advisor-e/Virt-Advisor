@@ -884,6 +884,21 @@ back togeteher to provide meaning"*) — built by `utils/ownerExpectationsPrint.
 proves the plan asks the model exactly what the screen asks. Measured on A4 landscape: one
 sheet, clear of the running foot with the workbook's ten tasks.
 
+◐ **A SAVED REPORT BROUGHT IN BESIDE A CARD'S OWN BOXES — item 15.13, built 2026-09-28, not
+yet on screen**, from [`../mockups/strategy-current-position-import.html`](../mockups/strategy-current-position-import.html),
+approved by Mike the same day. *Assess current position* (Strategic Orientation p2) names
+`importReport: '/dashboard-reports'` (whitelisted in `CONCEPT_IMPORT_REPORTS`) and keeps its
+Customer & Skills Review form. `components/strategy/StrategyReportImport.vue` brings the client's
+**whole Business Performance Report** in on the advisor's press (his Decision A) — the report's
+own `DashboardReport`, read-only, with a strip of its page names (Decision B) — or shows his own
+message when no completed report exists (Decision C). Nothing is copied: `utils/reportImport.js`
+reads the saved row and `mixins/businessReportImport.js` asks `POST /api/report/dashboard-reports/pages`
+exactly what the report's page asks, which `strategyReportImport.test.js` proves. The session saves
+one marker, `report-import`; where it is set, `StrategyReportPlanPage.vue` prints the report's own
+Executive Summary in the plan (Decision D). **The two insertions that put these on screen — into
+`StrategyConceptCapture.vue` and `pages/strategy-planner.vue` — wait for item 8.4, which holds
+both files, to reach `master`.**
+
 **The general in-card calculators below are still not scheduled, and two things found on
 2026-09-22 are why.**
 
