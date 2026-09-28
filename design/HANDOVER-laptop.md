@@ -11,24 +11,20 @@
 
 ## 2026-09-28 · Laptop · branch `feat/advisor-progress`
 
-**master merged in at startup (18 commits, incl. #134 and #137). Green: 645 suites / 13,943 tests;
-nuxt build exit 0. Not in a PR yet — `npm run check:branch` says whether it was pushed.**
+**Clean and pushed; 16 ahead of `master`, all in PR #139** (not merged — that is the master team's).
 
-**Closed on Mike's word:** 15.2 — the Growth Aspect Questions hub tab, at all four managing tiers on
-the standard cascade (screens 3 and 3b of [`mockups/growth-aspect-questions.html`](mockups/growth-aspect-questions.html)).
-Its screen 2 (the AI suggestion) is carried on 8.4's note. **Filed:** 10.3 — Depreciation Rates,
-Forecast Trend Thresholds and Property Tax Rules become one hub page. **Fixed on his yes:** six hub
-tabs showed a blank "saved by" in their history (`created_by` → `saved_by`).
+**Built today: 8.4's first build, complete** — recording a strategy session one concept at a time,
+Build-session timing, the Run session screen, concept summaries approved with the client, and a
+pause after 3 minutes' silence. Walked live with real OpenAI and Mike's own voice. **8.5 built and
+closed** (unfinished recordings held 7 working days). 15.14 Wordsmith defined and scoped.
 
-**FOR THE DESKTOP — files this branch changed that you may also touch:**
+**Next on 8.4: screen 4** (words into the boxes) — Decisions D and F to ask first.
+[`features/strategy-planner.md`](features/strategy-planner.md) §9b says how it all works now.
 
-- `components/FirmManagerHub.vue` — one tab added at the end of "Your AI coach", in `TAB_TIERS`
-  and `NAV_GROUPS`; `hubTabTiers` and `mentorHubScope` tests count it.
-- `locales/en.json` — `growthAspectQuestions` block at the tail, and one line in
-  `firmManagerHub.tabs`. Keep both sides on a merge.
-- One line each in `FirmAiPrompts`, `FirmBenchmarker`, `FirmDepreciationRates`,
-  `FirmForecastTrendThresholds`, `FirmPropertyTaxRules` and `FirmSellDownLadder` (the saved_by fix).
-- `firmBenchmarker.component.test.js` — two characters garbled by `1375c0eb` restored.
-- The wheel's nine colours moved to `utils/growthAspectColours.js`.
+**FOR THE DESKTOP — files we both changed:** `locales/en.json` (my blocks under
+`strategyPlanner.timing` / `recording` / `conceptSummary`, and `meetingUnfinished` at the tail — keep
+both sides), `strategy-planner.md`, `to-do-items.json` / `to-do.md` / `to-do-done-and-parked.md`,
+`ARTEFACTS.md`, `CODE-SIZE.md`. Also changed here: `pages/strategy-planner.vue`,
+`StrategyStepBuilder.vue`, `server/routes/meetingReview.js`, `meetingAudioStore.js`, `meetingPurge.js`.
 
-**In hand, not touched today:** 15.17, 15.20, 8.4.
+**In hand here:** 8.4, 15.17, 15.20.

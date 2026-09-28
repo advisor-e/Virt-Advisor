@@ -1515,79 +1515,63 @@ paragraphs take 19–273 more characters; circle labels about 7.
 3. **A failed save reuses the page's own message** (*"That box could not be saved…"*) and leaves
    the box open with the words in it, rather than adding an unapproved sentence.
 
-## 9b. Recording a session in concept segments, then Wordsmith — ruled 2026-09-28, not built
+## 9b. Recording a session in concept segments, then Wordsmith — built 2026-09-28
 
-Items **8.4** (recording) and **15.14** (Wordsmith). Drawing:
-[`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html), not
-**APPROVED FOR BUILD by Mike on 2026-09-28** — *"i approve the drawing to build"* — as committed in
-`976533c2`; before shipping, open it beside the build and name every difference. **Every decision for the first build is ruled** (A, B, C, E; timing G, H, I;
-summaries J), and **every first-build label in its wording table was approved by Mike, one at a
-time, on 2026-09-28**. Screen 4 and its wording are marked "second build" on the page. **The
-Meeting Review meeting type is named "Strategy Session"** (Mike, 2026-09-28) — a twelfth type at
-mentor level, cascading as the other eleven do; its name is what the Meeting Summary is told the
-meeting was. **Slice 1 of four is built (2026-09-28): the backend that records in concept
-segments** — `server/routes/meetingSegments.js` (open a segment, its chunks, a break, the voice
-clip, finish), `server/utils/meetingSegments.js` (settling and the join), segment files and their
-deletion in `meetingAudioStore.js`, the clip in `transcriptionClient.js`, and the "Strategy
-Session" type in `data/meeting-observations.json`. Each segment is transcribed as it closes and its
-audio destroyed at once; the clip is destroyed when the recording ends; the joined transcript is
-what Meeting Review's reports read. **A later segment transcribed without the clip is recorded as
-not confident**, since only segment 1 has the consent line to anchor on. **Slice 2 is built too
-(2026-09-28): the concept summaries' backend** — `server/utils/conceptSummary.js` and four routes on
-`/api/meeting/recordings/:id/segments/:n/summary` (read, edit, write again, approve). Each summary is
-written as soon as its segment is text, under the concept's own capture headings (one section under
-the concept's name when it has none — 13 of the 48 today), with "nothing said" left empty rather
-than filled. Approval needs `clientAgreed: true`, the screen's tick; an edit clears it; an approved
-summary is never written over. **Decision J is enforced in `runReports`**: a strategy session's
-Meeting Summary is composed from approved concept summaries only, with no model call and no
-extracted actions. **Slice 3 is built too (2026-09-28): the run sheet in Build session** —
-`utils/sessionTiming.js` works every time out; `StrategyStepBuilder.vue` shows it only when the
-page passes `timing` (the manager's standard-session screen does not); `scope.timing` saves it,
-kept through every other scope save. **Two differences from screen 7, both deliberate:** "+ Add a
-break here" sits after EVERY row rather than once per step, because a break may go between any two
-concepts; and a "+ Start the next day here" link, not drawn, adds a day row — its wording Mike's,
-2026-09-28. **Slice 4 is built too (2026-09-28): the Run session screen** —
-`StrategySessionRecorder.vue` (consent through Meeting Review's own panel, one MediaRecorder per
-segment, the 8-second clip cut in the browser, the strip, the chips, "part 2" at 25 minutes or on
-the server's word, "End recording", "Stop and delete everything"), `StrategyRunAgenda.vue` (the
-timed agenda and the corner countdown, Decision G) and `StrategyConceptSummary.vue` (screen 10).
-**Differences from the drawing, every one named:** the live card shows a red top edge and the word
-"recording" rather than its own clock (the strip carries the clock); the agenda sits above the
-cards on a narrow screen and beside them on a wide one; the countdown is fixed to the corner of the
-window, as Mike asked; the finished banner is shown only when every section was turned into text,
-because its approved words say so — a failed section has already said so in its own banner. Three
-controls were not drawn and were ruled while building, all Mike's words on 2026-09-28: **"Take a
-break"** on the strip; a failed summary's **"This summary couldn't be written." / "Write it
-again"**; and **Meeting Review's own interruption alarm**, reused word for word, whose **"Resume
-recording"** carries the concept on as its next part. **The first build is complete.** Walked on
-the laptop 2026-09-28 in a built app, with Chrome's test-tone microphone and real OpenAI calls:
-recording, the clip, a break, resume and the end all worked, and every piece of audio was destroyed
-with logged proof. A real voice has not yet been recorded through it.
+Items **8.4** (recording, built) and **15.14** (Wordsmith, next after 8.4's second build). Drawing:
+[`../mockups/strategy-session-recording.html`](../mockups/strategy-session-recording.html),
+**approved for build by Mike on 2026-09-28** — *"i approve the drawing to build"* — as committed in
+`976533c2`; every decision and label on it ruled one question at a time. Screen 11 was added and
+built the same day on his rulings without a separate approval, on his word. Screen 4 — words placed
+into the boxes, the AI's tidied wording (Decisions D and F, unruled) — is the **second build**, not
+built. How the old version of this block read is on the history page.
 
-**That walk found a silent section mishandled** — the tone has no words, every section came back
-empty, the session was marked failed while the screen said "all turned into text", and three
-summaries were paid for with nothing to summarise. Mike, asked how to fix it: *"if AI detects the
-converstaion stops for more than 3mins - can it pause until it starts again?"*, then *"do the
-design - its a better overall fix"*. **Screen 11, built 2026-09-28** on his rulings, one question at
-a time: **K** silence is under a quarter of the advisor's own level, measured on the consent line, for
-3 minutes; **L** each pause's place and length are sent to the server (`POST …/segments/:n/pauses`)
-and added back to later words' times (`meetingSegments.restorePausedTime`); **M** the countdown keeps
-counting; **N** a silent section is transcribed and empty — the session finishes, and its summary is
-every heading empty with no AI call (`conceptSummary.emptySummary`). The browser measures loudness
-itself; nothing is sent to do it. **Walked live the same day** with a test sound file (tone, 190 s of
-silence, tone): paused at 3:11, resumed on the tone, the 10.25 s pause reported, the silent section
-finished as transcribed with no AI call, all audio destroyed. **Risk carried:** a first word after a
-pause can be clipped — unmeasured until a real voice is recorded. **Two more fixes from the walk, on
-Mike's yes:** each "Record this section" bar is now joined to the top of its own card — in the gap
-between cards it read as the foot of the card above, inviting a press that would file a recording
-under the wrong concept; and the finished banner counts "1 section", "1 minute" in the singular.
-**Mike's own first recording, the same day, found the cards squeezed**: the agenda's column beside
-them stayed even with no start time to show. On his yes the agenda now sits ABOVE the cards, only
-when a start time is set, and every card has the page's full width; the countdown needs only the
-concept's minutes and shows without a start time. That recording also proved the voice path — a
-word-perfect transcript, and the advisor named by the clip throughout. **Never run against real OpenAI or a real microphone** — that proof needs the
-desktop or UAT. Every ruling below
-is Mike's, 2026-09-28.
+**How it works.** A strategy session is a Meeting Review meeting of type **"Strategy Session"**,
+recorded **one concept at a time**:
+
+- **Record.** "Record this section" sits on top of each Run session card; pressing another card
+  closes the live section and opens its own. Consent is read once, in the first section, through
+  Meeting Review's own panel (record → speak → confirm). "Take a break" closes the live section;
+  "End recording" finishes; "Stop and delete everything" destroys every section. A tab the system
+  suspends raises Meeting Review's own red alarm, with "Resume recording".
+- **Size and silence.** A section rolls over to "part 2" at 25 minutes or 20 MB. After **3 minutes
+  quieter than a quarter of the advisor's own level** (measured on the consent line, in the
+  browser, nothing sent) the recording pauses, in amber, and carries on at the first sound; the
+  paused minutes are added back to later words' times. The countdown keeps counting.
+- **Text and deletion.** Each section is transcribed as it closes and its audio destroyed at once,
+  whether or not that worked. The advisor is told apart by an 8-second clip of their own voice cut
+  from the consent line, destroyed when the recording ends; a later section transcribed without it
+  is recorded as not confident. A section in which nothing was said is transcribed and empty.
+- **Summaries.** Each section's summary is written under its concept's own capture headings (one
+  section under its name for the 13 concepts with none); a silent section's has every heading empty
+  and asks no AI. The advisor and client edit it — never the transcript — and approve it with the
+  tick "The client has read this summary and agrees with it". **Decision J:** the joined Meeting
+  Summary is composed from approved summaries only, with no model call.
+- **Timing.** Build session puts minutes beside each concept, breaks and "Day N starts" rows
+  anywhere, and works every clock time out from one start time (`utils/sessionTiming.js`, saved as
+  `scope.timing`). Run session shows the timed agenda above the cards when a start time is set,
+  and the countdown in the corner — red, with "Running N min behind", on an overrun.
+
+**Code.** `server/routes/meetingSegments.js`, `server/utils/meetingSegments.js`,
+`server/utils/conceptSummary.js`, `meetingAudioStore.js`, `transcriptionClient.js`;
+`components/strategy/StrategySessionRecorder.vue`, `StrategyRunAgenda.vue`,
+`StrategyConceptSummary.vue`, `StrategyStepBuilder.vue`; `pages/strategy-planner.vue`.
+
+**Differences from the drawing, each deliberate:** the live card says "recording" (or "paused")
+rather than showing its own clock — the strip carries it; the agenda sits above the cards, not
+beside them (a column beside them squeezed every card — Mike's first recording found it); "+ Add a
+break here" follows every row, not only each step's foot; the finished banner shows only when
+every section was turned into text, as its approved words claim. Added while building, each on
+Mike's wording: "+ Start the next day here", "Take a break", "This summary couldn't be written." /
+"Write it again", and Meeting Review's alarm reused word for word.
+
+**Proven, and not.** Walked on the laptop in a built app with real OpenAI calls: a test-tone
+microphone through record, break, resume and end, every piece of audio destroyed with logged
+proof; a test sound file through a real 3-minute pause and resume; and **Mike's own voice** — a
+word-perfect transcript, the advisor named by the clip throughout. **Not measured:** whether a
+first word is clipped after a pause, a two-person room, and real persistence (the laptop has no
+MySQL).
+
+Every ruling below is Mike's, 2026-09-28.
 
 **Order.** *"perhaps the ability to record the session and summarise would be first place to
 start. Meeting Review code elsewhere in this app should be referred to - read the code, not just
@@ -1607,8 +1591,8 @@ word-for-word transcript stays exactly as spoken, for two reasons in the code:
 `clientCopyRequests.js` stores a client's correction *beside* the transcript and never in it, and
 My Coaching Notes check every quote against the transcript (`meetingReports.js`). The advisor and
 client approve each segment's short summary in the room. The client approves on the advisor's
-screen, because this app has no client login. The approved summaries are then joined. **Drawn
-2026-09-28 as screen 10, not approved**: each summary is written under the concept's own capture
+screen, because this app has no client login. The approved summaries are then joined. **Screen 10,
+approved and built 2026-09-28**: each summary is written under the concept's own capture
 headings, and an edit clears an earlier approval, as `saveSummaryEdit` does today. **Decision J
 RULED (his yes):** the joined Meeting Summary is built only from summaries the client approved; any
 still waiting stay on their cards to finish later.
@@ -1629,14 +1613,13 @@ and carries on as "part 2" of the same card at **25 minutes or 20 MB, whichever 
 Size, because OpenAI's limit is 25 MB, and the 0.9 MB-a-minute rate was measured once, in one
 browser. The server already counts each recording's bytes as the pieces arrive (`meta.bytes`).
 He added, the same day: *"perhaps a small count-down time in the corner of the screen will help
-people stay focused??"* The planner holds no planned time per concept today, and he answered what it
+people stay focused??"* The planner then held no planned time per concept, and he answered what it
 counts from: *"the build section should have a time allowance next to each content in the agenda.
 this way, when pushed thru to 'run session' the agenda show the items and time allowance per
 section, as well as the count down. I have a basic 'run sheet' that gives an example of setting time
 for a session, it allows for lunch breaks etc - each section as a start and stop time for this
-purpose"*. **Drawn 2026-09-28 as screens 7–9 of the drawing, not approved**, with Decisions G (a
-concept that runs over), H (a second day) and I (the run sheet's Purpose and Resource columns)
-on the page. **G RULED (his yes, 2026-09-28):** an overrun shows a red "+ minutes over" countdown
+purpose"*. **Screens 7–9, approved and built 2026-09-28**, with Decisions G (a concept that runs
+over), H (a second day) and I (the run sheet's Purpose and Resource columns). **G RULED (his yes, 2026-09-28):** an overrun shows a red "+ minutes over" countdown
 and a "Running … behind · now finishing …" line on the agenda; the planned times from Build session
 never move. **H RULED (his yes):** a "Day 2 starts" row, with that day's own start time, can sit
 between any two concepts, so a two-day workshop stays one session and one plan. **I RULED (his
@@ -1650,8 +1633,8 @@ time per step: *"make it fit each concept - almost like sub totals of time per s
 numbers should auto calculate from a start time and time per concept"*. So the countdown counts the
 live concept's minutes, the same unit as a recording segment. **Breaks** (Mike's yes, 2026-09-28):
 the advisor can add a break row with its own minutes between any two concepts, even mid-step. Its
-minutes run the clock but join no step's subtotal, and recording closes for it. Its label is ours
-until he rules it. **Measured afterwards by** the
+minutes run the clock but join no step's subtotal, and recording closes for it ("Take a break").
+Its label, "Break", he approved the same day. **Measured afterwards by** the
 navigation timeline, which already records when each box opens: planned minutes against actual
 minutes, per concept.
 

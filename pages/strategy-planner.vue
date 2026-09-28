@@ -2499,7 +2499,10 @@ export default {
   border-radius: 10px 10px 0 0;
   background: #f1f6fb;
 }
-.sp-recbar + * {
+/* Named, not `*`: each card rounds its own corners from inside its component, and only a rule
+   naming the card's root outranks it — the first try left a notch where bar met card. */
+.sp-recbar + .scc,
+.sp-recbar + .scc2 {
   margin-top: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
