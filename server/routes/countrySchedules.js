@@ -406,8 +406,8 @@ async function listSchedules (req, res) {
         approvedAt: value.approvedAt,
         classes: value.classes.length,
         unresolved: value.unresolved.length,
-        pagesUnread: value.pagesUnread,
-        unreadNote: schedules.unreadPagesSentence(value)
+        // The page ranges only: the screen words the warning in its reader's language (10.2).
+        pagesUnread: value.pagesUnread
       })
     })
 
@@ -509,7 +509,7 @@ async function approveSchedule (req, res) {
         approvedBy: approved.value.approvedBy,
         approvedAt: approved.value.approvedAt,
         classes: approved.value.classes.length,
-        unreadNote: schedules.unreadPagesSentence(approved.value)
+        pagesUnread: approved.value.pagesUnread
       }
     })
   } catch (err) {
@@ -602,7 +602,7 @@ async function searchClasses (req, res) {
     if (!schedule) {
       // Not an error. A country nobody has loaded a schedule for is the normal case, and the
       // firm's own documents still work exactly as before.
-      return res.send(200, { country, schedule: null, matches: [], total: 0, unreadNote: '' })
+      return res.send(200, { country, schedule: null, matches: [], total: 0, pagesUnread: [] })
     }
 
     const found = schedules.searchScheduleClasses(schedule, req.query && req.query.q, SEARCH_LIMIT)
@@ -618,7 +618,7 @@ async function searchClasses (req, res) {
       matches: found.matches,
       total: found.total,
       truncated: found.truncated,
-      unreadNote: schedules.unreadPagesSentence(schedule)
+      pagesUnread: Array.isArray(schedule.pagesUnread) ? schedule.pagesUnread : []
     })
   } catch (err) {
     console.error('[country-schedules] class search failed:', err.message)

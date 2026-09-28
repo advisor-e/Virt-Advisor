@@ -23,6 +23,7 @@
 
 const captureTables = require('../../data/strategy-capture-tables.json')
 const deckCaptureTables = require('../../data/strategy-deck-capture-tables.json')
+const { REPORT_IMPORT_KEY } = require('../../utils/reportImport')
 const orgChart = require('./strategyOrgChart')
 
 /**
@@ -442,6 +443,13 @@ const SMALL_COMPARISON_GRID = 'small-comparison-grid'
 /** A concept whose capture is a Report Model run inside the card (item 15.23). */
 const MODEL_FORM = 'report-model'
 
+/*
+ * REPORT_IMPORT_KEY (required above, shared with the screen) is the one session entry a card
+ * that brings in a report may save: that the advisor brought it in (item 15.13, Decision D —
+ * the plan prints the report's summary only then). A marker, never a figure: the report's
+ * figures stay in the client's own saved report and are worked out afresh wherever they show.
+ */
+
 function fieldsOfTable (table, tableIndex, form) {
   if (form === NAMED_FIELD_STACK) {
     return namedFieldStackFields(table, tableIndex)
@@ -677,7 +685,9 @@ function captureForConcept (concept) {
     file: template.file,
     form: concept.captureForm || '',
     tableForms,
-    fields
+    fields,
+    // The saved report this card may bring in above its own boxes (item 15.13), or null.
+    importReport: concept.importReport || null
   }
 }
 
@@ -716,6 +726,7 @@ function hasCaptureField (conceptId, fieldKey, getConcept) {
   // A model's figures live in the client's own record, never the session (item 15.23).
   if (capture.form === MODEL_FORM) { return false }
   if (capture.form === orgChart.FORM) { return orgChart.isOrgChartKey(fieldKey) }
+  if (fieldKey === REPORT_IMPORT_KEY) { return Boolean(capture.importReport) }
   return capture.fields.some(f => f.key === fieldKey)
 }
 
@@ -728,5 +739,6 @@ module.exports = {
   PARALLEL_PROMPT_PAIR,
   SMALL_COMPARISON_GRID,
   MODEL_FORM,
+  REPORT_IMPORT_KEY,
   TEMPLATE_ALIASES
 }

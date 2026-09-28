@@ -19,7 +19,7 @@
  * it (`opening.keys`, `overheads.keys`, `assets.keys`). That is what stops the failure the
  * funding lines already met once: a row saved before a column existed must not be read as
  * a different row. A name the form no longer holds is ignored; a figure the row does not
- * carry keeps what the screen has. The shape is 86 keys, and the longest array is the
+ * carry keeps what the screen has. The shape is 97 keys, and the longest array is the
  * 24-month history.
  *
  * 🔴 THE BADGES ARE STILL PER FIGURE, and that is why `changedFigures` is here. The
@@ -60,6 +60,15 @@ const MAX_ROWS = 60
 /** The measured history the intake keeps — up to 24 months. */
 const MAX_HISTORY = 24
 const MAX_NAME = 200
+
+/** "Currencies you trade in" holds three rows (13.5, Mike's ruling of 2026-09-26). */
+const CURRENCY_ROWS = 3
+/** A forecast runs one to three years (item 4.71); the quick-fire grid always holds three rows. */
+const MAX_FORECAST_YEARS = 3
+/** The quick-fire grid's three percentages, each saved as one list of three years. */
+const QUICK_FIRE_FIELDS = ['salesGrowth', 'grossMargin', 'overheadsIncrease']
+/** A currency choice: an ISO code, or empty for the firm's own. */
+const isCurrencyCode = v => typeof v === 'string' && (v === '' || /^[A-Z]{3}$/.test(v))
 
 const isNum = v => typeof v === 'number' && Number.isFinite(v)
 /** A figure, or a blank: an optional figure not yet typed, or an empty month. */
@@ -128,7 +137,7 @@ function flattenTagged (block) {
  * @param {object} form - the intake's confirmed state (`confirmed.state`)
  * @param {object} levers - the report's four levers `{ salesShift, markup, debtorMonthAfter, overheadShift }`
  * @param {string} detail - 'summary' or 'every'
- * @returns {object} the flat row — 86 named values, no nesting
+ * @returns {object} the flat row — 97 named values, no nesting
  */
 function flattenForecast (form, levers, detail) {
   const f = form || {}
@@ -141,10 +150,17 @@ function flattenForecast (form, levers, detail) {
   const holders = Array.isArray(f.shareholders) ? f.shareholders : []
   const assets = Array.isArray(f.assets) ? f.assets : []
   const lv = levers || {}
+  const qf = f.quickFire || {}
+  const qfYears = Array.isArray(qf.years) ? qf.years : []
 
   const opening = flattenTagged(f.opening)
   const overheads = flattenTagged(f.overheads)
   const num = v => Number(v) || 0
+  const code = v => (isCurrencyCode(v) ? v : '')
+  // Blank stays blank: a row with no rate yet is not a rate of zero.
+  const rateOf = v => (v === null || v === undefined || v === '' || !isNum(Number(v)) ? null : Number(v))
+  const currencies = []
+  for (let i = 0; i < CURRENCY_ROWS; i++) { currencies.push((f.currencies || [])[i] || {}) }
 
   const row = {
     // The client's own name is NOT here, and neither is the trend read: one is a thing
@@ -196,10 +212,16 @@ function flattenForecast (form, levers, detail) {
     purchases: (f.purchases || []).map(num),
 
     'transit.balanceOwing': num(f.stockInTransit && f.stockInTransit.balanceOwing),
+    'transit.balanceCurrency': code(f.stockInTransit && f.stockInTransit.balanceCurrency),
     'transit.landing': ((f.stockInTransit && f.stockInTransit.landing) || []).map(num),
+
+    // "Currencies you trade in" (13.5): three rows, a blank rate being a row not filled in.
+    'currencies.code': currencies.map(c => code(c && c.code)),
+    'currencies.rate': currencies.map(c => rateOf(c.rate)),
 
     'os.enabled': o.enabled === true,
     'os.importedPurchases': (o.importedPurchases || []).map(num),
+    'os.importedPurchasesCurrency': code(o.importedPurchasesCurrency),
     'os.depositPct': num(o.depositPct),
     'os.depositLeadMonths': num(o.depositLeadMonths),
     'os.balancePayment': (o.balancePayment || []).map(num),
@@ -217,6 +239,7 @@ function flattenForecast (form, levers, detail) {
     'os.sellDown.runoutUpToDays': num(sd.runoutUpToDays),
     'os.sellDown.pattern': String(sd.pattern || '').slice(0, MAX_NAME),
     'os.overseasSales': (o.overseasSales || []).map(num),
+    'os.overseasSalesCurrency': code(o.overseasSalesCurrency),
     'os.deliveryLagMonths': num(o.deliveryLagMonths),
     'os.overseasCollection': (o.overseasCollection || []).map(num),
     'os.zeroRated': o.zeroRated !== false,
@@ -231,6 +254,7 @@ function flattenForecast (form, levers, detail) {
     'os.terms.airDays': num(t.airDays),
     'os.terms.expressDays': num(t.expressDays),
     'os.ships.description': ships.map(s => String(s.description || '').slice(0, MAX_NAME)),
+    'os.ships.currency': ships.map(s => code(s.currency)),
     'os.ships.cost': ships.map(s => num(s.cost)),
     'os.ships.orderDate': ships.map(s => String(s.orderDate || '')),
     'os.ships.depositPct': ships.map(s => num(s.depositPct)),
@@ -245,8 +269,19 @@ function flattenForecast (form, levers, detail) {
 
     history: (f.history || []).slice(0, MAX_HISTORY).map(num),
 
+    // How many years, and what years 2 and 3 trade on. Without these a three-year forecast
+    // reopened as one year and its typed percentages were gone. A blank stays blank — the
+    // grid reads it as "the same again", and a zero would forecast no growth instead.
+    yearCount: num(f.yearCount) || 1,
+    'qf.enabled': !!(qf.enabled),
+
     detail: oneOf(detail, DETAIL_MODES, 'summary')
   }
+  QUICK_FIRE_FIELDS.forEach((k) => {
+    const years = []
+    for (let i = 0; i < MAX_FORECAST_YEARS; i++) { years.push(rateOf((qfYears[i] || {})[k])) }
+    row['qf.' + k] = years
+  })
 
   // 🔴 THE LEVERS ARE OMITTED WHEN THE REPORT HAS NOT REPORTED THEM, and that is not
   // tidiness. Two of the four are DERIVED from the confirmed intake — the mark-up and the
@@ -387,8 +422,20 @@ function applySavedForecast (form, levers, inputs) {
   // a balance with no landing months is the very state the block warns about.
   const landing = numList(row['transit.landing'], MONTHS)
   if (landing && isNum(row['transit.balanceOwing'])) {
-    f.stockInTransit = { balanceOwing: row['transit.balanceOwing'], landing }
+    // A row saved before 13.5 has no currency for the balance: it was the firm's own.
+    const owedIn = isCurrencyCode(row['transit.balanceCurrency']) ? row['transit.balanceCurrency'] : ''
+    f.stockInTransit = { balanceOwing: row['transit.balanceOwing'], balanceCurrency: owedIn, landing }
     take('stockInTransit', true)
+  }
+
+  // ── "Currencies you trade in" (13.5) — the codes and rates together, three of each, or
+  // the table the screen holds stands. A rate must be above zero or blank: a zero rate would
+  // divide every foreign amount by nothing.
+  const cCodes = strList(row['currencies.code'], CURRENCY_ROWS)
+  const cRates = numOrBlankList(row['currencies.rate'], CURRENCY_ROWS)
+  if (cCodes && cRates && cCodes.every(isCurrencyCode) && cRates.every(r => r === null || r > 0)) {
+    f.currencies = cCodes.map((c, i) => ({ code: c, rate: c ? cRates[i] : null }))
+    take('currencies', true)
   }
 
   applyOverseas(f, row, take)
@@ -396,6 +443,15 @@ function applySavedForecast (form, levers, inputs) {
 
   const history = numList(row.history)
   if (history && history.length <= MAX_HISTORY) { f.history = history; take('history', true) }
+
+  // A row saved before these were carried has none, and loads as one year with the grid
+  // off — exactly what it showed before.
+  const years = row.yearCount
+  if (isNum(years) && years === Math.floor(years) && years >= 1 && years <= MAX_FORECAST_YEARS) {
+    f.yearCount = years
+    take('yearCount', true)
+  }
+  applyQuickFire(f, row, take)
 
   const leverKeys = ['salesShift', 'markup', 'debtorMonthAfter', 'overheadShift']
   leverKeys.forEach((k) => { if (isNum(row['lever.' + k])) { lv[k] = row['lever.' + k]; take('lever.' + k, true) } })
@@ -421,6 +477,10 @@ function applyOverseas (f, row, take) {
   Object.keys(series).forEach((k) => {
     const v = numList(row[series[k]], MONTHS)
     if (v) { o[k] = v; take(series[k], true) }
+  })
+  const choices = { importedPurchasesCurrency: 'os.importedPurchasesCurrency', overseasSalesCurrency: 'os.overseasSalesCurrency' }
+  Object.keys(choices).forEach((k) => {
+    if (isCurrencyCode(row[choices[k]])) { o[k] = row[choices[k]]; take(choices[k], true) }
   })
   const override = numOrBlankList(row['os.revenueOverride'], MONTHS)
   if (override) { o.importedRevenueOverride = override; take('os.revenueOverride', true) }
@@ -453,9 +513,14 @@ function applyOverseas (f, row, take) {
   const sDate = strList(row['os.ships.orderDate'])
   const sDep = numList(row['os.ships.depositPct'])
   const sSpeed = strList(row['os.ships.speed'])
-  if (sameLength([sDesc, sCost, sDate, sDep, sSpeed], MAX_ROWS)) {
+  // The currency list is optional: a row saved before 13.5 has none, and every shipment in
+  // it was invoiced in the firm's own currency. Present, it must match the others exactly.
+  const sCur = row['os.ships.currency'] === undefined ? null : strList(row['os.ships.currency'])
+  const curOk = sCur === null || (sDesc && sCur.length === sDesc.length && sCur.every(isCurrencyCode))
+  if (curOk && sameLength([sDesc, sCost, sDate, sDep, sSpeed], MAX_ROWS)) {
     o.shipments = sDesc.map((description, i) => ({
       description,
+      currency: sCur ? sCur[i] : '',
       cost: sCost[i],
       orderDate: sDate[i],
       depositPct: sDep[i],
@@ -463,6 +528,25 @@ function applyOverseas (f, row, take) {
     }))
     take('os.shipments', true)
   }
+}
+
+/**
+ * The quick-fire grid — the switch and all three years of all three percentages together,
+ * or the grid the screen holds stands. Half a grid would forecast year 3 on one client's
+ * growth and another's margin.
+ * @param {object} f @param {object} row @param {Function} take
+ */
+function applyQuickFire (f, row, take) {
+  const lists = QUICK_FIRE_FIELDS.map(k => numOrBlankList(row['qf.' + k], MAX_FORECAST_YEARS))
+  if (typeof row['qf.enabled'] !== 'boolean' || lists.includes(null)) { return }
+  const years = []
+  for (let i = 0; i < MAX_FORECAST_YEARS; i++) {
+    const y = {}
+    QUICK_FIRE_FIELDS.forEach((k, j) => { y[k] = lists[j][i] })
+    years.push(y)
+  }
+  f.quickFire = { enabled: row['qf.enabled'], years }
+  take('quickFire', true)
 }
 
 /**
@@ -565,7 +649,7 @@ function changedFigures (inputs, advisor) {
   // Series: the month that moved, not the whole strip.
   const seriesKeys = ['sales', 'purchases', 'debtor', 'creditor', 'transit.landing',
     'os.importedPurchases', 'os.overseasSales', 'os.revenueOverride', 'os.balancePayment',
-    'os.overseasCollection', 'history']
+    'os.overseasCollection', 'history', 'qf.salesGrowth', 'qf.grossMargin', 'qf.overheadsIncrease']
   seriesKeys.forEach((k) => {
     const now = inputs[k]
     const was = advisor[k]
@@ -578,7 +662,7 @@ function changedFigures (inputs, advisor) {
 
   // Everything else is one named value already, so it compares as itself. The three lists
   // and the row lists above are excluded — they have been named more precisely.
-  const listed = /^(opening|overheads|assets\.|loans\.|shareholders\.|cap\.|os\.ships\.|sales|purchases|debtor|creditor|transit\.landing|os\.importedPurchases|os\.overseasSales|os\.revenueOverride|os\.balancePayment|os\.overseasCollection|history)/
+  const listed = /^(opening|overheads|assets\.|loans\.|shareholders\.|cap\.|os\.ships\.|sales|purchases|debtor|creditor|transit\.landing|os\.importedPurchases|os\.overseasSales|os\.revenueOverride|os\.balancePayment|os\.overseasCollection|history|qf\.salesGrowth|qf\.grossMargin|qf\.overheadsIncrease)/
   Object.keys(inputs).forEach((k) => {
     if (listed.test(k)) { return }
     if (differs(inputs[k], advisor[k])) { out.push(k) }

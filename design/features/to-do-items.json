@@ -85,6 +85,10 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-28"
+      },
       "why": "Formal strategic planning starts by assessing the current position - staff, customer and supplier feedback, financial analysis, economic outlook. The three-way forecast and the performance reports already hold much of the financial half, and nothing carries it across.",
       "risk": "An advisor retypes figures the app already holds, or skips the assessment. The review must also say what CANNOT be imported: staff, customer and supplier feedback and the economic outlook are named by Mike as part of the same component, and no report in this app holds any of them.",
       "askedBy": {
@@ -92,9 +96,9 @@
         "ours": false,
         "detail": "2026-09-22 - in his own words: \"i want you to make a task to review the 3 way forecast model and the financial assessment reports / performance reports (in the perf reports section) to see what could be 'pulled in' by clicking an import button\"."
       },
-      "touches": "The three-way forecast (parent 6) and the report models (parent 5) as sources; the Strategy Planner's session surface as the destination. Which reports expose a readable saved result, and in what shape, IS the review - nothing is known yet.",
-      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. The impact test is unrun and this must not start until it is. Its first output is a list of what each report can and cannot give a planning session.",
-      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.14 and 15.15). Score and scoreReason are ours; he has not ranked it."
+      "touches": "CONCEPT_IMPORT_REPORTS in server/utils/strategyFrameworks.js; strategyCaptureForms.js; the concept assess-current-position-by-reviewing-pre-meeting-data-sectio in data/strategy-frameworks.json; the new panel, plan page, mixin and util; and, once 8.4 has merged, StrategyConceptCapture.vue and pages/strategy-planner.vue.",
+      "note": "PROCEED ON MIKE'S WORD 2026-09-28. Approved drawing: design/mockups/strategy-current-position-import.html (the whole Business Performance Report in the card, his no-report message, the plan printing its Executive Summary). Impact measure: figures reaching the step and plan untyped - 0 today. BUILT 2026-09-28, tested, NOT YET ON SCREEN: the concept's importReport, the save guard's marker, utils/reportImport.js, mixins/businessReportImport.js, components/strategy/StrategyReportImport.vue and StrategyReportPlanPage.vue. WAITS ON 8.4 REACHING MASTER, on his yes: two insertions in files 8.4 holds - the panel into StrategyConceptCapture.vue (saving its brought-in marker), the plan page into pages/strategy-planner.vue. Then walk it in a browser beside the drawing.",
+      "comment": "2026-09-28 - Mike: proceed, and after the build (fc030cac) proceed again - it stays live, waiting for 8.4 to reach master before its two insertions and browser check. The impact test found saved multi-year forecasts reopening as one year; fixed first on his yes (1c866a94). Score ours, not ranked by him."
     },
     {
       "ref": "15.14",
@@ -231,27 +235,6 @@
       "comment": "2026-09-24 - filed on Mike's yes, the moment the package was installed, as his ruling on 15.20 required."
     },
     {
-      "ref": "8.3",
-      "name": "Meeting Review's speaker-labelling model is switched off 26 Feb 2027, with no named replacement",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Meeting Review transcribes with gpt-4o-transcribe-diarize, the only OpenAI model that says who spoke. OpenAI retires it on 26 Feb 2027, and the replacements it names, gpt-transcribe and gpt-live-transcribe, return text without speakers.",
-      "risk": "From that date Meeting Review's transcription call fails outright. Swapping in gpt-transcribe would bring it back without speaker turns, and the summary and coaching notes depend on telling the advisor's words from the client's. Left unwritten, this surfaces on the day the call starts failing.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-24 - found while saving OpenAI's developer pages on Mike's instruction. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "server/utils/transcriptionClient.js (DIARIZING_MODEL, and the diarized_json reply it validates); Meeting Review's summary and coaching notes, which read speaker turns; design/OPENAI-DEVELOPER-DOCS.md O1 and O2; design/features/meeting-review.md.",
-      "note": "FIRST STEP IS A QUESTION, NOT CODE: ask OpenAI, through the ZDR contact, whether a speaker-labelling successor to gpt-4o-transcribe-diarize is coming before 26 Feb 2027. Then decide the fallback. Evidence, all dated 2026-09-24: design/openai/DEPRECATIONS-2026-09-24.md (the date), TRANSCRIPTION-GUIDE (still sends speaker labels to the retiring model), MODEL-PAGES (gpt-transcribe lists only streaming). Any successor is checked against OPENAI-ZDR-CONSTRAINTS.md before use.",
-      "comment": "2026-09-24 - filed on Mike's yes. Deadline is OpenAI's, not ours: 26 Feb 2027."
-    },
-    {
       "ref": "8.4",
       "name": "Meetings longer than about 27 minutes are too big for OpenAI and lose their audio",
       "rankedByMike": false,
@@ -275,31 +258,6 @@
         "machine": "laptop",
         "since": "2026-09-25"
       }
-    },
-    {
-      "ref": "13.5",
-      "name": "Foreign currency, freight and duty in the Three-Way Forecast, by the accounting standards",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-26"
-      },
-      "why": "Paying an overseas supplier is the one place in the app where both a foreign currency and an exchange rate genuinely apply. Today the forecast uses neither: it adds a flat percentage allowance, 10% by default, to the landed cost.",
-      "risk": "An importer's cash forecast shows stock payments as the home-currency cost plus a guessed percentage, not what the supplier's invoice will actually cost at a stated rate. A rate move or a supplier invoicing in another currency is invisible, and the deposit and balance timing in the forecast carries the same guess.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-24 - in his words: \"we have an input for fx (foreign exchange) payments for stock, imported from overseas, in the 3 way forecast and import model... this is ONE area where BOTH the currency and the exchange rate will need to apply - make it a task to review this please\""
-      },
-      "touches": "server/report/threeWayForecastModel.js (fxAllowancePct and salesFxAllowancePct, fxOnPurchases, fxOnSales, the deposit and balance lines near 1068-1137); server/report/importShipmentModel.js, which defers exchange to the forecast; their intake screens and golden tests; item 13.2, which labels the currency of a converted figure.",
-      "note": "PROCEED ON MIKE'S FOUR RULINGS OF 2026-09-26, by the accounting standards: supplier invoices and overseas sales entered in their own currency at an assumed rate; freight and duty inside the imported stock's cost, charged as it sells; both 10% allowances become 'what if the rate moves' settings, shown not charged. THE FAULT: the engine charges a flat 10% on the whole order, deposit included - 10,764.30 on the workbook's January order against its own 1,088.39. The build also corrects the two places still claiming the two agree: importShipmentModel.test.js ~161 and the 4.63 closure. MEASURE: the workbook's twelve months reproduced by the engine itself. Basis: design/CALCULATION-ASSUMPTIONS.md section 1. DRAWING APPROVED, NOT BUILT: design/mockups/three-way-forecast-foreign-currency.html, its six rulings at its foot.",
-      "comment": "2026-09-24 - filed on Mike's request, raised mid-way through scoping 12.2. 2026-09-26 - Mike: proceed, on the standards-based design; drawing approved the same day, and his call after it: proceed to the build."
     },
     {
       "ref": "15.22",
@@ -365,27 +323,6 @@
       "comment": "2026-09-25 - filed on Mike's yes at shutdown."
     },
     {
-      "ref": "10.2",
-      "name": "Hub screens show English written by the backend, so it never translates",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off, on a few words",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A few words on the hub are composed by the backend in English and never pass through the wording file: client copy deadline units and countdown phrases, meeting pattern period labels, and the depreciation unread-pages sentence.",
-      "risk": "A manager reading in another language meets English fragments inside otherwise translated screens after 10.1 converted the screens themselves. The countdown phrase is the one a firm acts on against a legal deadline.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-25 - found converting the hub screens after 10.1. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "The routes behind FirmClientCopyRequests.vue (unitWords and the clock phrase), FirmMeetingPatterns.vue (period.label) and DepreciationDocumentReview.vue (scheduleUnreadNote); those three screens and the unread note in CountryRateSchedules.vue, which already words it itself; their route tests.",
-      "note": "The backend should send facts - a unit code, a number, a date - and each screen word them through $t. Changes what four routes return, so their tests move with them.",
-      "comment": "2026-09-25 - filed on Mike's yes at shutdown."
-    },
-    {
       "ref": "44.1",
       "name": "Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions",
       "rankedByMike": false,
@@ -426,6 +363,27 @@
       "touches": "components/FirmManagerHub.vue (NAV_GROUPS, TAB_TIERS and the three panels); FirmDepreciationRates.vue, FirmForecastTrendThresholds.vue and FirmPropertyTaxRules.vue as sections of one new page; tests/unit/hubTabTiers.test.js; the page's name and section headings, which are Mike's wording.",
       "note": "NOT SCOPED. Drawn for approval first, with the impact test run at scoping. Tax Rates is not in his list and stays its own tab - it was split from Depreciation Rates on his ruling of 2026-09-09. Three of these tabs also show a blank 'saved by' in their version history, raised with Mike the same day.",
       "comment": "2026-09-28 - filed on Mike's instruction while 15.2's hub tab was being built. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.2",
+      "name": "The desktop's default Node is version 20, not the locked 14.15",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "On the desktop, node means version 20. Two NVM_SYMLINK Windows settings point to the wrong folder, though nvm itself is on 14.15.",
+      "risk": "Under version 20, seven suites fail for reasons unrelated to the code and the pre-push hook blocks every push. A session that does not know the workaround reads a green branch as broken. The fix changes Windows settings for the whole computer and needs administrator rights, and other tools on it may rely on Node 20.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-28 - found when the post-merge suite failed on Node 20 and passed on 14.15. A defect we found; filed on Mike's yes."
+      },
+      "touches": "This computer's Windows settings only, not the repository: Machine NVM_SYMLINK (C:\\Program Files\\nodejs, Node 20), User NVM_SYMLINK (C:\\nvm4w\\nodejs\\node_modules\\nodejs), and the PATH entries that follow them. C:\\nvm4w\\nodejs already points at v14.15.0.",
+      "note": "WORKAROUND, proven 2026-09-28: before any jest, commit or push in PowerShell, put C:\\Users\\Mike Barnes\\AppData\\Local\\nvm\\v14.15.0 first on PATH and set NVM_SYMLINK to the same folder. First job at scoping: list what else on this computer runs node before changing anything.",
+      "comment": "2026-09-28 - filed on Mike's yes at startup, rather than fixed, because the fix is machine-wide."
     }
 
   ]

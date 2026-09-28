@@ -144,9 +144,17 @@
                   :file-label="$t('report.threeWayForecast.confirm.fromFile')"
                   :entered-label="$t('report.threeWayForecast.confirm.entered')"
                   size="sm")
-              b-input(
-                v-model.number="form.stockInTransit.balanceOwing"
-                type="number" step="any" size="is-small")
+              //- Its currency (13.5, Mike's ruling (5) of 2026-09-26): the firm's own or one
+              //- from "Currencies you trade in" on step 3. The deposits stay as they are.
+              .fx-amount
+                b-input(
+                  v-model.number="form.stockInTransit.balanceOwing"
+                  type="number" step="any" size="is-small")
+                b-select(v-model="form.stockInTransit.balanceCurrency" size="is-small")
+                  option(v-for="c in currencyChoices" :key="'tc' + c" :value="c === firmCurrency ? '' : c") {{ c }}
+            .tw-foot(v-if="form.stockInTransit.balanceCurrency")
+              | {{ convertLine(form.stockInTransit.balanceOwing, form.stockInTransit.balanceCurrency) }}.
+              | {{ $t('report.threeWayForecast.confirm.transitDepositsStayHome', { home: firmCurrency }) }}
             .tw-foot {{ $t('report.threeWayForecast.confirm.transitBalanceWhy') }}
           div
             .termhead {{ $t('report.threeWayForecast.confirm.transitLandsHeading') }}
@@ -951,17 +959,32 @@
               b-checkbox(v-model="form.overseas.enabled") {{ $t('report.threeWayForecast.assume.overseas.tick') }}
             .tw-foot(v-if="!form.overseas.enabled") {{ $t('report.threeWayForecast.assume.overseas.tickHint') }}
 
+            //- ── Currencies you trade in (13.5) ──
+            //- OUTSIDE the section below, and that is Mike's ruling of 2026-09-26: it shows
+            //- while the tick is on OR while the opening balance sheet has stock still on the
+            //- water, so a business settling last year's shipment can name its currency
+            //- without trading overseas this year.
+            .subgroup(v-if="form.overseas.enabled || hasStockInTransit")
+              h3.subh {{ $t('report.threeWayForecast.assume.currencies.heading') }}
+              forecast-currencies(v-model="form.currencies" :home="firmCurrency")
+
             .sectionbox(v-if="form.overseas.enabled")
               //- ── Stock arriving from overseas ──
               .subgroup
                 h3.subh {{ $t('report.threeWayForecast.assume.overseas.importHeading') }}
-                .termhead {{ $t('report.threeWayForecast.assume.overseas.landingLabel') }}
+                .termhead.fx-label
+                  span {{ $t('report.threeWayForecast.assume.overseas.landingLabel') }}
+                  b-select(v-model="form.overseas.importedPurchasesCurrency" size="is-small" :disabled="shipmentsDrive")
+                    option(v-for="c in currencyChoices" :key="'ic' + c" :value="c === firmCurrency ? '' : c") {{ c }}
                 .mgrid
                   .m(v-for="(label, i) in monthLabels" :key="'ip' + i")
                     span.lbl {{ label }}
                     b-input(
                       v-model.number="form.overseas.importedPurchases[i]"
                       type="number" step="any" size="is-small")
+                //- What each month converts to, under every month that has a figure.
+                .tw-foot(v-for="line in gridConversionLines(form.overseas.importedPurchases, shipmentsDrive ? '' : form.overseas.importedPurchasesCurrency)" :key="line") {{ line }}
+                .tw-foot {{ $t('report.threeWayForecast.assume.overseas.landingGridNote', { home: firmCurrency }) }}
 
                 p.tblnote {{ $t('report.threeWayForecast.assume.overseas.landingNote') }}
 
@@ -1000,11 +1023,16 @@
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.overseas.duty') }}
                       b-input(v-model.number="form.overseas.dutyPct" type="number" step="any" size="is-small")
+                    .tw-foot {{ $t('report.threeWayForecast.assume.overseas.gettingHereNote') }}
+                    //- The 10% allowance is no longer a cost (Mike's ruling (4) of 2026-09-26):
+                    //- it is how far the rate moves in step 4's tile, shown and not charged.
+                    .termhead {{ $t('report.threeWayForecast.assume.overseas.whatIfHeading') }}
                     .field
                       .fieldlab
-                        span {{ $t('report.threeWayForecast.assume.overseas.fxAllowance') }}
-                      b-input(v-model.number="form.overseas.fxAllowancePct" type="number" step="any" size="is-small")
-                    .tw-foot {{ $t('report.threeWayForecast.assume.overseas.gettingHereNote') }}
+                        span {{ $t('report.threeWayForecast.assume.overseas.fallsBy', { currency: homeCurrencyName }) }}
+                      b-input(v-model.number="form.overseas.fxAllowancePct" type="number" step="any" min="0" size="is-small")
+                    .tw-foot(v-if="whatIfMoves(-1)") {{ whatIfMoves(-1) }}
+                    .tw-foot {{ $t('report.threeWayForecast.assume.overseas.whatIfNotChanged') }}
 
                 //- How it sells down. The ladder is the mentor's content, shown so the
                 //- advisor can see what is being applied to their client's stock.
@@ -1084,13 +1112,17 @@
               //- ── Sales to overseas customers ──
               .subgroup
                 h3.subh {{ $t('report.threeWayForecast.assume.overseas.exportHeading') }}
-                .termhead {{ $t('report.threeWayForecast.assume.overseas.exportLabel') }}
+                .termhead.fx-label
+                  span {{ $t('report.threeWayForecast.assume.overseas.exportLabel') }}
+                  b-select(v-model="form.overseas.overseasSalesCurrency" size="is-small")
+                    option(v-for="c in currencyChoices" :key="'sc' + c" :value="c === firmCurrency ? '' : c") {{ c }}
                 .mgrid
                   .m(v-for="(label, i) in monthLabels" :key="'os' + i")
                     span.lbl {{ label }}
                     b-input(
                       v-model.number="form.overseas.overseasSales[i]"
                       type="number" step="any" size="is-small")
+                .tw-foot(v-for="line in gridConversionLines(form.overseas.overseasSales, form.overseas.overseasSalesCurrency)" :key="line") {{ line }}
 
                 .termgrid
                   div
@@ -1103,11 +1135,14 @@
                     .tickrow
                       b-checkbox(v-model="form.overseas.zeroRated") {{ $t('report.threeWayForecast.assume.overseas.zeroRated') }}
                     .tw-foot {{ $t('report.threeWayForecast.assume.overseas.zeroRatedHint') }}
+                    //- Its own setting, kept apart from the stock card's (ruled 2026-09-04).
+                    .termhead {{ $t('report.threeWayForecast.assume.overseas.whatIfHeading') }}
                     .field
                       .fieldlab
-                        span {{ $t('report.threeWayForecast.assume.overseas.salesFxAllowance') }}
-                      b-input(v-model.number="form.overseas.salesFxAllowancePct" type="number" step="any" size="is-small")
-                    .tw-foot {{ $t('report.threeWayForecast.assume.overseas.salesFxHint') }}
+                        span {{ $t('report.threeWayForecast.assume.overseas.risesBy', { currency: homeCurrencyName }) }}
+                      b-input(v-model.number="form.overseas.salesFxAllowancePct" type="number" step="any" min="0" size="is-small")
+                    .tw-foot(v-if="whatIfMoves(1)") {{ whatIfMoves(1) }}
+                    .tw-foot {{ $t('report.threeWayForecast.assume.overseas.whatIfNotChanged') }}
                   div
                     .termhead {{ $t('report.threeWayForecast.assume.overseas.thenTheyPayHeading') }}
                     .field(v-for="(bucketLabel, i) in deliveryBucketLabels" :key="'oc' + i")
@@ -1170,6 +1205,7 @@
 
                   .shiprow.head(v-if="form.overseas.shipments.length")
                     span {{ $t('report.threeWayForecast.assume.shipments.description') }}
+                    span {{ $t('report.threeWayForecast.assume.shipments.currency') }}
                     span {{ $t('report.threeWayForecast.assume.shipments.cost') }}
                     span {{ $t('report.threeWayForecast.assume.shipments.ordered') }}
                     span {{ $t('report.threeWayForecast.assume.shipments.deposit') }}
@@ -1179,6 +1215,8 @@
 
                   .shiprow(v-for="(s, i) in form.overseas.shipments" :key="'ship' + i")
                     b-input(v-model="s.description" size="is-small" :placeholder="$t('report.threeWayForecast.assume.shipments.descriptionPlaceholder')")
+                    b-select(v-model="s.currency" size="is-small" expanded)
+                      option(v-for="c in currencyChoices" :key="'shc' + c" :value="c === firmCurrency ? '' : c") {{ c }}
                     b-input(v-model.number="s.cost" type="number" step="any" size="is-small")
                     b-input(v-model="s.orderDate" type="date" size="is-small")
                     b-input(v-model.number="s.depositPct" type="number" step="any" size="is-small")
@@ -1393,6 +1431,7 @@ import { bookValueAtSale } from '~/utils/assetBookValue'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import GlossaryTerm from '~/components/base/GlossaryTerm.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
+import ForecastCurrencies from '~/components/shared/ForecastCurrencies.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import moderationMessage from '~/mixins/moderationMessage'
 // The quick-fire option's arithmetic (item 4.71). Its own module because slice 2's
@@ -1569,6 +1608,11 @@ const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 /** A twelve-long run of zeroes — the model's own `zeroes()`, on this side of the wire. */
+/** The three empty rows of "Currencies you trade in" (13.5). @returns {Array<object>} */
+function blankCurrencies () {
+  return [{ code: '', rate: null }, { code: '', rate: null }, { code: '', rate: null }]
+}
+
 function zeroes () {
   const out = []
   for (let i = 0; i < MONTHS; i++) { out.push(0) }
@@ -1583,7 +1627,7 @@ function tagged (value, source) {
 export default {
   name: 'ThreeWayForecastIntake',
 
-  components: { ProvenanceBadge, VolatilityDial, GlossaryTerm },
+  components: { ProvenanceBadge, VolatilityDial, GlossaryTerm, ForecastCurrencies },
 
   mixins: [currencyMixin, moderationMessage],
 
@@ -2396,6 +2440,36 @@ export default {
      */
     shipmentsDrive () { return this.shipmentResult.landings.length > 0 },
 
+    /**
+     * The "Currencies you trade in" rows that can convert anything: a code AND a positive
+     * rate. A half-filled row converts nothing, exactly as the engine treats it (13.5).
+     * @returns {Array<{code: string, rate: number}>}
+     */
+    usableCurrencies () {
+      return (this.form.currencies || [])
+        .filter(c => c && c.code && Number(c.rate) > 0)
+        .map(c => ({ code: c.code, rate: Number(c.rate) }))
+    },
+
+    /**
+     * The firm's own currency by name, in the reader's language — "New Zealand Dollar" —
+     * for the two "what if" labels (Mike, 2026-09-28: the approved "NZ dollar" named the
+     * wrong currency for every firm outside New Zealand). The code alone if the runtime
+     * has no currency names.
+     */
+    homeCurrencyName () {
+      try {
+        return new Intl.DisplayNames([this.$i18n.locale], { type: 'currency' }).of(this.firmCurrency)
+      } catch (e) {
+        return this.firmCurrency
+      }
+    },
+
+    /** What every currency picker offers: the firm's own first, then the table's. */
+    currencyChoices () {
+      return [this.firmCurrency].concat(this.usableCurrencies.map(c => c.code))
+    },
+
     /** Shipments that land after the twelfth month, for the warning band. */
     shipmentsBeyondYear () { return this.shipmentResult.beyondYear },
 
@@ -2472,9 +2546,12 @@ export default {
       for (let m = 0; m < 12; m++) {
         const landed = Number(o.importedPurchases[m]) || 0
         if (landed && m - lead < 0) {
+          // In the firm's own currency, and with no allowance: since 13.5 the deposit is
+          // the converted payment itself, which is what the engine leaves out.
+          const home = this.homeValue(landed, this.shipmentsDrive ? '' : o.importedPurchasesCurrency)
           out.push({
             month: this.monthLabels[m],
-            amount: landed * (Number(o.depositPct) / 100) * (1 + Number(o.fxAllowancePct) / 100)
+            amount: (home === null ? landed : home) * (Number(o.depositPct) / 100)
           })
         }
       }
@@ -2766,6 +2843,19 @@ export default {
     'form.startDate' () { this.scheduleShipments() },
 
     /**
+     * The rates (13.5). A shipment's figures in the firm's own currency, and the revenue its
+     * stock earns, both follow the rate — so both are asked for again.
+     */
+    'form.currencies': {
+      deep: true,
+      handler () {
+        this.scheduleShipments()
+        this.scheduleImportedRevenue()
+      }
+    },
+    'form.overseas.importedPurchasesCurrency' () { this.scheduleImportedRevenue() },
+
+    /**
      * Everything the price ladder reads. The landing figures are what the stock IS; the
      * ladder, the pattern and the ready-after month are what happens to it. Deep on the
      * landings because the calculator rewrites that array in place, and debounced because
@@ -2814,6 +2904,66 @@ export default {
   },
 
   methods: {
+    /**
+     * A foreign amount in the firm's own currency, FOR DISPLAY beside the box it was typed
+     * in. The forecast's own conversion is the engine's (`server/report/fxConversion.js`);
+     * this only echoes the advisor's two figures back to them, as the screen's totals do.
+     * @param {number} amount @param {string} code - empty is the firm's own
+     * @returns {number|null} null when the table holds no usable rate for `code`
+     */
+    homeValue (amount, code) {
+      if (!code) { return Number(amount) || 0 }
+      const c = this.usableCurrencies.find(x => x.code === code)
+      return c ? (Number(amount) || 0) / c.rate : null
+    },
+
+    /**
+     * "64,586 USD at 0.6000 = 107,643 NZD", as the approved drawing prints it.
+     * @param {number} amount @param {string} code @returns {string} '' when it cannot convert
+     */
+    convertLine (amount, code) {
+      const home = this.homeValue(amount, code)
+      const c = this.usableCurrencies.find(x => x.code === code)
+      if (!code || home === null || !c) { return '' }
+      return this.$t('report.threeWayForecast.assume.currencies.convertLine', {
+        amount: this.num(amount), code, rate: this.num(c.rate, 4), homeAmount: this.num(home), home: this.firmCurrency
+      })
+    },
+
+    /**
+     * One conversion line under every month that has a figure (the drawing's rule).
+     * @param {Array<number>} series @param {string} code @returns {Array<string>}
+     */
+    gridConversionLines (series, code) {
+      if (!code) { return [] }
+      const out = []
+      series.forEach((v, i) => {
+        if (!(Number(v) > 0)) { return }
+        const line = this.convertLine(v, code)
+        if (line) {
+          out.push(this.$t('report.threeWayForecast.assume.currencies.monthLine', { month: this.monthLabels[i], line }))
+        }
+      })
+      return out
+    },
+
+    /**
+     * "Every rate in the table moves together: 1 NZD would buy 0.5400 USD instead of
+     * 0.6000, and 3.7800 CNY instead of 4.2000." — sentence (d) of the approved wording.
+     * @param {number} direction -1 for the stock card (the NZ dollar falls), +1 for sales
+     * @returns {string} '' while the table holds no usable rate
+     */
+    whatIfMoves (direction) {
+      if (!this.usableCurrencies.length) { return '' }
+      const pct = Number(direction < 0 ? this.form.overseas.fxAllowancePct : this.form.overseas.salesFxAllowancePct) || 0
+      const parts = this.usableCurrencies.map(c => this.$t('report.threeWayForecast.assume.overseas.moveEach', {
+        moved: this.num(c.rate * (1 + direction * pct / 100), 4), code: c.code, rate: this.num(c.rate, 4)
+      }))
+      let moves = parts.join(', ')
+      try { moves = new Intl.ListFormat(this.$i18n.locale, { type: 'conjunction' }).format(parts) } catch (e) { /* the comma list stands */ }
+      return this.$t('report.threeWayForecast.assume.overseas.whatIfMoves', { home: this.firmCurrency, moves })
+    },
+
     /**
      * Ask what tax figures this country's clients are on, as the firm's tiers approved them.
      *
@@ -3199,11 +3349,18 @@ export default {
       // before the block existed carries neither the figures nor the twelve landing boxes,
       // and an undefined series would break the v-for rather than draw an empty grid.
       if (!form.stockInTransit || typeof form.stockInTransit !== 'object') {
-        form.stockInTransit = { balanceOwing: 0, landing: zeroes() }
+        form.stockInTransit = { balanceOwing: 0, balanceCurrency: '', landing: zeroes() }
       }
       if (!Array.isArray(form.stockInTransit.landing) || form.stockInTransit.landing.length !== MONTHS) {
         form.stockInTransit.landing = zeroes()
       }
+      // A form saved before 13.5 carries no currencies: it opens in the firm's own, which is
+      // exactly what it was computed in. Every choice is a string so a picker always has one.
+      if (!Array.isArray(form.currencies)) { form.currencies = blankCurrencies() }
+      if (typeof form.stockInTransit.balanceCurrency !== 'string') { form.stockInTransit.balanceCurrency = '' }
+      if (typeof form.overseas.importedPurchasesCurrency !== 'string') { form.overseas.importedPurchasesCurrency = '' }
+      if (typeof form.overseas.overseasSalesCurrency !== 'string') { form.overseas.overseasSalesCurrency = '' }
+      form.overseas.shipments.forEach((s) => { if (typeof s.currency !== 'string') { s.currency = '' } })
       // A funding line saved before the Type column existed is a term loan, which is what
       // it was computed as. Reading it as anything else would change a saved forecast.
       if (!Array.isArray(form.loans)) { form.loans = this.blankForm().loans }
@@ -3291,7 +3448,11 @@ export default {
         // two things no balance sheet can carry are here — what is still owed, and when the
         // containers land. Empty means nothing changes: the deposit sits as an asset
         // exactly as it does today.
-        stockInTransit: { balanceOwing: 0, landing: zeroes() },
+        stockInTransit: { balanceOwing: 0, balanceCurrency: '', landing: zeroes() },
+        // "Currencies you trade in" (13.5, Mike's rulings of 2026-09-26): three rows, each
+        // a code and what 1 of the firm's own currency buys. Empty converts nothing, which
+        // is every forecast built before it. An empty code anywhere below is the firm's own.
+        currencies: blankCurrencies(),
         // Buying and selling overseas (item 4.64, drawing approved by Mike 2026-09-04).
         // Everything here is inert until `enabled` is ticked AND a figure is entered:
         // the engine's own guard proves that an untouched forecast is unchanged to the
@@ -3300,6 +3461,7 @@ export default {
         overseas: {
           enabled: false,
           importedPurchases: zeroes(),
+          importedPurchasesCurrency: '',
           depositPct: 60,
           depositLeadMonths: 4,
           balancePayment: [0, 100, 0, 0, 0],
@@ -3317,9 +3479,12 @@ export default {
           // build. See `sellDownForm`.
           sellDown: sellDownForm(SELL_DOWN),
           overseasSales: zeroes(),
+          overseasSalesCurrency: '',
           deliveryLagMonths: 2,
           overseasCollection: [0, 50, 50, 0, 0],
           zeroRated: true,
+          // Both "what if" settings start at 10% — Mike's ruling of 2026-09-26, the same
+          // figure the allowances used. Neither is a cost any more.
           salesFxAllowancePct: 10,
           overseasMarkup: null,
           // The shipment calculator (item 4.64 slice 2). Empty by default, so a forecast
@@ -3837,7 +4002,7 @@ export default {
     /** A new shipment row, on the terms the panel already shows. */
     addShipment () {
       this.form.overseas.shipments.push({
-        description: '', cost: 0, orderDate: '', depositPct: 60, speed: 'Sea'
+        description: '', currency: '', cost: 0, orderDate: '', depositPct: 60, speed: 'Sea'
       })
     },
 
@@ -3859,8 +4024,10 @@ export default {
       const s = this.form.overseas.shipments[i]
       if (!s || !s.orderDate || !(Number(s.cost) > 0)) { return null }
       const rows = this.shipmentResult.rows
+      // Matched on the invoice AS ENTERED: `cost` on a row is its conversion (13.5).
       for (let r = 0; r < rows.length; r++) {
-        if (rows[r].orderDate === s.orderDate && rows[r].cost === Number(s.cost)) { return rows[r] }
+        if (rows[r].orderDate === s.orderDate && rows[r].invoice === Number(s.cost) &&
+          rows[r].currency === (s.currency || '')) { return rows[r] }
       }
       return null
     },
@@ -3919,6 +4086,8 @@ export default {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             gstRate: Number(this.form.gstRate) / 100,
+            // The revenue is priced on the converted stock cost, so the rates go too.
+            currencies: this.usableCurrencies,
             overseas: this.overseasInputs()
           })
         })
@@ -3995,8 +4164,12 @@ export default {
                 Express: Number(o.shipmentTerms.expressDays) || 0
               }
             },
+            // The table and each shipment's currency, so the rows come back in the firm's
+            // own currency and the landings go to the engine in their own (13.5).
+            currencies: this.usableCurrencies,
             shipments: list.map(s => ({
               description: s.description,
+              currency: s.currency || '',
               cost: Number(s.cost) || 0,
               orderDate: s.orderDate,
               depositPct: pct(s.depositPct),
@@ -4354,8 +4527,12 @@ export default {
         // balance sheet carries.
         stockInTransit: {
           balanceOwing: Number(this.form.stockInTransit.balanceOwing) || 0,
+          balanceCurrency: this.form.stockInTransit.balanceCurrency || '',
           landing: this.form.stockInTransit.landing.map(v => Number(v) || 0)
         },
+        // "Currencies you trade in" (13.5). Only rows with a code AND a rate: a half-filled
+        // row converts nothing, and the engine would drop it anyway.
+        currencies: this.usableCurrencies,
         overdraftInterestRate: Number(this.form.overdraftRate) / 100,
         inFundsInterestRate: Number(this.form.inFundsRate) / 100,
         debtorCollection: this.form.debtor.map(v => Number(v) / 100),
@@ -4449,6 +4626,9 @@ export default {
         // With the tick off nothing is sent, so an advisor who fills the section in and
         // then unticks it gets today's forecast back rather than a half-applied one.
         importedPurchases: on ? o.importedPurchases.map(v => Number(v) || 0) : zeroes(),
+        // The currency the typed grid is in. Not used once shipments fill the grid — each
+        // shipment carries its own, and the engine then reads the shipments.
+        importedPurchasesCurrency: o.importedPurchasesCurrency || '',
         depositPct: pct(o.depositPct),
         depositLeadMonths: Number(o.depositLeadMonths) || 0,
         balancePayment: o.balancePayment.map(pct),
@@ -4472,6 +4652,7 @@ export default {
           pattern: o.sellDown.pattern
         },
         overseasSales: on ? o.overseasSales.map(v => Number(v) || 0) : zeroes(),
+        overseasSalesCurrency: o.overseasSalesCurrency || '',
         deliveryLagMonths: Number(o.deliveryLagMonths) || 0,
         overseasCollection: o.overseasCollection.map(pct),
         zeroRated: o.zeroRated !== false,
@@ -4687,7 +4868,11 @@ export default {
 .ship-panel { margin-top: 14px; border-style: dashed; }
 .shipterms { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 4px; }
 @media (max-width: 860px) { .shipterms { grid-template-columns: 1fr 1fr; } }
-.shiprow { display: grid; grid-template-columns: 1fr 96px 148px 82px 104px 190px 76px; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--rs-line); }
+/* Currency picked beside the amount it describes (13.5). */
+.fx-amount { display: flex; gap: 6px; }
+.fx-amount ::v-deep .control:first-child { flex: 1; min-width: 0; }
+.fx-label { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.shiprow { display: grid; grid-template-columns: 1fr 84px 96px 148px 82px 104px 190px 76px; gap: 8px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--rs-line); }
 .shiprow:last-of-type { border-bottom: 0; }
 .shiprow.head { padding-bottom: 6px; }
 .shiprow.head span { font-size: 11px; letter-spacing: .09em; text-transform: uppercase; font-weight: 700; color: var(--rs-muted); }

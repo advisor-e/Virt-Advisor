@@ -96,10 +96,14 @@ function filledForm () {
   f.sales = ramp(12, 80000)
   f.salesSource = 'seeded'
   f.purchases = ramp(12, 40000)
-  f.stockInTransit = { balanceOwing: 84000, landing: ramp(12, 100) }
+  // 13.5: a table with two currencies and a row left empty, and every choice exercised.
+  f.currencies = [{ code: 'USD', rate: 0.6 }, { code: 'CNY', rate: 4.2 }, { code: '', rate: null }]
+  f.stockInTransit = { balanceOwing: 84000, balanceCurrency: 'USD', landing: ramp(12, 100) }
 
   f.overseas.enabled = true
   f.overseas.importedPurchases = ramp(12, 30000)
+  f.overseas.importedPurchasesCurrency = 'CNY'
+  f.overseas.overseasSalesCurrency = 'USD'
   f.overseas.depositPct = 55
   f.overseas.depositLeadMonths = 3
   f.overseas.balancePayment = [10, 80, 10, 0, 0]
@@ -115,8 +119,8 @@ function filledForm () {
   f.overseas.salesFxAllowancePct = 12
   f.overseas.overseasMarkup = 74
   f.overseas.shipments = [
-    { description: 'Container 1', cost: 120000, orderDate: '2026-05-01', depositPct: 60, speed: 'Sea' },
-    { description: 'Air freight top-up', cost: 18000, orderDate: '2026-07-15', depositPct: 50, speed: 'Air' }
+    { description: 'Container 1', currency: 'USD', cost: 120000, orderDate: '2026-05-01', depositPct: 60, speed: 'Sea' },
+    { description: 'Air freight top-up', currency: '', cost: 18000, orderDate: '2026-07-15', depositPct: 50, speed: 'Air' }
   ]
 
   f.capital = [
@@ -125,6 +129,18 @@ function filledForm () {
   ]
 
   f.history = ramp(24, 60000)
+
+  // Three years with the grid on, and one percentage left blank — a blank is "the same
+  // again", not zero, so it must come back blank.
+  f.yearCount = 3
+  f.quickFire = {
+    enabled: true,
+    years: [
+      { salesGrowth: 8, grossMargin: 41, overheadsIncrease: 3 },
+      { salesGrowth: 12.5, grossMargin: null, overheadsIncrease: 4 },
+      { salesGrowth: -2, grossMargin: 38, overheadsIncrease: 0 }
+    ]
+  }
   return f
 }
 
@@ -218,6 +234,80 @@ describe('a hostile row is refused a block at a time, never half a block', () =>
     const { form } = applySavedForecast(before, LEVERS, row)
     expect(form.markup).toBe(before.markup)
     expect(form.sales).toEqual(before.sales)
+  })
+
+  // 13.5. A zero rate would divide every foreign amount by nothing; a rate for no currency
+  // converts nothing and would reappear against the next currency chosen.
+  test('🔴 a currency table with a zero rate is refused whole', () => {
+    const row = flattenForecast(filledForm(), LEVERS, 'summary')
+    row['currencies.rate'] = [0.6, 0, null]
+    const before = freshForm()
+    const { form, applied } = applySavedForecast(before, LEVERS, row)
+    expect(applied).not.toContain('currencies')
+    expect(form.currencies).toEqual(before.currencies)
+  })
+})
+
+describe('a forecast saved before 13.5 reopens in the firm’s own currency', () => {
+  // Every figure in it was computed unconverted, so reopening it must not convert anything.
+  test('🔴 no currency fields means no conversion, and every other block still loads', () => {
+    const row = flattenForecast(filledForm(), LEVERS, 'summary')
+    ;['currencies.code', 'currencies.rate', 'transit.balanceCurrency', 'os.importedPurchasesCurrency',
+      'os.overseasSalesCurrency', 'os.ships.currency'].forEach((k) => { delete row[k] })
+    const { form, applied } = applySavedForecast(freshForm(), LEVERS, row)
+    expect(form.currencies.every(c => c.code === '')).toBe(true)
+    expect(form.stockInTransit.balanceCurrency).toBe('')
+    expect(form.overseas.importedPurchasesCurrency).toBe('')
+    expect(form.overseas.shipments.map(s => s.currency)).toEqual(['', ''])
+    expect(applied).toContain('stockInTransit')
+    expect(applied).toContain('os.shipments')
+  })
+})
+
+describe('a three-year forecast reopens as three years', () => {
+  // Found 2026-09-28: the row carried neither the year count nor the quick-fire grid, so a
+  // three-year forecast reopened as one year with its typed percentages gone.
+  test('🔴 the year count and every quick-fire percentage come back', () => {
+    const saved = filledForm()
+    const { form, applied } = applySavedForecast(freshForm(), LEVERS, flattenForecast(saved, LEVERS, 'summary'))
+    expect(form.yearCount).toBe(3)
+    expect(form.quickFire).toEqual(saved.quickFire)
+    expect(applied).toEqual(expect.arrayContaining(['yearCount', 'quickFire']))
+  })
+
+  test('🔴 a row saved before they were carried opens as one year with the grid off, as it always did', () => {
+    const row = flattenForecast(filledForm(), LEVERS, 'summary')
+    ;['yearCount', 'qf.enabled', 'qf.salesGrowth', 'qf.grossMargin', 'qf.overheadsIncrease'].forEach((k) => { delete row[k] })
+    const before = freshForm()
+    const { form } = applySavedForecast(before, LEVERS, row)
+    expect(form.yearCount).toBe(1)
+    expect(form.quickFire).toEqual(before.quickFire)
+  })
+
+  test('a year count outside one to three is refused', () => {
+    const row = flattenForecast(filledForm(), LEVERS, 'summary')
+    ;[0, 4, 2.5, '3'].forEach((bad) => {
+      row.yearCount = bad
+      const { form, applied } = applySavedForecast(freshForm(), LEVERS, row)
+      expect(form.yearCount).toBe(1)
+      expect(applied).not.toContain('yearCount')
+    })
+  })
+
+  test('🔴 a grid missing one year of one percentage is refused whole', () => {
+    const row = flattenForecast(filledForm(), LEVERS, 'summary')
+    row['qf.grossMargin'] = [41, null]
+    const before = freshForm()
+    const { form, applied } = applySavedForecast(before, LEVERS, row)
+    expect(applied).not.toContain('quickFire')
+    expect(form.quickFire).toEqual(before.quickFire)
+  })
+
+  test('one changed year names that year alone', () => {
+    const advisor = flattenForecast(filledForm(), LEVERS, 'summary')
+    const f = filledForm()
+    f.quickFire.years[2].salesGrowth = 20
+    expect(changedFigures(flattenForecast(f, LEVERS, 'summary'), advisor)).toEqual(['qf.salesGrowth.2'])
   })
 })
 

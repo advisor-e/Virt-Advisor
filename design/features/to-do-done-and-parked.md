@@ -109,6 +109,23 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**8.3 · Meeting Review's speaker-labelling model is switched off 26 Feb 2027, with no named
+replacement.** ⏸ **Parked 2026-09-28 by Mike, to be put to him again on 15 December 2026** — in
+his words, *"mark this as parked with an automated reminder to ask me again on December 15"*.
+
+- **Still true on the day it was parked:** the app labels speakers with `gpt-4o-transcribe-diarize`
+  (`server/utils/transcriptionClient.js` `DIARIZING_MODEL`); OpenAI's deprecations page removes it
+  on 26 February 2027 and names `gpt-transcribe` and `gpt-live-transcribe`, which return no
+  speakers ([`../openai/DEPRECATIONS-2026-09-24.md`](../openai/DEPRECATIONS-2026-09-24.md),
+  [`../openai/MODEL-PAGES-2026-09-24.md`](../openai/MODEL-PAGES-2026-09-24.md)). Meeting Review's
+  summary and coaching notes read the speaker turns.
+- **What un-parks it:** a question only Mike can ask, through the ZDR contact — is a
+  speaker-labelling successor coming before 26 Feb 2027, and is it covered by the ZDR agreement.
+  A draft was given to him in chat on 2026-09-28. Any successor is checked against
+  [`../OPENAI-ZDR-CONSTRAINTS.md`](../OPENAI-ZDR-CONSTRAINTS.md) before use; with none, the
+  fallback is a design decision for him.
+- **The time it leaves:** asked on 15 December, about ten weeks remain before the removal.
+
 **7.3 · A second opinion from two AI providers.** ⏸ **Parked 2026-09-23 by Mike.** His own idea,
 unbuilt, and it needs a decision and an impact test before any design — not a build.
 
@@ -389,6 +406,48 @@ locked in the prompt. Either is fine; deciding by accident is not.
   Commit: `git log --grep "(15.2"`.
 - **Not built:** screen 2, the AI putting an aspect's questions forward as a recorded section
   closes. It stands on item 8.4's section recording, and is carried on 8.4's note on Mike's yes.
+**10.2 · Hub screens show English written by the backend, so it never translates.**
+✅ **Closed 2026-09-28 by Mike ("yes" — done)**, the day it was fixed. It was filed on 2026-09-25 as
+what item 10.1 (`1375c0eb`) left behind, and nothing had touched it since.
+
+- **Why it existed:** four backend helpers built English sentences — a copy request's response
+  time and countdown, Meeting Patterns' month, and a country schedule's "pages not read" warning —
+  so a manager reading the hub in another language met English in five places.
+- **What proves it:** the backend now sends facts only (a count and unit, days remaining, a year and
+  month, page ranges) and the screens word them: `mixins/copyDeadlineWords.js` for both copy-request
+  screens, `utils/scheduleUnreadWords.js` for the depreciation picker and the schedules list (one
+  home, carrying Mike's condition that the gap shows wherever the table is used), and `$d` with a
+  new `monthYear` format for Meeting Patterns. English is unchanged word for word, pinned in
+  `tests/unit/hubFactsWording.test.js`; the route tests now check that no sentence is sent.
+- **Found on the way and fixed the same day, on Mike's yes:** `ClientCopyRequestDetail.vue` held
+  ~60 English phrases typed into the page and had never been through the wording file. All of it
+  now reads `clientCopyRequestDetail` in `en.json`, word for word — eleven before-and-after
+  captures of every state and all three dialogs were identical — and a guard in
+  `hubFactsWording.test.js` fails if English is typed back into the page.
+- **Not proved here:** a walk of those screens in German. Some newer browsers write September as
+  "Sept 2026" where the backend wrote "Sep 2026".
+
+**13.5 · Foreign currency, freight and duty in the Three-Way Forecast, by the accounting standards.**
+✅ **Closed 2026-09-28 by Mike ("yes" — done)**, the day it was built, on his four rulings of
+2026-09-26 and the approved drawing
+[`../mockups/three-way-forecast-foreign-currency.html`](../mockups/three-way-forecast-foreign-currency.html).
+
+- **Why it existed:** the forecast charged a flat 10% of every imported order, deposit included,
+  as an exchange loss — **10,764.30** on the workbook's January order — and charged freight and
+  duty in full in the landing month.
+- **What proves it:** four slices. The calculations (`779f5cd7`) reproduce the drawing's January
+  order to the cent (deposit 64,585.80, balance 43,057.20, interest 653.03, stock cost 125,942.31,
+  border GST 18,891.35, exchange movement 0) and the workbook's twelve orders, in
+  `tests/unit/forecastForeignCurrency.test.js`. The step 3 screen and saved forecasts
+  (`9722719c`); step 4's what-if tiles, +21,906.59 and -11,818.18 as drawn (`637a83a4`), with two
+  sentences approved in [`../THREE-WAY-FORECAST-WHATIF-WORDING.md`](../THREE-WAY-FORECAST-WHATIF-WORDING.md);
+  and the records, with the accountants' basis in [`../CALCULATION-ASSUMPTIONS.md`](../CALCULATION-ASSUMPTIONS.md)
+  §1. Both screens walked on a production build.
+- **Found on the way and fixed the same day, on Mike's yes:** years 2 and 3 re-landed year 1's
+  opening stock in transit and paid its balance again; the approved "NZ dollar" labels now name
+  the firm's own currency.
+- **Not proved here:** a real MySQL save of a forecast with currencies — the store is unchanged
+  and the saved shape grew by six named values within its 200. UAT's check.
 
 **16 · A client's document carries no firm, so the white-label promise has nothing behind it.**
 ✅ **Closed 2026-09-27 by Mike ("if its done, mark it done").** This supersedes the desktop's
@@ -3209,10 +3268,13 @@ section"* — and it was built there as **slice 2**: an upstream calculator
 turns real orders into the months the forecast works in.
 
 🔴 **The port reproduces his workbook, and that is the whole of what closes this.** Deposit 60%,
-balance at order + 91 days, both charges pro-rated over a **360-day** year:
-`43,057.20 + 653.03 interest + 1,088.39 currency = 44,798.62` — his own figure, to the cent. The
-supplier terms are his (manufacture 120, balance due 91, prep 9), and they sum to the
-**154 / 149 / 144 days** his sheet states for sea, air and express.
+balance at order + 91 days, interest cover pro-rated over a **360-day** year: the January order's
+64,585.80 deposit, 43,057.20 balance and 653.03 interest are his own figures, to the cent, and all
+twelve months of his orders are pinned in `tests/unit/forecastForeignCurrency.test.js`. His sheet's
+"FX Loss" (1,088.39 on January) is **not** charged — the balance is paid before the goods land, so
+no exchange difference arises (item 13.5, Mike's ruling of 2026-09-26). The supplier terms are his
+(manufacture 120, balance due 91, prep 9), and they sum to the **154 / 149 / 144 days** his sheet
+states for sea, air and express.
 
 🔴 **Reading the sheet corrected the earlier summary twice, and both corrections were only
 available by opening it.** The curves the supplier sheets actually consume are the **four-band**

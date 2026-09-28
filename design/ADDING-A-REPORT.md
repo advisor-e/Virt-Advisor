@@ -248,8 +248,9 @@ the catalogue's ready routes, so your report is covered the moment its row flips
 - [ ] `currencyMixin` + `reportRecompute` mixed in; no local `money()`, no local debounce
       or race guard
 - [ ] **Foreign money?** If any input is bought or sold in another currency, the model takes
-      its own exchange input (as the forecast's `fxAllowancePct` does) and shows every figure
-      in the report's one currency — the firm's or the client's. Conversion lives inside the
+      the currency and an assumed rate for it (as the forecast's *Currencies you trade in* table
+      does, converting through `server/report/fxConversion.js`) and shows every figure in the
+      report's one currency — the firm's or the client's. Conversion lives inside the
       model; currency is a label (Mike's ruling, 2026-09-22 —
       `features/localisation-and-currency.md` §3).
 - [ ] All user-facing strings through `$t()` and in `locales/en.json` — no hardcoded

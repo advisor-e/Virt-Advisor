@@ -74,6 +74,8 @@
  *    plain ones at 75, 86 and 93, so a mark somewhere between 61 and 75 is implied but never
  *    stated. 70 is OURS, not a ruling, and it changes only a colour — never a figure.
  */
+import { intlLocaleFor } from '~/utils/dateLocale'
+
 export default {
   name: 'FirmMeetingPatterns',
 
@@ -118,7 +120,17 @@ export default {
       // vue-i18n's two-form choice picks form 0 only at exactly 1, as the original ternary did.
       const meetings = this.$tc('firmMeetingPatterns.chrome.meetings', this.meetings, { count: this.meetings })
       const advisors = this.$tc('firmMeetingPatterns.chrome.advisors', this.advisors, { count: this.advisors })
-      return this.$t('firmMeetingPatterns.chrome.line', { period: this.period.label, meetings, advisors })
+      return this.$t('firmMeetingPatterns.chrome.line', { period: this.periodWords, meetings, advisors })
+    },
+
+    /**
+     * The month in the reader's language — "Aug 2026" (item 10.2). The backend sends the year
+     * and month only. The 15th, in local time, so no timezone can move it into another month.
+     * @returns {string}
+     */
+    periodWords () {
+      if (!this.period || !this.period.year || !this.period.month) { return '' }
+      return this.$d(new Date(this.period.year, this.period.month - 1, 15), 'monthYear', intlLocaleFor(this.$i18n.locale))
     }
   },
 

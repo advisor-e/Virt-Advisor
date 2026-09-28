@@ -145,9 +145,9 @@ changing them would have broken language switching everywhere.
 read must never require a manager role and must never break a report — on any failure it degrades
 to the default.
 
-⚠ **A client-level override is Mike's ruling of 2026-09-22 and is NOT yet built** (`13.4`). When it
-lands, the manager-only write still governs the **firm's** value; the advisor's is the **client's**,
-and the resolution order is client → firm → platform default. See §3.
+A client-level override, Mike's ruling of 2026-09-22, is built (`13.4`): the manager-only write
+governs the **firm's** value, the advisor's is the **client's**, and the resolution order is
+client → firm → platform default. See §3.
 
 **P7 · The supported currency list has one source**, shared by the backend and the picker, so
 the two cannot drift.
@@ -167,7 +167,7 @@ client-level picker, where the wrong reading is likelier still.
 
 ⚠ **This does NOT mean the app cannot convert.** It can, in the one place that makes sense — inside a
 model, from a rate the advisor enters, once a primary currency is known. See §3's ruling on firm-level
-currency versus in-model conversion. **The firm setting is a label; `fxAllowancePct` is the maths.**
+currency versus in-model conversion. **The firm setting is a label; a model's own rates are the maths.**
 Keeping those two apart is the whole of this principle.
 
 **On the live list as item 13.1** (found 2026-09-22 while answering Mike's *"what if I'm in Italy but
@@ -242,38 +242,38 @@ anyone looking at one client at a time. Pinned by `tests/unit/clientCurrencyMixi
 ⚠ **THIS DOES NOT REOPEN THE RULING BELOW, AND A READER MUST NOT TAKE IT THAT WAY.** What he
 rejected earlier the same day was a per-client currency **as a second firm-level setting**, with the
 conversion maths that implies. This is a **label** — which money this client's reports are
-denominated in — defaulting to the firm's. **Conversion still lives inside a model on
-`fxAllowancePct`, exactly as ruled.** The two are compatible because one is what a figure is
-*called* and the other is what a figure is *worth*.
+denominated in — defaulting to the firm's. **Conversion still lives inside a model, on the rates
+the advisor enters there, exactly as ruled.** The two are compatible because one is what a figure
+is *called* and the other is what a figure is *worth*.
 
 🔴 **It also made `13.1` load-bearing, and that shipped first.** A firm-wide relabel is defensible:
 every figure was entered in the firm's own money. **An advisor switching one client to Euro is far
 likelier to believe the figures converted** — so *"Figures are relabelled, not converted — the
 amounts do not change."* appears at **both** pickers, the firm's and the client's.
 
-✅ **THE APP ALREADY WORKS THIS WAY, which is why this is a principle rather than a build.**
-`server/report/threeWayForecastModel.js` takes an **`fxAllowancePct`** the advisor enters and applies
-it exactly where foreign money arises — `fxOnPurchases` on imported stock, `fxOnSales` on overseas
-collections, and off the debtor too. `server/report/importShipmentModel.js` states the boundary in
-its own header: *"It does not apply the exchange allowance… Those are the forecast engine's, they are
-built, tested and approved, and computing them twice is how two models start disagreeing."*
+✅ **THE APP WORKS THIS WAY.** The Three-Way Forecast is the one model with a foreign leg, and since
+item 13.5 (built 2026-09-28) it converts inside itself: a *Currencies you trade in* table of up to
+three currencies with the advisor's assumed rates, a currency on each supplier invoice, shipment,
+overseas sale and the balance owed on stock at sea, and one conversion routine both the engine and
+the shipment calculator use (`server/report/fxConversion.js`). Everything is then shown in the
+report's one currency. The basis for accountants is
+[`../CALCULATION-ASSUMPTIONS.md`](../CALCULATION-ASSUMPTIONS.md) §1.
 
-**Checked 2026-09-22 against all 30 files in `server/report/`: no model has a foreign leg without an
-fx input.** (`multiplePropertyModel.js` matches a search for *"imported"* only on the Google Sheets
-function `Import Range`.) **There is no wrong number today.**
+**Checked 2026-09-22 against all 30 files in `server/report/`: only the forecast and its shipment
+calculator have a foreign leg.** (`multiplePropertyModel.js` matches a search for *"imported"* only
+on the Google Sheets function `Import Range`.)
 
 ⚠ **So a per-client currency is NOT the answer TO CONVERSION, and an earlier version of this section
 said it was** — filed then as a schema change touching `va_clients` and ~40 report components. An
 Italian firm reports its Swiss client in Euro because **Euro is the firm's currency**, and the Swiss
-leg of any model is a conversion input, not a second firm setting. **No model converts: every
-figure is entered and shown in the report's one currency, and the exchange allowance is a margin on
-top — so there is nothing to label. The rule is in `ADDING-A-REPORT.md`'s checklist** (item 13.2,
-closed 2026-09-25).
+leg of any model is a conversion input, not a second firm setting. **Every figure is shown in the
+report's one currency; a foreign amount is converted on the way in, at a rate the advisor states.
+The rule is in `ADDING-A-REPORT.md`'s checklist** (item 13.2, closed 2026-09-25).
 
 🔴 **DO NOT READ THIS AS CONTRADICTING `13.4` ABOVE, WHICH SHIPPED.** The rejected thing was a
 per-client currency carrying **conversion maths** — a second firm-level setting in disguise. What was
 built is a **label** saying which money this client's reports are denominated in, defaulting to the
-firm's, with conversion still inside a model on `fxAllowancePct`. One is what a figure is *called*;
+firm's, with conversion still inside a model on its own rates. One is what a figure is *called*;
 the other is what a figure is *worth*. Both rulings are Mike's, both stand, and they are about
 different things.
 

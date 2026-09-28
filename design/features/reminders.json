@@ -1,0 +1,22 @@
+{
+  "_readme": [
+    "DATED REMINDERS FOR MIKE. Each one is a question to put to him on or after its date.",
+    "`npm run check:branch` - which every /startup runs - prints a REMINDERS DUE box once",
+    "`on` has arrived, on both machines, until the entry is removed. Mike asked for this",
+    "2026-09-28 when he parked 8.3: 'mark this as parked with an automated reminder to ask",
+    "me again on December 15'.",
+    "",
+    "A reminder is removed only in the session that puts it to him, with his answer written",
+    "where `where` points. It fires only when a session is opened: if none is opened on the",
+    "day, it shows at the next one. scripts/reminders.js reads this; tests/unit/reminders.test.js",
+    "checks every entry is well formed and names an item that exists."
+  ],
+  "reminders": [
+    {
+      "ref": "8.3",
+      "on": "2026-12-15",
+      "ask": "Has OpenAI said whether a speaker-labelling successor to gpt-4o-transcribe-diarize is coming before its removal on 26 Feb 2027? Meeting Review needs one, or a fallback he rules on.",
+      "where": "design/features/to-do-done-and-parked.md, section 1, item 8.3"
+    }
+  ]
+}

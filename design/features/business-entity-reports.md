@@ -217,8 +217,9 @@ what is true now — if approval arrives, the sentence is replaced, not left sta
 **The Three-Way Forecast carries the WHOLE intake, on Mike's ruling of 2026-09-05:** *"anything
 an advisor can edit, the client can edit."* So the saved row is the confirmed opening balance
 sheet, the six asset categories, the funding lines, the shareholder accounts, the 23 overheads,
-every rate and monthly series, the overseas panel and the capital rows — plus the report's four
-levers and its Summary / Every setting (`utils/threeWayForecastSavedShape.js`). **The one thing
+every rate and monthly series, the overseas panel and the capital rows, how many years the
+forecast runs and the growth, margin and overheads percentages for years 2 and 3 — plus the
+report's four levers and its Summary / Every setting (`utils/threeWayForecastSavedShape.js`). **The one thing
 it does not carry is step 1, the file upload**, and that is mechanical rather than a policy
 against the ruling: dropping an export is not editing a figure, and the intake route refuses a
 client token by name (§4). Every figure that upload produces is on steps 2 and 3, where the

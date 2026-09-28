@@ -31,10 +31,16 @@
  * which is the averaging the ruling above exists to stop, moved off the landing and onto
  * the deposit.
  *
- * ⚠ WHAT IT DELIBERATELY DOES NOT DO. It does not apply the exchange allowance, freight,
- * duty or border GST, and it does not price anything. Those are the forecast engine's, they
- * are built, tested and approved, and computing them twice is how two models start
- * disagreeing. This module answers one question: what is owed, and when.
+ * ⚠ WHAT IT DELIBERATELY DOES NOT DO. It does not apply freight, duty or border GST, and it
+ * does not price anything. Those are the forecast engine's, they are built, tested and
+ * approved, and computing them twice is how two models start disagreeing. This module
+ * answers one question: what is owed, and when.
+ *
+ * CURRENCY (item 13.5, Mike's ruling (1) of 2026-09-26). A shipment's `cost` is its
+ * supplier's invoice, in the shipment's own `currency`. The landings it hands the engine stay
+ * in that currency, because the engine converts them — and converts them again at a moved
+ * rate for the "what if" tiles. The rows and series it hands the SCREEN are in the firm's own
+ * currency, converted by the same `fxConversion` the engine uses, so the two cannot differ.
  *
  * ⚠ THE WORKBOOK PRICES FREIGHT PER CONTAINER; THIS DOES NOT, AND THAT IS APPROVED. The
  * approved screen charges freight as a percentage of landed value, so container sizes,
@@ -44,6 +50,8 @@
  * shipment terms, identically on both supplier sheets); Mike ruled 2026-09-04 that the
  * stated rule wins over those four figures. Nothing here depends on it. See the drawing.
  */
+
+const { resolveCurrencies, currencyOf, toHome } = require('./fxConversion')
 
 /** The forecast is twelve months, and this model exists to feed it. */
 const MONTHS = 12
@@ -140,16 +148,21 @@ function iso (date) {
 /**
  * Resolve one shipment against the supplier's terms.
  *
- * @param {object} s - `{ description, cost, orderDate, depositPct, speed }`
+ * @param {object} s - `{ description, cost, currency, orderDate, depositPct, speed }`, `cost`
+ *   being the invoice in `currency` — empty is the firm's own.
  * @param {object} terms - the resolved supplier terms
  * @param {Date} start - the forecast's first day
- * @returns {object|null} the resolved row, or null when the order date is unusable.
+ * @param {Array<object>} [currencies] - the resolved "Currencies you trade in" table
+ * @returns {object|null} the resolved row, or null when the order date is unusable. Its
+ *   money is in the firm's own currency; `invoice` and `currency` are as entered.
  */
-function resolveShipment (s, terms, start) {
+function resolveShipment (s, terms, start, currencies) {
   const orderDate = toUtcDate(s && s.orderDate)
   if (!orderDate) { return null }
 
-  const cost = num(s.cost, 0)
+  const invoice = num(s.cost, 0)
+  const cur = currencyOf(s.currency, currencies || [])
+  const cost = toHome(invoice, cur)
   // A deposit percentage is a share of the cost, not a percentage point: 0.6, never 60.
   // Out-of-range values are clamped rather than refused, because a shipment with a wrong
   // deposit is still a shipment that lands, and dropping it would lose the stock entirely.
@@ -168,6 +181,10 @@ function resolveShipment (s, terms, start) {
 
   return {
     description: typeof s.description === 'string' ? s.description : '',
+    currency: cur.code,
+    // False when the currency is not in the table, and the invoice was left unconverted.
+    currencyKnown: cur.known,
+    invoice,
     cost,
     depositPct,
     speed,
@@ -197,7 +214,9 @@ function resolveShipment (s, terms, start) {
  * @param {object} input
  * @param {string|Date} input.startDate - the forecast's first day.
  * @param {object} [input.terms] - `{ manufactureDays, balanceDueDays, prepDays, shippingDays }`.
- * @param {Array<object>} [input.shipments] - `{ description, cost, orderDate, depositPct, speed }`.
+ * @param {Array<object>} [input.shipments] - `{ description, cost, currency, orderDate,
+ *   depositPct, speed }`.
+ * @param {Array<object>} [input.currencies] - "Currencies you trade in", `[{ code, rate }]`.
  * @returns {{
  *   rows: Array<object>,
  *   importedPurchases: Array<number>,
@@ -247,9 +266,10 @@ function computeImportShipments (input) {
   if (!start) { return empty }
 
   const list = Array.isArray(src.shipments) ? src.shipments : []
+  const currencies = resolveCurrencies(src.currencies)
   const rows = []
   for (let i = 0; i < list.length; i++) {
-    const row = resolveShipment(list[i], terms, start)
+    const row = resolveShipment(list[i], terms, start, currencies)
     if (row && row.cost > 0) { rows.push(row) }
   }
 
@@ -276,19 +296,22 @@ function computeImportShipments (input) {
       interest[r.balanceMonth] += r.interest
     }
     // What the engine needs, and nothing else: the value, and the three months it moves in.
-    // The engine applies the exchange allowance, freight, duty, border GST and the price
-    // ladder itself — see this file's own note on what it deliberately does not do.
+    // The engine applies the currency, freight, duty, border GST and the price ladder itself
+    // — see this file's own note on what it deliberately does not do. Value and interest go
+    // in the shipment's OWN currency, so the engine can move the rate for the "what if".
+    const fx = r.cost ? r.invoice / r.cost : 1
     landings.push({
-      value: r.cost,
+      value: r.invoice,
+      currency: r.currency,
       landsInMonth: r.landsInMonth,
       depositPct: r.depositPct,
       depositMonth: r.depositMonth,
       balanceMonth: r.balanceMonth,
-      interest: r.interest
+      interest: r.interest * fx
     })
   }
 
-  return { rows, importedPurchases, deposits, balances, interest, landings, beyondYear, terms }
+  return { rows, importedPurchases, deposits, balances, interest, landings, beyondYear, terms, currencies }
 }
 
 module.exports = {

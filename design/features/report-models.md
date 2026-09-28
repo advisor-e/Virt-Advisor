@@ -1006,8 +1006,20 @@ is worked out from it. The deposit is therefore paid *ahead* of the purchase mon
 five-bucket lag schedule could not express at all: it reaches **nine months**, because the
 Import & Retail workbook pays roughly 220 days before the first sale, and that gap **is** the
 working-capital hole a funding request exists to cover. Border GST is charged on the landed
-value — exchange-adjusted stock cost plus freight and duty — and claimed back on the same
-return, so it is a timing cost rather than a lost one.
+value — the stock's cost plus freight and duty — and claimed back on the same return, so it is
+a timing cost rather than a lost one.
+
+**Each amount is in its own currency** (item 13.5, Mike's rulings of 2026-09-26). A
+*Currencies you trade in* table holds up to three currencies, each with an assumed rate quoted
+*1 NZD buys 0.6000 USD*; supplier invoices, shipments, overseas sales and the balance still
+owed on stock at sea each choose one, and the engine converts them
+(`server/report/fxConversion.js`, one home for the arithmetic). **Freight and duty are part of
+the stock's cost** and reach the P&L as it sells, the unsold share staying in closing stock. No
+exchange movement is charged: with one rate per currency nothing moves, so the line is hidden
+at zero. The effect of a move is **shown, not charged** — step 4's two *What if the exchange
+rate moves* tiles run the forecast again with every rate on one side moved (10% by default,
+per side) and show the extra paid, the less received and the lowest bank balance with and
+without it. The accounting basis, for accountants: [`../CALCULATION-ASSUMPTIONS.md`](../CALCULATION-ASSUMPTIONS.md) §1.
 
 **GST was wrong in both directions before this, and that is the half nobody would have seen.**
 Every sale was charged and every purchase credited when the supplier was paid. Exports are
@@ -1069,20 +1081,19 @@ any month.
 >
 > **Interest cover is modelled, and it is charged with the other interest.** His sheet adds
 > two things to the deferred balance, both pro-rated over a **360-day** year: 6% interest
-> cover and a 10% currency movement. 43,057.20 becomes **44,798.62** — his own figure.
-> ⚠ **Only the 6% is modelled as his sheet has it:** the forecast charges its exchange allowance
-> as a flat 10% of the whole order, deposit included — 10,764.30 on this order against his
-> 1,088.39 — and the test adds the currency half itself rather than asking the engine. Item 13.5
-> replaces it. The 6% was modelled nowhere until Mike's instruction of 2026-09-04 (*"can you fix the 6% interest
+> cover and a 10% currency movement. The 6% is modelled as his sheet has it — 653.03 on
+> January's 43,057.20 balance, his own figure. The currency movement is **not** charged: the
+> balance is paid before the goods land, so no exchange difference arises (item 13.5). The 6%
+> was modelled nowhere until Mike's instruction of 2026-09-04 (*"can you fix the 6% interest
 > issue"*), given after the build **reported** it as a gap rather than inventing a charge.
-> **The 360-day year is not a rounding choice** — on 365 the currency charge is 1,073.48 and
-> the workbook stops agreeing.
+> **The 360-day year is not a rounding choice** — on 365 the interest is 644.09 and the
+> workbook stops agreeing.
 >
-> 🔴 **It goes in OVERHEADS with the overdraft and loan interest, never in direct costs.**
-> Freight, duty and the exchange movement sit above the gross margin because they are the
-> cost of getting goods here; interest cover is what the supplier charges for waiting to be
-> paid. In direct costs it would understate the margin on every container — one of the first
-> figures an advisor reads. A test asserts the direct costs are exactly the other three.
+> 🔴 **It goes in OVERHEADS with the overdraft and loan interest, never in the stock's cost.**
+> Freight and duty are part of what the stock cost because they are the cost of getting goods
+> here; interest cover is what the supplier charges for waiting to be paid. In the stock's cost
+> it would understate the margin on every container — one of the first figures an advisor
+> reads. A test asserts the stock's cost is exactly the goods, freight and duty.
 >
 > ⚠ **The first attempt broke the balance sheet and a test caught it, not an eyeball.** It
 > accrued the interest into the supplier liability at the landing while expensing it at the
@@ -1124,10 +1135,9 @@ sale, so it carries GST and collects on the local profile.
 > before the goods land is a **prepayment** — the supplier owes you goods — until the container
 > arrives; a landed-but-unpaid container is a **liability**. Cash leaves in one month and stock
 > arrives in another, and something has to hold the difference. They are `importPrepayments`
-> and `importSupplierBalance`. For the same reason the exchange movement on sales comes off the
-> **debtor** as well as through the P&L, and freight, duty and both exchange movements are
-> expensed in the month they arise. **Any addition that moves cash and stock in different
-> months takes the same care.**
+> and `importSupplierBalance`. For the same reason freight and duty paid in the landing month
+> join the stock there, and reach the P&L only as it sells. **Any addition that moves cash and
+> stock in different months takes the same care.**
 
 **The guard was written before the feature and it is the reason this was safe.** With the tick
 off and both series empty, all 3,385 year-one golden cells still match the workbook and the

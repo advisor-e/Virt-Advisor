@@ -321,3 +321,53 @@ describe('Robustness of the chain', () => {
     expect(JSON.stringify(nextInputs)).toBe(frozen)
   })
 })
+
+/**
+ * 🔴 STOCK ALREADY AT SEA IS AN OPENING FACT, NOT TRADING THAT REPEATS. Found 2026-09-28
+ * while building 13.5 and fixed on Mike's yes. The screen sends years 2 and 3 empty, and an
+ * empty year inherits the year before — which is right for sales and overheads and wrong
+ * here: year 2 re-landed year 1's container in the same month and paid its full balance
+ * again. The balance sheet still balanced, so nothing showed it.
+ */
+describe('stock in transit is not repeated in later years', () => {
+  const run = computeThreeYearForecast({
+    yearCount: 3,
+    years: [{
+      openingBalanceSheet: { stockInTransitDeposits: 30000 },
+      stockInTransit: { balanceOwing: 12000, landing: [0, 0, 10000, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+    }]
+  })
+  const transit = y => run.years[y].schedules.stockInTransit
+  const total = row => row.reduce((a, b) => a + b, 0)
+
+  test('year 1 lands a third of the deposits and pays a third of the balance', () => {
+    expect(total(transit(0).landing)).toBe(10000)
+    expect(total(transit(0).balancePaid)).toBeCloseTo(4000, 6)
+  })
+
+  test('year 2 lands nothing nobody entered, and pays nothing for it', () => {
+    expect(total(transit(1).landing)).toBe(0)
+    expect(total(transit(1).balancePaid)).toBe(0)
+    expect(total(transit(2).landing)).toBe(0)
+  })
+
+  test('the 20,000 still at sea stays a deposit, owing the 8,000 not yet paid', () => {
+    expect(transit(1).openingDeposits).toBeCloseTo(20000, 6)
+    expect(transit(1).balanceOwing).toBeCloseTo(8000, 6)
+    expect(transit(2).balanceOwing).toBeCloseTo(8000, 6)
+  })
+
+  test('a later year that states its own landing still lands it, on the balance left', () => {
+    const stated = computeThreeYearForecast({
+      yearCount: 2,
+      years: [
+        {
+          openingBalanceSheet: { stockInTransitDeposits: 30000 },
+          stockInTransit: { balanceOwing: 12000, landing: [0, 0, 10000, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+        },
+        { stockInTransit: { balanceOwing: 8000, landing: [20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] } }
+      ]
+    })
+    expect(stated.years[1].schedules.stockInTransit.balancePaid[0]).toBeCloseTo(8000, 6)
+  })
+})

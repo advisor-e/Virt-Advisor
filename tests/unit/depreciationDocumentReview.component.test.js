@@ -366,7 +366,7 @@ function mountWithSchedule (body) {
       matches: [],
       total: 0,
       truncated: false,
-      unreadNote: ''
+      pagesUnread: []
     }, body || {}))
   }))
   return mountWithBuefy(Review, {
@@ -445,11 +445,13 @@ describe('the picker reaches the country schedule', () => {
     // Mike's second ruling, and the condition he attached to it: the gap shows wherever the
     // table is USED. Otherwise "there is no such class" and "those pages were never read"
     // look identical to the person searching.
-    const w = mountWithSchedule({ unreadNote: 'pages 41-48 of IR265 were not read' })
+    const w = mountWithSchedule({ pagesUnread: [{ from: 41, to: 48 }] })
     w.vm.openPicker('plantEquipment')
     await settle(w)
 
-    expect(w.vm.scheduleUnreadNote).toContain('41')
+    // The sentence itself is worded, in English, in hubFactsWording.test.js (item 10.2).
+    expect(w.vm.schedulePagesUnread).toEqual([{ from: 41, to: 48 }])
+    expect(w.vm.scheduleUnreadNote).not.toBe('')
     w.destroy()
   })
 

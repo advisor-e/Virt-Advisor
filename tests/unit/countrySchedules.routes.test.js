@@ -514,7 +514,7 @@ describe('approving a schedule', () => {
     const written = overlay.saveFirmConfig.mock.calls
       .filter(c => c[1] === schedules.configKeyFor('NZ'))[0][2]
     expect(written.pagesUnread).toEqual([{ from: 41, to: 48 }])
-    expect(res._body.schedule.unreadNote).toContain('41')
+    expect(res._body.schedule.pagesUnread).toEqual([{ from: 41, to: 48 }])
   })
 
   test('there is nothing to approve when no read is waiting', async () => {
@@ -681,7 +681,7 @@ describe('searching a country\'s classes', () => {
     expect(scopesAsked).not.toContain(other)
   })
 
-  test('ALWAYS carries the unread-pages sentence, so the gap shows where the table is USED', async () => {
+  test('ALWAYS carries the unread pages, so the gap shows where the table is USED', async () => {
     // Mike's second ruling and the condition he attached to it. Without this, "there is no such
     // class" and "those pages were never read" look identical to the person searching.
     holds({ [schedules.configKeyFor('NZ')]: approved({ pagesUnread: [{ from: 41, to: 48 }] }) })
@@ -690,8 +690,9 @@ describe('searching a country\'s classes', () => {
     await routes.searchClasses(makeReq({ firmId: FIRM, query: { country: 'NZ', q: 'nothing matches this' } }), res)
 
     expect(res._body.matches).toEqual([])
-    expect(res._body.unreadNote).toContain('41')
-    expect(res._body.unreadNote).toContain('48')
+    // The ranges, never an English sentence — the screen words them (item 10.2).
+    expect(res._body.pagesUnread).toEqual([{ from: 41, to: 48 }])
+    expect(res._body.unreadNote).toBeUndefined()
   })
 
   test('a country with no schedule is not an error — the firm\'s own documents still work', async () => {

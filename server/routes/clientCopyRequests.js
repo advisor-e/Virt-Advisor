@@ -144,9 +144,7 @@ async function getDeadline (req, res) {
       own,
       platformDefault: deadline.PLATFORM_DEFAULT,
       units: deadline.UNIT_VALUES,
-      unitWords: deadline.UNIT_WORDS,
-      limits: deadline.LIMITS,
-      phrase: deadline.deadlinePhrase(resolved)
+      limits: deadline.LIMITS
     })
   } catch (err) {
     return serverError(res, err, 'read the response time')
@@ -158,7 +156,7 @@ async function getDeadline (req, res) {
  *
  * @route PUT /api/firm-manager/client-copy-deadline
  * @param {object} req.body - `{count: number, unit: string}`
- * @returns {{resolved: object, phrase: string}}
+ * @returns {{resolved: object}}
  */
 async function setDeadline (req, res) {
   const body = req.body || {}
@@ -170,7 +168,7 @@ async function setDeadline (req, res) {
     await writeScopeConfig(req.firmId, deadline.CONFIG_KEY, checked.value,
       req.advisorName || req.advisorId || 'unknown')
     const resolved = await deadline.loadResolvedDeadline(req.firmId, readScopeConfig)
-    res.send(200, { resolved, phrase: deadline.deadlinePhrase(resolved) })
+    res.send(200, { resolved })
   } catch (err) {
     return serverError(res, err, 'save the response time')
   }
@@ -182,14 +180,14 @@ async function setDeadline (req, res) {
  * Drop this scope's own figure so it tracks the level above again.
  *
  * @route POST /api/firm-manager/client-copy-deadline/reset
- * @returns {{resolved: object, phrase: string}}
+ * @returns {{resolved: object}}
  */
 async function resetDeadline (req, res) {
   try {
     await writeScopeConfig(req.firmId, deadline.CONFIG_KEY, null,
       req.advisorName || req.advisorId || 'unknown')
     const resolved = await deadline.loadResolvedDeadline(req.firmId, readScopeConfig)
-    res.send(200, { resolved, phrase: deadline.deadlinePhrase(resolved) })
+    res.send(200, { resolved })
   } catch (err) {
     return serverError(res, err, 'reset the response time')
   }
@@ -197,7 +195,10 @@ async function resetDeadline (req, res) {
 
 // ── The requests ─────────────────────────────────────────────────────────────────────────
 
-/** The clock for one request, or null when the deadline cannot be computed. */
+/**
+ * The clock for one request, or null when the deadline cannot be computed. Facts only: the
+ * screen words them in the reader's language (item 10.2, `mixins/copyDeadlineWords.js`).
+ */
 function _clockFor (request, resolved, now) {
   const remaining = deadline.timeRemaining(request.receivedAt, resolved, now)
   if (!remaining) { return null }
@@ -205,8 +206,7 @@ function _clockFor (request, resolved, now) {
     due: remaining.due.toISOString(),
     remaining: remaining.remaining,
     unit: remaining.unit,
-    overdue: remaining.overdue,
-    phrase: deadline.remainingPhrase(remaining)
+    overdue: remaining.overdue
   }
 }
 
@@ -219,7 +219,7 @@ function _clockFor (request, resolved, now) {
  * be able to see the request they are being waited on for.
  *
  * @route GET /api/client-copy-requests
- * @returns {{requests: Array<object>, deadline: object, phrase: string}}
+ * @returns {{requests: Array<object>, deadline: object}}
  */
 async function listRequests (req, res) {
   try {
@@ -255,8 +255,7 @@ async function listRequests (req, res) {
 
     res.send(200, {
       requests: decorated,
-      deadline: resolved,
-      phrase: deadline.deadlinePhrase(resolved)
+      deadline: resolved
     })
   } catch (err) {
     return serverError(res, err, 'list the requests')
