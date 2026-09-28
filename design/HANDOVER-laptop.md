@@ -9,24 +9,30 @@
 
 ---
 
-## 2026-09-28 · Laptop · branch `feat/advisor-progress`
+## 2026-09-28 (second session) · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed; 18 ahead of `master` (this note's own commit included), 0 behind — `master`
-(the desktop's PR #138: 13.5, 10.2, 15.13, 8.3 parked) merged in this evening. All in PR #139**,
-mergeable and clean (not merged — that is the master team's).
+**Clean and pushed; 24 ahead of `master` (this note's own commit included), 0 behind. All in PR #139** (open, mergeable; title
+and description updated today to include 15.17).
 
-**Built today: 8.4's first build, complete** — recording a strategy session one concept at a time,
-Build-session timing, the Run session screen, concept summaries approved with the client, and a
-pause after 3 minutes' silence. Walked live with real OpenAI and Mike's own voice. **8.5 built and
-closed** (unfinished recordings held 7 working days). 15.14 Wordsmith defined and scoped.
+**Closed on Mike's word:** 15.17. Cultural Core Values was drawn from Organisational Review
+p11, approved and built; it shows on Run session and in the plan. Its row stays an agenda row
+on page 2, because the loader refuses a mixed deck.
 
-**Next on 8.4: screen 4** (words into the boxes) — Decisions D and F to ask first.
-[`features/strategy-planner.md`](features/strategy-planner.md) §9b says how it all works now.
+**15.14 Wordsmith, proceed, in hand here:** scoped, and ZDR and impact test checked.
+**Privacy ruled by Mike:** it may send the Alignment Statements segment's spoken words to
+OpenAI, recorded in `CLAUDE.md`. **Next: Mike judges the ten-draft test** at
+https://claude.ai/artifact/Ru1ZaarwJ2i9ooEpGPQ9h9. His edits and thoughts are in that page's
+`notes` collection, which you read with ArtifactData. Seven or more usable of ten means draw
+the screens. Known weaknesses to date: the two styles barely differ, "Bayou" is dictation's
+mishearing of "Bay of Plenty", and the spelling is American.
 
-**FOR THE DESKTOP — files we both changed:** `locales/en.json` (my blocks under
-`strategyPlanner.timing` / `recording` / `conceptSummary`, and `meetingUnfinished` at the tail — keep
-both sides), `strategy-planner.md`, `to-do-items.json` / `to-do.md` / `to-do-done-and-parked.md`,
-`ARTEFACTS.md`, `CODE-SIZE.md`. Also changed here: `pages/strategy-planner.vue`,
-`StrategyStepBuilder.vue`, `server/routes/meetingReview.js`, `meetingAudioStore.js`, `meetingPurge.js`.
+**8.4 next:** screen 4 still needs Decisions D and F from Mike.
 
-**In hand here:** 8.4, 15.17, 15.20.
+**FOR THE DESKTOP:** 8.4 is still not on `master` (PR #139), so 15.13's two insertions still
+wait. Shared files changed: `CLAUDE.md` (privacy exception), `strategy-planner.md`,
+`ARTEFACTS.md`, the to-do files, `scripts/build-concept-graphics.js`,
+`components/strategy/concepts/index.js`, and the counts in `conceptGraphics.test.js`
+(43 drawings, 36 self-titled).
+
+**In hand here:** 8.4, 15.14, 15.20. Local test data only: dev firm "dev-firm-001" now has a
+compliance declaration, and dev sessions 176–178 exist.

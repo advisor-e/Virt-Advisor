@@ -36,7 +36,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
 | 1 | **15.13** No import button pulls the forecast and performance figures into a planning session ⚠ *not yet ranked by Mike* | 4 | — | Us | **desktop**, since 2026-09-28 |
-| 2 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 2 | **15.14** Wordsmith - turning what the client said into statements they can use ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-28 |
 | 3 | **15.15** Devil's Advocate - challenging optimistic thinking in the room ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 4 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 5 | **15.20** Nobody but a developer can add a concept, and each one costs a day ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
@@ -49,7 +49,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 12 | **10.3** Depreciation Rates, Forecast Trend Thresholds and Property Tax Rules become one hub page ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 13 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Thirteen live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Thirteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

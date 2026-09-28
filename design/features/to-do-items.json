@@ -109,9 +109,13 @@
       "scoreReason": "a facilitator tool, not a gate on the session",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-28"
+      },
       "why": "In a planning session the advisor and client talk an idea through and then have to write it down well. Wordsmith renders what they discussed into meaningful statements, or helps craft a powerful message.",
-      "risk": "It writes client-facing wording, so its output is never structured data and must be shown for approval before it lands anywhere. If it ever reads spoken content rather than the typed boxes, that is personal data - only Meeting Review is cleared to send that, and extending it is a fresh decision for Mike, never an inference from that one.",
+      "risk": "It writes client-facing wording, so its output is never structured data and must be shown for approval before it lands anywhere. It reads spoken content, which is personal data - cleared by Mike 2026-09-28 for the Alignment Statements segment only, under Meeting Review's four conditions; any wider use is a fresh decision for him.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
@@ -119,7 +123,7 @@
       },
       "touches": "The Strategy Planner's capture boxes and its facilitation half; a new Restify route for the model call; 8.4's recorded concept segments as its source - spoken content, so it sits under Meeting Review's privacy exception and its P13. Ruled 2026-09-28: not the typed boxes.",
       "note": "PROCEED - DEFINED AND SCOPED BY MIKE 2026-09-28; ALL HIS RULINGS ARE IN strategy-planner.md §9b - read that, not this. Works from the recorded Alignment Statements segment, asks purpose and style, drafts for approval. PRIVACY RULED 2026-09-28 (yes): it may send that segment's spoken words to OpenAI under Meeting Review's four conditions - the second named use in CLAUDE.md's exception. Impact test and the twelve ZDR rules pass as scoped. TEN-DRAFT TEST RUN 2026-09-28 (design/mockups/wordsmith-bench.html), awaiting Mike's judgement. Not drawn, not built. The other facilitator assistant is 15.15.",
-      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.15). Score and scoreReason are ours; he has not ranked it. 2026-09-28 - Mike's call: PROCEED, starting from recording and summarising."
+      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.15). Score and scoreReason are ours; he has not ranked it. 2026-09-28 - Mike's call: PROCEED, starting from recording and summarising; at shutdown the same day, PROCEED again - he judges the ten drafts next."
     },
     {
       "ref": "15.15",
