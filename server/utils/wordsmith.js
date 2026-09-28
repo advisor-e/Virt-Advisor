@@ -430,13 +430,13 @@ function checkDraft (draft, ctx) {
  * One model call, logged with model, latency, tokens and result — never a word said.
  * `temperature` null sends none: the drafting role's model accepts only its default.
  */
-async function callModel (client, role, label, messages, moderate, temperature) {
+async function callModel (client, role, label, messages, spokenOrTyped, temperature) {
   const startedAt = Date.now()
   const body = temperature === null ? { messages } : { messages, temperature }
   let completion
   try {
     completion = await client.chat.completions.create(body,
-      { timeout: REPORT_TIMEOUT_MS, personal: true, moderate })
+      { timeout: REPORT_TIMEOUT_MS, personal: true, moderate: spokenOrTyped })
   } catch (err) {
     console.error('[wordsmith:' + label + '] model=' + modelFor(AI.primary, role) + ' status=error latency=' +
       (Date.now() - startedAt) + 'ms ' + logSuffix(null, err))
