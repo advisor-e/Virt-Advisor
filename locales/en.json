@@ -6081,6 +6081,16 @@
       "purposePlaceholder": "What this step is for (the advisor sees it; the client never does)",
       "purposeLabel": "What step {n} is for"
     },
+    "timing": {
+      "sessionStarts": "Session starts",
+      "min": "min",
+      "minutes": "{minutes} min",
+      "addBreak": "+ Add a break here",
+      "addDay": "+ Start the next day here",
+      "break": "Break",
+      "dayStarts": "Day {n} starts",
+      "finishes": "Finishes {time} · {concepts} min of concepts · {breaks} min of breaks"
+    },
     "scope": {
       "domainsHeading": "The four Planning Domains",
       "domainsCaption": "Pick the domains this session covers. The descriptions are the deck's own words.",

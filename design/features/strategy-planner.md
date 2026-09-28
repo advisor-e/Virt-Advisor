@@ -1540,8 +1540,13 @@ the concept's name when it has none — 13 of the 48 today), with "nothing said"
 than filled. Approval needs `clientAgreed: true`, the screen's tick; an edit clears it; an approved
 summary is never written over. **Decision J is enforced in `runReports`**: a strategy session's
 Meeting Summary is composed from approved concept summaries only, with no model call and no
-extracted actions. Not yet built: timing (slice 3), the Run session screen (slice 4), which is where
-screen 10 is drawn. **Never run against real OpenAI or a real microphone** — that proof needs the
+extracted actions. **Slice 3 is built too (2026-09-28): the run sheet in Build session** —
+`utils/sessionTiming.js` works every time out; `StrategyStepBuilder.vue` shows it only when the
+page passes `timing` (the manager's standard-session screen does not); `scope.timing` saves it,
+kept through every other scope save. **Two differences from screen 7, both deliberate:** "+ Add a
+break here" sits after EVERY row rather than once per step, because a break may go between any two
+concepts; and a "+ Start the next day here" link, not drawn, adds a day row — its wording Mike's,
+2026-09-28. Not yet built: the Run session screen (slice 4), which is where screens 8–10 are drawn. **Never run against real OpenAI or a real microphone** — that proof needs the
 desktop or UAT. Every ruling below
 is Mike's, 2026-09-28.
 

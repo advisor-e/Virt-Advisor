@@ -379,7 +379,9 @@ async function putScope (req, res) {
     const done = await store.setScope(req.params.id, firmId, {
       domains: Array.isArray(body.domains) ? body.domains : [],
       frameworks: chosen,
-      steps: Array.isArray(body.steps) ? body.steps : []
+      steps: Array.isArray(body.steps) ? body.steps : [],
+      // The run sheet (item 8.4, slice 3). Absent means "keep what is stored" — see setScope.
+      timing: body.timing
     })
     if (!done) {
       sendError(res, 404, 'NOT_FOUND', 'No such planning session')

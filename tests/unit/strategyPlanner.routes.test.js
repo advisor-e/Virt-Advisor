@@ -352,6 +352,18 @@ describe('a box nobody authored is refused', () => {
     expect(store.setScope).toHaveBeenCalled()
   })
 
+  it('🔴 passes the run sheet through, and an absent one as absent so the store keeps it', async () => {
+    // Item 8.4, slice 3. A route that picked out only the ticks and steps would drop the
+    // advisor's timing on every save without an error anywhere.
+    store.setScope.mockResolvedValue(true)
+    const timing = { startsAt: '09:00', minutes: { a: 20 }, days: {} }
+    await routes.putScope(req({ params: { id: 7 }, body: { frameworks: [], steps: [], timing } }), makeRes())
+    expect(store.setScope.mock.calls[0][2].timing).toEqual(timing)
+
+    await routes.putScope(req({ params: { id: 7 }, body: { frameworks: [], steps: [] } }), makeRes())
+    expect(store.setScope.mock.calls[1][2].timing).toBeUndefined()
+  })
+
   it('refuses an empty save rather than reporting success for nothing', async () => {
     const res = makeRes()
     await routes.putEntries(req({ params: { id: 7 }, body: { entries: [] } }), res)

@@ -303,8 +303,10 @@ describe('the scope screen 1 records', () => {
     // `suggestion: null` is the fourth empty, added with stage 6: a session nobody has
     // pressed "Suggest for this client" on has no suggestion, which is distinct from a
     // suggestion that came back with nothing in it. `edits: {}` is the fifth, added with
-    // item 15.25: nobody has changed a word on any of this session's pages.
-    expect(session.scope).toEqual({ domains: [], frameworks: [], steps: [], suggestion: null, edits: {} })
+    // item 15.25: nobody has changed a word on any of this session's pages. `timing: null`
+    // is the sixth, added with item 8.4 slice 3: nobody has timed this session, which is
+    // distinct from a session timed at zero minutes.
+    expect(session.scope).toEqual({ domains: [], frameworks: [], steps: [], suggestion: null, edits: {}, timing: null })
   })
 
   it('records what the advisor ticked', async () => {
@@ -658,7 +660,7 @@ last_opened_at: 'x'
     }]])
 
     expect((await store.getSession(7, FIRM)).scope)
-      .toEqual({ domains: [], frameworks: [], steps: [], suggestion: null, edits: {} })
+      .toEqual({ domains: [], frameworks: [], steps: [], suggestion: null, edits: {}, timing: null })
   })
 
   it('reports a re-scope of a session this firm does not own as not done', async () => {
@@ -697,5 +699,61 @@ describe('the fallback file is a stand-in, and behaves like one', () => {
     // no fallback at all and a DB failure propagates untouched.
     fs.writeFileSync(DEV_FILE, '{ not json at all', 'utf8')
     expect(await store.listSessionsForClient('client-1', FIRM)).toEqual([])
+  })
+})
+
+describe('🔴 the run sheet — item 8.4, slice 3 (screen 7, approved 2026-09-28)', () => {
+  const TIMING = {
+    startsAt: '09:00',
+    minutes: { 'porters-5-forces#1': 40, 'break-a1b2c3': 15, 'business-owner-expectations': 30 },
+    days: { 'day-d4e5f6': '08:30' }
+  }
+
+  test('is kept exactly as saved', async () => {
+    const id = await openSession()
+    await store.setScope(id, FIRM, { frameworks: [], steps: [], timing: TIMING })
+    expect((await store.getSession(id, FIRM)).scope.timing).toEqual(TIMING)
+  })
+
+  test('survives a save that does not carry it — a tick, a rename, a suggestion, a page edit', async () => {
+    // Every other screen saves the scope whole without the timing. Losing it there would
+    // wipe an advisor's run sheet the first time they ticked a concept.
+    const id = await openSession()
+    await store.setScope(id, FIRM, { frameworks: [], steps: [], timing: TIMING })
+    await store.setScope(id, FIRM, { frameworks: ['strategy-swot-pest'], steps: [] })
+    await store.saveSuggestion(id, FIRM, { at: 'now', concepts: [] })
+    expect((await store.getSession(id, FIRM)).scope.timing).toEqual(TIMING)
+  })
+
+  test('every malformed entry is dropped, never stored', async () => {
+    const id = await openSession()
+    await store.setScope(id, FIRM, {
+      frameworks: [],
+      steps: [],
+      timing: {
+        startsAt: '25:00',
+        minutes: { ok: 20, negative: -5, fraction: 2.5, huge: 601, text: '20', ['x'.repeat(200)]: 10 },
+        days: { good: '09:15', bad: '9am', number: 900 }
+      }
+    })
+    expect((await store.getSession(id, FIRM)).scope.timing).toEqual({
+      startsAt: null,
+      minutes: { ok: 20 },
+      days: { good: '09:15' }
+    })
+  })
+
+  test.each([['an array', []], ['a string', 'soon'], ['a number', 9]])(
+    'a run sheet that is %s is not stored', async (_label, timing) => {
+      const id = await openSession()
+      await store.setScope(id, FIRM, { frameworks: [], steps: [], timing })
+      expect((await store.getSession(id, FIRM)).scope.timing).toBeNull()
+    }
+  )
+
+  test('missing minutes and days read as empty, not as a fault', async () => {
+    const id = await openSession()
+    await store.setScope(id, FIRM, { frameworks: [], steps: [], timing: { startsAt: '07:45', minutes: [], days: null } })
+    expect((await store.getSession(id, FIRM)).scope.timing).toEqual({ startsAt: '07:45', minutes: {}, days: {} })
   })
 })

@@ -188,7 +188,9 @@
         :cards="placeableCards"
         :steps="planStepDefs"
         :session-label="sessionLabel"
+        :timing="planTiming"
         @steps-changed="onStepsChanged"
+        @timing-changed="onTimingChanged"
       )
 
     template(v-if="!loading && step === 'run'")
@@ -479,6 +481,12 @@ export default {
        * `{ '<conceptId>#<sheet>': { '<block>': 'words' } }`, as the session stores it.
        */
       textEdits: {},
+      /**
+       * The session's run sheet — item 8.4, slice 3: the start time, the minutes on each
+       * concept and break, and each later day's start. Saved with the scope; the clock times
+       * themselves are worked out, never stored (`utils/sessionTiming.js`).
+       */
+      planTiming: { startsAt: null, minutes: {}, days: {} },
       /**
        * Each ticked concept's real fill-in table, keyed by concept id, as
        * `GET /api/strategy/concepts/:id/capture` returns it. Loaded when the
@@ -1247,7 +1255,8 @@ export default {
           body: JSON.stringify({
             domains: [],
             frameworks: this.chosen,
-            steps: this.stepsToSave(this.planStepDefs)
+            steps: this.stepsToSave(this.planStepDefs),
+            timing: this.planTiming
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
@@ -1635,7 +1644,8 @@ export default {
           body: JSON.stringify({
             domains: [],
             frameworks: this.chosen,
-            steps: this.stepsToSave(next)
+            steps: this.stepsToSave(next),
+            timing: this.planTiming
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
@@ -1643,6 +1653,17 @@ export default {
       } catch (e) {
         this.error = this.$t('strategyPlanner.errors.stepsSaveFailed')
       }
+    },
+
+    /**
+     * The step builder changed a time. Saved the same way, and with the same failure rule, as
+     * a change to the steps: the scope is written whole, so it goes through `onStepsChanged`.
+     * @param {{startsAt: (string|null), minutes: object, days: object}} next
+     * @returns {Promise<void>}
+     */
+    async onTimingChanged (next) {
+      this.planTiming = next
+      await this.onStepsChanged(this.planStepDefs)
     },
 
     /**
@@ -1716,8 +1737,9 @@ export default {
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
         const body = await res.json()
         this.sessionId = body.sessionId
-        // A new session starts with every page exactly as drawn.
+        // A new session starts with every page exactly as drawn, and with no times set.
         this.textEdits = {}
+        this.planTiming = { startsAt: null, minutes: {}, days: {} }
         // Stage 7: this is a new session, not a reopened one, so no banner — and the bar
         // goes now that `mostRecentSession` sees a session id.
         this.reopenedAt = null
@@ -1913,6 +1935,10 @@ export default {
           ? scope.suggestion.concepts.slice()
           : []
         this.textEdits = (scope.edits && typeof scope.edits === 'object') ? scope.edits : {}
+        // The run sheet as saved, or an empty one for a session nobody has timed yet.
+        this.planTiming = scope.timing
+          ? { startsAt: scope.timing.startsAt || null, minutes: scope.timing.minutes || {}, days: scope.timing.days || {} }
+          : { startsAt: null, minutes: {}, days: {} }
 
         // Every typed box, keyed exactly as the screen keys them.
         const entries = {}
