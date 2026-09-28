@@ -123,7 +123,7 @@
       },
       "touches": "CONCEPT_IMPORT_REPORTS in server/utils/strategyFrameworks.js; strategyCaptureForms.js; the concept assess-current-position-by-reviewing-pre-meeting-data-sectio in data/strategy-frameworks.json; the new panel, plan page, mixin and util; and, once 8.4 has merged, StrategyConceptCapture.vue and pages/strategy-planner.vue.",
       "note": "PROCEED ON MIKE'S WORD 2026-09-28. Approved drawing: design/mockups/strategy-current-position-import.html (the whole Business Performance Report in the card, his no-report message, the plan printing its Executive Summary). Impact measure: figures reaching the step and plan untyped - 0 today. BUILT 2026-09-28, tested, NOT YET ON SCREEN: the concept's importReport, the save guard's marker, utils/reportImport.js, mixins/businessReportImport.js, components/strategy/StrategyReportImport.vue and StrategyReportPlanPage.vue. WAITS ON 8.4 REACHING MASTER, on his yes: two insertions in files 8.4 holds - the panel into StrategyConceptCapture.vue (saving its brought-in marker), the plan page into pages/strategy-planner.vue. Then walk it in a browser beside the drawing.",
-      "comment": "2026-09-28 - Mike: proceed, after the impact test. The test found saved multi-year forecasts reopening as one year; fixed first on his yes (1c866a94). Filed 2026-09-22 with 15.14 and 15.15; score ours, not ranked by him."
+      "comment": "2026-09-28 - Mike: proceed, and after the build (fc030cac) proceed again - it stays live, waiting for 8.4 to reach master before its two insertions and browser check. The impact test found saved multi-year forecasts reopening as one year; fixed first on his yes (1c866a94). Score ours, not ranked by him."
     },
     {
       "ref": "15.14",
