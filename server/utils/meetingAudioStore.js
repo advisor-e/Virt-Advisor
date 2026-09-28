@@ -87,6 +87,36 @@ const CORRECTIONS_FILE = 'corrections.json'
 const MAX_CHUNK_BYTES = 10 * 1024 * 1024
 const MAX_MEETING_BYTES = 400 * 1024 * 1024
 
+// ── A strategy session, recorded in concept segments (item 8.4) ─────────────────────
+//
+// 🔴 WHY SEGMENTS. OpenAI refuses a file over 25 MB, about 27 minutes of browser audio, and
+// this store otherwise sends a meeting as ONE file. A planning session runs for hours. Mike's
+// rulings of 2026-09-28 (design/mockups/strategy-session-recording.html, approved for build):
+// one segment per concept, one consent per session, and a segment closes by itself at 25
+// minutes or 20 MB. The browser rolls over at SEGMENT_ROLL_BYTES; SEGMENT_MAX_BYTES is the
+// server's own guard below OpenAI's limit, for a browser that did not.
+//
+// ⚠ Every segment file name starts with SEGMENT_PREFIX, so the deletions below can find them
+// without a list anyone must remember to extend.
+
+/** Where the browser starts the next segment — the 20 MB Mike ruled. */
+const SEGMENT_ROLL_BYTES = 20 * 1024 * 1024
+
+/** The server's refusal point: below OpenAI's 25 MB, with room for the form fields and clip. */
+const SEGMENT_MAX_BYTES = 24 * 1024 * 1024
+
+/** A session this long is a fault, not a workshop. */
+const MAX_SEGMENTS = 200
+
+/** Every segment's audio and text starts with this. */
+const SEGMENT_PREFIX = 'seg-'
+
+/** The advisor's voice clip. Audio: it goes with the rest, and never outlives it. */
+const VOICE_REFERENCE_FILE = 'voice-reference.audio'
+
+/** 8 seconds of browser audio is tens of kilobytes; this refuses anything that is not a clip. */
+const MAX_VOICE_REFERENCE_BYTES = 1024 * 1024
+
 /**
  * The root every meeting directory sits under.
  *
@@ -151,6 +181,7 @@ function _chunkName (seq) {
  *   It is what makes follow-through possible — March's agreed actions can only be checked
  *   against April's meeting if both are known to be with the same business.
  * @param {number} owner.retentionMonths - the figure the advisor was shown and spoke aloud
+ * @param {boolean} [owner.segmented] - a strategy session, recorded one concept at a time
  * @returns {{meetingId: string, meta: object}}
  */
 function createMeeting (owner) {
@@ -174,6 +205,9 @@ function createMeeting (owner) {
     // Stored because it is what the advisor SAID OUT LOUD. A firm that later moves its dial
     // must not retrospectively change what a client was told at this meeting.
     retentionMonths: (owner && owner.retentionMonths) || null,
+    // A strategy session records in concept segments rather than as one file (item 8.4).
+    segmented: Boolean(owner && owner.segmented),
+    segments: [],
     createdAt: new Date().toISOString(),
     // Consent is not claimed at creation. Recording starts first, the advisor speaks, and
     // only then is this set — the order the approved two-step screen exists to enforce.
@@ -256,6 +290,11 @@ function appendChunk (meetingId, seq, buffer) {
   if (!meta) { throw new Error('meetingAudioStore: no such meeting') }
   if (meta.state !== 'recording') {
     throw new Error('meetingAudioStore: this meeting is no longer recording')
+  }
+  // A segmented session's audio goes through `appendSegmentChunk`, whose per-segment cap is
+  // what keeps each file under OpenAI's limit. Accepted here, it would bypass that cap.
+  if (meta.segmented) {
+    throw new Error('meetingAudioStore: this meeting is recorded in segments')
   }
   if (!Number.isInteger(seq) || seq < 1) {
     throw new Error('meetingAudioStore: chunk sequence must be a positive whole number')
@@ -359,7 +398,7 @@ function destroyAudio (meetingId) {
     return { removed: 0, bytesRemoved: 0, audioRemains: false }
   }
 
-  const audio = names.filter(n => n.indexOf(CHUNK_PREFIX) === 0 || n === ASSEMBLED_FILE)
+  const audio = names.filter(_isAudioFile)
   let removed = 0
   let bytesRemoved = 0
   audio.forEach((n) => {
@@ -374,10 +413,26 @@ function destroyAudio (meetingId) {
   })
 
   // Verified, not assumed. The whole value of this function is that its answer was checked.
-  const after = fs.readdirSync(dir)
-    .filter(n => n.indexOf(CHUNK_PREFIX) === 0 || n === ASSEMBLED_FILE)
+  const after = fs.readdirSync(dir).filter(_isAudioFile)
 
   return { removed, bytesRemoved, audioRemains: after.length > 0 }
+}
+
+/**
+ * Is this file audio — anything `destroyAudio` must take?
+ *
+ * 🔴 ONE TEST FOR "IS THIS AUDIO", USED BY BOTH THE DELETION AND ITS CHECK. A segment's chunks
+ * and the advisor's voice clip are audio exactly as a single-file meeting's chunks are; a
+ * deletion that knew only the older names would report success and leave them on disk.
+ *
+ * @param {string} name
+ * @returns {boolean}
+ */
+function _isAudioFile (name) {
+  return name.indexOf(CHUNK_PREFIX) === 0 ||
+    name === ASSEMBLED_FILE ||
+    name === VOICE_REFERENCE_FILE ||
+    (name.indexOf(SEGMENT_PREFIX) === 0 && name.includes('-' + CHUNK_PREFIX))
 }
 
 /**
@@ -532,12 +587,18 @@ function destroyTranscript (meetingId) {
   // 🔴 THE CORRECTIONS GO TOO, for the reason in `CORRECTIONS_FILE`'s own note: a client's
   // attached statement quotes the passage it disputes, so leaving it behind would keep their
   // words in a file the promise never mentioned. Same argument as the two reports.
+  // 🔴 AND EACH SEGMENT'S OWN TEXT (item 8.4). A segmented session's transcript is joined from
+  // them, so leaving them would keep every word of the session after the joined copy expired.
+  let segmentText = []
+  try {
+    segmentText = fs.readdirSync(dir).filter(_isSegmentTextFile)
+  } catch (_e) { /* no directory: nothing to remove */ }
   const text = [
     TRANSCRIPT_FILE,
     _reportName('summary'),
     _reportName('coaching'),
     CORRECTIONS_FILE
-  ]
+  ].concat(segmentText)
 
   let removed = 0
   let bytesRemoved = 0
@@ -601,6 +662,250 @@ function readReport (meetingId, kind) {
   }
 }
 
+// ── Segments (item 8.4) ──────────────────────────────────────────────────────────────
+
+/** `seg-003`: the zero-padded stem every file of one segment shares. */
+function _segmentStem (n) {
+  if (!Number.isInteger(n) || n < 1 || n > MAX_SEGMENTS) {
+    throw new Error('meetingAudioStore: invalid segment number')
+  }
+  return SEGMENT_PREFIX + String(n).padStart(3, '0')
+}
+
+/** A segment's text file: `seg-003-text.json`. */
+function _segmentTextName (n) { return _segmentStem(n) + '-text.json' }
+
+/** Is this a segment's text — anything `destroyTranscript` must take? */
+function _isSegmentTextFile (name) {
+  return name.indexOf(SEGMENT_PREFIX) === 0 && /-text\.json$/.test(name)
+}
+
+/** The meeting, refusing one that is not a segmented session still recording. */
+function _recordingSegmented (meetingId) {
+  const meta = readMeta(meetingId)
+  if (!meta) { throw new Error('meetingAudioStore: no such meeting') }
+  if (!meta.segmented) { throw new Error('meetingAudioStore: this meeting is not recorded in segments') }
+  if (meta.state !== 'recording') { throw new Error('meetingAudioStore: this meeting is no longer recording') }
+  return meta
+}
+
+/**
+ * Open the next segment.
+ *
+ * ⚠ ONE SEGMENT RECORDS AT A TIME. The caller closes the live one first; this refuses rather
+ * than closing it itself, because closing is what starts a transcription, and a store that
+ * quietly started one would hide the step the route must log.
+ *
+ * @param {string} meetingId
+ * @param {{conceptId: (string|null), label: string}} what - the concept, and its name as shown
+ * @returns {{n: number, meta: object}}
+ */
+function openSegment (meetingId, what) {
+  const meta = _recordingSegmented(meetingId)
+  const segments = Array.isArray(meta.segments) ? meta.segments : []
+  if (segments.some(s => s.state === 'recording')) {
+    throw new Error('meetingAudioStore: a segment is already recording')
+  }
+  if (segments.length >= MAX_SEGMENTS) {
+    throw new Error('meetingAudioStore: this session has reached its segment limit')
+  }
+  const n = segments.length + 1
+  const next = segments.concat([{
+    n,
+    conceptId: (what && typeof what.conceptId === 'string' && what.conceptId) ? what.conceptId : null,
+    label: (what && typeof what.label === 'string') ? what.label.slice(0, 200) : '',
+    state: 'recording',
+    startedAt: new Date().toISOString(),
+    closedAt: null,
+    chunkCount: 0,
+    bytes: 0
+  }])
+  return { n, meta: updateMeta(meetingId, { segments: next }) }
+}
+
+/**
+ * Change fields on one segment, leaving the rest alone.
+ * @param {string} meetingId
+ * @param {number} n
+ * @param {object} patch
+ * @returns {object|null} the updated segment, or null when there is no such segment
+ */
+function updateSegment (meetingId, n, patch) {
+  const meta = readMeta(meetingId)
+  if (!meta || !Array.isArray(meta.segments)) { return null }
+  let found = null
+  const segments = meta.segments.map((s) => {
+    if (s.n !== n) { return s }
+    found = { ...s, ...patch, n: s.n }
+    return found
+  })
+  if (found) { updateMeta(meetingId, { segments }) }
+  return found
+}
+
+/** Every stored chunk of one segment, in capture order. */
+function listSegmentChunks (meetingId, n) {
+  const dir = _meetingDir(meetingId)
+  const stem = _segmentStem(n) + '-' + CHUNK_PREFIX
+  let names
+  try {
+    names = fs.readdirSync(dir)
+  } catch (_e) {
+    return []
+  }
+  return names
+    .filter(name => name.indexOf(stem) === 0)
+    .sort()
+    .map(name => ({ name, size: fs.statSync(path.join(dir, name)).size }))
+}
+
+/**
+ * Store one chunk of the live segment.
+ *
+ * 🔴 THE SEGMENT'S OWN CAP IS WHAT KEEPS EVERY FILE UNDER OPENAI'S LIMIT. The browser rolls over
+ * at `SEGMENT_ROLL_BYTES`; this refuses at `SEGMENT_MAX_BYTES` so a browser that did not roll
+ * over loses one chunk's worth, loudly, instead of a whole segment silently at transcription.
+ *
+ * @param {string} meetingId
+ * @param {number} n - the segment the chunk belongs to; must be the one recording
+ * @param {number} seq - the browser's capture sequence within the segment, from 1
+ * @param {Buffer} buffer
+ * @returns {{segmentBytes: number, bytes: number, rollOver: boolean}}
+ */
+function appendSegmentChunk (meetingId, n, seq, buffer) {
+  const meta = _recordingSegmented(meetingId)
+  const seg = (meta.segments || []).filter(s => s.n === n)[0]
+  if (!seg || seg.state !== 'recording') {
+    throw new Error('meetingAudioStore: that segment is not recording')
+  }
+  if (!Number.isInteger(seq) || seq < 1) {
+    throw new Error('meetingAudioStore: chunk sequence must be a positive whole number')
+  }
+  if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
+    throw new Error('meetingAudioStore: chunk is empty')
+  }
+  if (buffer.length > MAX_CHUNK_BYTES) {
+    throw new Error('meetingAudioStore: chunk is too large')
+  }
+  if (seg.bytes + buffer.length > SEGMENT_MAX_BYTES) {
+    throw new Error('meetingAudioStore: this segment is full')
+  }
+  if ((meta.bytes || 0) + buffer.length > MAX_MEETING_BYTES) {
+    throw new Error('meetingAudioStore: this meeting has reached its size limit')
+  }
+
+  const name = _segmentStem(n) + '-' + CHUNK_PREFIX + String(seq).padStart(CHUNK_DIGITS, '0')
+  fs.writeFileSync(path.join(_meetingDir(meetingId), name), buffer)
+
+  // Counted from the directory, as `appendChunk` does, so a retried chunk counts once.
+  const counted = listSegmentChunks(meetingId, n)
+  const segmentBytes = counted.reduce((sum, c) => sum + c.size, 0)
+  updateSegment(meetingId, n, { chunkCount: counted.length, bytes: segmentBytes })
+  const all = readMeta(meetingId)
+  const bytes = (all.segments || []).reduce((sum, s) => sum + (s.bytes || 0), 0)
+  updateMeta(meetingId, { bytes, chunkCount: (all.segments || []).reduce((sum, s) => sum + (s.chunkCount || 0), 0) })
+  return { segmentBytes, bytes, rollOver: segmentBytes >= SEGMENT_ROLL_BYTES }
+}
+
+/**
+ * One segment's recording, stitched in memory for its transcription call.
+ * @param {string} meetingId
+ * @param {number} n
+ * @returns {Buffer}
+ * @throws {Error} when the segment captured nothing
+ */
+function assembleSegment (meetingId, n) {
+  const chunks = listSegmentChunks(meetingId, n)
+  if (!chunks.length) { throw new Error('meetingAudioStore: nothing was captured in that segment') }
+  const dir = _meetingDir(meetingId)
+  return Buffer.concat(chunks.map(c => fs.readFileSync(path.join(dir, c.name))))
+}
+
+/**
+ * Destroy one segment's audio once it is text — P8, per segment.
+ *
+ * ⚠ NOT THE VOICE CLIP. Later segments still need it; it goes with `destroyAudio` when the
+ * session's recording is finished, or with `destroyMeeting` on "Stop and delete everything".
+ *
+ * @param {string} meetingId
+ * @param {number} n
+ * @returns {{removed: number, bytesRemoved: number, audioRemains: boolean}}
+ */
+function destroySegmentAudio (meetingId, n) {
+  const dir = _meetingDir(meetingId)
+  let removed = 0
+  let bytesRemoved = 0
+  listSegmentChunks(meetingId, n).forEach((c) => {
+    try {
+      fs.unlinkSync(path.join(dir, c.name))
+      bytesRemoved += c.size
+      removed += 1
+    } catch (_e) {
+      // Counted as not removed. The re-read below is what decides the answer.
+    }
+  })
+  return { removed, bytesRemoved, audioRemains: listSegmentChunks(meetingId, n).length > 0 }
+}
+
+/**
+ * Keep the advisor's voice clip for the session. See `transcriptionClient.ADVISOR_SPEAKER_NAME`
+ * for why it exists and why it is the advisor's voice alone.
+ *
+ * @param {string} meetingId
+ * @param {Buffer} buffer
+ * @param {string} mime - checked against the allowed list by the transcription client
+ * @returns {{bytes: number}}
+ */
+function writeVoiceReference (meetingId, buffer, mime) {
+  _recordingSegmented(meetingId)
+  if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
+    throw new Error('meetingAudioStore: the voice clip is empty')
+  }
+  if (buffer.length > MAX_VOICE_REFERENCE_BYTES) {
+    throw new Error('meetingAudioStore: the voice clip is too large')
+  }
+  fs.writeFileSync(path.join(_meetingDir(meetingId), VOICE_REFERENCE_FILE), buffer)
+  updateMeta(meetingId, { voiceReferenceMime: mime, voiceReferenceBytes: buffer.length })
+  return { bytes: buffer.length }
+}
+
+/** The advisor's clip as the transcription client takes it, or null when there is none. */
+function readVoiceReference (meetingId) {
+  const meta = readMeta(meetingId)
+  try {
+    const buffer = fs.readFileSync(path.join(_meetingDir(meetingId), VOICE_REFERENCE_FILE))
+    return { buffer, mime: (meta && meta.voiceReferenceMime) || '' }
+  } catch (_e) {
+    return null
+  }
+}
+
+/** Store one segment's transcript. It dies with the joined one — see `destroyTranscript`. */
+function writeSegmentTranscript (meetingId, n, transcript) {
+  fs.writeFileSync(
+    path.join(_meetingDir(meetingId), _segmentTextName(n)),
+    JSON.stringify(transcript, null, 2)
+  )
+}
+
+/** Does any segment's text remain? What the expiry sweep asks before skipping a meeting. */
+function hasSegmentText (meetingId) {
+  try {
+    return fs.readdirSync(_meetingDir(meetingId)).some(_isSegmentTextFile)
+  } catch (_e) {
+    return false
+  }
+}
+
+/** One segment's transcript, or null when there is none. */
+function readSegmentTranscript (meetingId, n) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(_meetingDir(meetingId), _segmentTextName(n)), 'utf8'))
+  } catch (_e) {
+    return null
+  }
+}
+
 module.exports = {
   MEETING_ID_PATTERN,
   CHUNK_PREFIX,
@@ -610,6 +915,22 @@ module.exports = {
   CORRECTIONS_FILE,
   MAX_CHUNK_BYTES,
   MAX_MEETING_BYTES,
+  SEGMENT_ROLL_BYTES,
+  SEGMENT_MAX_BYTES,
+  MAX_SEGMENTS,
+  VOICE_REFERENCE_FILE,
+  MAX_VOICE_REFERENCE_BYTES,
+  openSegment,
+  updateSegment,
+  listSegmentChunks,
+  appendSegmentChunk,
+  assembleSegment,
+  destroySegmentAudio,
+  writeVoiceReference,
+  readVoiceReference,
+  writeSegmentTranscript,
+  readSegmentTranscript,
+  hasSegmentText,
   audioRoot,
   createMeeting,
   listMeetingIds,

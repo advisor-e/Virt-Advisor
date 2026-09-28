@@ -1525,7 +1525,16 @@ summaries J), and **every first-build label in its wording table was approved by
 time, on 2026-09-28**. Screen 4 and its wording are marked "second build" on the page. **The
 Meeting Review meeting type is named "Strategy Session"** (Mike, 2026-09-28) — a twelfth type at
 mentor level, cascading as the other eleven do; its name is what the Meeting Summary is told the
-meeting was. **Nothing here is built.** Every ruling below
+meeting was. **Slice 1 of four is built (2026-09-28): the backend that records in concept
+segments** — `server/routes/meetingSegments.js` (open a segment, its chunks, a break, the voice
+clip, finish), `server/utils/meetingSegments.js` (settling and the join), segment files and their
+deletion in `meetingAudioStore.js`, the clip in `transcriptionClient.js`, and the "Strategy
+Session" type in `data/meeting-observations.json`. Each segment is transcribed as it closes and its
+audio destroyed at once; the clip is destroyed when the recording ends; the joined transcript is
+what Meeting Review's reports read. **A later segment transcribed without the clip is recorded as
+not confident**, since only segment 1 has the consent line to anchor on. Not yet built: concept
+summaries (slice 2), timing (slice 3), the Run session screen (slice 4). **Never run against real
+OpenAI or a real microphone** — that proof needs the desktop or UAT. Every ruling below
 is Mike's, 2026-09-28.
 
 **Order.** *"perhaps the ability to record the session and summarise would be first place to

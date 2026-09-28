@@ -1,0 +1,470 @@
+'use strict'
+
+/**
+ * A strategy session's routes — recording in concept segments (item 8.4, slice 1).
+ *
+ * 🔴 WHAT UAT CANNOT SEE, AND WHY EACH TEST BELOW EXISTS:
+ *
+ *   1. **Nothing is transcribed before consent** — including a segment that closed while the
+ *      consent line was still being spoken. On screen, a waiting segment and a transcribed one
+ *      both just say "text ready" a moment later.
+ *   2. **A segment's audio dies once it is text, even when transcription fails**, and the
+ *      advisor's voice clip dies when the session's recording ends. A tester cannot see a disk.
+ *   3. **A later segment with no voice clip is never called confident.** Its labels may be
+ *      swapped, and the coaching notes would read as certain.
+ *   4. **Owner only.** A colleague at the same firm is refused, as in single-file meetings.
+ */
+
+const fs = require('fs')
+const os = require('os')
+const path = require('path')
+
+const ROOT = fs.mkdtempSync(path.join(os.tmpdir(), 'msr-test-'))
+process.env.MEETING_AUDIO_DIR = ROOT
+
+// The multipart parser is replaced so the upload routes can be driven without a real request:
+// each test hands over the fields and files formidable would have produced.
+let mockNextForm = { fields: {}, files: {} }
+jest.mock('formidable', () => ({
+  formidable: () => ({
+    parse (_req, cb) {
+      if (mockNextForm.error) { cb(mockNextForm.error); return }
+      cb(null, mockNextForm.fields, mockNextForm.files)
+    }
+  })
+}))
+
+jest.mock('../../server/utils/firmOverlay', () => ({
+  loadFirmConfig: jest.fn().mockResolvedValue(null),
+  saveFirmConfig: jest.fn()
+}))
+
+const https = require('https')
+const store = require('../../server/utils/meetingAudioStore')
+const review = require('../../server/routes/meetingReview')
+const seg = require('../../server/routes/meetingSegments')
+
+const FIRM = 'firm-seg'
+const ADVISOR = 'adv-seg'
+
+function makeRes () {
+  return {
+    _status: null,
+    _body: null,
+    headersSent: false,
+    send (status, body) { this._status = status; this._body = body },
+    writeHead (status) { this._status = status; this.headersSent = true },
+    end (body) { this._body = body }
+  }
+}
+
+function bodyOf (res) {
+  return typeof res._body === 'string' ? JSON.parse(res._body) : res._body
+}
+
+function req (meetingId, extra = {}) {
+  return { firmId: FIRM, advisorId: ADVISOR, params: { meetingId, ...(extra.params || {}) }, body: extra.body || {} }
+}
+
+/** A temp file standing in for an upload formidable saved to disk. */
+function tempUpload (content, mimetype) {
+  const file = path.join(ROOT, 'upload-' + Math.random().toString(16).slice(2))
+  fs.writeFileSync(file, content)
+  return { filepath: file, mimetype }
+}
+
+function newSession () {
+  return store.createMeeting({ firmId: FIRM, advisor: ADVISOR, scenarioId: 'strategy_session', retentionMonths: 18, segmented: true }).meetingId
+}
+
+/** Open a segment through the route, and put one chunk in it directly. */
+function recordSegment (meetingId, label) {
+  const res = makeRes()
+  seg.openNextSegment(req(meetingId, { body: { conceptId: label.toLowerCase(), label } }), res)
+  const n = res._body.segment
+  store.appendSegmentChunk(meetingId, n, 1, Buffer.from('AUDIO-' + n))
+  return n
+}
+
+/** Make https.request answer every transcription call with this reply. */
+function openaiReplies (status, payload) {
+  return jest.spyOn(https, 'request').mockImplementation((_o, onResponse) => ({
+    setTimeout () {},
+    on () {},
+    write () {},
+    destroy () {},
+    end () {
+      setImmediate(() => onResponse({
+        statusCode: status,
+        async * [Symbol.asyncIterator] () { yield Buffer.from(payload) }
+      }))
+    }
+  }))
+}
+
+const GOOD = JSON.stringify({
+  text: 'words',
+  segments: [
+    { speaker: 'A', start: 0, end: 3, text: 'the client spoke first' },
+    { speaker: 'advisor', start: 4, end: 6, text: 'and the advisor replied' }
+  ]
+})
+
+/** Wait until every segment job has finished. */
+async function drain () {
+  for (let i = 0; i < 50 && seg.segmentJobs.size; i += 1) {
+    await new Promise(resolve => setTimeout(resolve, 5))
+  }
+}
+
+let spies = []
+beforeEach(() => {
+  process.env.OPENAI_API_KEY = 'test-key'
+  mockNextForm = { fields: {}, files: {} }
+  spies = [
+    jest.spyOn(console, 'log').mockImplementation(() => {}),
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+  ]
+})
+afterEach(() => { spies.forEach(s => s.mockRestore()); jest.restoreAllMocks() })
+afterAll(() => { try { fs.rmdirSync(ROOT, { recursive: true }) } catch (e) { /* temp dir */ } })
+
+describe('consent before any transcription', () => {
+  test('a segment closed before consent waits, and is transcribed the moment consent arrives', async () => {
+    openaiReplies(200, GOOD)
+    const id = newSession()
+    recordSegment(id, 'Our Session Objective')
+    recordSegment(id, 'Porter') // closes segment 1 — consent not yet confirmed
+    expect(store.readMeta(id).segments[0].state).toBe('closed')
+    expect(store.readSegmentTranscript(id, 1)).toBeNull()
+
+    review.confirmConsent(req(id), makeRes())
+    await drain()
+    expect(store.readMeta(id).segments[0].state).toBe('done')
+  })
+
+  test('finishing without confirmed consent is refused', () => {
+    const id = newSession()
+    recordSegment(id, 'A')
+    const res = makeRes()
+    review.finishRecording(req(id), res)
+    expect(res._status).toBe(409)
+    expect(bodyOf(res).error.code).toBe('CONSENT_NOT_CONFIRMED')
+  })
+
+  test('finishing a session that captured nothing is refused', () => {
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    const res = makeRes()
+    review.finishRecording(req(id), res)
+    expect(bodyOf(res).error.code).toBe('NOTHING_CAPTURED')
+  })
+})
+
+describe('a whole session, start to finish', () => {
+  test('each segment\'s audio goes once it is text; the clip goes at the end; the reports get one transcript', async () => {
+    openaiReplies(200, GOOD)
+    const id = newSession()
+    store.writeVoiceReference(id, Buffer.from('VOICE'), 'audio/webm')
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'Our Session Objective')
+    recordSegment(id, 'Porter')
+    await drain()
+
+    // Segment 1 is text and its audio is gone, while the clip waits for segment 2.
+    expect(store.listSegmentChunks(id, 1)).toEqual([])
+    expect(store.readVoiceReference(id)).not.toBeNull()
+
+    const res = makeRes()
+    review.finishRecording(req(id), res)
+    expect(res._status).toBe(202)
+    await drain()
+
+    const meta = store.readMeta(id)
+    expect(meta.state).toBe('transcribed')
+    expect(store.readVoiceReference(id)).toBeNull()
+    expect(meta.audioDeletedAt).toBeTruthy()
+    const transcript = store.readTranscript(id)
+    expect(transcript.segments).toHaveLength(4)
+    expect(transcript.segments.map(r => r.role)).toEqual(['client', 'advisor', 'client', 'advisor'])
+    expect(transcript.attributionConfident).toBe(true)
+
+    // The recorder's poll reads "done", with the segments and never their words.
+    const status = makeRes()
+    review.getRecording(req(id), status)
+    expect(status._body.state).toBe('done')
+    expect(status._body.segments.map(s => s.state)).toEqual(['done', 'done'])
+    expect(JSON.stringify(status._body.segments)).not.toContain('client spoke first')
+  })
+
+  test('a failed segment still loses its audio, and the session finishes with the rest disclosed', async () => {
+    const id = newSession()
+    store.writeVoiceReference(id, Buffer.from('VOICE'), 'audio/webm')
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+
+    let call = 0
+    jest.spyOn(https, 'request').mockImplementation((_o, onResponse) => ({
+      setTimeout () {},
+      on () {},
+      write () {},
+      destroy () {},
+      end () {
+        call += 1
+        const failing = call === 1
+        setImmediate(() => onResponse({
+          statusCode: failing ? 500 : 200,
+          async * [Symbol.asyncIterator] () { yield Buffer.from(failing ? 'down' : GOOD) }
+        }))
+      }
+    }))
+
+    recordSegment(id, 'A')
+    recordSegment(id, 'B')
+    await drain()
+    expect(store.readMeta(id).segments[0].state).toBe('failed')
+    expect(store.listSegmentChunks(id, 1)).toEqual([])
+
+    review.finishRecording(req(id), makeRes())
+    await drain()
+    const transcript = store.readTranscript(id)
+    expect(transcript.missingSegments).toEqual([1])
+    expect(store.readMeta(id).state).toBe('transcribed')
+  })
+
+  test('a session where every segment failed ends failed, with its audio still destroyed', async () => {
+    openaiReplies(500, 'down')
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'A')
+    review.finishRecording(req(id), makeRes())
+    await drain()
+    const meta = store.readMeta(id)
+    expect(meta.state).toBe('failed')
+    expect(store.readTranscript(id)).toBeNull()
+    expect(fs.readdirSync(path.join(ROOT, id)).some(f => /chunk|voice/.test(f))).toBe(false)
+  })
+
+  test('a later segment transcribed without a voice clip is never called confident', async () => {
+    openaiReplies(200, GOOD)
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'A')
+    recordSegment(id, 'B')
+    review.finishRecording(req(id), makeRes())
+    await drain()
+    const meta = store.readMeta(id)
+    // Segment 1 opens with the consent line, so its first speaker is the advisor; segment 2
+    // has no anchor at all.
+    expect(meta.segments.map(s => s.attributionConfident)).toEqual([true, false])
+    expect(store.readTranscript(id).attributionConfident).toBe(false)
+  })
+
+  test('a card pressed and left at once closes as empty and is never sent', async () => {
+    const spy = openaiReplies(200, GOOD)
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    const open = makeRes()
+    seg.openNextSegment(req(id, { body: { label: 'Empty' } }), open)
+    recordSegment(id, 'Real')
+    seg.closeSegment(req(id), makeRes())
+    await drain()
+    expect(store.readMeta(id).segments[0].state).toBe('empty')
+    expect(spy).toHaveBeenCalledTimes(1)
+  })
+
+  test('a break closes the live segment without opening another', async () => {
+    openaiReplies(200, GOOD)
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'A')
+    const res = makeRes()
+    seg.closeSegment(req(id), res)
+    expect(res._body.closed).toBe(1)
+    await drain()
+    expect(store.readMeta(id).segments.some(s => s.state === 'recording')).toBe(false)
+
+    const again = makeRes()
+    seg.closeSegment(req(id), again)
+    expect(again._body.closed).toBeNull()
+  })
+
+  test('a second finish while the session is finishing is answered, not repeated', () => {
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString(), state: 'finishing' })
+    const res = makeRes()
+    seg.finishSegmented(store.readMeta(id), res)
+    expect(res._status).toBe(202)
+  })
+})
+
+describe('who may do what', () => {
+  test('a colleague at the same firm cannot open a segment in someone else\'s session', () => {
+    const id = newSession()
+    const res = makeRes()
+    seg.openNextSegment({ firmId: FIRM, advisorId: 'someone-else', params: { meetingId: id }, body: { label: 'A' } }, res)
+    expect(res._status).toBe(404)
+  })
+
+  test('a single-file meeting cannot take segments', () => {
+    const { meetingId } = store.createMeeting({ firmId: FIRM, advisor: ADVISOR, retentionMonths: 18 })
+    const res = makeRes()
+    seg.openNextSegment(req(meetingId, { body: { label: 'A' } }), res)
+    expect(bodyOf(res).error.code).toBe('NOT_SEGMENTED')
+  })
+
+  test('a finished session takes no more segments', () => {
+    const id = newSession()
+    store.updateMeta(id, { state: 'finishing' })
+    const res = makeRes()
+    seg.openNextSegment(req(id, { body: { label: 'A' } }), res)
+    expect(bodyOf(res).error.code).toBe('NOT_RECORDING')
+  })
+
+  test('a segment needs its concept\'s name', () => {
+    const id = newSession()
+    const res = makeRes()
+    seg.openNextSegment(req(id, { body: { label: '  ' } }), res)
+    expect(bodyOf(res).error.code).toBe('NO_LABEL')
+  })
+
+  test('opening a segment tells the browser when to roll over', () => {
+    const id = newSession()
+    const res = makeRes()
+    seg.openNextSegment(req(id, { body: { label: 'A' } }), res)
+    expect(res._body.rollBytes).toBe(store.SEGMENT_ROLL_BYTES)
+    expect(res._body.maxBytes).toBe(store.SEGMENT_MAX_BYTES)
+  })
+
+  test('a store fault while opening, closing or finishing answers safely, never with its message', () => {
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'A')
+    const boom = new Error('EACCES /var/secret/path')
+    jest.spyOn(store, 'openSegment').mockImplementation(() => { throw boom })
+    jest.spyOn(store, 'updateSegment').mockImplementation(() => { throw boom })
+
+    const open = makeRes()
+    seg.openNextSegment(req(id, { body: { label: 'B' } }), open)
+    expect(bodyOf(open).error.code).toBe('SEGMENT_REFUSED')
+
+    const close = makeRes()
+    seg.closeSegment(req(id), close)
+    expect(close._status).toBe(500)
+
+    const finish = makeRes()
+    review.finishRecording(req(id), finish)
+    expect(finish._status).toBe(500)
+    expect(JSON.stringify(bodyOf(finish))).not.toContain('/var/secret')
+  })
+
+  test('audio that survives its deletion is written onto the segment and the session', async () => {
+    // §5 trap 4: a deletion that failed must surface, not report success.
+    openaiReplies(200, GOOD)
+    const id = newSession()
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordSegment(id, 'A')
+    jest.spyOn(store, 'destroySegmentAudio').mockReturnValue({ removed: 0, bytesRemoved: 0, audioRemains: true })
+    jest.spyOn(store, 'destroyAudio').mockReturnValue({ removed: 0, bytesRemoved: 0, audioRemains: true })
+    review.finishRecording(req(id), makeRes())
+    await drain()
+    const meta = store.readMeta(id)
+    expect(meta.segments[0].audioDeletionFailed).toBe(true)
+    expect(meta.audioDeletionFailed).toBe(true)
+  })
+
+  test('"Stop and delete everything" leaves nothing of the session', () => {
+    const id = newSession()
+    store.writeVoiceReference(id, Buffer.from('VOICE'), 'audio/webm')
+    recordSegment(id, 'A')
+    const res = makeRes()
+    review.deleteRecording(req(id), res)
+    expect(res._body.deleted).toBe(true)
+    expect(fs.existsSync(path.join(ROOT, id))).toBe(false)
+  })
+})
+
+describe('uploads', () => {
+  test('the voice clip is stored with its base audio type', async () => {
+    const id = newSession()
+    mockNextForm = { fields: {}, files: { clip: [tempUpload('VOICE', 'audio/webm;codecs=opus')] } }
+    const res = makeRes()
+    await seg.uploadVoiceReference(req(id), res)
+    expect(res._status).toBe(201)
+    expect(store.readVoiceReference(id).mime).toBe('audio/webm')
+  })
+
+  test('a clip that is not an allowed audio type is refused', async () => {
+    const id = newSession()
+    mockNextForm = { fields: {}, files: { clip: tempUpload('<html>', 'text/html') } }
+    const res = makeRes()
+    await seg.uploadVoiceReference(req(id), res)
+    expect(bodyOf(res).error.code).toBe('CLIP_TYPE')
+    expect(store.readVoiceReference(id)).toBeNull()
+  })
+
+  test('a clip request with no clip is refused', async () => {
+    const id = newSession()
+    const res = makeRes()
+    await seg.uploadVoiceReference(req(id), res)
+    expect(bodyOf(res).error.code).toBe('NO_CLIP')
+  })
+
+  test('an unreadable clip form is refused', async () => {
+    const id = newSession()
+    mockNextForm = { error: new Error('bad form') }
+    const res = makeRes()
+    await seg.uploadVoiceReference(req(id), res)
+    expect(bodyOf(res).error.code).toBe('PARSE_ERROR')
+  })
+
+  test('an oversized clip is refused by the store', async () => {
+    const id = newSession()
+    mockNextForm = { fields: {}, files: { clip: tempUpload(Buffer.alloc(store.MAX_VOICE_REFERENCE_BYTES + 1), 'audio/webm') } }
+    const res = makeRes()
+    await seg.uploadVoiceReference(req(id), res)
+    expect(bodyOf(res).error.code).toBe('CLIP_REJECTED')
+  })
+
+  test('a chunk lands in the live segment', async () => {
+    const id = newSession()
+    const open = makeRes()
+    seg.openNextSegment(req(id, { body: { label: 'A' } }), open)
+    mockNextForm = { fields: { seq: ['1'] }, files: { chunk: [tempUpload('AUDIO', 'audio/webm')] } }
+    const res = makeRes()
+    await seg.uploadSegmentChunk(req(id, { params: { n: '1' } }), res)
+    expect(res._status).toBe(201)
+    expect(res._body.segmentBytes).toBe(5)
+  })
+
+  test('a full segment answers SEGMENT_FULL so the browser rolls over to "part 2"', async () => {
+    const id = newSession()
+    const open = makeRes()
+    seg.openNextSegment(req(id, { body: { label: 'A' } }), open)
+    store.updateSegment(id, 1, { bytes: store.SEGMENT_MAX_BYTES })
+    mockNextForm = { fields: { seq: '1' }, files: { chunk: tempUpload('AUDIO', 'audio/webm') } }
+    const res = makeRes()
+    await seg.uploadSegmentChunk(req(id, { params: { n: '1' } }), res)
+    expect(res._status).toBe(409)
+    expect(bodyOf(res).error.code).toBe('SEGMENT_FULL')
+  })
+
+  test('a chunk for a segment that is not live is refused', async () => {
+    const id = newSession()
+    mockNextForm = { fields: { seq: '1' }, files: { chunk: tempUpload('AUDIO', 'audio/webm') } }
+    const res = makeRes()
+    await seg.uploadSegmentChunk(req(id, { params: { n: '3' } }), res)
+    expect(bodyOf(res).error.code).toBe('CHUNK_REJECTED')
+  })
+
+  test('a chunk request with no chunk, or an unreadable form, is refused', async () => {
+    const id = newSession()
+    const none = makeRes()
+    await seg.uploadSegmentChunk(req(id, { params: { n: '1' } }), none)
+    expect(bodyOf(none).error.code).toBe('NO_CHUNK')
+
+    mockNextForm = { error: new Error('bad') }
+    const broken = makeRes()
+    await seg.uploadSegmentChunk(req(id, { params: { n: '1' } }), broken)
+    expect(bodyOf(broken).error.code).toBe('PARSE_ERROR')
+  })
+})

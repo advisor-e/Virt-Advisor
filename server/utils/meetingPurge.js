@@ -131,9 +131,12 @@ function purgeExpired (now) {
     result.expired += 1
 
     // Nothing left to remove: already swept, or the meeting was stopped and deleted.
+    // ⚠ A strategy session's segment text counts (item 8.4): a session abandoned before "End
+    // recording" holds segment text and no joined transcript, and must still expire.
     if (!store.readTranscript(id) &&
         !store.readReport(id, 'summary') &&
-        !store.readReport(id, 'coaching')) {
+        !store.readReport(id, 'coaching') &&
+        !store.hasSegmentText(id)) {
       return
     }
 

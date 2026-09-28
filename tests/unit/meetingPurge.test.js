@@ -106,6 +106,20 @@ describe('the sweep', () => {
     expect(textFilesFor(id)).toEqual([])
   })
 
+  test('🔴 a strategy session abandoned before "End recording" still has its segment text expire', () => {
+    // Item 8.4. Such a session holds segment text and NO joined transcript. The sweep once
+    // skipped any meeting without the joined transcript or a report, so these words would
+    // have outlived the period the client was told — every day, silently.
+    const { meetingId } = store.createMeeting({ firmId: FIRM, advisor: 'adv-1', retentionMonths: 18, segmented: true })
+    store.updateMeta(meetingId, { createdAt: '2020-03-01T00:00:00.000Z' })
+    const { n } = store.openSegment(meetingId, { label: "Porter's 5 Forces" })
+    store.writeSegmentTranscript(meetingId, n, { segments: [{ role: 'client', text: 'our two suppliers' }] })
+
+    purgeExpired(new Date('2026-09-07T00:00:00.000Z'))
+    expect(store.hasSegmentText(meetingId)).toBe(false)
+    expect(store.readMeta(meetingId).transcriptPurgedAt).toBeTruthy()
+  })
+
   test('the meeting record survives, stamped with when the text went', () => {
     // Without the record there is nothing to prove the expiry ran, only a missing directory.
     const id = seed({ createdAt: '2020-02-01T00:00:00.000Z', retentionMonths: 12 })

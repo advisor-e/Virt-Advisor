@@ -142,6 +142,7 @@ const industryVocabularyRoute = require('./routes/industryVocabulary')
 const aiReadinessRoute = require('./routes/aiReadiness')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
+const meetingSegmentsRoute = require('./routes/meetingSegments')
 const registerRetentionRoute = require('./routes/registerRetentionRoutes')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const complianceRoute = require('./routes/compliance')
@@ -879,6 +880,14 @@ server.post('/api/meeting/recordings/:meetingId/chunk', firmAuth, mr.uploadChunk
 server.post('/api/meeting/recordings/:meetingId/finish', firmAuth, mr.finishRecording)
 server.get('/api/meeting/recordings/:meetingId', firmAuth, mr.getRecording)
 server.del('/api/meeting/recordings/:meetingId', firmAuth, mr.deleteRecording)
+
+// A strategy session recorded in concept segments (item 8.4, drawing approved 2026-09-28).
+// Behind the same choke point as above: a session is started by POST /api/meeting/recordings
+// with `segmented: true`, so the compliance gate still governs whether one can exist.
+server.post('/api/meeting/recordings/:meetingId/voice-reference', firmAuth, meetingSegmentsRoute.uploadVoiceReference)
+server.post('/api/meeting/recordings/:meetingId/segments', firmAuth, meetingSegmentsRoute.openNextSegment)
+server.post('/api/meeting/recordings/:meetingId/segments/close', firmAuth, meetingSegmentsRoute.closeSegment)
+server.post('/api/meeting/recordings/:meetingId/segments/:n/chunk', firmAuth, meetingSegmentsRoute.uploadSegmentChunk)
 
 // Slice 3 — the two reports. `firmAuth` only, like the recording routes above: each of these
 // guards on the ADVISOR as well as the firm inside `ownedMeeting`, because Brief P2 gives a

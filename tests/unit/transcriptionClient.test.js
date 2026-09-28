@@ -121,9 +121,10 @@ describe('the whole response', () => {
 describe('who is the advisor — the consent line is the anchor', () => {
   test('the first voice on the recording is the advisor', () => {
     // 🔴 THE WHOLE DESIGN IN ONE ASSERTION. Brief §3: the advisor speaks the consent wording
-    // and speaks it FIRST, so whoever opens the recording is the advisor. This is why no
-    // voice sample is stored anywhere in this feature — a stored sample held so software can
-    // recognise a person is biometric data, special-category under UK and EU law.
+    // and speaks it FIRST, so whoever opens the recording is the advisor. This is why a
+    // single-file meeting keeps no voice sample — a sample held so software can recognise a
+    // person is biometric data, special-category under UK and EU law. Segmented sessions are
+    // the one exception, tested below.
     const result = tc.attributeSpeakers([
       { speaker: 'S1', start: 0, end: 20, text: 'Before we begin — I would like to record our meeting.' },
       { speaker: 'S2', start: 21, end: 24, text: 'Yes, that is fine.' },
@@ -168,6 +169,58 @@ describe('who is the advisor — the consent line is the anchor', () => {
   test.each([[null], [undefined], ['nope'], [{}]])(
     'a non-list (%p) is handled rather than thrown on', (input) => {
       expect(tc.attributeSpeakers(input).segments).toEqual([])
+    }
+  )
+})
+
+describe('who is the advisor in a later segment — the voice clip is the anchor (item 8.4)', () => {
+  test('the advisor is whoever the clip matched, even when the client speaks first', () => {
+    // 🔴 THE REASON THE CLIP EXISTS. Segment 4 of a strategy session has no consent line, so
+    // the first voice may be the client's. The first-speaker rule would swap every label in
+    // the segment and still read as confident.
+    const result = tc.attributeSpeakers([
+      { speaker: 'A', start: 0, end: 4, text: 'the other thing is the flat-pack version' },
+      { speaker: 'advisor', start: 5, end: 8, text: 'so that is a substitute' }
+    ], 'advisor')
+    expect(result.segments.map(s => s.role)).toEqual(['client', 'advisor'])
+    expect(result.advisorSpeaker).toBe('advisor')
+    expect(result.confident).toBe(true)
+  })
+
+  test('a clip that matched nobody leaves every row unknown and says it is not confident', () => {
+    // Either the advisor never spoke, or the match failed. The second would give the
+    // advisor's own words to the client, so neither is guessed at.
+    const result = tc.attributeSpeakers([
+      { speaker: 'A', start: 0, end: 4, text: 'one' },
+      { speaker: 'B', start: 5, end: 8, text: 'two' }
+    ], 'advisor')
+    expect(result.segments.map(s => s.role)).toEqual(['unknown', 'unknown'])
+    expect(result.advisorSpeaker).toBeNull()
+    expect(result.confident).toBe(false)
+  })
+
+  test('a segment where only the advisor spoke is still attributed', () => {
+    const result = tc.attributeSpeakers([
+      { speaker: 'advisor', start: 0, end: 30, text: 'this slide is about the five forces' }
+    ], 'advisor')
+    expect(result.segments[0].role).toBe('advisor')
+    expect(result.confident).toBe(true)
+  })
+
+  test('the clip becomes a data URL of its own declared audio type', () => {
+    expect(tc.referenceDataUrl({ buffer: Buffer.from('VOICE'), mime: 'audio/webm' }))
+      .toBe('data:audio/webm;base64,' + Buffer.from('VOICE').toString('base64'))
+  })
+
+  test('a clip whose type is not an audio type on the list is refused, never forwarded', () => {
+    // The type rides into a URL OpenAI parses; it is checked, not copied from a request.
+    expect(() => tc.referenceDataUrl({ buffer: Buffer.from('x'), mime: 'text/html' }))
+      .toThrow(/not allowed/)
+  })
+
+  test.each([[undefined], [null], [{ buffer: Buffer.alloc(0), mime: 'audio/webm' }], [{ buffer: 'x', mime: 'audio/webm' }]])(
+    'no usable clip (%p) means no reference is sent', (reference) => {
+      expect(tc.referenceDataUrl(reference)).toBeNull()
     }
   )
 })
@@ -262,6 +315,55 @@ describe('the call itself', () => {
     })
     await tc.createTranscriptionClient({ apiKey: 'k', requestImpl }).transcribe({ buffer: Buffer.from('AUDIO') })
     expect(sent).toMatch(/name="chunking_strategy"\r\n\r\nauto\r\n/)
+  })
+
+  test('with the advisor\'s clip, the request names it and the reply is attributed by it', async () => {
+    let sent = ''
+    const requestImpl = (_options, onResponse) => ({
+      setTimeout () {},
+      on () {},
+      write (chunk) { sent += Buffer.from(chunk).toString('latin1') },
+      destroy () {},
+      end () {
+        setImmediate(() => onResponse({
+          statusCode: 200,
+          async * [Symbol.asyncIterator] () {
+            yield Buffer.from(JSON.stringify({
+              text: 'x',
+              segments: [
+                { speaker: 'A', start: 0, end: 2, text: 'client first' },
+                { speaker: 'advisor', start: 3, end: 5, text: 'advisor second' }
+              ]
+            }))
+          }
+        }))
+      }
+    })
+    const result = await tc.createTranscriptionClient({ apiKey: 'k', requestImpl }).transcribe({
+      buffer: Buffer.from('AUDIO'),
+      advisorReference: { buffer: Buffer.from('VOICE'), mime: 'audio/webm' }
+    })
+    expect(sent).toMatch(/name="known_speaker_names\[\]"\r\n\r\nadvisor\r\n/)
+    expect(sent).toContain('name="known_speaker_references[]"\r\n\r\ndata:audio/webm;base64,')
+    expect(result.segments.map(s => s.role)).toEqual(['client', 'advisor'])
+  })
+
+  test('without a clip, the request carries no known-speaker fields at all', async () => {
+    let sent = ''
+    const requestImpl = (_options, onResponse) => ({
+      setTimeout () {},
+      on () {},
+      write (chunk) { sent += Buffer.from(chunk).toString('latin1') },
+      destroy () {},
+      end () {
+        setImmediate(() => onResponse({
+          statusCode: 200,
+          async * [Symbol.asyncIterator] () { yield Buffer.from('{"text":"","segments":[]}') }
+        }))
+      }
+    })
+    await tc.createTranscriptionClient({ apiKey: 'k', requestImpl }).transcribe({ buffer: Buffer.from('AUDIO') })
+    expect(sent).not.toContain('known_speaker')
   })
 
   test('a missing key throws before anything is sent', async () => {

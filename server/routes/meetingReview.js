@@ -303,7 +303,9 @@ async function startRecording (req, res) {
       advisorName: req.advisorName || null,
       scenarioId: body.scenarioId || null,
       clientId,
-      retentionMonths: resolved.months
+      retentionMonths: resolved.months,
+      // A strategy session records one concept at a time (item 8.4) — see meetingSegments.js.
+      segmented: body.segmented === true
     })
     res.send(201, {
       meetingId,
@@ -335,6 +337,9 @@ function confirmConsent (req, res) {
   try {
     const at = new Date().toISOString()
     store.updateMeta(meta.meetingId, { consentConfirmedAt: at })
+    // A strategy session may already have closed a segment while the line was being spoken;
+    // it waited for this tick, and is transcribed now (item 8.4, Decision C).
+    if (meta.segmented) { require('./meetingSegments').startPending(meta.meetingId) }
     res.send(200, { confirmed: true, at })
   } catch (err) {
     return serverError(res, err, 'record that confirmation')
@@ -474,6 +479,10 @@ function finishRecording (req, res) {
   const meta = ownedMeeting(req, res)
   if (!meta) { return }
 
+  // A strategy session is transcribed segment by segment and joined (item 8.4). The same
+  // consent rule is enforced there, before anything else.
+  if (meta.segmented) { return require('./meetingSegments').finishSegmented(meta, res) }
+
   if (!meta.consentConfirmedAt) {
     return sendError(res, 409, 'CONSENT_NOT_CONFIRMED',
       'This recording has no confirmed consent, so it cannot be transcribed. Confirm that everyone agreed, or stop and delete it.')
@@ -516,10 +525,13 @@ function getRecording (req, res) {
 
   const transcript = store.readTranscript(meta.meetingId)
   const job = jobs.get(meta.meetingId)
+  // A strategy session's state lives on its record, and "transcribed" is the recorder's "done".
+  const segmentedState = meta.state === 'transcribed' ? 'done' : meta.state
 
   res.send(200, {
     meetingId: meta.meetingId,
-    state: job ? job.state : meta.state,
+    state: meta.segmented ? segmentedState : (job ? job.state : meta.state),
+    segments: meta.segmented ? require('../utils/meetingSegments').publicSegments(meta) : undefined,
     error: job ? job.error : null,
     chunkCount: meta.chunkCount || 0,
     bytes: meta.bytes || 0,
@@ -987,6 +999,8 @@ function mountable (fn) {
 }
 
 module.exports = {
+  // Shared with meetingSegments.js, so a strategy session's routes check ownership the same way.
+  ownedMeeting,
   DIARIZING_MODEL,
   getRetention,
   setRetention,
