@@ -11,7 +11,9 @@
 
 ## 2026-09-28 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed; 16 ahead of `master`, all in PR #139** (not merged — that is the master team's).
+**Clean and pushed; 18 ahead of `master` (this note's own commit included), 0 behind — `master`
+(the desktop's PR #138: 13.5, 10.2, 15.13, 8.3 parked) merged in this evening. All in PR #139**,
+mergeable and clean (not merged — that is the master team's).
 
 **Built today: 8.4's first build, complete** — recording a strategy session one concept at a time,
 Build-session timing, the Run session screen, concept summaries approved with the client, and a
