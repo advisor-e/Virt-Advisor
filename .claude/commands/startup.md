@@ -101,6 +101,12 @@ modified tracked file behind.
    step 5. *Ahead* is work finished on this machine that has reached nobody else, which is
    what produces that 97 in the first place — step 6.
 
+   ⏰ **IF IT PRINTS A `REMINDERS DUE` BOX, THAT COMES BEFORE EVERY OTHER STEP'S QUESTION.**
+   Each entry is a question Mike asked, on a date he chose, to be put to him again
+   (`design/features/reminders.json`; his instruction of 2026-09-28 when he parked 8.3).
+   Put it to him as it reads, write his answer where the entry says, then remove the entry —
+   in that session, never "at shutdown".
+
 3. **Open the Handbook.** Run `npm run handbook`, republish the generated file to the
    EXISTING Handbook artifact (pass its URL — never create a second one), open that URL
    in Mike's browser, and give him the link in your reply.

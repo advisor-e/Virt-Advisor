@@ -109,6 +109,23 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**8.3 · Meeting Review's speaker-labelling model is switched off 26 Feb 2027, with no named
+replacement.** ⏸ **Parked 2026-09-28 by Mike, to be put to him again on 15 December 2026** — in
+his words, *"mark this as parked with an automated reminder to ask me again on December 15"*.
+
+- **Still true on the day it was parked:** the app labels speakers with `gpt-4o-transcribe-diarize`
+  (`server/utils/transcriptionClient.js` `DIARIZING_MODEL`); OpenAI's deprecations page removes it
+  on 26 February 2027 and names `gpt-transcribe` and `gpt-live-transcribe`, which return no
+  speakers ([`../openai/DEPRECATIONS-2026-09-24.md`](../openai/DEPRECATIONS-2026-09-24.md),
+  [`../openai/MODEL-PAGES-2026-09-24.md`](../openai/MODEL-PAGES-2026-09-24.md)). Meeting Review's
+  summary and coaching notes read the speaker turns.
+- **What un-parks it:** a question only Mike can ask, through the ZDR contact — is a
+  speaker-labelling successor coming before 26 Feb 2027, and is it covered by the ZDR agreement.
+  A draft was given to him in chat on 2026-09-28. Any successor is checked against
+  [`../OPENAI-ZDR-CONSTRAINTS.md`](../OPENAI-ZDR-CONSTRAINTS.md) before use; with none, the
+  fallback is a design decision for him.
+- **The time it leaves:** asked on 15 December, about ten weeks remain before the removal.
+
 **7.3 · A second opinion from two AI providers.** ⏸ **Parked 2026-09-23 by Mike.** His own idea,
 unbuilt, and it needs a decision and an impact test before any design — not a build.
 
