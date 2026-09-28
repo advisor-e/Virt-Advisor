@@ -7960,6 +7960,98 @@
       "restored": "That release is back in force"
     }
   },
+  "clientCopyRequestDetail": {
+    "back": "← All requests",
+    "clientGone": "Client no longer on the register",
+    "askedLine": "{kind} · asked on {date}",
+    "due": "· due {date}",
+    "noAudio": {
+      "title": "There is no audio of any meeting, and there never will be.",
+      "body": "Every recording is destroyed the moment its transcript exists — that is what your client was told when consent was taken. What can be provided is text."
+    },
+    "waiting": {
+      "title": "You can release the meetings you recorded. The others are for the advisor who took them.",
+      "body": "Still waiting on {names}. The request is answered once every advisor has released their part."
+    },
+    "meetingsHeading": "MEETINGS HELD WITH THIS CLIENT",
+    "noMeetings": "No meetings with this client have been recorded. Nothing here has been deleted — none was ever made.",
+    "youRecorded": "You recorded this",
+    "recordedBy": "Recorded by {advisor}",
+    "keptUntil": "· kept until {date}",
+    "deletedClientAsked": "Deleted at your client’s request on {date}",
+    "deletedOn": "Deleted on {date}",
+    "tags": {
+      "transcript": "Transcript",
+      "summary": "Meeting Summary",
+      "summaryNever": "Meeting Summary was never approved",
+      "coachingNever": "My Coaching Notes — never provided"
+    },
+    "expiredNote": "This meeting was held when your firm kept transcripts for {months} months. The transcript and both reports were destroyed on that date and cannot be recovered.",
+    "releasedLine": "Released {date} by {who}.",
+    "breakGlassLine": "Released on the firm’s behalf — {declaredBy} recorded that {absent} could no longer act.",
+    "actions": {
+      "prepare": "Prepare the copy",
+      "recordCorrection": "Record a correction",
+      "delete": "Delete",
+      "waitingOn": "Waiting on {advisor}",
+      "cannotAct": "They cannot act"
+    },
+    "others": {
+      "title": "A transcript is a record of a conversation, and other people are in it.",
+      "body": "Your client may have named employees, family members or customers. Whether any of that should be removed before you hand it over is a judgement about your client’s situation and your obligations — we cannot make it for you, and nothing here removes anything automatically. Read what you are about to provide."
+    },
+    "ack": {
+      "identity": "I have confirmed I am dealing with {client}, or someone they have authorised to ask on their behalf.",
+      "thisClient": "this client",
+      "identityNote": "This application cannot check that. Your firm confirms it, the same way consent is confirmed before a recording starts.",
+      "contentRead": "I have read what is being provided and I am satisfied it is right to release it."
+    },
+    "fileNote": "Preparing the copy produces a file you download and send yourself, from your own email — exactly as a Meeting Summary is sent today. Nothing is emailed by this application.",
+    "markAnswered": "Mark this request answered",
+    "answered": "Answered {date} by {who}.",
+    "cancel": "Cancel",
+    "correction": {
+      "title": "Record a correction",
+      "whyTitle": "The transcript is not changed, and this is the reason.",
+      "whyBody": "It records what was said in a room, not a claim about the world. Your client’s statement is attached to the meeting and travels with it from now on — which is what the law asks for where a record cannot simply be rewritten.",
+      "quote": "The passage your client disputes",
+      "quoteAt": "Where in the meeting (optional)",
+      "statement": "Your client’s statement, in their words",
+      "attach": "Attach this statement",
+      "needWords": "A correction needs your client’s own words."
+    },
+    "delete": {
+      "title": "Delete this meeting",
+      "warnTitle": "This destroys the transcript and both reports for this meeting.",
+      "warnBody": "It is the same removal the retention clock performs, brought forward — so the Meeting Summary and your own coaching notes go too. They quote the transcript throughout, and removing only the transcript would leave your client’s words in two other files. {cannotUndo}",
+      "cannotUndo": "It cannot be undone.",
+      "stubTitle": "A record that the meeting happened will remain.",
+      "stubBody": "The date, the client, the advisor and the fact that it was deleted at your client’s request — nothing of what was said. Keeping that lets you prove the deletion happened rather than showing an empty folder and asking to be believed.",
+      "clientAsked": "{client} asked for this, and I have confirmed who I am dealing with.",
+      "myClient": "My client",
+      "understand": "I understand this cannot be undone and that no copy is kept anywhere.",
+      "confirm": "Delete permanently"
+    },
+    "glass": {
+      "title": "Release on the firm’s behalf",
+      "warnTitle": "Only {advisor} can release this meeting, and a request cannot wait forever.",
+      "recordingAdvisor": "the recording advisor",
+      "warnBody": "Your client’s right does not lapse because an advisor left the firm. If they can no longer act, you may release it on the firm’s behalf — and this application cannot check that for itself, so {declaring}.",
+      "declaring": "you are declaring it",
+      "cannotAct": "{advisor} can no longer act on this request.",
+      "thisAdvisor": "This advisor",
+      "contentRead": "I have read what is being released and I am satisfied it is right to provide it.",
+      "signInNote": "Sign-in is handled by Advisor-e, not by this application, so nothing here can confirm whether an advisor has left. This declaration stays on the record permanently, with your name and today’s date.",
+      "confirm": "Release on the firm’s behalf"
+    },
+    "anotherAdvisor": "another advisor",
+    "unrecordedDate": "an unrecorded date",
+    "undated": "An undated meeting",
+    "errors": {
+      "unreachable": "The server could not be reached. Check your connection and try again.",
+      "failed": "That could not be done."
+    }
+  },
   "firmClientCopyRequests": {
     "title": "Client Copy Request",
     "answerWithin": "Answer within {phrase}",

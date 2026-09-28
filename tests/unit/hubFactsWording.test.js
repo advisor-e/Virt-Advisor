@@ -61,6 +61,54 @@ describe('a country schedule\'s unread pages, worded on the screen', () => {
   })
 })
 
+describe('the client copy request screen has no English of its own', () => {
+  // Found while fixing 10.2: this screen held ~60 English phrases typed into the page, so a
+  // manager reading the hub in German met it entirely in English — and an English-speaking
+  // tester in UAT can never see that. Rendered with the KEY stub, every word the screen shows
+  // must be a key, a person's name or a date. A phrase typed back into the page fails here.
+  const Detail = require('~/components/shared/ClientCopyRequestDetail.vue').default
+  const MEETINGS = [
+    { meetingId: 'm1', createdAt: '2026-08-27T00:00:00.000Z', yours: true, holds: ['transcript', 'summary'], retentionMonths: 18 },
+    { meetingId: 'm2', createdAt: '2026-08-20T00:00:00.000Z', yours: true, holds: ['transcript'], retentionMonths: 18 },
+    { meetingId: 'm3', createdAt: '2026-08-10T00:00:00.000Z', yours: false, holds: ['transcript'], advisorName: 'Owen Fraser', retentionMonths: 12 },
+    { meetingId: 'm4', createdAt: '2025-01-01T00:00:00.000Z', yours: true, expired: true, expiredReason: 'client-asked', expiredAt: '2026-08-01T00:00:00.000Z', holds: [], retentionMonths: 12 },
+    { meetingId: 'm5', createdAt: '2026-06-01T00:00:00.000Z', yours: false, released: true, holds: ['transcript'], retentionMonths: 18 }
+  ]
+  const RELEASES = [{ meetingId: 'm5', at: '2026-09-06T00:00:00.000Z', releasedBy: 'Sarah Chen', breakGlass: { declaredBy: 'Mike Barnes', absentAdvisor: 'Owen Fraser' } }]
+  const ALLOWED = ['Harbour', 'Joinery', 'Owen', 'Fraser', 'Sarah', 'Chen', 'Mike', 'Barnes', 'January', 'June', 'August', 'Sep', 'Aug', 'Feb', 'Jun', 'Jan']
+
+  it('🔴 every word on the screen, and in each of its three dialogs, comes from the wording file', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        request: { id: 'r1', clientName: 'Harbour Joinery', kind: 'copy', state: 'open', receivedAt: '2026-09-02T00:00:00.000Z' },
+        meetings: MEETINGS,
+        releases: RELEASES,
+        clock: { due: '2026-09-30T00:00:00.000Z', remaining: 4, unit: 'working-days', overdue: false }
+      })
+    })
+    const w = mountWithBuefy(Detail, { propsData: { apiToken: 't', requestId: 'r1' }, attachTo: document.body })
+    for (let i = 0; i < 6; i++) { await w.vm.$nextTick(); await Promise.resolve() }
+    const texts = [document.body.textContent]
+    w.vm.target = MEETINGS[2]
+    for (const dialog of ['correcting', 'deleting', 'breakingGlass']) {
+      w.vm[dialog] = true
+      await w.vm.$nextTick()
+      texts.push(document.body.textContent)
+      w.vm[dialog] = false
+      await w.vm.$nextTick()
+    }
+    const words = texts.join(' ')
+      .replace(/[\w.]+\.[\w.-]+/g, ' ') // keys, as the stub returns them
+      .replace(/\{[^}]*\}/g, ' ') // the stub's interpolation params
+      .match(/[A-Za-z]{3,}/g) || []
+    expect(words.filter(x => !ALLOWED.includes(x))).toEqual([])
+    w.destroy()
+    document.body.innerHTML = ''
+    delete global.fetch
+  })
+})
+
 describe('the meeting patterns month', () => {
   it('🔴 asks for the month itself, in the reader\'s language, on a day no timezone can move', () => {
     const $d = jest.fn(() => 'Aug 2026')

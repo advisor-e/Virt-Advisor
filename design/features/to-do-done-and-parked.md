@@ -366,8 +366,11 @@ what item 10.1 (`1375c0eb`) left behind, and nothing had touched it since.
   home, carrying Mike's condition that the gap shows wherever the table is used), and `$d` with a
   new `monthYear` format for Meeting Patterns. English is unchanged word for word, pinned in
   `tests/unit/hubFactsWording.test.js`; the route tests now check that no sentence is sent.
-- **Found on the way, not part of it:** `ClientCopyRequestDetail.vue` has its own English typed
-  into the page and was never put through the wording file.
+- **Found on the way and fixed the same day, on Mike's yes:** `ClientCopyRequestDetail.vue` held
+  ~60 English phrases typed into the page and had never been through the wording file. All of it
+  now reads `clientCopyRequestDetail` in `en.json`, word for word — eleven before-and-after
+  captures of every state and all three dialogs were identical — and a guard in
+  `hubFactsWording.test.js` fails if English is typed back into the page.
 - **Not proved here:** a walk of those screens in German. Some newer browsers write September as
   "Sept 2026" where the backend wrote "Sep 2026".
 
