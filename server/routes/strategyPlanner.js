@@ -481,7 +481,10 @@ async function postSuggest (req, res) {
         max_tokens: 1800,
         response_format: { type: 'json_object' }
         // moderate: [] — the situation is saved case summaries, nothing typed here (item 8.2).
-      }, { personal: false, moderate: [] })
+        // personal: true — each summary is the AI's last reply in an advisor's saved conversation
+        // about a real client, so it describes that client; the advisor conversation is personal
+        // by Mike's ruling of 2026-09-15 (item 15.30). No id travels with it.
+      }, { personal: true, moderate: [] })
     } catch (err) {
       console.error('[strategy-planner] postSuggest model call failed:', err.message)
       sendError(res, 502, 'SUGGEST_UNAVAILABLE',

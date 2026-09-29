@@ -5636,7 +5636,7 @@
     "restoredBy": "{who} · {when}"
   },
   "firmAiPrompts": {
-    "intro": "These are the instructions the AI is given when it builds a cash flow model for your clients. The method is fixed — it is what makes the output auditable, and it is shown in full below so you can see the standard your firm is held to. The highlighted boxes are yours to set.",
+    "intro": "These are the instructions the AI will follow when it builds a cash flow model for your clients. No feature in the app uses them yet, so the settings below take effect once one does. The method is fixed — it is what makes the output auditable, and it is shown in full below so you can see the standard your firm is held to.",
     "pickerLabel": "Choose a document",
     "metaSettings": "{sections} fixed sections · {settings} settings you can change",
     "metaNoSettings": "{sections} fixed sections · nothing to set",

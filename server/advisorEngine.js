@@ -2228,9 +2228,10 @@ async function handleQuery (rawBody, res, identity) {
   // and are gone (item 4.24). `firmCoaching` above is the surviving half — an advisor's
   // free text about a real client, which stays fenced.
 
-  // Past case studies, read server-side from the verified identity. Only client
-  // and discover modes use them, so the other modes skip the read entirely.
-  const promptCases = (mode === 'client' || mode === 'discover')
+  // Past case studies, read server-side from the verified identity. Only discover mode
+  // uses them: client mode always returns before the prompt that carries them (item 7.15),
+  // so every other mode skips the read entirely.
+  const promptCases = (mode === 'discover')
     ? await loadPromptCases(advisorId, firmId, mode)
     : []
 
@@ -4085,6 +4086,9 @@ async function handleQuery (rawBody, res, identity) {
     return
   }
 
+  // ⚠ CLIENT MODE NEVER REACHES THIS POINT — the branch above always returns. The
+  // `mode === 'client'` tests below are therefore always false here; they are harmless, but
+  // read them as discover/plan/learn only (item 7.15).
   const languageInstruction = (language !== 'en' && languageName)
     ? `\n\nIMPORTANT: The advisor is using the ${languageName} interface. Always respond entirely in ${languageName}, regardless of what language the advisor writes in.`
     : ''
@@ -4150,8 +4154,8 @@ async function handleQuery (rawBody, res, identity) {
   const basePrompt = loadPrompt(mode) || loadPrompt('client')
   const systemPrompt = basePrompt + profileSystemInstruction + languageInstruction
 
-  // Case studies are only relevant in client and discover modes — promptCases is
-  // already empty in the others (loaded once, above, from the verified identity).
+  // Case studies are only used in discover mode — promptCases is already empty in the
+  // others (loaded once, above, from the verified identity).
   const caseSummariesText = formatCaseSummaries(promptCases)
 
   // Learn mode logic trees — detect from conversation for sales_process and public_speaking trees

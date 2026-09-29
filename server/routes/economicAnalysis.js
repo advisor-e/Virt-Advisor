@@ -261,10 +261,10 @@ function fillPlaceholders (assembled, brief, assessmentDate, now) {
  * The hosts §3 bans, read from the prompt itself.
  *
  * ONE HOME. The same array feeds the sentence the model reads and the check that refuses a
- * run citing one anyway, so the instruction and the enforcement cannot drift apart. It sits
- * in `data/ai-prompts.json` rather than here because content that shapes AI output has to be
- * visible on a hub page, and this prompt already renders on the AI Prompts tab at all four
- * tiers — so a site can be added there without a developer.
+ * run citing one anyway, so the instruction and the enforcement cannot drift apart. It is read
+ * from the PLATFORM file, `data/ai-prompts.json` (`BASE_PROMPTS`), never from any tier's saved
+ * settings — so adding a site is a developer's change. No tier can edit it on the AI Prompts
+ * tab: `bannedSourceHosts` is not a declared variable, and the tab saves nothing else (item 40.1).
  *
  * @returns {string[]}
  */

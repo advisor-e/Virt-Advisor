@@ -106,7 +106,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Adding a concept today is five developer steps, one of them hand-drawing a deck page in code - about a day. All 46 concepts were built that way, and no screen anywhere lets anyone add a 47th.",
+      "why": "Adding a concept today is five developer steps, one of them hand-drawing a deck page in code - about a day. All 48 concepts were built that way, and no screen anywhere lets anyone add a 49th.",
       "risk": "The planner can only ever teach what we drew for it: a firm holding its own material has no route in, and that content stays in a PDF the app cannot see. The counter-risk is fidelity - an imported page that does not look like the 35 drawn slides is visibly foreign to a client in session and in the printed plan, which is the one thing Mike ruled out.",
       "askedBy": {
         "who": "Mike",
@@ -177,7 +177,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Seven of the 46 concepts still teach and capture nothing: Sales Process Review, (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
+      "why": "Seven of the 48 concepts still teach and capture nothing: Sales Process Review, (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
       "risk": "An advisor running these topics has nowhere to record what the client said, so it does not reach the plan or the next session. Choosing a form for them is Mike's decision (census section 4), so nothing moves until he rules.",
       "askedBy": {
         "who": "Mike",
@@ -292,6 +292,27 @@
       "touches": "Every hub tab under FirmManagerHub.vue at the four tiers; locales/en.json; server/utils/uiTranslation.js; and Wordsmith's language: the New Zealand spelling rule in buildDraftMessages and the AMERICAN check in server/utils/wordsmith.js.",
       "note": "NOT SCOPED. 10.1 and 10.2 already brought the manager screens and the hub's backend wording into translation. First job at scoping: list which hub pages and tiers still show English that bypasses it, and name how Wordsmith learns a firm's language and spelling. The impact test is unrun.",
       "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "8.6",
+      "name": "After a recorded strategy session the next meeting's coaching notes check nothing from it",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Coaching Notes check whether the previous meeting's agreed actions were followed through. A recorded strategy session's summary is joined from approved concept summaries, and its action list is always empty.",
+      "risk": "The advisor gets no follow-through on the meeting where most was agreed, and nothing on screen says so. Whether a strategy session carries actions, and where they come from, is a design decision - Decision J made its summary approved-summaries only.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
+      },
+      "touches": "server/utils/conceptSummary.js composeMeetingSummary (actions always empty, ~line 302); server/utils/meetingFollowThrough.js findPrevious (~lines 98-109); server/routes/meetingReview.js runReports. These sit beside 8.4's files, which are the laptop's.",
+      "note": "FOUND 2026-09-29. Not a regression - so since the segmented recording was built. FOR THE LAPTOP, ruled by Mike 2026-09-29: design it there alongside 8.4, whose files it shares; the desktop leaves its code untouched. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
+      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

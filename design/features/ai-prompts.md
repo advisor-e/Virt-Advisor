@@ -92,6 +92,14 @@ latter (and it is) then your version risks being too complicated for them."*
 What that produced, and each half matters:
 - **The cash flow prompt stays exactly as drawn.** *Materiality*, *three-way forecast*, *draft and
   publish*, *auditability* are an accountant's **own** vocabulary. Seeing it reassures them.
+- **The page says the settings are not yet in use, because they are not.** No feature sends the
+  cash flow prompt, so a manager must not be told the AI already follows it. The tab's opening
+  sentence, **approved word for word by Mike on 2026-09-29 (item 40.1)**, is `firmAiPrompts.intro`
+  in `locales/en.json`: *"These are the instructions the AI will follow when it builds a cash flow
+  model for your clients. No feature in the app uses them yet, so the settings below take effect
+  once one does. The method is fixed — it is what makes the output auditable, and it is shown in
+  full below so you can see the standard your firm is held to."* When a feature starts sending
+  this prompt, that sentence is the one to change.
 - **The security prompt is MENTOR-ONLY.** Its seven headings — *the lethal trifecta*, *gate the
   sinks not the reads*, *taint-gate memory writes* — were **7 of the 19 sections a firm manager
   saw**, in a different profession's language. That is the opposite of reassurance: a list of
@@ -133,8 +141,10 @@ method, and the tab says *"Nothing here is yours to set"* rather than showing an
 **Deferred on purpose: the Flagged Issues Register.** The cash flow document's register — every
 assumption listed with a status of *open / accountant-accepted / resolved* — is the single most
 valuable thing either document offers, and this app has nothing like it. It is **not built**,
-because it is an approval workflow for AI output and **no report calls the AI yet**
-(`server/routes/report.js` never touches OpenAI). Building a sign-off screen for output nothing
+because it is an approval workflow for AI output and **no feature sends the cash flow prompt it
+belongs to**. Two report features do now call the AI — the market research for the Three-Way
+Forecast and the Next Steps draft on page 8 of the Business Performance Report — and neither uses
+this prompt. Building a sign-off screen for output nothing
 generates is work with no user. The prompt section describing it stays locked, so a model
 following the prompt still produces one; the app-side workflow waits until a report actually
 invokes a model. **This was a judgement call, made 2026-08-21, and it is recorded here so the
