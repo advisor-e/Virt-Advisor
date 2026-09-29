@@ -379,6 +379,91 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.16 · A privacy test's comment said the engines bypass the privacy seam; they did not.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29 ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)).
+  `aiCallSitesPersonal.test.js` said `advisorEngine` and `courseEngine` were "NOT YET ROUTED";
+  both were routed on 2026-09-15 (`c8b012aa`). Because of that note neither was ever registered,
+  so the engine's own eleven calls were unguarded — the gap that let 7.14 through.
+- **What was done:** the stale block is deleted; `advisorEngine.js` (personal) and
+  `courseEngine.js` (not personal) are on the register with their 2026-09-15 classes.
+- **What proves it:** the register passes as it stands and fails with one engine flag flipped.
+  Commit: `git log --grep "(7.16)"`.
+
+**7.15 · In client mode the engine read past case studies and never used them.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29 ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)). Client mode
+  always returns (~line 4086) before the prompt that carries case studies (~4160).
+- **Waste, not a lost feature:** before the 2026-08-03 security fix (`f10b87bd`) that added the
+  server-side read, client mode already returned first — the fix copied a "client or discover"
+  condition from a line client mode could never reach. Client recommendations never used them.
+- **What was done:** `server/advisorEngine.js` reads case studies in discover mode only; the
+  comment claiming client mode uses them is corrected; a warning above the discover/plan/learn
+  path says the later `mode === 'client'` tests never match. Nothing the AI is told changes.
+- **What proves it:** the 54 suites related to the engine, 922 tests. Not walked in a running app —
+  a removed read whose result was discarded. Commit: `git log --grep "(7.15)"`.
+
+**40.1 · Nothing on the AI Prompts tab changed what any AI is sent — and the tab said it did.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29 ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)). No feature
+  sends the cash flow prompt — deliberate, per the Brief — but the tab opened *"These are the
+  instructions the AI is given…"*, so a manager changing materiality believed they had changed
+  something.
+- **What was done:** `firmAiPrompts.intro` now says no feature uses the settings yet, in wording
+  Mike approved word for word, recorded in [`ai-prompts.md`](ai-prompts.md) P7. The comment in
+  `server/routes/economicAnalysis.js` claiming banned research sites could be added on the tab
+  without a developer now says they are a developer's change to the platform file.
+- **Not done, on purpose:** screens for the six hardcoded prompts — a new feature Mike has not
+  asked for. What proves it: the wording is on the page, visible in UAT; no code path changed.
+  Commit: `git log --grep "(40.1)"`.
+
+**15.30 · Planner Suggest sent a client's saved case summaries marked not personal.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done, on the recommendation to close).**
+
+- **Found:** 2026-09-29, in the same read as 15.29 and 7.14
+  ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)).
+- **What was done:** `postSuggest` in `server/routes/strategyPlanner.js` now passes
+  `personal: true`. Each case summary is the first 600 characters of the AI's last reply in an
+  advisor's saved conversation (`VirtualAdvisor.vue` `saveSession`), so it describes a real client
+  — personal under Mike's 2026-09-15 ruling. Its route test was corrected to match.
+- **Filed wrongly, half of it:** the item also said moderation was skipped for person-written
+  text. It is not person-written — it is model output — so `moderate: []` is right under the 8.2
+  rule (only what a person typed, said or uploaded). Nothing was changed there.
+- **What proves it:** the Suggest call is on `aiCallSitesPersonal.test.js`'s register as personal;
+  it and the route test fail with the fix removed. Commit: `git log --grep "(15.30)"`.
+
+**7.14 · The primary-issue tie-break sent the advisor's words about a client marked not personal.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29, in the same read as 15.29
+  ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)). Built on 2026-09-14 while the
+  privacy class was still open; Mike's 2026-09-15 ruling (the advisor conversation is personal)
+  was applied to the engine's own calls that day, but this one lives in a helper file and was missed.
+- **What was done:** `server/utils/primaryIssueProposer.js` `tiebreakWithModel` now passes
+  `personal: true`. Its own test, which pinned the pre-ruling `false`, was corrected on Mike's
+  word to cite the 2026-09-15 ruling.
+- **What proves it:** the tie-break is now on `aiCallSitesPersonal.test.js`'s register as personal;
+  that entry fails with the fix removed. Commit: `git log --grep "(7.14)"`.
+
+**15.29 · Wordsmith can write one client's approved wording into another client's plan.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29, reading every AI call for his whole-brain question
+  ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)). "Use this wording" checked only
+  that the planning session was the same firm's and not tied to another meeting; new sessions never
+  record a meeting, so any session in the firm was accepted.
+- **What was done:** `server/routes/wordsmith.js` `useWording` now refuses, before the record or any
+  box is written, unless the session's client is the recording's client and its advisor is the one
+  pressing the button. A recording with no client is refused rather than guessed. Same "No such
+  planning session" message; no screen wording changed.
+- **What proves it:** three new cases in `wordsmith.routes.test.js` — another client's session,
+  another advisor's session, a recording with no client — each refused with nothing recorded or
+  written; all three fail with the fix removed. The matching-session case still passes. Commit:
+  `git log --grep "(15.29)"`.
+
 **15.14 · Wordsmith - turning what the client said into statements they can use.**
 ✅ **Closed 2026-09-29 by Mike ("yes" to closing it as done).**
 

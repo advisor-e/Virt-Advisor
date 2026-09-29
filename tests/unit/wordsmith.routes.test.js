@@ -41,6 +41,7 @@ const { parseMarker } = require('../../utils/wordsmithMarker')
 
 const FIRM = 'firm-ws'
 const ADVISOR = 'adv-ws'
+const CLIENT = 'client-ws'
 
 const ALIGN_WORDS = 'We want to be the most trusted suspension business in the Bay of Plenty.'
 const OTHER_WORDS = 'SENTINEL-OTHER-CONCEPT our suppliers are slow'
@@ -75,7 +76,8 @@ async function call (handler, r) {
 
 /** A consented strategy session with an Alignment Statements section and one other, both text. */
 function meeting (opts = {}) {
-  const { meetingId } = store.createMeeting({ firmId: FIRM, advisor: ADVISOR, scenarioId: 'strategy_session', retentionMonths: 18, segmented: true })
+  const clientId = opts.clientId === undefined ? CLIENT : opts.clientId
+  const { meetingId } = store.createMeeting({ firmId: FIRM, advisor: ADVISOR, clientId, scenarioId: 'strategy_session', retentionMonths: 18, segmented: true })
   if (opts.consent !== false) { store.updateMeta(meetingId, { consentConfirmedAt: new Date().toISOString() }) }
   const sections = [
     { conceptId: 'porters-5-forces', label: 'Porter', rows: [{ start: 0, role: 'client', text: OTHER_WORDS }] },
@@ -130,7 +132,7 @@ beforeEach(() => {
   route._reset()
   jest.clearAllMocks()
   overlay.loadFirmConfig.mockResolvedValue(null)
-  sessions.getSession.mockResolvedValue({ id: 7, meetingId: null, firmId: FIRM })
+  sessions.getSession.mockResolvedValue({ id: 7, meetingId: null, firmId: FIRM, clientId: CLIENT, advisorId: ADVISOR })
   sessions.saveEntry.mockResolvedValue(true)
   jest.spyOn(console, 'error').mockImplementation(() => {})
   jest.spyOn(console, 'log').mockImplementation(() => {})
@@ -312,11 +314,23 @@ describe('"Use this wording" (Decision D)', () => {
 
   test.each([
     ['another firm\'s session', null],
-    ['a session tied to another meeting', { id: 7, meetingId: 'mtg_someone_else', firmId: FIRM }]
+    ['a session tied to another meeting', { id: 7, meetingId: 'mtg_someone_else', firmId: FIRM, clientId: CLIENT, advisorId: ADVISOR }],
+    // 🔴 Item 15.29: same firm, but another client's plan — this client's words never go there.
+    ['another client\'s session at the same firm', { id: 7, meetingId: null, firmId: FIRM, clientId: 'client-other', advisorId: ADVISOR }],
+    ['another advisor\'s session for the same client', { id: 7, meetingId: null, firmId: FIRM, clientId: CLIENT, advisorId: 'adv-other' }]
   ])('%s is refused and nothing is written', async (_w, session) => {
     const id = meeting()
     const { runId } = await firstRun(id)
     sessions.getSession.mockResolvedValue(session)
+    const res = await use(id, runId, { sessionId: 7, statement: 'Vision', text: 'We are trusted.', clientAgreed: true })
+    expect(res._status).toBe(404)
+    expect(store.readWordsmithRecords(id)).toEqual([])
+    expect(sessions.saveEntry).not.toHaveBeenCalled()
+  })
+
+  test('🔴 a recording with no client cannot be matched to a plan, so nothing is written', async () => {
+    const id = meeting({ clientId: null })
+    const { runId } = await firstRun(id)
     const res = await use(id, runId, { sessionId: 7, statement: 'Vision', text: 'We are trusted.', clientAgreed: true })
     expect(res._status).toBe(404)
     expect(store.readWordsmithRecords(id)).toEqual([])

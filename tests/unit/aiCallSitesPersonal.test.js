@@ -41,32 +41,38 @@ const SITES = [
   // The full meeting transcript. The consent the client gave aloud names AI transcription,
   // not an arbitrary list of companies (Brief P13, CLAUDE.md's scoped exception).
   { file: 'server/utils/meetingReports.js', personal: true, why: 'the full meeting transcript' },
+  // The primary-issue tie-break sends the advisor's own description of a client's problem —
+  // the conversation Mike ruled personal on 2026-09-15. Its client is INJECTED from
+  // `advisorEngine.js`, as the anonymiser's is from `cases.js`. Item 7.14: it said false.
+  { file: 'server/advisorEngine.js', personal: true, why: 'hands the seam client to the primary-issue tie-break', flagIn: 'server/utils/primaryIssueProposer.js' },
+  // Planner Suggest sends the saved case summaries of a named client — each the AI's last
+  // reply in the advisor's conversation about them. No id, but the same 2026-09-15 ruling.
+  // Item 15.30: it said false.
+  { file: 'server/routes/strategyPlanner.js', personal: true, why: 'saved case summaries describing a real client' },
+  // The advisor conversation itself — every call in the engine. Mike's ruling of 2026-09-15:
+  // the advisor is describing a real client in their own words. Routed that day (c8b012aa)
+  // and registered only on 2026-09-29 (item 7.16), because a stale note here said it was not.
+  { file: 'server/advisorEngine.js', personal: true, why: 'the advisor conversation about a real client' },
+  // Spoken words from a consented recording, under Meeting Review's privacy exception
+  // (CLAUDE.md): one concept segment for the topic summaries, the Alignment Statements
+  // segment for Wordsmith. Registered 2026-09-29.
+  { file: 'server/utils/conceptSummary.js', personal: true, why: 'one recorded concept segment of a consented meeting' },
+  { file: 'server/utils/wordsmith.js', personal: true, why: 'the recorded Alignment Statements segment' },
 
   // Not personal: page figures the mentor is already looking at, the user's own pasted
   // document, and document file names.
   { file: 'server/utils/hubReading.js', personal: false, why: 'the figures already on the mentor page' },
   { file: 'server/routes/promptCheck.js', personal: false, why: "the user's own pasted document" },
+  // A firm's own course profile and quiz answers; no client is involved (ruled 2026-09-15,
+  // registered 2026-09-29, item 7.16).
+  { file: 'server/courseEngine.js', personal: false, why: "a firm's own course profile and quiz answers" },
+  // The app's own screen labels, sent for translation.
+  { file: 'server/utils/uiTranslation.js', personal: false, why: "the app's own screen labels" },
+  // A marketing brief — topic, audience, objective, tone, call to action — about the firm's
+  // own marketing, not a client. Confirmed not personal by Mike, 2026-09-29.
+  { file: 'server/utils/salesBlogEngine.js', personal: false, why: "a marketing brief about the firm's own topics" },
   { file: 'server/utils/complianceCheck.js', personal: false, why: 'document file names' }
 ]
-
-/**
- * 🔴 NOT YET ROUTED THROUGH THE SEAM — the next session's first job, and their class is
- * ALREADY RULED so it does not have to be re-argued:
- *
- *   server/advisorEngine.js  (10 sites, 4 of them streaming)  → personal: TRUE
- *       Mike's ruling of 2026-09-15, above: the advisor is describing a real client in
- *       their own words. Six of the ten are the live conversation.
- *   server/courseEngine.js   (4 sites, 2 streaming)           → personal: FALSE
- *       a firm's own course profile and quiz answers; no client is involved.
- *
- * They were left because a streaming call that breaks does not fail cleanly — it half-works
- * — so converting them means driving the running app afterwards, not just running this suite.
- * Until then they call OpenAI directly and behave exactly as they always have: the seam is
- * additive, so nothing is half-converted. ADD THEM TO `SITES` ABOVE when they are routed.
- *
- * Both also want a success log line while someone is in there: `courseEngine` has none on
- * any of its four, and `advisorEngine`'s `pickLearnTreeAI` and intake stream have none.
- */
 
 /**
  * The `personal:` value on every `chat.completions.create` call in `src`.

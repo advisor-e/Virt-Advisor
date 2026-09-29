@@ -17,13 +17,15 @@
  *   (c) the reason line is model output and is validated before it is shown. A reply
  *       naming a row that does not exist is dropped, never rendered.
  *
- * 🔴 WHAT REACHES THE MODEL, AND WHAT NEVER DOES. The advisor's own summaries of this
- * client's last conversations reach it. **No internal id of any kind does** — not the
+ * 🔴 WHAT REACHES THE MODEL, AND WHAT NEVER DOES. The saved case summaries of this
+ * client's last conversations reach it. Each is the first 600 characters of the AI's last
+ * reply when the advisor saved the conversation (`VirtualAdvisor.vue` `saveSession`) —
+ * model output that describes a real client, so the call is personal (item 15.30), and not
+ * typed, so it is not moderated (item 8.2). **No internal id of any kind does** — not the
  * case id, the client id, the advisor id or the firm id — and **no transcript does**.
  * A transcript is the spoken record and is personal data end to end; Meeting Review is
  * the ONE feature cleared to send that (CLAUDE.md, Mike's ruling 2026-09-01) and this is
- * not it. The summary is the advisor's own written account, which is what the drawing
- * means by "this client's last two conversations".
+ * not it. The summaries are what the drawing means by "this client's last two conversations".
  *
  * 🔴 MEASURED BEFORE IT WAS BUILT, 2026-09-22, against Mike's own Pivot client and the
  * four strategy cases in `scripts/scenario-lab-cases.json`. Five situations produced five
@@ -110,7 +112,8 @@ function catalogueLines (concepts) {
 }
 
 /**
- * The client's situation, built from the advisor's own summaries of recent conversations.
+ * The client's situation, built from the saved summaries of recent conversations — each the
+ * first 600 characters of the AI's last reply when the advisor saved it.
  *
  * 🔴 SUMMARIES ONLY, AND NO IDS. See the file header. A case whose summary is empty
  * contributes nothing rather than an empty heading, so a client with two untitled cases
