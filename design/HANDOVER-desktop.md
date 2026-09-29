@@ -9,30 +9,25 @@
 
 ---
 
-## 2026-09-29 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-29 (evening) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed; 6 ahead of `master`, 0 behind.** Green: 659 suites / 14,241 tests on Node
-14.15. Run tests, commits and pushes with the 14.15 folder first on PATH (item 22.2).
+**Clean and pushed once this commit lands; 1 ahead of `master` (this shutdown's commit), 0
+behind.** PRs #140, #141 and #143 merged today; the pre-push gate was green on each. Run tests,
+commits and pushes with the 14.15 folder first on PATH (item 22.2).
 
-**Closed on Mike's word:** 15.13 (the report brought into Assess current position, printed on
-one framed plan sheet) and 10.3 (Tax & Forecast Rates: one hub page, four former tabs as
-sections). **Parked:** 15.15, for his re-think.
-
-**Also built today, on his rulings:** the mentor loads and approves country schedules and they
-cascade — a global group manager sees them as "Advisor-e" and may load their own. The real
-IR265 is loaded at mentor level in this computer's test database. **Fixed:** the plan's Print
-button (blank since 22 Sep), the schedules list drawing blank when pages were unread, and the
-Depreciation Rates upload wording.
-
-**Local test database only:** the Strategy Planner's three tables now exist here, with practice
-session 1 and a completed practice report for Dev Client Ltd.
+**Done today:** Mike's whole-brain question answered from the code in
+[`AI-WHOLE-BRAIN-FINDINGS.md`](AI-WHOLE-BRAIN-FINDINGS.md) — no design, no build. Seven faults
+found; six fixed and closed (15.29, 7.14, 15.30, 40.1, 7.15, 7.16). The privacy register
+(`aiCallSitesPersonal.test.js`) now covers every seam call site; Mike confirmed the sales blog
+writer not personal. At shutdown the primary-issue tie-break was changed to fence the advisor's
+words with `fenceUntrusted`. **Filed:** 7.17 (dead options in `buildClientContext`).
 
 ### FOR THE LAPTOP
 
-- Merge `master` once this branch reaches it; nothing of yours was touched.
-- Shared files changed: `components/FirmManagerHub.vue` (NAV_GROUPS, TAB_TIERS:
-  `taxForecastRates`, and `countrySchedules` now mentor too), `locales/en.json`,
-  `pages/strategy-planner.vue` (print rules, 15.13), `StrategyConceptCapture.vue` and
-  `StrategyPlanDocument.vue` (15.13 insertions; 8.4 is yours), `hubTabTiers.test.js`,
-  `mentorHubScope.component.test.js`.
-- 15.14, 15.20 and 8.4 remain yours.
+- **8.6 is yours** — Mike ruled it is designed alongside 8.4, whose files it shares.
+- Merge `master`. #143 touched your closed 15.14 code: `routes/wordsmith.js` now refuses a
+  planning session unless it is the recording's client's and advisor's (15.29), and
+  `wordsmith.routes.test.js` gained three cases. Also changed: `routes/strategyPlanner.js` (Suggest
+  is personal), `advisorEngine.js` (comments, one read condition), `locales/en.json`
+  (`firmAiPrompts.intro`), `strategy-planner.md` §9b (one sentence).
+- 15.14's follow-ups, 15.20 and 8.4 remain yours.

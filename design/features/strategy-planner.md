@@ -1763,7 +1763,9 @@ summaries do ("The client has read this statement and agrees with it"); **E** Wo
 five statements only — the communication table stays typed. Its 16 build details are ruled on the
 same page. The ones that shape the product: the record of each statement (the AI's draft, the final
 wording, who agreed) is kept beside the meeting's transcript and deleted with it; the stamp shows
-only while the box holds the approved wording; 10 writing runs per meeting; if a manager's saved
+only while the box holds the approved wording; 10 writing runs per meeting; "Use this wording"
+writes only into a planning session for the recording's own client and advisor — a recording with
+no client is refused (item 15.29); if a manager's saved
 content cannot be read, Wordsmith stops rather than using the mentor's. **The server checks every
 recording section's concept label** against the planner's concepts and frameworks, so "the Alignment
 Statements segment only" is not the browser's to keep (Mike's yes, 2026-09-29).

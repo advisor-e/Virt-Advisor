@@ -86,3 +86,4 @@ build has not earned its place.
 | 8.6 | After a recorded strategy session, the next meeting's coaching notes check nothing from it |
 | 7.15 | In client mode the engine reads past case studies and never uses them |
 | 7.16 | A privacy test's comment says the engines bypass the privacy seam; they no longer do |
+| 7.17 | Three options of the engine's briefing builder are never used, so their code never runs |
