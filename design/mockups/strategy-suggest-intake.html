@@ -21,8 +21,8 @@
   data/growth-fundamentals.json and the Staircase steps from data/advisory-staircase.json.
   The build reads them from the same place; it never keeps a copy.
 
-  WORDING MARKED "PROPOSED" IS OURS and is not approved. It is listed at the foot of
-  the page for Mike to change or approve before it is built.
+  WORDING MARKED "PROPOSED" WAS OURS. Mike approved all six pieces exactly as written
+  on 2026-09-30; they are listed at the foot of the page.
 
   THE CLIENT IS INVENTED. The six ticked rows in Screen 2 are an illustration of the
   shape, not a model result — no suggestion has been run on these answers.
@@ -159,6 +159,17 @@ instead, and suggest from the answers. <b>Not approved to build from — nothing
 
 <!-- ============================================================ SCREEN 1 -->
 <h2>Screen 1 — the button is pressed, and the client has no conversation</h2>
+<div class="ask" style="background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)">
+  <h3 style="color:var(--rs-good)">Ruled by Mike 2026-09-30 — the build follows this, not the panel below</h3>
+  <p class="rec">"The process should feel like 'guided assistance' - not a survey or a check list. This
+  is why throughout the app, I prefer 1 question to reveal at a time, as it is added, the previous
+  remains visible for context."</p>
+  <p>The panel below shows all six questions at once, which is the survey he ruled out. <b>It is not
+  being redrawn</b> — Mike, the same day: <i>"that is not required, im sure you can figure it out."</i>
+  The build reveals one question at a time, each answered question staying visible above the next,
+  in the Virtual Advisor's own conversational pattern. The questions, their wording and their order
+  are as drawn.</p>
+</div>
 <p>The questions open <b>in place, above the menu</b> — not in a pop-up — so the 48 rows stay
 visible underneath. Nothing is ticked yet.</p>
 
@@ -275,14 +286,14 @@ shape — no model has been run on these answers.</b></p>
 <h2>Decisions on this page — one at a time, in this order</h2>
 
 <div class="ask">
-  <h3>Decision A — where the questions appear</h3>
+  <h3>Decision A — where the questions appear · our call, 2026-09-30, not put to Mike</h3>
   <p class="rec">Recommended: in place, above the menu, only when the client has no saved conversation.</p>
   <p>A pop-up would hide the 48 rows the answers are about. A client who <i>does</i> have a saved
   conversation keeps today's behaviour exactly — your ruling covers the no-conversation case only.</p>
 </div>
 
 <div class="ask">
-  <h3>Decision B — how each question is answered</h3>
+  <h3>Decision B — how each question is answered · our call, 2026-09-30, not put to Mike: the Virtual Advisor's own way</h3>
   <p class="rec">Recommended: the Growth Curve and the Staircase as the same pickers the Virtual Advisor uses; the other four as a short line of the advisor's own words.</p>
   <p>That is how the Virtual Advisor asks them today, so the questions and the way they are answered
   stay identical in both places. The Staircase steps are the firm's own, from the same settings the
@@ -290,22 +301,27 @@ shape — no model has been run on these answers.</b></p>
 </div>
 
 <div class="ask">
-  <h3>Decision C — does the Staircase step limit how many are suggested?</h3>
-  <p class="rec">Recommended: yes — steps 1–2 suggest at most 3 concepts; steps 3–5 at most 5.</p>
-  <p>This is the Virtual Advisor's own relationship rule (<i>"1–3 weak, 3–5 strong"</i>, registry
-  Part 4). Kept in code rather than left to the AI, so the limit is always obeyed and can be tested.
-  The numbers are yours to change.</p>
+  <h3>Decision C — how many are suggested · RULED BY MIKE 2026-09-30</h3>
+  <p class="rec">"It simply comes down to how long the advisor wants the planning session to be. allow
+  6mins for the frame (welcome, this is your session etc) and 3 mins to discuss agenda, then each
+  concept can have 20 mins - this includes BOTH discuss concept and record responses."</p>
+  <p>So the Virtual Advisor's session-length question (30 / 60 / 90 / 120 mins / Other) joins the
+  sequence, and the most pre-ticked is <b>(length − 6 − 3) ÷ 20, rounded down</b>: 30 → 1, 60 → 2,
+  90 → 4, 120 → 5. Enforced in code. <i>Recommended and replaced: a cap set by the Staircase step
+  (3 at steps 1–2, 5 at steps 3–5).</i></p>
 </div>
 
 <div class="ask">
-  <h3>Decision D — what happens to the answers</h3>
+  <h3>Decision D — what happens to the answers · our call, 2026-09-30, not put to Mike: the standards require it</h3>
   <p class="rec">Recommended: saved beside the suggestion on the session, so the record shows the answers, what the AI suggested, and what the advisor kept.</p>
   <p>That is the Original / AI Suggestion / Final Approved trail the standards already require.
   Nothing new is saved against the client's account.</p>
 </div>
 
 <div class="ask">
-  <h3>Decision E — the logic tree's opening question, not on this screen yet</h3>
+  <h3>Decision E — the logic tree's opening question, not on this screen yet · RULED BY MIKE 2026-09-30: yes, left out</h3>
+  <p class="rec">And in its place, his own question, asked first: "Does a current plan exist for this
+  client, are they familiar with planning or is this topic new to them?"</p>
   <p class="rec">Recommended: leave <i>"Is this for a Startup, is it a Well Established Business, or is something blocking the strategy work itself?"</i> off the first build.</p>
   <p>Its answer can only steer the suggestion once each branch is mapped to your deck concepts —
   and only one name in the tree (Alignment Statements) matches a concept today. That map is your
@@ -327,7 +343,7 @@ shape — no model has been run on these answers.</b></p>
   </ul>
 </div>
 
-<h2>Wording we wrote — for your approval before it is built</h2>
+<h2>Wording we wrote — APPROVED BY MIKE 2026-09-30, all six exactly as written</h2>
 <table class="doc">
   <tr><th>Where</th><th>Proposed wording</th></tr>
   <tr><td>Panel heading</td><td>A few questions first</td></tr>

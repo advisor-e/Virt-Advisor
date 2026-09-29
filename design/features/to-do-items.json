@@ -307,7 +307,7 @@
         "detail": "2026-09-30 - \"we need to focus on building the logic similar to the 'I've got a client who's got a problem with' section\", then yes to the planner asking the intake questions itself."
       },
       "touches": "server/utils/strategyPretick.js; server/routes/strategyPlanner.js postSuggest; components/strategy/StrategyScopeMenu.vue; the QUESTIONS array in server/advisorEngine.js (the source, not a copy); data/logic_trees.json client_planning; locales/en.json; design/features/strategy-planner.md.",
-      "note": "PROCEED. RULED BY MIKE 2026-09-30: for a client with no saved conversation, the planner puts the Virtual Advisor's own intake questions on screen and suggests from the answers. Impact test and its measurement are in strategy-planner.md, stage 6. Next: the drawing, before any build.",
+      "note": "PROCEED. RULED BY MIKE 2026-09-30: for a client with no saved conversation, the planner puts the Virtual Advisor's own intake questions on screen and suggests from the answers. Impact test, measurement and every ruling since are in strategy-planner.md, stage 6. The drawing (design/mockups/strategy-suggest-intake.html) is ruled - questions one at a time, count from session length, his plan question first, wording approved - but not yet approved to build from.",
       "comment": "2026-09-30 - filed on Mike's request and ruling. Score and scoreReason are ours; he has not ranked it."
     }
   ]

@@ -189,6 +189,28 @@ When the client has no saved conversation, the planner puts **the Virtual Adviso
 questions** on screen — Growth Curve stage, Advisory Staircase step, did the client raise it, client
 personality, advisor experience and confidence — and suggests from the answers, instead of
 *"nothing to suggest from"*. Read from the `QUESTIONS` array in `server/advisorEngine.js`, never copied.
+☑ **AND IT IS GUIDED, NOT A FORM — Mike, 2026-09-30:** *"the process should feel like 'guided
+assistance' - not a survey or a check list… I prefer 1 question to reveal at a time, as it is added,
+the previous remains visible for context."* One question shows; answering it reveals the next; every
+earlier question and answer stays on screen above it.
+☑ **HOW MANY IT SUGGESTS IS SET BY THE SESSION'S LENGTH — Mike, 2026-09-30:** *"it simply comes
+down to how long the advisor wants the planning session to be. allow 6mins for the frame (welcome,
+this is your session etc) and 3 mins to discuss agenda, then each concept can have 20 mins - this
+includes BOTH discuss concept and record responses."* So the Virtual Advisor's own session-length
+question (30 / 60 / 90 / 120 mins / Other) joins the sequence, and the most it may pre-tick is
+**(length − 6 − 3) ÷ 20, rounded down**: 30 → 1, 60 → 2, 90 → 4, 120 → 5. Enforced in code, never
+left to the model. It replaces the drawing's Staircase-based cap (Decision C).
+☑ **THE QUESTION THAT MATTERS MOST — Mike, 2026-09-30, in his words:** *"Does a current plan exist
+for this client, are they familiar with planning or is this topic new to them?"* It joins the
+sequence, asked first because he named it the more important. Its wording lives in `data/domains.json`
+`strategyPlanExists` — the Virtual Advisor's switched-off plan question, replaced on his yes — and the
+planner reads it from there. ⚠ **For the build:** `server/utils/signals.js` ~339 reads that field as a
+yes/no; the question now has three answers (a plan exists / familiar with planning / new to it), so the
+planner must read them itself rather than reuse that parse. ☑ **The logic tree's opening question
+is NOT in the first build** (his yes, same day): it can steer nothing until he has mapped each
+branch of `client_planning` to his deck concepts, and it is added then.
+☑ **The six pieces of new wording are approved exactly as written** (Mike, 2026-09-30) — listed at the
+foot of `design/mockups/strategy-suggest-intake.html`, where the build takes them from.
 **Impact test, stated before design:** *problem* — a new client's first strategy meeting gets no
 guidance, and every client's suggestion ignores the four lenses; *measurement* — new-client cases
 that get a suggestion (0 today), recall on Pivot's 9 (4 today), overlap across the five situations
