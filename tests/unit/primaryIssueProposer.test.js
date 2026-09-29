@@ -315,7 +315,7 @@ describe('the model tie-break — boxed, and only on a real tie', () => {
     expect(c.chat.completions.create).not.toHaveBeenCalled()
   })
 
-  test('the call is boxed: temperature 0, the advisor\'s words fenced, personal false', async () => {
+  test('the call is boxed: temperature 0, the advisor\'s words fenced, personal true', async () => {
     const c = client('1')
     await tiebreakWithModel(c, CANDIDATES, 'costs are up')
     const [params, options] = c.chat.completions.create.mock.calls[0]
@@ -324,9 +324,10 @@ describe('the model tie-break — boxed, and only on a real tie', () => {
     expect(params.messages[1].content).toContain('<<<')
     expect(params.messages[1].content).toContain('>>>')
     expect(params.messages[0].content).toMatch(/never write a problem of your own/i)
-    // The advisor's description of a client is not personal data (Mike's ruling 2026-09-14).
+    // The advisor is describing a real client in their own words, so it never falls back to an
+    // uncleared provider (Mike's ruling 2026-09-15; item 7.14 corrected this call to match).
     // Item 8.2 — the advisor's own words are what this call names for moderation.
-    expect(options).toEqual({ personal: false, moderate: ['costs are up'] })
+    expect(options).toEqual({ personal: true, moderate: ['costs are up'] })
   })
 
   test('a candidate list carrying rubbish is cleaned before the model sees it', async () => {

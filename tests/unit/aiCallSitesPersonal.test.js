@@ -41,6 +41,10 @@ const SITES = [
   // The full meeting transcript. The consent the client gave aloud names AI transcription,
   // not an arbitrary list of companies (Brief P13, CLAUDE.md's scoped exception).
   { file: 'server/utils/meetingReports.js', personal: true, why: 'the full meeting transcript' },
+  // The primary-issue tie-break sends the advisor's own description of a client's problem —
+  // the conversation Mike ruled personal on 2026-09-15. Its client is INJECTED from
+  // `advisorEngine.js`, as the anonymiser's is from `cases.js`. Item 7.14: it said false.
+  { file: 'server/advisorEngine.js', personal: true, why: 'hands the seam client to the primary-issue tie-break', flagIn: 'server/utils/primaryIssueProposer.js' },
 
   // Not personal: page figures the mentor is already looking at, the user's own pasted
   // document, and document file names.

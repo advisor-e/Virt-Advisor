@@ -294,27 +294,6 @@
       "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.14",
-      "name": "The primary-issue tie-break sends the advisor's words about a client marked not personal",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "privacy",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Every other call in the advisory conversation is marked personal (Mike's ruling, 2026-09-15). This one, which breaks a tie between two issue labels, is marked not personal though it sends the advisor's own description of the client's problem.",
-      "risk": "Marked not personal, the call may fall back to a second AI provider nobody has cleared, if one is ever configured. None is known to be configured, so nothing is known to have left; the flag is wrong and would fail silently.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
-      },
-      "touches": "server/utils/primaryIssueProposer.js tiebreakWithModel (~line 354); tests/unit/aiCallSitesPersonal.test.js, whose register should have caught it.",
-      "note": "FOUND 2026-09-29. A one-word fix, plus the register entry so it cannot recur. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
-      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "15.30",
       "name": "Planner Suggest sends a client's saved case summaries as not personal, unmoderated",
       "rankedByMike": false,

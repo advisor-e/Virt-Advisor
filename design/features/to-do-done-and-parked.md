@@ -379,6 +379,19 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.14 · The primary-issue tie-break sent the advisor's words about a client marked not personal.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29, in the same read as 15.29
+  ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)). Built on 2026-09-14 while the
+  privacy class was still open; Mike's 2026-09-15 ruling (the advisor conversation is personal)
+  was applied to the engine's own calls that day, but this one lives in a helper file and was missed.
+- **What was done:** `server/utils/primaryIssueProposer.js` `tiebreakWithModel` now passes
+  `personal: true`. Its own test, which pinned the pre-ruling `false`, was corrected on Mike's
+  word to cite the 2026-09-15 ruling.
+- **What proves it:** the tie-break is now on `aiCallSitesPersonal.test.js`'s register as personal;
+  that entry fails with the fix removed. Commit: `git log --grep "(7.14)"`.
+
 **15.29 · Wordsmith can write one client's approved wording into another client's plan.**
 ✅ **Closed 2026-09-29 by Mike ("yes" — done).**
 
