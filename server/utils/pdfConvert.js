@@ -90,7 +90,7 @@ function validateReply (reply) {
     const sound = p && typeof p === 'object' &&
       isNumber(p.number) && isNumber(p.width) && p.width > 0 && isNumber(p.height) && p.height > 0 &&
       isText(p.svg) && isText(p.title) && Array.isArray(p.text) && p.text.every(isText) &&
-      typeof p.readable === 'boolean' && isNumber(p.droppedImages)
+      typeof p.readable === 'boolean' && isNumber(p.droppedImages) && isNumber(p.droppedPageNumber)
     if (!sound) { throw new PdfConvertError(FAILURES.FAILED, 'page ' + (i + 1) + ' is malformed') }
   })
   return { ok: true, pages: reply.pages }
@@ -217,7 +217,8 @@ function runWorker (bytes, opts = {}) {
  * @param {Buffer} bytes - the file, already size-capped and magic-byte-checked by the route
  * @param {object} [opts] - see `runWorker`; tests only
  * @returns {Promise<Array<{number:number, width:number, height:number, svg:string,
- *   title:string, text:string[], droppedImages:number}>>} one entry per readable page
+ *   title:string, text:string[], droppedImages:number, droppedPageNumber:number}>>} one entry
+ *   per readable page
  * @throws {PdfConvertError} with `code` from `FAILURES`
  */
 async function convertPdf (bytes, opts) {

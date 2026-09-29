@@ -72,8 +72,8 @@ article.spd(:style="frameStyle")
       //- drawing never reached the client at all. Found 2026-09-23 wiring the first
       //- two such concepts.
       template(v-for="n in sheetsOf(item)")
-        section.spd-page.is-teach(v-if="drawn(item) || item.summary || item.prompts.length" :key="'t' + i + item.key + '#' + n")
-          template(v-if="!drawn(item)")
+        section.spd-page.is-teach(v-if="drawn(item) || item.imported || item.summary || item.prompts.length" :key="'t' + i + item.key + '#' + n")
+          template(v-if="!drawn(item) && !item.imported")
             strategy-plan-mark(v-bind="markProps")
             strategy-plan-frame(split)
           p.spd-foot(v-if="runningFoot") {{ runningFoot }}
@@ -92,7 +92,20 @@ article.spd(:style="frameStyle")
           //- the page without one rather than leaving a hole (item 15.7).
           //- 🔴 AND IT CARRIES THE ADVISOR'S OWN WORDING, read only — item 15.25. An edit
           //- saved on the Run screen prints here because both draw through one component.
+          //- 🔴 AN IMPORTED CONCEPT TEACHES FROM ITS OWN CONVERTED PAGES — item 15.20, drawing §9:
+          //- it behaves as any other "in the printed plan". Each page wears the drawn slides'
+          //- frame and the firm's mark, so the sheet draws neither, as for a drawing (Decision A).
+          imported-concept-page(
+            v-if="item.imported"
+            :svg="item.imported.teachingPages[n - 1].svg"
+            :width="item.imported.teachingPages[n - 1].width"
+            :height="item.imported.teachingPages[n - 1].height"
+            :firm-name="firmName"
+            :firm-colour="firmColour"
+            :firm-logo="firmLogo"
+          )
           strategy-concept-graphic(
+            v-else
             :concept-id="item.conceptId"
             :sheet="n - 1"
             :firm-name="firmName"
@@ -141,12 +154,21 @@ article.spd(:style="frameStyle")
     //- and printing one would tell the client it was "not worked through yet" when
     //- there was never anything to work. Its teaching page stands alone.
     template(v-for="item in step.items")
-      section.spd-page.is-capture(v-if="item.hasTable !== false" :key="'c' + i + item.key")
-        strategy-plan-mark(v-bind="markProps")
-        strategy-plan-frame(split)
-        p.spd-foot(v-if="runningFoot") {{ runningFoot }}
+      section.spd-page.is-capture(
+        v-if="item.hasTable !== false"
+        :key="'c' + i + item.key"
+        :class="{ 'is-imported': printsResponsePage(item) }"
+      )
+        //- An imported Response Form is a whole deck page already wearing the frame and the mark,
+        //- so the sheet draws neither — Decision A, as for a teaching drawing — nor the foot,
+        //- which would print over the form.
+        template(v-if="!printsResponsePage(item)")
+          strategy-plan-mark(v-bind="markProps")
+          strategy-plan-frame(split)
+          p.spd-foot(v-if="runningFoot") {{ runningFoot }}
         p.spd-kind {{ $t('strategyPlanner.plan.capture') }}
-        h3.spd-h {{ item.name }}
+        //- An imported Response Form carries its own title, as its teaching pages do.
+        h3.spd-h(v-if="!printsResponsePage(item)") {{ item.name }}
         p.spd-instruct(v-if="item.instruction") {{ item.instruction }}
         //- 🔴 A HOSTED MODEL PRINTS ITS CONTRAST TABLE — item 15.23, Decision C of
         //- design/mockups/strategy-concept-owner-expectations.html, in Mike's own words:
@@ -195,6 +217,17 @@ article.spd(:style="frameStyle")
                 //- A role nobody is in yet is a real answer, not a gap — Decision B.
                 td(:class="{ 'is-blank': !role.person }") {{ role.person || $t('strategyPlanner.plan.blank') }}
                 td(:class="{ 'is-blank': !role.reportsTo }") {{ role.reportsTo || $t('strategyPlanner.orgChart.nobody') }}
+
+        //- 🔴 AN IMPORTED RESPONSE FORM PRINTS AS THE FORM, FILLED IN — question 7, ruled by Mike
+        //- 2026-09-24: each answer inside its own box on the page, never a separate table.
+        imported-response-page(
+          v-else-if="printsResponsePage(item)"
+          :page="item.imported.responsePage"
+          :boxes="responseBoxes(item)"
+          :firm-name="firmName"
+          :firm-colour="firmColour"
+          :firm-logo="firmLogo"
+        )
 
         //- Where SOMETHING was captured, every box prints, filled or not: the blank
         //- ones are what the client has still to answer, and that is the plan
@@ -281,6 +314,8 @@ import StrategyOrgChart from '~/components/strategy/StrategyOrgChart.vue'
 import StrategyPlanMark from '~/components/strategy/StrategyPlanMark.vue'
 import StrategyPlanFrame from '~/components/strategy/StrategyPlanFrame.vue'
 import StrategyOwnerContrast from '~/components/strategy/StrategyOwnerContrast.vue'
+import ImportedConceptPage from '~/components/strategy/ImportedConceptPage.vue'
+import ImportedResponsePage from '~/components/strategy/ImportedResponsePage.vue'
 import { hasConceptGraphic, conceptTitlesItself, promptsEchoDrawing, conceptSheetCount } from '~/components/strategy/concepts'
 import { agendaGroups as groupsOfSteps, agendaSheetCount } from '~/utils/agendaLayout'
 import { sheetEdits } from '~/utils/conceptTextBlocks'
@@ -294,6 +329,8 @@ export default {
     StrategyPlanMark,
     StrategyPlanFrame,
     StrategyOwnerContrast,
+    ImportedConceptPage,
+    ImportedResponsePage,
     StrategyReportPlanPage: () => import('~/components/strategy/StrategyReportPlanPage.vue')
   },
 
@@ -465,6 +502,8 @@ export default {
      * @returns {number}
      */
     sheetsOf (item) {
+      // An imported concept has one sheet per page the manager uploaded, and always at least one.
+      if (item.imported) { return Math.max(1, item.imported.teachingPages.length) }
       return Math.max(1, conceptSheetCount(item.conceptId, agendaSheetCount(this.agendaGroups)))
     },
 
@@ -479,7 +518,30 @@ export default {
      * @returns {boolean}
      */
     titlesItself (item) {
-      return conceptTitlesItself(item.conceptId)
+      // An imported page carries its own title — the concept's name was read from it.
+      return Boolean(item.imported) || conceptTitlesItself(item.conceptId)
+    },
+
+    /**
+     * Does this capture page print an imported Response Form, filled in? Only where something
+     * was answered: an untouched form is the one "not worked through yet" line every other
+     * untouched table prints (Mike, 2026-09-17).
+     * @param {{imported: ?object}} item
+     * @returns {boolean}
+     */
+    printsResponsePage (item) {
+      return Boolean(item.imported && item.imported.responsePage && !item.model && this.hasAnswers(item))
+    },
+
+    /**
+     * The imported form's boxes, each with the client's answer from the session.
+     * @param {{imported: object, lines: Array<{key: string, value: string}>}} item
+     * @returns {Array<object>}
+     */
+    responseBoxes (item) {
+      const answers = {}
+      item.lines.forEach((l) => { answers[l.key] = l.value })
+      return item.imported.boxes.map(b => Object.assign({}, b, { value: answers[b.key] || '' }))
     },
 
     /**
@@ -667,6 +729,9 @@ export default {
    pushed it over the sheet. Measured in a generated PDF: with it, one teaching page
    split across two sheets and a client's plan ran to 14 sheets instead of 13. */
 .spd-page.is-teach { padding-bottom: 26px; }
+
+/* An imported Response Form has no mark of its own to clear, as a teaching page has none. */
+.spd-page.is-imported { padding-bottom: 26px; }
 
 /* 🔴 HIS TITLE PAGE, from Advance.6.Organisational Review.pdf: the mark centred at the
    top, then the title at y=200.4 of 405 (49.48%) and the subtitle at y=304.1 (75.09%),

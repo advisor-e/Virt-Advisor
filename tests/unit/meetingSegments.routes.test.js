@@ -36,7 +36,9 @@ jest.mock('formidable', () => ({
 
 jest.mock('../../server/utils/firmOverlay', () => ({
   loadFirmConfig: jest.fn().mockResolvedValue(null),
-  saveFirmConfig: jest.fn()
+  saveFirmConfig: jest.fn(),
+  // No imported concepts at any tier (item 15.20).
+  loadFirmConfigsByPrefix: jest.fn().mockResolvedValue({})
 }))
 
 const https = require('https')
@@ -345,19 +347,23 @@ describe('who may do what', () => {
     expect(bodyOf(res).error.code).toBe('NO_LABEL')
   })
 
-  test('a segment may only be labelled with a real concept or framework — the label gates what reaches a model', () => {
+  test('a segment may only be labelled with a real concept or framework — the label gates what reaches a model', async () => {
     const id = newSession()
     const forged = makeRes()
-    seg.openNextSegment(req(id, { body: { conceptId: 'made-up-concept', label: 'Alignment Statements' } }), forged)
+    await seg.openNextSegment(req(id, { body: { conceptId: 'made-up-concept', label: 'Alignment Statements' } }), forged)
     expect(bodyOf(forged).error.code).toBe('UNKNOWN_CONCEPT')
     const notText = makeRes()
-    seg.openNextSegment(req(id, { body: { conceptId: { id: 'alignment-statements' }, label: 'A' } }), notText)
+    await seg.openNextSegment(req(id, { body: { conceptId: { id: 'alignment-statements' }, label: 'A' } }), notText)
     expect(bodyOf(notText).error.code).toBe('UNKNOWN_CONCEPT')
+    // 🔴 An imported concept's id is refused unless THIS meeting's firm can see it (item 15.20).
+    const notOurs = makeRes()
+    await seg.openNextSegment(req(id, { body: { conceptId: 'im-f99', label: 'Their concept' } }), notOurs)
+    expect(bodyOf(notOurs).error.code).toBe('UNKNOWN_CONCEPT')
     expect(store.readMeta(id).segments || []).toHaveLength(0)
 
     for (const conceptId of ['alignment-statements', 'swot-pest', null]) {
       const ok = makeRes()
-      seg.openNextSegment(req(id, { body: { conceptId, label: 'A' } }), ok)
+      await seg.openNextSegment(req(id, { body: { conceptId, label: 'A' } }), ok)
       expect(ok._status).toBe(201)
     }
   })

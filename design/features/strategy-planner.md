@@ -1338,7 +1338,9 @@ each of the five above.
 
 ## 9. Adding a concept — approved to build, and what was measured before design
 
-**Item 15.20, asked for by Mike 2026-09-23 in his own words.** Nothing is built yet.
+**Item 15.20, asked for by Mike 2026-09-23 in his own words.** All four pieces are built: the
+converter, the backend (storage and routes), the hub screens, and imported concepts in the planner
+and in the client's printed plan, described at the end of this section.
 
 ✅ **THE DRAWING IS APPROVED TO BUILD FROM — [`add-concept.html`](../mockups/add-concept.html),
 Mike, 2026-09-23:** *"make a note now that i approve the drawing."* Asked as its own question
@@ -1356,7 +1358,7 @@ and name every difference.** A deliberate deviation is fine; an unrecorded one i
 **Today a concept costs five developer steps**: a row in `data/strategy-frameworks.json`, a
 hand-drawn SVG in `design/mockups/`, an entry in `DRAWINGS`, a generator run, and the count
 guards updated. Step two is drawing one of his deck pages by hand in code — about a day. All
-46 concepts were made that way and **no screen anywhere lets anyone add a 47th.**
+48 concepts were made that way and **no screen anywhere lets anyone add a 49th.**
 
 ### The five requirements, as he gave them
 
@@ -1441,6 +1443,13 @@ not generalise; this was therefore a fresh decision, not an inference from that 
 ⚠ **A session proposing to send these PDFs to a model to name a concept, draft a summary or read
 a response table is re-opening a settled ruling.** It was offered and declined.
 
+✅ **RULED BY MIKE 2026-09-29 — RECORDING WORKS ON AN IMPORTED CONCEPT'S CARD.** When an advisor
+records a section there, OpenAI writes that section's summary under the manager's **box labels**
+and the concept's **name**, exactly as it does for every other concept. **The PDF itself is never
+sent.** The name was read from the PDF's title and then confirmed or retyped by the manager; the
+labels were typed by hand. Nothing else of an imported concept reaches a model — "Suggest for this
+client" never offers one.
+
 ### 🔴 RULED BY MIKE 2026-09-23 — THE UPLOAD FOLLOWS THE SHIPPED DEPRECIATION PATTERN
 
 **The file comes to our own Restify backend**, is accepted only if it is genuinely a PDF under a
@@ -1482,13 +1491,116 @@ three binding:**
 ⚠ **A session proposing to read an uploaded PDF inside the Restify process, or with eval on, is
 re-opening this ruling.**
 
+### 🔴 RULED BY MIKE 2026-09-29 — THE KEPT PDFs LIVE IN THE DATABASE
+
+Question 4 ruled that the original PDF is kept; this rules **where**. **In the app's database, in
+one new table the master team adds with a migration script** — not in a folder on the server's
+disk, which the master team would have to create and back up. It is backed up with everything
+else and stays tied to the concept version it produced.
+
+⚠ **What it asks of the master team:** their MySQL must accept one write of up to 20 MB
+(`max_allowed_packet`), named in the migration's own header. ⚠ **Privacy, stated when ruled:** a
+firm's deck can carry client names and real case studies; it is kept until the concept is
+removed, and never reaches a model.
+
 ✅ **BUILT 2026-09-24 — the converter, slice 1.** `server/utils/pdfConvert.js` starts
 `server/utils/pdfConvertWorker.js` with an empty environment, a 256 MB ceiling, a 20-second kill
 and a 32 MB output cap; checks every reply; and cleans every page with `isomorphic-dompurify`
 plus a pass keeping only embedded pictures and fonts. The worker reads with eval off, drops a
 picture only when it lies wholly under the firm's mark (question 8), rewrites every `ns<N>:href`,
 and reads the page's own title. All 25 pages of Organisational Review convert in about 5 s.
-`tests/unit/pdfConvert.test.js` pins each condition. **No route, store or screen yet.**
+`tests/unit/pdfConvert.test.js` pins each condition.
+
+✅ **BUILT 2026-09-29 — storage and the routes, slice 2.**
+`server/utils/importedConcepts.js` keeps one versioned record per concept at the tier that added
+it (`imported-concept:<id>:record`) and lists, for any scope, every tier's concepts above it then
+its own — at once, no opt-in (question 5). Ids carry the tier (`im-m`, `im-x`, `im-g`, `im-f`) and
+are never reissued. The PDFs go to `strategy_concept_sources` through
+`server/utils/conceptSourceStore.js` (`config/db-migration-strategy-concept-sources.sql`, which
+names the 32M `max_allowed_packet` it needs). Routes, managers only, at all four tiers, in
+`server/routes/importedConcepts.js`:
+
+- `GET /api/firm-manager/strategy-concepts` — the list, each with the tier it came from.
+- `POST …/preview` — one PDF converted for steps 2 and 3; nothing stored.
+- `POST …` — the save: 1–5 teaching PDFs (10 pages at most in all), exactly one single-page
+  Response Form, 1–30 labelled boxes as fractions of that page. **The PDFs are converted again
+  on save — a drawing sent back by the browser is never stored.**
+- `POST …/remove` — a concept this tier added, with every PDF and every version of its record.
+  An inherited concept cannot be removed from below; replacing one has no screen and is not built.
+
+⚠ **One deliberate difference from the depreciation upload:** no mimetype filter. formidable
+drops a filtered part silently, so a save with one mislabelled teaching file would store a concept
+a page short; here any file that is not a PDF refuses the whole save. The caps of 5 files, 10
+pages and 30 boxes are ours, not rulings, and sit in `importedConcepts.js`.
+
+✅ **BUILT 2026-09-29 — the hub screens, slice 3. Walked in a built app the same day.** The
+**Strategy Concepts** tab, at the end of "Your AI coach", at all four tiers
+(`components/firm/FirmStrategyConcepts.vue`): the cascade strip, and the library of all 48 shipped
+concepts plus every imported one, with Remove on a concept this tier added. **+ Add Concept** opens
+`FirmAddConcept.vue` — the section, the teaching PDFs, step 2 in the app's frame, the Response
+Form, then box marking (`components/strategy/ConceptBoxMarker.vue`). An imported page is drawn by
+`components/strategy/ImportedConceptPage.vue`: the converted page, cleaned again in the browser,
+under the drawn slides' own five bars and firm mark — the same coordinates, so on Organisational
+Review p11 the frame covers his cyan border exactly and the mark sits in the gap where his logo
+was. Every word is the drawing's §8, §8b or §8c, all approved.
+
+🔴 **RULED BY MIKE 2026-09-29 — THE SOURCE DECK'S PAGE NUMBER IS REMOVED**, as the covered logo
+is: it points at a deck the client never sees. Found walking p11 in the frame. The worker removes
+text that is only one to three digits and lies wholly in the bottom-right corner
+(`PAGE_NUMBER_ZONE`), located from the page's own text layer, because the drawn glyphs are font
+codes and cannot be read; a word, or a number elsewhere, is kept. Proved on p11 in the frame.
+
+✅ **BUILT 2026-09-29 — imported concepts in the planner, slice 4. Walked in a built app the same
+day**, a mentor's concept used by an advisor in `dev-firm-001`. An imported concept behaves as any
+other (drawing §9): on the **scope menu** at the end of its section's last panel (for Strategic
+Orientation, the second), page a dash; in **Build** and **Run session**; its card shows the teaching
+pages in the app's frame with the firm's mark and no second title, and its labelled boxes one under
+another in drawn order (`t0r<i>c0`, form `imported`). The scope save, the entry save, the timeline
+and "Record this section" accept an imported concept only where the firm can see it — one shared
+check, `unknownBoxes` in `strategyPlanner.js`, serves the save and the timeline. **Kept out:**
+"Suggest for this client" (it asks OpenAI to choose), Session Processes, and text edits on an
+imported page. **Not walked live:** a recorded section's summary (it needs a microphone and a
+real OpenAI call); its headings are pinned by test to the box labels, Mike's ruling above.
+
+⚠ **Differences from the drawing, named as the artefact rule requires:** a shipped concept with no
+drawing yet shows a dash under Teaching sheet; step 1 lists the dropped files with Remove; step 2
+shows every teaching page, "Page i of n" above each when there are several; the section field
+starts empty rather than on the drawing's example; the drawing's notes to Mike under the section
+field and on step 3 are not screen text and are not shown; the box being drawn has no "being
+drawn…" caption; Remove on the library is §8c's.
+
+✅ **BUILT 2026-09-29 — the client's printed plan, piece 4. Printed in a built app the same day**,
+through the plan's own print mode, with Organisational Review pp11–12 as teaching pages and p14 as
+the Response Form. An imported concept prints **one teaching sheet per uploaded page**, each in the
+drawn slides' frame with the firm's mark and no second title (Decision A), then its **Response
+Form with every answer written inside the box marked for it** (question 7,
+`components/strategy/ImportedResponsePage.vue`). Each answer is tried at 14pt and shrinks to fit,
+down to 9pt — the size of his own page number; past that the box ends in "…" and the rest of the
+words continue beneath the page under the box's label (`fitAnswer` in `utils/conceptBoxes.js`,
+which splits between words and loses none). Sizes are shares of the page's width, so a fit measured
+on screen holds on paper, and it is measured again before printing. **Before this piece the plan
+printed no teaching page for an imported concept at all** — it has no drawing, summary or prompts,
+the three things that decided whether one printed — and listed the answers under its name, the
+table question 7 ruled out. An untouched form prints the one "not worked through yet" line, as
+every untouched table does. No new words.
+
+✅ **EACH SCREEN SAYS WHAT TO DO — Mike's wording, approved 2026-09-29,
+[`ADD-CONCEPT-INSTRUCTIONS.md`](../ADD-CONCEPT-INSTRUCTIONS.md).** Written after he added his own
+Customer Journey and could not tell that the Response Form must be its own one-page PDF, that boxes
+are dragged with the mouse, or why Save stayed grey. Each step opens with what it is for; a grey
+button says what turns it on; a refusal sits inside the step, above its buttons, and names the page
+count. *"its working - just needs better instructions."*
+
+🔴 **EACH IMPORTED PAGE'S FONTS ARE RENAMED TO THAT PAGE** (`utils/importedPageFonts.js`, applied in
+`ImportedConceptPage.vue`, piece 5). The reader names every converted page's fonts `g_d0_f1`…
+afresh, so with two imported pages on one screen the later page's font replaced the earlier's of
+the same name, and p11 printed "beliefs2" for "beliefs?". Each page converts correctly alone —
+proved by drawing p11 alone and beside p14. Renaming at drawing time also mends every concept
+already saved.
+
+⚠ **Differences from the drawing's question 7, named:** a box whose answer continues ends in "…" —
+the drawing says only that the answer continues below; and an untouched form prints the
+not-worked line rather than the blank form, which the drawing does not cover.
 
 ## 9a. Editing a concept page's text — built 2026-09-25 (item 15.25)
 

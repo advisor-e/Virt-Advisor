@@ -45,6 +45,55 @@ const { tierOfScope } = require('../utils/tierChain')
 const { loadFirmConfig, saveFirmConfig, getVersionHistory, restoreVersion } = require('../utils/firmOverlay')
 const { sendError } = require('../utils/sendError')
 const growthAspects = require('../utils/growthAspects')
+const imported = require('../utils/importedConcepts')
+
+/**
+ * The boxes in a request that belong to nothing this firm can capture into — empty when every
+ * one is real.
+ *
+ * 🔴 ONE CHECK FOR BOTH ROUTES THAT NAME A BOX — `putEntries` and `postTimeline`. They used to
+ * carry a copy each, and the copies drifted twice: the workbook tables reached the save and not
+ * the timeline (2026-09-17), and imported concepts did the same on 2026-09-29, found by watching
+ * the network in a browser. Three whitelists, in order: a built framework's field, a box on a
+ * shipped concept's table, a box on an imported concept this firm can see (item 15.20).
+ *
+ * @param {string} firmId - from the verified token
+ * @param {Array<{frameworkId: *, fieldKey: *}>} boxes
+ * @returns {Promise<Array<object>>} the boxes that are not real
+ * @throws when the firm's imported concepts cannot be read
+ */
+async function unknownBoxes (firmId, boxes) {
+  const notShipped = boxes.filter(b => !b || !(
+    frameworks.hasField(b.frameworkId, b.fieldKey) ||
+    captureForms.hasCaptureField(b.frameworkId, b.fieldKey, frameworks.getConcept)
+  ))
+  if (!notShipped.length) { return [] }
+  const visible = await imported.loadVisible(firmId)
+  return notShipped.filter(b => !b || !visible[b.frameworkId] || !imported.hasBox(visible[b.frameworkId], b.fieldKey))
+}
+
+/**
+ * The menu's panels with this firm's imported concepts added (item 15.20, piece 3).
+ *
+ * 🔴 AN IMPORTED CONCEPT BEHAVES EXACTLY LIKE ANY OTHER ON THE MENU — the approved drawing,
+ * `design/mockups/add-concept.html` §9. It joins the panel of its own section, at the end so
+ * nothing of Mike's moves; where a section has two panels — Strategic Orientation — it joins
+ * the LAST, the one carrying his scope table. The panels stay his order and are never sorted.
+ *
+ * @param {Array<object>} decks - `frameworks.listDecks()`
+ * @param {Object.<string, object>} visible - `importedConcepts.loadVisible` for this firm
+ * @returns {Array<object>}
+ */
+function decksWithImported (decks, visible) {
+  Object.keys(visible).forEach((id) => {
+    const concept = imported.plannerConcept(visible[id])
+    const home = decks.filter(d => d.planningDomain === concept.planningDomain).pop()
+    if (!home) { return }
+    home.concepts.push(Object.assign(concept, { deck: home.id }))
+    home.conceptCount += 1
+  })
+  return decks
+}
 
 /**
  * Bounds one request body's entry list. The Action Plan alone is 24 boxes, so this has to
@@ -126,10 +175,16 @@ async function getFrameworks (req, res) {
  * @param {object} res
  * @returns {200} { success, decks, conceptCount, timestamp }
  */
-// eslint-disable-next-line require-await -- Restify refuses a plain (req, res) handler; see getFrameworks
 async function getConcepts (req, res) {
   try {
-    const decks = frameworks.listDecks()
+    let visible = {}
+    try {
+      visible = await imported.loadVisible(firmOf(req))
+    } catch (err) {
+      // Never block the advisor: Mike's own concepts still load if the firm's cannot be read.
+      console.error('[strategy-planner] imported concepts could not be read:', err.message)
+    }
+    const decks = decksWithImported(frameworks.listDecks(), visible)
     res.send(200, {
       success: true,
       decks,
@@ -173,13 +228,31 @@ async function getConcepts (req, res) {
 // neither throws at boot. This route reads two files already in memory, so it has
 // nothing to await; every other handler here is async and a lone callback
 // signature would be the odd one out. `tests/unit/serverMounts.test.js` proves it.
-// eslint-disable-next-line require-await
 async function getConceptCapture (req, res) {
   const id = String((req.params && req.params.id) || '')
   try {
     const concept = frameworks.getConcept(id)
     if (!concept) {
-      sendError(res, 404, 'NO_CONCEPT', 'No such concept')
+      // An imported concept — only one this firm can see, so another firm's is simply absent.
+      const record = await imported.findVisible(firmOf(req), id)
+      if (!record) {
+        sendError(res, 404, 'NO_CONCEPT', 'No such concept')
+        return
+      }
+      res.send(200, {
+        success: true,
+        conceptId: record.id,
+        name: record.name,
+        conceptSummary: '',
+        helpsClientTo: record.helpsClientTo || '',
+        teachingForm: '',
+        deckPage: null,
+        responsePage: null,
+        pageWords: [],
+        imported: true,
+        capture: imported.captureOf(record),
+        timestamp: new Date().toISOString()
+      })
       return
     }
 
@@ -368,14 +441,18 @@ async function putScope (req, res) {
   // a scope of real ticked concepts came back 400 UNKNOWN_FRAMEWORK. Nothing called the
   // route until the step builder did on 2026-09-20, which is why it sat unfound: the
   // session is OPENED through POST /sessions, which does not validate.
-  const unknown = chosen.filter(id => !frameworks.getFramework(id) && !frameworks.getConcept(id))
-  if (unknown.length) {
-    sendError(res, 400, 'UNKNOWN_FRAMEWORK',
-      'The session names a framework or concept that does not exist: ' + unknown.join(', '))
-    return
-  }
+  const notShipped = chosen.filter(id => !frameworks.getFramework(id) && !frameworks.getConcept(id))
 
   try {
+    // An imported concept counts only where this firm can see it (item 15.20).
+    const visible = notShipped.length ? await imported.loadVisible(firmId) : {}
+    const unknown = notShipped.filter(id => !Object.prototype.hasOwnProperty.call(visible, id))
+    if (unknown.length) {
+      sendError(res, 400, 'UNKNOWN_FRAMEWORK',
+        'The session names a framework or concept that does not exist: ' + unknown.join(', '))
+      return
+    }
+
     const done = await store.setScope(req.params.id, firmId, {
       domains: Array.isArray(body.domains) ? body.domains : [],
       frameworks: chosen,
@@ -569,17 +646,14 @@ async function putEntries (req, res) {
   // A box is legitimate if it belongs to one of the built frameworks (the closing
   // cards) OR to a concept's own capture table read from Mike's workbooks. Both
   // are whitelists; a key belonging to neither is still refused.
-  const invalid = entries.filter(e => !e || !(
-    frameworks.hasField(e.frameworkId, e.fieldKey) ||
-    captureForms.hasCaptureField(e.frameworkId, e.fieldKey, frameworks.getConcept)
-  ))
-  if (invalid.length) {
-    sendError(res, 400, 'UNKNOWN_FIELD',
-      'A capture box in this save does not belong to its framework')
-    return
-  }
-
   try {
+    // Every box must be real — see `unknownBoxes`, shared with the timeline.
+    if ((await unknownBoxes(firmId, entries)).length) {
+      sendError(res, 400, 'UNKNOWN_FIELD',
+        'A capture box in this save does not belong to its framework')
+      return
+    }
+
     let saved = 0
     // Sequential rather than parallel: they all write to the same session, and an
     // advisor saving a card is a handful of boxes, not a bulk import.
@@ -713,9 +787,9 @@ async function postTimeline (req, res) {
       // four days: Decision 11's mechanism silently recording nothing for most of a session.
       // Found 2026-09-21 by watching the network while driving the Org Chart Builder, and
       // proved against the running server with a Porter's box, which has nothing to do with
-      // it. ⚠ THE TWO LISTS MUST BE CHANGED TOGETHER — that is the whole lesson here.
-      if (!frameworks.hasField(body.frameworkId, body.fieldKey) &&
-          !captureForms.hasCaptureField(body.frameworkId, body.fieldKey, frameworks.getConcept)) {
+      // it. ⚠ THE TWO LISTS MUST BE CHANGED TOGETHER — that is the whole lesson here, and why
+      // since 2026-09-29 there is only one: `unknownBoxes`, which the save calls too.
+      if ((await unknownBoxes(firmId, [{ frameworkId: body.frameworkId, fieldKey: body.fieldKey }])).length) {
         sendError(res, 400, 'UNKNOWN_FIELD',
           'That capture box does not belong to its framework')
         return

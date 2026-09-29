@@ -48,6 +48,7 @@ const page = (over = {}) => ({
   text: ['T'],
   readable: true,
   droppedImages: 0,
+  droppedPageNumber: 0,
   ...over
 })
 
@@ -202,6 +203,37 @@ describe('the drawing the worker writes', () => {
     ])).toBe('Big Title')
   })
 
+  // Mike, 2026-09-29: the source deck's own page number is removed. The viewport stand-in is
+  // the identity a flipped 720 × 405 page produces for points already in its own space.
+  const VIEWPORT = { width: 720, height: 405, convertToViewportPoint: (x, y) => [x, y] }
+  const item = (str, x, y) => ({ str, transform: [13, 0, 0, 13, x, y], width: 14 })
+
+  test('only a bare number in the bottom-right corner is a page number', () => {
+    expect(worker.pageNumberSpots([item('11', 656, 389.6)], VIEWPORT)).toHaveLength(1)
+    expect(worker.pageNumberSpots([item('Page 11', 656, 389.6)], VIEWPORT)).toEqual([]) // a word
+    expect(worker.pageNumberSpots([item('11', 300, 389.6)], VIEWPORT)).toEqual([]) // mid-page
+    expect(worker.pageNumberSpots([item('11', 656, 200)], VIEWPORT)).toEqual([]) // halfway up
+    expect(worker.pageNumberSpots([item('2026', 656, 389.6)], VIEWPORT)).toEqual([]) // a year
+  })
+
+  test('the drawn text at a page-number spot goes; text elsewhere on the page stays', () => {
+    const d = doc()
+    const svg = d.createElementNS(NS, 'svg')
+    const text = (tx, ty) => {
+      const t = d.createElementNS(NS, 'text')
+      t.setAttribute('transform', 'matrix(1 0 0 -1 ' + tx + ' ' + ty + ') scale(1, -1)')
+      const s = d.createElementNS(NS, 'tspan')
+      s.setAttribute('x', '0 7')
+      t.appendChild(s)
+      svg.appendChild(t)
+    }
+    text(656, 389.6) // the number
+    text(50, 60) // the title
+    expect(worker.dropPageNumber(svg, worker.pageNumberSpots([item('11', 656, 389.6)], VIEWPORT), 720, 405)).toBe(1)
+    expect(svg.getElementsByTagName('text')).toHaveLength(1)
+    expect(worker.dropPageNumber(svg, [], 720, 405)).toBe(0)
+  })
+
   test('a transform it cannot read changes nothing', () => {
     expect(worker.parseTransform('rotate(45)')).toEqual([1, 0, 0, 1, 0, 0])
     expect(worker.parseTransform('scale(2) translate(3,4)')).toEqual([2, 0, 0, 2, 6, 8])
@@ -231,6 +263,8 @@ describe('Mike\'s own page, converted for real', () => {
     const p11 = pages.find(p => p.number === 11)
     expect(p11.title).toBe('Defining Our Cultural Core Values (foundation)')
     expect(p11.droppedImages).toBe(1) // the advisor-e.com logo, under the firm's mark
+    expect(p11.droppedPageNumber).toBeGreaterThan(0) // his "11" — Mike, 2026-09-29
+    expect(p11.text).toContain('Defining Our Cultural Core Values (foundation)') // the rest stays
     expect((p11.svg.match(/<image/g) || []).length).toBe(2) // both green arrows kept
     expect(p11.svg).not.toMatch(/ns\d+:href|<script/i)
   }, 30000)

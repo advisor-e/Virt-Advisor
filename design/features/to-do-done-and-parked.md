@@ -379,6 +379,32 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.20 · Nobody but a developer could add a concept, and each one cost a day.**
+✅ **Closed 2026-09-29 by Mike ("yes" to closing it as done), after adding his own Customer Journey
+with it: *"its working - just needs better instructions"* — which were approved and built the same
+day.**
+
+- **His rulings:** the drawing [`add-concept.html`](../mockups/add-concept.html), approved
+  2026-09-23 with its six questions, §5b box marking and questions 7–8 (2026-09-24); the PDFs kept
+  in the database (2026-09-29); the source page number removed; recording on an imported card; the
+  screen wording [`ADD-CONCEPT-INSTRUCTIONS.md`](../ADD-CONCEPT-INSTRUCTIONS.md). All in
+  [`strategy-planner.md`](strategy-planner.md) §9.
+- **What was done, in five pieces:** the converter, in its own process with eval off (`669fc1ef`);
+  storage and routes; the Strategy Concepts hub tab at all four tiers; imported concepts in the scope
+  menu, session and capture card; and the client's printed plan — every teaching page, and the
+  Response Form with each answer inside its box (question 7). Then two faults found by using it:
+  bold "?" printing as "2" (imported pages shared font names — each page's are now its own), and a
+  refusal Mike read as a success (now inside each step, above its buttons, naming the page count).
+- **What proves it:** `importedConcepts.test.js`, `strategyPlannerImported.routes.test.js`,
+  `pdfConvert.test.js`, `conceptBoxesFit.test.js`, `importedPageFonts.test.js` and the plan document
+  tests; walked and printed in a built app with Organisational Review pp11, 12, 14 — every sheet on
+  A4, a long answer continued below with no word lost; and Mike's own Customer Journey added and
+  found on the scope menu. Commit: `git log --grep "(15.20)"`.
+- **Left to the desktop or UAT, and not holding it open:** a real database save of a concept (the
+  migration `config/db-migration-strategy-concept-sources.sql` and its 32M `max_allowed_packet`),
+  and a recorded section's summary on an imported concept, which needs a microphone and OpenAI.
+  The reader's high advisory stays open as its own item, **15.21**.
+
 **7.16 · A privacy test's comment said the engines bypass the privacy seam; they did not.**
 ✅ **Closed 2026-09-29 by Mike ("yes" — done).**
 

@@ -798,3 +798,29 @@ CREATE TABLE IF NOT EXISTS `strategy_session_timeline` (
   CONSTRAINT `fk_strategy_timeline_session`
     FOREIGN KEY (`session_id`) REFERENCES `strategy_sessions` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- strategy_concept_sources — the original PDFs behind an imported concept
+-- (item 15.20). Kept on Mike's rulings of 2026-09-23 and 2026-09-29; the reason,
+-- and the `max_allowed_packet` of 32M it needs, are in
+-- config/db-migration-strategy-concept-sources.sql. A firm's own material, never
+-- sent to a model, deleted with its concept.
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `strategy_concept_sources` (
+  `id`              INT UNSIGNED      NOT NULL AUTO_INCREMENT,
+  `firm_id`         VARCHAR(64)       NOT NULL,
+  `concept_id`      VARCHAR(64)       NOT NULL,
+  `concept_version` INT UNSIGNED      NOT NULL DEFAULT 1,
+  `role`            ENUM('teaching','response') NOT NULL,
+  `position`        SMALLINT UNSIGNED NOT NULL,
+  `filename`        VARCHAR(255)      NOT NULL,
+  `byte_size`       INT UNSIGNED      NOT NULL,
+  `sha256`          CHAR(64)          NOT NULL,
+  `pdf`             LONGBLOB          NOT NULL,
+  `saved_by`        VARCHAR(255)      NOT NULL,
+  `created_at`      DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_concept_source` (`firm_id`, `concept_id`, `concept_version`, `role`, `position`),
+  CONSTRAINT `fk_concept_sources_firm`
+    FOREIGN KEY (`firm_id`) REFERENCES `firms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

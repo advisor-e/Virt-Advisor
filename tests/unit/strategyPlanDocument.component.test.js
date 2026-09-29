@@ -321,3 +321,66 @@ describe('the advisor\'s selection blurb stays off the client\'s plan', () => {
     expect(wrapper.findAll('.is-teach').length).toBe(1)
   })
 })
+
+describe('an imported concept reaches the client\'s plan — item 15.20, piece 4', () => {
+  // 🔴 WHY THESE EARN THEIR PLACE. Until 2026-09-29 an imported concept's teaching pages never
+  // reached the plan at all — it has no drawing, summary or prompts, the three things that decide
+  // whether a teaching sheet prints — and nothing on screen said a page was missing. And question 7
+  // (Mike, 2026-09-24) rules the answers go inside the form's boxes, never into a separate list.
+
+  const PAGE = { svg: '<svg xmlns="http://www.w3.org/2000/svg"></svg>', width: 960, height: 540 }
+  const importedItem = answers => ({
+    key: 'im-m1#1',
+    conceptId: 'im-m1',
+    hasTable: true,
+    name: 'Our Client Charter',
+    summary: '',
+    instruction: '',
+    prompts: [],
+    imported: {
+      teachingPages: [PAGE, PAGE],
+      responsePage: PAGE,
+      boxes: [
+        { key: 'im-m1::t0r0c0', label: 'Our core values', x: 0.1, y: 0.2, w: 0.3, h: 0.3 },
+        { key: 'im-m1::t0r1c0', label: 'In practice', x: 0.5, y: 0.2, w: 0.3, h: 0.3 }
+      ]
+    },
+    lines: [
+      { key: 'im-m1::t0r0c0', label: 'Our core values', value: answers[0] || '' },
+      { key: 'im-m1::t0r1c0', label: 'In practice', value: answers[1] || '' }
+    ]
+  })
+
+  test('every uploaded teaching page prints, one sheet each', () => {
+    const wrapper = mountPlan([importedItem([])])
+
+    expect(wrapper.findAll('.is-teach').length).toBe(2)
+    expect(wrapper.findAll('.is-teach .icp').length).toBe(2)
+  })
+
+  test('each answer is written into its own box on the form, not listed', () => {
+    const wrapper = mountPlan([importedItem(['Honesty first', ''])])
+    const capture = wrapper.find('.is-capture')
+    const boxes = capture.findAll('.irp-box')
+
+    expect(capture.find('.icp').exists()).toBe(true)
+    expect(capture.find('.spd-lines').exists()).toBe(false)
+    expect(boxes.length).toBe(2)
+    expect(boxes.at(0).text()).toContain('Honesty first')
+    expect(boxes.at(1).text()).toBe('')
+  })
+
+  test('the form carries its own frame and mark, so the sheet adds neither', () => {
+    const capture = mountPlan([importedItem(['Honesty first'])]).find('.is-capture')
+
+    expect(capture.findAll('.spf').length).toBe(0)
+    expect(capture.findAll('.spm').length).toBe(0)
+  })
+
+  test('an untouched form prints the one not-worked line, as every untouched table does', () => {
+    const capture = mountPlan([importedItem([])]).find('.is-capture')
+
+    expect(capture.find('.spd-untouched').exists()).toBe(true)
+    expect(capture.find('.icp').exists()).toBe(false)
+  })
+})
