@@ -40,6 +40,8 @@ const { sendError } = require('../utils/sendError')
 const { convertPdf, PdfConvertError, FAILURES } = require('../utils/pdfConvert')
 const ic = require('../utils/importedConcepts')
 const sources = require('../utils/conceptSourceStore')
+const { listConcepts, listPlanningDomains } = require('../utils/strategyFrameworks')
+const { tierOfScope } = require('../utils/tierChain')
 
 /**
  * formidable v2 caps the WHOLE request, not each file, so the request cap is the per-file cap
@@ -134,13 +136,35 @@ function conversionRefusal (err) {
   return { status: 422, code: 'CONVERT_FAILED', message: 'That file could not be converted' }
 }
 
+/**
+ * The concepts that ship with the platform, as the library row needs them. The drawing's library
+ * lists every concept an advisor can scope a session from, not only the imported ones.
+ */
+function shippedView () {
+  return listConcepts().map(c => ({
+    id: c.id,
+    name: c.name,
+    planningDomain: c.planningDomain,
+    captureForm: c.captureForm,
+    model: Boolean(c.model)
+  }))
+}
+
 async function listView (req) {
-  return { concepts: await ic.listForScope(req.firmId), limits: LIMITS }
+  return {
+    concepts: await ic.listForScope(req.firmId),
+    shipped: shippedView(),
+    sections: listPlanningDomains().map(d => ({ id: d.id, name: d.name })),
+    viewerTier: tierOfScope(req.firmId),
+    limits: LIMITS
+  }
 }
 
 /**
  * @route GET /api/firm-manager/strategy-concepts
- * @returns {{concepts: Array<object>, limits: object}} see `importedConcepts.listForScope`
+ * @returns {{concepts: Array<object>, shipped: Array<object>, sections: Array<{id: string,
+ *   name: string}>, viewerTier: string, limits: object}} imported concepts per
+ *   `importedConcepts.listForScope`; the shipped concepts are the mentor's and reach every tier
  */
 async function list (req, res) {
   try {

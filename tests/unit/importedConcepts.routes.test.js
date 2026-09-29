@@ -306,6 +306,14 @@ describe('the cascade and removal', () => {
     expect(res._body.limits.maxPdfBytes).toBe(ic.MAX_PDF_BYTES)
   })
 
+  test('the list carries the shipped concepts, each in one of the four sections it names', async () => {
+    const res = await call(routes.list)
+    const sections = res._body.sections.map(s => s.id)
+    expect(sections).toHaveLength(4)
+    expect(res._body.shipped.length).toBeGreaterThan(0)
+    expect(res._body.shipped.every(c => sections.includes(c.planningDomain))).toBe(true)
+  })
+
   test('🔴 a firm cannot remove what the mentor added, and nothing is deleted trying', async () => {
     await saveAt(PLATFORM_SCOPE)
     jest.clearAllMocks()

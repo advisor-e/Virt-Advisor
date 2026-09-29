@@ -366,6 +366,7 @@ module.exports = {
   MAX_HELPS,
   MAX_BOXES,
   MAX_LABEL,
+  MIN_BOX,
   checkDetails,
   checkBoxes,
   buildRecord,

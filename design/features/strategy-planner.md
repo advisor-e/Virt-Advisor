@@ -1338,9 +1338,9 @@ each of the five above.
 
 ## 9. Adding a concept — approved to build, and what was measured before design
 
-**Item 15.20, asked for by Mike 2026-09-23 in his own words.** Built: the converter and the
-backend (storage and routes), described at the end of this section. Not built: the hub screens,
-imported pages in the planner, and answers printed inside their boxes.
+**Item 15.20, asked for by Mike 2026-09-23 in his own words.** Built: the converter, the
+backend (storage and routes) and the hub screens, described at the end of this section. Not
+built: imported pages in the planner, and answers printed inside their boxes.
 
 ✅ **THE DRAWING IS APPROVED TO BUILD FROM — [`add-concept.html`](../mockups/add-concept.html),
 Mike, 2026-09-23:** *"make a note now that i approve the drawing."* Asked as its own question
@@ -1504,7 +1504,7 @@ picture only when it lies wholly under the firm's mark (question 8), rewrites ev
 and reads the page's own title. All 25 pages of Organisational Review convert in about 5 s.
 `tests/unit/pdfConvert.test.js` pins each condition.
 
-✅ **BUILT 2026-09-29 — storage and the routes, slice 2. No screen yet.**
+✅ **BUILT 2026-09-29 — storage and the routes, slice 2.**
 `server/utils/importedConcepts.js` keeps one versioned record per concept at the tier that added
 it (`imported-concept:<id>:record`) and lists, for any scope, every tier's concepts above it then
 its own — at once, no opt-in (question 5). Ids carry the tier (`im-m`, `im-x`, `im-g`, `im-f`) and
@@ -1525,6 +1525,30 @@ names the 32M `max_allowed_packet` it needs). Routes, managers only, at all four
 drops a filtered part silently, so a save with one mislabelled teaching file would store a concept
 a page short; here any file that is not a PDF refuses the whole save. The caps of 5 files, 10
 pages and 30 boxes are ours, not rulings, and sit in `importedConcepts.js`.
+
+✅ **BUILT 2026-09-29 — the hub screens, slice 3. Walked in a built app the same day.** The
+**Strategy Concepts** tab, at the end of "Your AI coach", at all four tiers
+(`components/firm/FirmStrategyConcepts.vue`): the cascade strip, and the library of all 48 shipped
+concepts plus every imported one, with Remove on a concept this tier added. **+ Add Concept** opens
+`FirmAddConcept.vue` — the section, the teaching PDFs, step 2 in the app's frame, the Response
+Form, then box marking (`components/strategy/ConceptBoxMarker.vue`). An imported page is drawn by
+`components/strategy/ImportedConceptPage.vue`: the converted page, cleaned again in the browser,
+under the drawn slides' own five bars and firm mark — the same coordinates, so on Organisational
+Review p11 the frame covers his cyan border exactly and the mark sits in the gap where his logo
+was. Every word is the drawing's §8, §8b or §8c, all approved.
+
+🔴 **RULED BY MIKE 2026-09-29 — THE SOURCE DECK'S PAGE NUMBER IS REMOVED**, as the covered logo
+is: it points at a deck the client never sees. Found walking p11 in the frame. The worker removes
+text that is only one to three digits and lies wholly in the bottom-right corner
+(`PAGE_NUMBER_ZONE`), located from the page's own text layer, because the drawn glyphs are font
+codes and cannot be read; a word, or a number elsewhere, is kept. Proved on p11 in the frame.
+
+⚠ **Differences from the drawing, named as the artefact rule requires:** a shipped concept with no
+drawing yet shows a dash under Teaching sheet; step 1 lists the dropped files with Remove; step 2
+shows every teaching page, "Page i of n" above each when there are several; the section field
+starts empty rather than on the drawing's example; the drawing's notes to Mike under the section
+field and on step 3 are not screen text and are not shown; the box being drawn has no "being
+drawn…" caption; Remove on the library is §8c's.
 
 ## 9a. Editing a concept page's text — built 2026-09-25 (item 15.25)
 

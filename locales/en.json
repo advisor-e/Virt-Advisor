@@ -7478,6 +7478,7 @@
       "clientCopyRequest": "Client Copy Request",
       "growthAspectQuestions": "Growth Aspect Questions",
       "wordsmith": "Wordsmith",
+      "strategyConcepts": "Strategy Concepts",
       "teamCaseStudies": "Team Case Studies",
       "sessionProcesses": "Session Processes",
       "teamPipeline": "Team Pipeline",
@@ -8406,5 +8407,96 @@
     "delete": "Stop and delete",
     "finishing": "Turning the recording into a transcript",
     "reports": "Read my reports"
+  },
+  "strategyConcepts": {
+    "heading": "Strategy Concepts",
+    "count": "{n} concepts across four planning sections",
+    "cascadeClient": "Client / business entity · delivered",
+    "cascadeNote": "{n} concepts reach you from above · {m} added here. The four manager levels add concepts; the client receives them in the session and in the plan PDF.",
+    "addButton": "+ Add Concept",
+    "cols": {
+      "concept": "Concept",
+      "section": "Section",
+      "teaching": "Teaching sheet",
+      "response": "Response Form",
+      "from": "Where from"
+    },
+    "teaching": {
+      "drawn": "Drawn",
+      "drawnPages": "Drawn · {n} pages",
+      "imported": "Imported",
+      "importedPages": "Imported · {n} pages"
+    },
+    "forms": {
+      "banded-grid": "Banded grid",
+      "prompt-answer-sheet": "Prompt and answer sheet",
+      "named-rows-staged-columns": "Named rows in stages",
+      "parallel-prompt-pair": "Two prompts side by side",
+      "small-comparison-grid": "Small comparison grid",
+      "attribute-rows-entity-columns": "Rows of attributes",
+      "named-field-stack": "Stack of named fields",
+      "parent-child-list": "Parent and child list",
+      "imported": "Imported",
+      "notChosen": "Not yet chosen",
+      "model": "Runs a model"
+    },
+    "from": {
+      "mentor": "Mentor",
+      "inherited": "Inherited",
+      "addedHere": "Added here · {date}"
+    },
+    "remove": "Remove",
+    "removeConfirm": "Remove {name}? Its pages and the PDFs it was made from are deleted, and no level below will see it again.",
+    "removeYes": "Remove",
+    "removeNo": "Keep it",
+    "next": "Next",
+    "cancel": "Cancel",
+    "back": "Back",
+    "converting": "Converting…",
+    "saved": "{name} added. Every level below sees it now.",
+    "step1": {
+      "heading": "Add Concept — 1 of 3 · The teaching pages",
+      "section": "Which section?",
+      "drop": "Drop the teaching pages here",
+      "dropSmall": "or choose files · PDF only · up to 20 MB each · taught in the order you drop them",
+      "noAi": "Nothing is sent to an AI. The pages are converted on our own server and the text is read from the pages themselves."
+    },
+    "step2": {
+      "heading": "Add Concept — 2 of 3 · Check and name it",
+      "converted": "Converted in {s} s · {kb} KB",
+      "pageOf": "Page {i} of {n}",
+      "name": "Concept name",
+      "nameHint": "Read from the page's own title. Change it if you want something shorter on the scope menu.",
+      "nameRequired": "Give the concept a name.",
+      "section": "Section",
+      "helps": "Helps your client to…",
+      "helpsPlaceholder": "One line, in your words",
+      "helpsHint": "Optional. Left blank, the scope menu shows the concept name alone."
+    },
+    "step3": {
+      "heading": "Add Concept — 3 of 3 · The Response Form",
+      "drop": "Drop the Response Form page here",
+      "dropSmall": "or choose a file · PDF only · up to 20 MB"
+    },
+    "mark": {
+      "heading": "Mark the boxes your client writes in",
+      "instruction": "Drag a box over each space on the page where your client writes an answer, then give it a short label.",
+      "count": "{n} box marked | {n} boxes marked",
+      "list": "Boxes on this page",
+      "labelPlaceholder": "Label, e.g. Our core values",
+      "remove": "Remove",
+      "noneYet": "Mark at least one box before adding the concept.",
+      "save": "Save concept"
+    },
+    "errors": {
+      "NOT_A_PDF": "That file is not a PDF.",
+      "FILE_TOO_LARGE": "Each PDF can be up to 20 MB.",
+      "TOO_MANY_FILES": "A concept takes up to 5 teaching PDFs.",
+      "TOO_MANY_PAGES": "A concept teaches from up to 10 pages.",
+      "RESPONSE_ONE_PAGE": "The Response Form must be a single page.",
+      "UNREADABLE": "We could not read that page. It may be scanned rather than typed, or protected against copying. Try exporting it again from the original file.",
+      "CONVERT_FAILED": "That file could not be converted. Try again, or export it again from the original file.",
+      "failed": "That could not be saved just now. Nothing was changed — try again."
+    }
   }
 }

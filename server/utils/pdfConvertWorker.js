@@ -41,6 +41,19 @@ const MARK_ZONE = Object.freeze({
   y1: 1
 })
 
+/**
+ * Where a source deck prints its own page number, as fractions of the page: the bottom-right
+ * corner, inside the frame. Mike's deck prints it at 91–93% across and 96% down on every page.
+ *
+ * 🔴 RULED BY MIKE 2026-09-29: the source deck's page number is removed from every imported
+ * page, as the covered logo is — it points at a deck the client never sees, beside concepts that
+ * carry no number. Only text that is NOTHING BUT one to three digits, lying wholly in this zone,
+ * is removed; a word, or a number anywhere else on the page, is kept.
+ */
+const PAGE_NUMBER_ZONE = Object.freeze({ x0: 0.85, x1: 1, y0: 0.9, y1: 1 })
+
+const PAGE_NUMBER = /^\s*\d{1,3}\s*$/
+
 const IDENTITY = [1, 0, 0, 1, 0, 0]
 
 function multiply (a, b) {
@@ -122,6 +135,61 @@ function dropCoveredImages (svg, width, height) {
 }
 
 /**
+ * Where the page's own text layer places a page number, if it has one: each item that is only
+ * digits and lies wholly inside `PAGE_NUMBER_ZONE`, as fractions of the page.
+ *
+ * @param {Array<{str:string, transform:number[], width:number}>} items - `getTextContent().items`
+ * @param {{width:number, height:number, convertToViewportPoint:function}} viewport
+ * @returns {Array<{x0:number, x1:number, y:number}>}
+ */
+function pageNumberSpots (items, viewport) {
+  return items
+    .filter(i => PAGE_NUMBER.test(String(i.str || '')) && Array.isArray(i.transform))
+    .map((i) => {
+      const [x, y] = viewport.convertToViewportPoint(i.transform[4], i.transform[5])
+      const x0 = x / viewport.width
+      return { x0, x1: x0 + (Number(i.width) || 0) / viewport.width, y: y / viewport.height }
+    })
+    .filter(s => s.x0 >= PAGE_NUMBER_ZONE.x0 && s.x1 <= PAGE_NUMBER_ZONE.x1 &&
+      s.y >= PAGE_NUMBER_ZONE.y0 && s.y <= PAGE_NUMBER_ZONE.y1)
+}
+
+/**
+ * Where one drawn `<text>` starts, as fractions of the page: its transform chain applied to the
+ * first glyph's position. The drawn glyphs are font codes, not characters, so a page number is
+ * found by where it sits, never by what it says.
+ */
+function textOrigin (text, width, height) {
+  const chain = []
+  for (let el = text; el && el.getAttribute; el = el.parentNode) { chain.unshift(el) }
+  const m = chain.reduce((acc, el) => multiply(acc, parseTransform(el.getAttribute('transform'))), IDENTITY)
+  const span = Array.from(text.childNodes).find(c => c.localName === 'tspan' && c.getAttribute('x'))
+  const x = span ? parseFloat(span.getAttribute('x').split(/\s+/)[0]) || 0 : 0
+  return { x: (m[0] * x + m[4]) / width, y: (m[1] * x + m[5]) / height }
+}
+
+/**
+ * Removes the drawn text at each page-number spot, and returns how many elements went.
+ *
+ * @param {Element} svg
+ * @param {Array<{x0:number, x1:number, y:number}>} spots - from `pageNumberSpots`
+ * @param {number} width
+ * @param {number} height
+ * @returns {number}
+ */
+function dropPageNumber (svg, spots, width, height) {
+  if (!spots.length) { return 0 }
+  const SLACK = 0.005
+  const gone = Array.from(svg.getElementsByTagName('*')).filter((el) => {
+    if (el.localName !== 'text') { return false }
+    const o = textOrigin(el, width, height)
+    return spots.some(s => Math.abs(o.y - s.y) <= 0.01 && o.x >= s.x0 - SLACK && o.x <= s.x1 + SLACK)
+  })
+  gone.forEach(el => el.parentNode.removeChild(el))
+  return gone.length
+}
+
+/**
  * The serialised page, made plain SVG.
  *
  * 🔴 EVERY `ns<N>:href`, NEVER ONE. `XMLSerializer` gives each `<image>` its own xlink prefix —
@@ -185,8 +253,9 @@ async function convert (data, pdfjs, window) {
     gfx.embedFonts = true
     const svg = await gfx.getSVG(opList, viewport)
     const dropped = dropCoveredImages(svg, viewport.width, viewport.height)
-    const markup = plainSvg(new window.XMLSerializer().serializeToString(svg))
     const items = (await page.getTextContent()).items || []
+    const numberDropped = dropPageNumber(svg, pageNumberSpots(items, viewport), viewport.width, viewport.height)
+    const markup = plainSvg(new window.XMLSerializer().serializeToString(svg))
     const text = items.map(i => String(i.str || '').trim()).filter(Boolean)
     const paths = (markup.match(/<path\b/g) || []).length
     pages.push({
@@ -199,7 +268,8 @@ async function convert (data, pdfjs, window) {
       // A scan has no text and no shapes — only a photograph of a page. It converts to an
       // unreadable block, so it is reported rather than passed on (the drawing, §6).
       readable: text.length > 0 || paths > 0,
-      droppedImages: dropped
+      droppedImages: dropped,
+      droppedPageNumber: numberDropped
     })
     page.cleanup()
   }
@@ -241,4 +311,4 @@ function main () {
 
 if (require.main === module) { main() }
 
-module.exports = { MARK_ZONE, parseTransform, imageBox, dropCoveredImages, plainSvg, titleOf, convert }
+module.exports = { MARK_ZONE, PAGE_NUMBER_ZONE, parseTransform, imageBox, dropCoveredImages, pageNumberSpots, textOrigin, dropPageNumber, plainSvg, titleOf, convert }
