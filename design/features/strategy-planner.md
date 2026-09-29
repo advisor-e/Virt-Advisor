@@ -118,9 +118,8 @@ accuracy or user experience, then DONT put it in the build design."*
 Four things that would otherwise have been built failed that test and are listed at the end
 rather than quietly dropped.**
 
-**Where the build actually stands:** the spine is built. The concept index holds 52 records and
-the session menu puts all 52 on a screen; 16 of them reach the real capture table read from
-Mike's own workbook, and what an advisor types there is saved box by box against the client's
+**Where the build actually stands:** the spine is built. The concept index holds 48 records and
+the session menu puts all 48 on a screen; 36 of them reach a capture form, and what an advisor types there is saved box by box against the client's
 session (§4) and carries into the assembled document.
 🔴 **STAGE 6 — THE AI PRE-TICK — WAS BUILT ON 2026-09-22, AND NOTHING WAS DRAWN FOR IT BECAUSE
 THE DRAWING ALREADY EXISTED.** `design/mockups/strategy-session-menu.html` carries the *"Suggest
@@ -184,6 +183,18 @@ apart from a broken button. It now greys out exactly as *Build the session* does
 ⚠ **THE SUGGESTION IS ONLY AS GOOD AS THE CLIENT'S RECORDED CONVERSATIONS**, which is the drawing's
 own input. A client with none gets an honest empty and the model is never called. A client with thin
 summaries gets a thin suggestion. Stated before the build rather than discovered after it.
+
+☑ **RULED BY MIKE 2026-09-30 — A CLIENT WITH NO CONVERSATION IS ASKED, NOT SENT AWAY (item 15.31).**
+When the client has no saved conversation, the planner puts **the Virtual Advisor's own intake
+questions** on screen — Growth Curve stage, Advisory Staircase step, did the client raise it, client
+personality, advisor experience and confidence — and suggests from the answers, instead of
+*"nothing to suggest from"*. Read from the `QUESTIONS` array in `server/advisorEngine.js`, never copied.
+**Impact test, stated before design:** *problem* — a new client's first strategy meeting gets no
+guidance, and every client's suggestion ignores the four lenses; *measurement* — new-client cases
+that get a suggestion (0 today), recall on Pivot's 9 (4 today), overlap across the five situations
+(1 concept common today), and Mike's judgement of whether count and difficulty fit the answers;
+*what already does it* — the intake's four lenses and the `client_planning` logic tree, reused.
+The tree needs a map from its branches to the deck concepts, which is Mike's content to author.
 
 ⚠ **NOT PROVED AGAINST A REAL DATABASE** — the laptop has none. Desktop or UAT work.
 
@@ -1050,8 +1061,8 @@ drifted four concepts and a page offset out of step with the decks it indexes.
 off.** A concept is a record naming the form it uses; one component draws them all.
 
 🔴 **If a concept will not fit a form, add a FORM — never a component for that concept.** A
-form is a grid rule plus an entry in `STRATEGY_SHAPES`; it serves all 52. A component serves
-one, and 52 components is the build that never ends.
+form is a grid rule plus an entry in `STRATEGY_SHAPES`; it serves all 48. A component serves
+one, and 48 components is the build that never ends.
 
 **A table is expanded into ordinary fields** (`row-3-whom` is just a field key), so the store,
 the navigation timeline and the audit trail need no special case for it.

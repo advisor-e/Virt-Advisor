@@ -288,6 +288,27 @@
       "touches": "server/utils/conceptSummary.js composeMeetingSummary (actions always empty, ~line 302); server/utils/meetingFollowThrough.js findPrevious (~lines 98-109); server/routes/meetingReview.js runReports. These sit beside 8.4's files, which are the laptop's.",
       "note": "FOUND 2026-09-29. Not a regression - so since the segmented recording was built. FOR THE LAPTOP, ruled by Mike 2026-09-29: design it there alongside 8.4, whose files it shares; the desktop leaves its code untouched. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
       "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.31",
+      "name": "Suggest for this client gives a new client nothing, and ignores the intake questions",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The Strategy Planner's Suggest button reads only the client's last two saved conversation summaries. A client with none gets no suggestion, and the Virtual Advisor's intake answers and the client_planning logic tree never reach it.",
+      "risk": "The first strategy meeting with a new client, when guidance matters most, gets none: the advisor reads all 48 rows and ticks by hand. Linking the logic tree needs a map from its branches to Mike's deck concepts, which is his content to author.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-30 - \"we need to focus on building the logic similar to the 'I've got a client who's got a problem with' section\", then yes to the planner asking the intake questions itself."
+      },
+      "touches": "server/utils/strategyPretick.js; server/routes/strategyPlanner.js postSuggest; components/strategy/StrategyScopeMenu.vue; the QUESTIONS array in server/advisorEngine.js (the source, not a copy); data/logic_trees.json client_planning; locales/en.json; design/features/strategy-planner.md.",
+      "note": "PROCEED. RULED BY MIKE 2026-09-30: for a client with no saved conversation, the planner puts the Virtual Advisor's own intake questions on screen and suggests from the answers. Impact test and its measurement are in strategy-planner.md, stage 6. Next: the drawing, before any build.",
+      "comment": "2026-09-30 - filed on Mike's request and ruling. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

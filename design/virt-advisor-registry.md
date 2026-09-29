@@ -450,7 +450,7 @@ One worked example per lens, then one combined case threading all four — groun
 
 ## Part 5 — The 14 General Questions → 4 Lenses
 
-Verified against the `QUESTIONS` array in `server-middleware/advisor.js`. The **Weight** column is the future Firm-Manager control surface (today influence is hard-coded across `strategyResolver`, `templateResolver`, and regex in `advisor.js`).
+Verified against the `QUESTIONS` array in `server/advisorEngine.js`. The **Weight** column is the future Firm-Manager control surface (today influence is hard-coded across `strategyResolver`, `templateResolver`, and regex in `server/advisorEngine.js`).
 
 | # | Question | Primary lens | Also informs | Drives | Influence | Weight |
 |---|---|---|---|---|---|---|
@@ -462,6 +462,7 @@ Verified against the `QUESTIONS` array in `server-middleware/advisor.js`. The **
 | 5 | Ownership (private/NFP/listed) | Client Acumen | — | scale/type; NFP/listed skips Growth Curve | Moderate | _tbd_ |
 | 6 | Growth Curve stage | Client Acumen | — | scale → fee sensitivity + complexity ceiling | Strong | _tbd_ |
 | 7 | Advisory Staircase | Relationship Dynamics | sets complexity ceiling | relationship depth → comprehensiveness + count | Strong | _tbd_ |
+| 8 | Client personality — light-hearted and open to challenge, or discerning and careful (asked at the start of the approach phase, not during intake) | _tbd_ | — | passed to the AI as "Client personality/style" | _tbd_ | _tbd_ |
 | 9 | Advisor experience | Advisor Capability | — | in-reach vs stretch | Moderate | _tbd_ |
 | 10 | Advisor confidence | Advisor Capability | — | capability gate (low lowers ceiling unless stretch) | Strong | _tbd_ |
 | 11 | Advisor enjoyment | Advisor Capability | — | tailors tools to advisor | Minor | _tbd_ |

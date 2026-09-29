@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Suggest From Intake</title>
+<!--
+================================================================================
+  SUGGEST FOR A CLIENT WITH NO CONVERSATION — item 15.31.
+  Drawn 2026-09-30 on Mike's yes. NOT APPROVED TO BUILD FROM. NOTHING ON THIS PAGE
+  IS BUILT. It extends the approved Session Scope Menu (strategy-session-menu.html,
+  Decision C) and changes nothing that drawing ruled.
+
+  THE RULING IT DRAWS (Mike, 2026-09-30): when "Suggest for this client" is pressed
+  for a client with no saved conversation, the planner puts the Virtual Advisor's own
+  intake questions on screen and suggests from the answers — instead of "nothing to
+  suggest from".
+
+  EVERY QUESTION BELOW IS THE VIRTUAL ADVISOR'S OWN WORDING, read from the QUESTIONS
+  array in server/advisorEngine.js (~2553-2860), the Growth Curve stages from
+  data/growth-fundamentals.json and the Staircase steps from data/advisory-staircase.json.
+  The build reads them from the same place; it never keeps a copy.
+
+  WORDING MARKED "PROPOSED" IS OURS and is not approved. It is listed at the foot of
+  the page for Mike to change or approve before it is built.
+
+  THE CLIENT IS INVENTED. The six ticked rows in Screen 2 are an illustration of the
+  shape, not a model result — no suggestion has been run on these answers.
+================================================================================
+-->
+<style>
+:root{
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#e00000;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{max-width:1180px;margin:0 auto;padding:28px 22px 72px}
+h1{font-size:clamp(22px,3.4vw,32px);line-height:1.15;margin:0 0 6px;letter-spacing:-.015em}
+h2{font-size:19px;margin:42px 0 10px;letter-spacing:-.01em}
+h3{font-size:15px;margin:22px 0 8px}
+p{margin:0 0 12px;max-width:78ch}
+ul{margin:0 0 12px;padding-left:20px} li{margin:0 0 5px;max-width:78ch}
+code{font-family:ui-monospace,Consolas,monospace;font-size:.92em;background:var(--rs-panel-2);
+  border:1px solid var(--rs-line);border-radius:4px;padding:1px 5px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rs-accent);margin:0 0 8px}
+.lede{font-size:16px;color:var(--rs-muted);max-width:80ch}
+.measure{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:4px solid var(--rs-crit);
+  border-radius:10px;padding:14px 16px;margin:18px 0}
+.measure h3{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-crit)}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 10px}
+.mg{border:1px solid var(--rs-line);border-radius:10px;padding:12px 13px;background:var(--rs-panel-2)}
+.mg .n{font-size:24px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.mg .l{font-size:12px;color:var(--rs-muted);margin-top:3px;line-height:1.4}
+.ask{background:#eef7ff;border:1px solid #9fd0f5;border-left:4px solid var(--rs-accent);
+  border-radius:10px;padding:13px 15px;margin:18px 0;font-size:13.5px}
+.ask h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:700;color:var(--rs-accent)}
+.ask p{margin:0 0 7px}.ask p:last-child{margin:0}
+.ask .rec{font-weight:600}
+.ask .q{margin-top:9px;padding-top:9px;border-top:1px solid #bcdcf6;font-weight:600}
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:13px;margin:18px 0}
+.mock h3{margin:0 0 8px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+
+.screen{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);overflow:hidden;margin:16px 0 28px}
+.chrome{background:var(--rs-ink);color:#fff;padding:13px 18px;display:flex;flex-wrap:wrap;
+  gap:10px 18px;align-items:baseline}
+.chrome b{font-size:15px}
+.chrome .who{font-size:12.5px;opacity:.82}
+.chrome .count{margin-left:auto;font-size:12.5px;background:#ffffff1f;border-radius:999px;padding:3px 11px}
+.bar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;padding:12px 18px;
+  border-bottom:1px solid var(--rs-line);background:var(--rs-panel-2)}
+.btn{border:1px solid var(--rs-accent);background:var(--rs-accent);color:#fff;border-radius:8px;
+  padding:7px 13px;font-size:13px;font-weight:600;font-family:inherit}
+.btn.ghost{background:#fff;color:var(--rs-accent)}
+.btn.off{opacity:.45}
+.bar .hint{font-size:12px;color:var(--rs-muted)}
+
+/* the new panel */
+.intake{border-bottom:1px solid var(--rs-line);background:#fbfdff;padding:16px 18px 18px}
+.intake .head{font-weight:700;font-size:14.5px;margin:0 0 3px}
+.intake .intro{font-size:12.5px;color:var(--rs-muted);margin:0 0 14px;max-width:90ch}
+.qrow{border-top:1px solid var(--rs-line);padding:12px 0}
+.qrow:first-of-type{border-top:0}
+.qrow .qt{font-size:13px;font-weight:600;margin:0 0 7px}
+.qrow .lens{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--rs-accent);background:#e6f2fb;border:1px solid #bcdcf6;
+  border-radius:4px;padding:1px 5px;vertical-align:1px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--rs-line);background:#fff;border-radius:999px;padding:4px 11px;font-size:12.5px}
+.chip.on{background:var(--rs-accent);border-color:var(--rs-accent);color:#fff;font-weight:600}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.step{border:1px solid var(--rs-line);border-radius:8px;padding:8px 10px;background:#fff;font-size:12px}
+.step b{display:block;font-size:12.5px}
+.step.on{border-color:var(--rs-accent);background:#eef7ff;box-shadow:inset 0 0 0 1px var(--rs-accent)}
+.field{width:100%;border:1px solid #b9c9da;border-radius:8px;padding:8px 10px;font-size:13px;
+  font-family:inherit;color:var(--rs-ink);background:#fff;min-height:38px}
+.intake .go{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.intake .go .hint{font-size:12px;color:var(--rs-muted)}
+.proposed{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:#8a5a00;background:#fdf1e0;border:1px solid #f0cf9a;border-radius:4px;padding:0 5px;
+  vertical-align:2px;margin-left:5px}
+
+.dom{border-bottom:1px solid var(--rs-line)}
+.domhead{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;padding:12px 18px;background:#f7fafd}
+.domhead b{font-size:14.5px}
+.domhead .n{margin-left:auto;font-size:12px;color:var(--rs-muted)}
+.tw{overflow-x:auto}
+table.menu{border-collapse:collapse;width:100%;font-size:13px;min-width:760px}
+table.menu th,table.menu td{text-align:left;padding:9px 11px;border-top:1px solid var(--rs-line);vertical-align:top}
+table.menu th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:700;background:#fff}
+table.menu td.pg{color:var(--rs-muted);width:46px}
+table.menu td.nm{font-weight:600;width:190px}
+table.menu td.tick{width:38px}
+table.menu tr.on{background:#f2f9ee}
+.box{display:inline-block;width:15px;height:15px;border:1.5px solid #9bb0c6;border-radius:4px;background:#fff;vertical-align:-2px}
+.box.x{background:var(--rs-good);border-color:var(--rs-good);position:relative}
+.box.x::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg)}
+.why{display:block;font-weight:400;color:var(--rs-accent);font-size:12px;margin-top:3px}
+.why .tag{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:#e6f2fb;
+  border:1px solid #bcdcf6;border-radius:4px;padding:0 4px;margin-right:4px}
+.sugg{background:#eef7ff;border-bottom:1px solid #9fd0f5;padding:11px 18px;font-size:12.5px}
+.gap{padding:9px 18px;font-size:12px;color:var(--rs-muted);font-style:italic;border-bottom:1px solid var(--rs-line)}
+table.doc{border-collapse:collapse;width:100%;font-size:13.5px}
+table.doc th,table.doc td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--rs-line);vertical-align:top}
+table.doc th{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rs-muted);font-weight:700}
+table.doc td:first-child{font-weight:600}
+@media (max-width:640px){.shell{padding:20px 16px 56px}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<p class="eyebrow">Strategy Planner · Scope session · item 15.31 · drawn 2026-09-30</p>
+<h1>Suggest for a client with no conversation</h1>
+<p class="lede">Today, pressing <b>Suggest for this client</b> for a client with no saved Virtual
+Advisor conversation shows <i>"This client has no recorded conversations yet, so there is nothing
+to suggest from."</i> Your ruling of 2026-09-30: ask the Virtual Advisor's own intake questions
+instead, and suggest from the answers. <b>Not approved to build from — nothing here is built.</b></p>
+
+<div class="measure">
+  <h3>How we will know it worked — measured before and after</h3>
+  <div class="mgrid">
+    <div class="mg"><div class="n">0</div><div class="l">new-client cases that get any suggestion today</div></div>
+    <div class="mg"><div class="n">4 of 9</div><div class="l">of Pivot's concepts found today — must not fall</div></div>
+    <div class="mg"><div class="n">1 of 48</div><div class="l">concept common to all five test situations today — the lists must stay different</div></div>
+    <div class="mg"><div class="n">Your call</div><div class="l">whether the number and difficulty fit the answers — no test can judge it</div></div>
+  </div>
+</div>
+
+<!-- ============================================================ SCREEN 1 -->
+<h2>Screen 1 — the button is pressed, and the client has no conversation</h2>
+<p>The questions open <b>in place, above the menu</b> — not in a pop-up — so the 48 rows stay
+visible underneath. Nothing is ticked yet.</p>
+
+<div class="screen">
+  <div class="chrome">
+    <b>1 · Scope session</b><span class="who">Kōwhai Landscaping Ltd (invented)</span>
+    <span class="count">0 of 48 chosen</span>
+  </div>
+  <div class="bar">
+    <button class="btn off" type="button">Suggest for this client</button>
+    <span class="hint">Reading nothing yet — this client has no saved conversation.</span>
+  </div>
+
+  <div class="intake">
+    <p class="head">A few questions first<span class="proposed">proposed</span></p>
+    <p class="intro">This client has no saved conversation, so the suggestion will come from your
+    answers here. They are the same questions the Virtual Advisor asks.<span class="proposed">proposed</span></p>
+
+    <div class="qrow">
+      <p class="qt">Where would you place them on the Growth Curve?<span class="lens">client acumen</span></p>
+      <div class="chips">
+        <span class="chip">Design</span><span class="chip">Launch</span><span class="chip">Break-even</span>
+        <span class="chip on">Lifestyle</span><span class="chip">Leverage</span><span class="chip">Reach</span>
+        <span class="chip">Leapfrog</span><span class="chip">Maturity</span><span class="chip">Exit / Decline</span>
+      </div>
+    </div>
+
+    <div class="qrow">
+      <p class="qt">Where would you say your current engagement with this client sits on the Advisory Staircase?<span class="lens">relationship</span></p>
+      <div class="steps">
+        <div class="step"><b>1 · Compilation &amp; Verification</b>largely transactional</div>
+        <div class="step on"><b>2 · Assimilation</b>clear reports; education starts here</div>
+        <div class="step"><b>3 · Interpretation</b>making sense of the figures</div>
+        <div class="step"><b>4 · Application</b></div>
+        <div class="step"><b>5 · Observation</b></div>
+      </div>
+    </div>
+
+    <div class="qrow">
+      <p class="qt">Has the client specifically requested help with this issue, or is it something you've noticed?<span class="lens">client acumen</span></p>
+      <div class="field">They asked — they want a plan before taking on a second crew.</div>
+    </div>
+
+    <div class="qrow">
+      <p class="qt">Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice?<span class="lens">client acumen</span></p>
+      <div class="field">Careful. Likes to see the numbers first.</div>
+    </div>
+
+    <div class="qrow">
+      <p class="qt">How long have you been delivering advisory work, and are you comfortable using tools and frameworks with clients?<span class="lens">advisor capability</span></p>
+      <div class="field">Three years; comfortable with most tools.</div>
+    </div>
+
+    <div class="qrow">
+      <p class="qt">How confident do you feel about delivering services in this type of situation — is this familiar territory, or more of a stretch for you personally?<span class="lens">advisor capability</span></p>
+      <div class="field">A stretch — first full strategic plan.</div>
+    </div>
+
+    <div class="go">
+      <button class="btn" type="button">Suggest from these answers<span class="proposed" style="color:#fff;background:#ffffff26;border-color:#ffffff55">proposed</span></button>
+      <button class="btn ghost" type="button">Tick them myself<span class="proposed">proposed</span></button>
+      <span class="hint">Your answers go to the AI as words only — no names or ids.</span>
+    </div>
+  </div>
+
+  <div class="gap">The 48 rows of the approved menu sit here, unchanged and unticked.</div>
+</div>
+
+<!-- ============================================================ SCREEN 2 -->
+<h2>Screen 2 — the suggestion, drawn from the answers</h2>
+<p>Exactly the approved menu's behaviour (Decision C): rows are pre-ticked with one line of reason,
+nothing is ticked that the advisor does not leave ticked, and the count follows the ticks. The
+answers fold away to one line and can be opened and changed. <b>The rows below illustrate the
+shape — no model has been run on these answers.</b></p>
+
+<div class="screen">
+  <div class="chrome">
+    <b>1 · Scope session</b><span class="who">Kōwhai Landscaping Ltd (invented)</span>
+    <span class="count">3 of 48 chosen</span>
+  </div>
+  <div class="bar">
+    <button class="btn" type="button">Suggest for this client</button>
+    <span class="hint">Lifestyle · Staircase step 2 · asked for help · careful · a stretch for you — <u>change answers</u><span class="proposed">proposed</span></span>
+  </div>
+  <div class="sugg"><b>Suggested, not applied.</b> 3 rows were pre-ticked from your answers, each with
+  one line saying why.<span class="proposed">proposed</span></div>
+
+  <div class="dom">
+    <div class="domhead"><b>Business Targets</b><span class="n">2 of 3 ticked</span></div>
+    <div class="tw"><table class="menu">
+      <tr><th></th><th>Page</th><th>Framework</th><th>Concept Summary</th><th>Helps Your Client To…</th></tr>
+      <tr class="on"><td class="tick"><span class="box x"></span></td><td class="pg">3</td>
+        <td class="nm">Collaborative Thinking<span class="why"><span class="tag">Suggested</span>a careful owner who asked for help — start by looking at the business together</span></td>
+        <td></td><td>Look at the business together, one side at a time…</td></tr>
+      <tr class="on"><td class="tick"><span class="box x"></span></td><td class="pg">5</td>
+        <td class="nm">Business Owner Expectations<span class="why"><span class="tag">Suggested</span>a Lifestyle business planning growth — put a number on what the owner wants first</span></td>
+        <td></td><td>Put a number on the life each owner wants…</td></tr>
+      <tr><td class="tick"><span class="box"></span></td><td class="pg">3</td><td class="nm">Alignment Statements</td>
+        <td></td><td>Turn what each owner wants into five statements…</td></tr>
+    </table></div>
+  </div>
+  <div class="dom">
+    <div class="domhead"><b>Strategic Orientation 2</b><span class="n">1 of 18 ticked</span></div>
+    <div class="tw"><table class="menu">
+      <tr class="on"><td class="tick"><span class="box x"></span></td><td class="pg">39</td>
+        <td class="nm">The 8 Profit Levers<span class="why"><span class="tag">Suggested</span>numbers first, and within reach at Staircase step 2</span></td>
+        <td>This concept explains the Accumulative effect of Incremental changes…</td><td>Identify the 'little things' that can contribute to massive…</td></tr>
+    </table></div>
+  </div>
+  <div class="gap">The remaining rows sit here, unticked.</div>
+</div>
+
+<!-- ============================================================ DECISIONS -->
+<h2>Decisions on this page — one at a time, in this order</h2>
+
+<div class="ask">
+  <h3>Decision A — where the questions appear</h3>
+  <p class="rec">Recommended: in place, above the menu, only when the client has no saved conversation.</p>
+  <p>A pop-up would hide the 48 rows the answers are about. A client who <i>does</i> have a saved
+  conversation keeps today's behaviour exactly — your ruling covers the no-conversation case only.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision B — how each question is answered</h3>
+  <p class="rec">Recommended: the Growth Curve and the Staircase as the same pickers the Virtual Advisor uses; the other four as a short line of the advisor's own words.</p>
+  <p>That is how the Virtual Advisor asks them today, so the questions and the way they are answered
+  stay identical in both places. The Staircase steps are the firm's own, from the same settings the
+  Virtual Advisor reads.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision C — does the Staircase step limit how many are suggested?</h3>
+  <p class="rec">Recommended: yes — steps 1–2 suggest at most 3 concepts; steps 3–5 at most 5.</p>
+  <p>This is the Virtual Advisor's own relationship rule (<i>"1–3 weak, 3–5 strong"</i>, registry
+  Part 4). Kept in code rather than left to the AI, so the limit is always obeyed and can be tested.
+  The numbers are yours to change.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision D — what happens to the answers</h3>
+  <p class="rec">Recommended: saved beside the suggestion on the session, so the record shows the answers, what the AI suggested, and what the advisor kept.</p>
+  <p>That is the Original / AI Suggestion / Final Approved trail the standards already require.
+  Nothing new is saved against the client's account.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision E — the logic tree's opening question, not on this screen yet</h3>
+  <p class="rec">Recommended: leave <i>"Is this for a Startup, is it a Well Established Business, or is something blocking the strategy work itself?"</i> off the first build.</p>
+  <p>Its answer can only steer the suggestion once each branch is mapped to your deck concepts —
+  and only one name in the tree (Alignment Statements) matches a concept today. That map is your
+  content to write; it can be added as a seventh question once it exists.</p>
+</div>
+
+<div class="mock">
+  <h3>Rules this design keeps — not decisions</h3>
+  <ul>
+    <li><b>The advisor's typed answers pass the moderation check</b> before reaching OpenAI (rule Z3
+      in <code>design/OPENAI-ZDR-CONSTRAINTS.md</code>). Today's suggestion skips it correctly,
+      because nothing is typed; this one cannot.</li>
+    <li><b>Words only, no ids</b> — no client, advisor, firm or case id reaches the model; the
+      answers are fenced as untrusted text, as the saved summaries are today.</li>
+    <li><b>The questions are read, never copied</b> — from <code>server/advisorEngine.js</code>,
+      <code>growth-fundamentals.json</code> and the firm's resolved Staircase.</li>
+    <li><b>Every suggested row is checked against the real 48</b> before it is shown; a name that
+      does not exist is dropped (Decision C of the approved menu).</li>
+  </ul>
+</div>
+
+<h2>Wording we wrote — for your approval before it is built</h2>
+<table class="doc">
+  <tr><th>Where</th><th>Proposed wording</th></tr>
+  <tr><td>Panel heading</td><td>A few questions first</td></tr>
+  <tr><td>Panel introduction</td><td>This client has no saved conversation, so the suggestion will come from your answers here. They are the same questions the Virtual Advisor asks.</td></tr>
+  <tr><td>Main button</td><td>Suggest from these answers</td></tr>
+  <tr><td>Second button</td><td>Tick them myself</td></tr>
+  <tr><td>Bar after suggesting</td><td>Suggested, not applied. {count} rows were pre-ticked from your answers, each with one line saying why.</td></tr>
+  <tr><td>Answers, folded</td><td>{answers in brief} — change answers</td></tr>
+</table>
+
+</div>
+</body>
+</html>
