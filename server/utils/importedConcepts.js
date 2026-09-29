@@ -215,6 +215,9 @@ function checkBoxes (raw) {
 
 const pageOf = p => ({ svg: p.svg, width: p.width, height: p.height, title: p.title })
 
+/** A page as a card or the plan draws it — the picture alone, never the title read from it. */
+const pagePicture = p => ({ svg: p.svg, width: p.width, height: p.height })
+
 /**
  * The record one save stores.
  *
@@ -418,10 +421,11 @@ function plannerConcept (record) {
  * An imported concept's capture card. Each box is a field keyed as a one-column table
  * (`t0r<i>c0`), which is the key shape the capture card and the save guard already read, so the
  * card needs no special path to lay it out. The teaching pages travel with it, as a drawn
- * concept's drawing does.
+ * concept's drawing does — and so do the Response Form page and each box's place on it, because
+ * the client's plan writes every answer inside its own box (question 7, ruled 2026-09-24).
  *
  * @param {object} record
- * @returns {{supplied: true, form: string, fields: Array<object>, teachingPages: Array<object>}}
+ * @returns {{supplied: true, form: string, fields: Array<object>, teachingPages: Array<object>, responsePage: object}}
  */
 function captureOf (record) {
   return {
@@ -436,9 +440,11 @@ function captureOf (record) {
       column: 0,
       columnLabel: b.label,
       rowLabel: '',
-      example: ''
+      example: '',
+      box: { x: b.x, y: b.y, w: b.w, h: b.h }
     })),
-    teachingPages: record.teachingPages.map(p => ({ svg: p.svg, width: p.width, height: p.height })),
+    teachingPages: record.teachingPages.map(pagePicture),
+    responsePage: pagePicture(record.responsePage),
     importReport: null
   }
 }

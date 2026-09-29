@@ -153,6 +153,17 @@ describe('saving', () => {
   })
 })
 
+test('each box carries its own place on the Response Form, in drawn order — the plan writes each answer there', () => {
+  // A mismatch puts one answer in another box's space; with boxes of a similar size a reader
+  // takes the wrong answer as the right one (question 7, item 15.20 piece 4).
+  const capture = ic.captureOf(RECORD)
+  expect(capture.fields.map(f => [f.key, f.box])).toEqual([
+    ['t0r0c0', { x: 0.1, y: 0.1, w: 0.3, h: 0.3 }],
+    ['t0r1c0', { x: 0.5, y: 0.1, w: 0.3, h: 0.3 }]
+  ])
+  expect(capture.responsePage.svg).toBe(PAGE.svg)
+})
+
 test('🔴 a recorded section’s summary headings are the manager’s box labels — Mike, 2026-09-29', () => {
   expect(conceptSummary.headingsFor({ name: RECORD.name }, ic.captureOf(RECORD), 'fallback'))
     .toEqual(['Our core values', 'In practice'])

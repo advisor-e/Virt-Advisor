@@ -1338,9 +1338,9 @@ each of the five above.
 
 ## 9. Adding a concept — approved to build, and what was measured before design
 
-**Item 15.20, asked for by Mike 2026-09-23 in his own words.** Built: the converter, the
-backend (storage and routes), the hub screens and imported concepts in the planner, described at
-the end of this section. Not built: answers printed inside their boxes in the plan.
+**Item 15.20, asked for by Mike 2026-09-23 in his own words.** All four pieces are built: the
+converter, the backend (storage and routes), the hub screens, and imported concepts in the planner
+and in the client's printed plan, described at the end of this section.
 
 ✅ **THE DRAWING IS APPROVED TO BUILD FROM — [`add-concept.html`](../mockups/add-concept.html),
 Mike, 2026-09-23:** *"make a note now that i approve the drawing."* Asked as its own question
@@ -1568,6 +1568,25 @@ shows every teaching page, "Page i of n" above each when there are several; the 
 starts empty rather than on the drawing's example; the drawing's notes to Mike under the section
 field and on step 3 are not screen text and are not shown; the box being drawn has no "being
 drawn…" caption; Remove on the library is §8c's.
+
+✅ **BUILT 2026-09-29 — the client's printed plan, piece 4. Printed in a built app the same day**,
+through the plan's own print mode, with Organisational Review pp11–12 as teaching pages and p14 as
+the Response Form. An imported concept prints **one teaching sheet per uploaded page**, each in the
+drawn slides' frame with the firm's mark and no second title (Decision A), then its **Response
+Form with every answer written inside the box marked for it** (question 7,
+`components/strategy/ImportedResponsePage.vue`). Each answer is tried at 14pt and shrinks to fit,
+down to 9pt — the size of his own page number; past that the box ends in "…" and the rest of the
+words continue beneath the page under the box's label (`fitAnswer` in `utils/conceptBoxes.js`,
+which splits between words and loses none). Sizes are shares of the page's width, so a fit measured
+on screen holds on paper, and it is measured again before printing. **Before this piece the plan
+printed no teaching page for an imported concept at all** — it has no drawing, summary or prompts,
+the three things that decided whether one printed — and listed the answers under its name, the
+table question 7 ruled out. An untouched form prints the one "not worked through yet" line, as
+every untouched table does. No new words.
+
+⚠ **Differences from the drawing's question 7, named:** a box whose answer continues ends in "…" —
+the drawing says only that the answer continues below; and an untouched form prints the
+not-worked line rather than the blank form, which the drawing does not cover.
 
 ## 9a. Editing a concept page's text — built 2026-09-25 (item 15.25)
 
