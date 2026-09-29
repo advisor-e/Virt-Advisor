@@ -21,7 +21,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const { execSync } = require('child_process')
+const { execSync, execFileSync } = require('child_process')
 
 /** The app's own directories, in the order the page lists them. */
 const APP_DIRS = ['components', 'server', 'utils', 'pages', 'mixins', 'server-middleware', 'plugins', 'config', 'layouts', 'store', 'middleware']
@@ -231,6 +231,28 @@ function withoutStamp (text) {
 }
 
 /**
+ * Does HEAD already contain `ref`?
+ *
+ * 2026-09-30: a desktop 11 commits behind master built the Handbook and wrote 129,696 lines
+ * over master's 131,022 — its own older tree, measured and stamped as today's. A checkout
+ * that lacks master's tip holds older code than master's record, so it must not rewrite it.
+ * Only git's own "no" (exit 1) counts as behind; a ref it cannot resolve — a clone with no
+ * remote yet — is measured as before.
+ *
+ * @param {string} root
+ * @param {string} ref  e.g. 'origin/master'
+ * @returns {boolean}
+ */
+function holdsRef (root, ref) {
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', ref, 'HEAD'], { cwd: root, stdio: 'ignore' })
+    return true
+  } catch (e) {
+    return e.status !== 1
+  }
+}
+
+/**
  * Measure and write design/CODE-SIZE.md — but only when a count has changed.
  *
  * Item 14.4: the stamp carries today's date and the current commit, so rewriting on every
@@ -238,12 +260,17 @@ function withoutStamp (text) {
  * with every figure identical. Now the stamp says when the counts last moved.
  *
  * @param {string} root
- * @returns {{file: string, code: number, files: number, tests: number, written: boolean}}
+ * @param {{unlessBehind?: string}} [options]  a git ref this checkout must already hold,
+ *   or nothing is measured — see holdsRef
+ * @returns {{file: string, code?: number, files?: number, tests?: number, written: boolean, behind?: boolean}}
  */
-function writeRecord (root) {
+function writeRecord (root, options) {
+  const file = path.join(root, 'design', 'CODE-SIZE.md')
+  if (options && options.unlessBehind && !holdsRef(root, options.unlessBehind)) {
+    return { file, written: false, behind: true }
+  }
   const m = measure(root)
   const stamp = { date: localDate(), commit: commitOf(root) }
-  const file = path.join(root, 'design', 'CODE-SIZE.md')
   const next = renderMarkdown(m, stamp)
   const current = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null
   const written = current === null || withoutStamp(current) !== withoutStamp(next)
@@ -251,7 +278,7 @@ function writeRecord (root) {
   return { file, code: m.app.code, files: m.app.files, tests: m.tests.code, written }
 }
 
-module.exports = { countCode, measure, renderMarkdown, writeRecord, localDate, APP_DIRS }
+module.exports = { countCode, measure, renderMarkdown, writeRecord, holdsRef, localDate, APP_DIRS }
 
 if (require.main === module) {
   const root = path.resolve(__dirname, '..')

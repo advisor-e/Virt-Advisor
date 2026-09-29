@@ -591,8 +591,12 @@ function build (outPath, options) {
   // show a figure older than the build that carries it (Mike, 2026-09-10: a rolling summary).
   // Skipped under Jest: the Handbook tests call build(), and a test must not rewrite a tracked file.
   // A master build still writes it — that is how the fresh figure reaches master on the next
-  // merge — but renders master's committed copy, like every other page.
-  if (!process.env.JEST_WORKER_ID) { require('./count-code').writeRecord(ROOT) }
+  // merge — but renders master's committed copy, like every other page. A branch behind master
+  // is not measured at all: its tree is older than master's record and would overwrite it.
+  if (!process.env.JEST_WORKER_ID) {
+    const size = require('./count-code').writeRecord(ROOT, { unlessBehind: DEFAULT_SOURCE })
+    if (size.behind) { console.log('This branch is behind ' + DEFAULT_SOURCE + ': design/CODE-SIZE.md not re-measured. Merge master first.') }
+  }
 
   const files = source.list(FEATURES_REL).filter(name => name.endsWith('.md'))
   const known = new Set(files.map(name => name.replace(/\.md$/, '')))

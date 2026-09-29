@@ -11,7 +11,8 @@
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const { countCode, measure, renderMarkdown, localDate, writeRecord } = require('../../scripts/count-code')
+const { execFileSync } = require('child_process')
+const { countCode, measure, renderMarkdown, localDate, writeRecord, holdsRef } = require('../../scripts/count-code')
 
 describe('countCode', () => {
   test('blank lines and line comments are not code', () => {
@@ -116,5 +117,23 @@ describe('writeRecord only rewrites when a count moves', () => {
     expect(r.written).toBe(true)
     expect(r.code).toBe(2)
     expect(fs.readFileSync(file, 'utf8')).toContain('Measured ' + localDate())
+  })
+
+  // 2026-09-30: a desktop 11 behind master wrote its older, smaller count over master's.
+  test('a checkout behind the named ref writes nothing, even though its counts differ', () => {
+    const git = (...args) => execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', ...args], { cwd: root, stdio: 'ignore' })
+    git('init', '-q')
+    git('add', '.')
+    git('commit', '-q', '-m', 'one')
+    git('branch', 'ahead')
+    git('checkout', '-q', 'ahead')
+    git('commit', '-q', '--allow-empty', '-m', 'two')
+    git('checkout', '-q', 'HEAD~1')
+    fs.writeFileSync(file, 'master\'s newer record\n')
+
+    const r = writeRecord(root, { unlessBehind: 'ahead' })
+    expect(r).toMatchObject({ written: false, behind: true })
+    expect(fs.readFileSync(file, 'utf8')).toBe('master\'s newer record\n')
+    expect(holdsRef(root, 'no-such-ref')).toBe(true)
   })
 })
