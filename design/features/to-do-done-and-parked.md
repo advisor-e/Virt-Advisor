@@ -379,6 +379,18 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.16 · A privacy test's comment said the engines bypass the privacy seam; they did not.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29 ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)).
+  `aiCallSitesPersonal.test.js` said `advisorEngine` and `courseEngine` were "NOT YET ROUTED";
+  both were routed on 2026-09-15 (`c8b012aa`). Because of that note neither was ever registered,
+  so the engine's own eleven calls were unguarded — the gap that let 7.14 through.
+- **What was done:** the stale block is deleted; `advisorEngine.js` (personal) and
+  `courseEngine.js` (not personal) are on the register with their 2026-09-15 classes.
+- **What proves it:** the register passes as it stands and fails with one engine flag flipped.
+  Commit: `git log --grep "(7.16)"`.
+
 **7.15 · In client mode the engine read past case studies and never used them.**
 ✅ **Closed 2026-09-29 by Mike ("yes" — done).**
 

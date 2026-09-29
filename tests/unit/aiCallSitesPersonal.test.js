@@ -49,32 +49,20 @@ const SITES = [
   // reply in the advisor's conversation about them. No id, but the same 2026-09-15 ruling.
   // Item 15.30: it said false.
   { file: 'server/routes/strategyPlanner.js', personal: true, why: 'saved case summaries describing a real client' },
+  // The advisor conversation itself — every call in the engine. Mike's ruling of 2026-09-15:
+  // the advisor is describing a real client in their own words. Routed that day (c8b012aa)
+  // and registered only on 2026-09-29 (item 7.16), because a stale note here said it was not.
+  { file: 'server/advisorEngine.js', personal: true, why: 'the advisor conversation about a real client' },
 
   // Not personal: page figures the mentor is already looking at, the user's own pasted
   // document, and document file names.
   { file: 'server/utils/hubReading.js', personal: false, why: 'the figures already on the mentor page' },
   { file: 'server/routes/promptCheck.js', personal: false, why: "the user's own pasted document" },
+  // A firm's own course profile and quiz answers; no client is involved (ruled 2026-09-15,
+  // registered 2026-09-29, item 7.16).
+  { file: 'server/courseEngine.js', personal: false, why: "a firm's own course profile and quiz answers" },
   { file: 'server/utils/complianceCheck.js', personal: false, why: 'document file names' }
 ]
-
-/**
- * 🔴 NOT YET ROUTED THROUGH THE SEAM — the next session's first job, and their class is
- * ALREADY RULED so it does not have to be re-argued:
- *
- *   server/advisorEngine.js  (10 sites, 4 of them streaming)  → personal: TRUE
- *       Mike's ruling of 2026-09-15, above: the advisor is describing a real client in
- *       their own words. Six of the ten are the live conversation.
- *   server/courseEngine.js   (4 sites, 2 streaming)           → personal: FALSE
- *       a firm's own course profile and quiz answers; no client is involved.
- *
- * They were left because a streaming call that breaks does not fail cleanly — it half-works
- * — so converting them means driving the running app afterwards, not just running this suite.
- * Until then they call OpenAI directly and behave exactly as they always have: the seam is
- * additive, so nothing is half-converted. ADD THEM TO `SITES` ABOVE when they are routed.
- *
- * Both also want a success log line while someone is in there: `courseEngine` has none on
- * any of its four, and `advisorEngine`'s `pickLearnTreeAI` and intake stream have none.
- */
 
 /**
  * The `personal:` value on every `chat.completions.create` call in `src`.

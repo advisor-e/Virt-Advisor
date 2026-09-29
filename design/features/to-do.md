@@ -46,9 +46,8 @@ repository sees; the two never both appear, and the build stops if they would.
 | 9 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 10 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 11 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 12 | **7.16** A privacy test's comment says the engines bypass the privacy seam; they no longer do ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 
-**Twelve live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Eleven live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
