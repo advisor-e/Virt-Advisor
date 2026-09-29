@@ -311,7 +311,7 @@
         "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
       },
       "touches": "server/utils/conceptSummary.js composeMeetingSummary (actions always empty, ~line 302); server/utils/meetingFollowThrough.js findPrevious (~lines 98-109); server/routes/meetingReview.js runReports. These sit beside 8.4's files, which are the laptop's.",
-      "note": "FOUND 2026-09-29. Not a regression - so since the segmented recording was built. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
+      "note": "FOUND 2026-09-29. Not a regression - so since the segmented recording was built. FOR THE LAPTOP, ruled by Mike 2026-09-29: design it there alongside 8.4, whose files it shares; the desktop leaves its code untouched. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
       "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
