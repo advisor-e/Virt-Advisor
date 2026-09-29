@@ -11,11 +11,11 @@
  * and the artefact is `design/mockups/depreciation-rates-country-schedules.html`, approved by
  * him the same day with all three of its decisions ruled.
  *
- * 🔴 IT LOADS AT THE GLOBAL GROUP MANAGER TIER, AND THAT IS HIS RULING. One person loads the
- * schedules for every country their brand operates in; group managers and firms inherit the
- * one matching their client and load none. It OVERRIDES the default-is-mentor-alone rule of
- * 2026-08-24 for this feature. Nothing here enforces the tier — a store cannot — but the route
- * that writes it does, and `TIERS_THAT_MAY_LOAD` below is the single place that says which.
+ * 🔴 IT LOADS AT THE MENTOR AND GLOBAL GROUP MANAGER TIERS — Mike's rulings of 2026-09-11 and
+ * 2026-09-29. The mentor's is the base; a global group manager may load their own for a country,
+ * which replaces the mentor's for their brand. Group managers and firms inherit and load none.
+ * Nothing here enforces the tier — a store cannot — but the route that writes it does, and
+ * `TIERS_THAT_MAY_LOAD` below is the single place that says which.
  *
  * 🔴 WHAT THIS IS NOT. It is NOT the six rates a forecast computes with. Those live in
  * `depreciationRates.js`, are approved per firm, and are untouched by this module. A country
@@ -64,11 +64,18 @@ const CONFIG_KEY_PREFIX = 'country-schedule:'
 /**
  * The tiers allowed to load and approve a country schedule.
  *
- * 🔴 ONE ENTRY, AND IT IS MIKE'S RULING OF 2026-09-11 rather than a default. It is a list so
- * the day a second tier is genuinely given the power, the change is this line and the reason
- * beside it — never an `if` added to a route where nobody would find it.
+ * 🔴 THE MENTOR AND THE GLOBAL GROUP MANAGER — Mike, 2026-09-29: *"as a mentor, I should have
+ * ultimate control. From there, global group manager could have a dropdown tab option of the
+ * countries available to them AS WELL AS the ability to load their own."* The mentor's schedule
+ * is the base every tier inherits through `resolveCountrySchedule`; a global group manager's own
+ * for the same country replaces it for their brand alone, nearest tier winning. It widens his
+ * ruling of 2026-09-11, which named the global group manager alone.
+ *
+ * ⚠ AND IT IS THE ONLY ONE THAT REACHES A FIRM TODAY. Until Advisor-e supplies firm membership,
+ * `parentScopeOf` sends every firm straight to the mentor, so a global group manager's schedule
+ * is found by nobody beneath it and the mentor's is found by everyone.
  */
-const TIERS_THAT_MAY_LOAD = ['global_group_manager']
+const TIERS_THAT_MAY_LOAD = ['mentor', 'global_group_manager']
 
 /** How a rate is applied. `dv` reduces the book value; `sl` writes off original cost. */
 const METHODS = ['dv', 'sl']
@@ -422,9 +429,9 @@ function validateCountrySchedule (value, opts) {
  *
  * ⚠ NEAREST TIER WINS, exactly as it does for the six rates, and for the same reason: a level
  * that has approved its own schedule should not be overruled by what the level above did.
- * Today only the global group manager tier may approve one, so in practice this finds the
- * brand's — but the walk is the general one, so the day a tier is added the resolver does not
- * change.
+ * The mentor and the global group manager may approve one (2026-09-29), so this finds the
+ * brand's where it has its own and the mentor's otherwise — the general walk, unchanged by
+ * the mentor being added.
  *
  * ⚠ IT NEVER REJECTS, and an advisor is never blocked — Mike's standing ruling for this whole
  * feature. But it does not hide a failure either.

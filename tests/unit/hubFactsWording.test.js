@@ -61,6 +61,35 @@ describe('a country schedule\'s unread pages, worded on the screen', () => {
   })
 })
 
+describe('🔴 a schedule with unread pages still draws, under the REAL translator', () => {
+  // Found 2026-09-29: the screens passed `this.$t` detached, and vue-i18n's real $t reads
+  // `this.$i18n` — so it threw, and the Country Rate Schedules table drew BLANK for any schedule
+  // with unread pages (IR265 always has some). The mocks above are plain functions and cannot
+  // see it; this mounts the screen with vue-i18n itself installed.
+  const { createLocalVue, mount } = require('@vue/test-utils')
+  const Buefy = require('buefy').default
+  const VueI18n = require('vue-i18n')
+  const CountryRateSchedules = require('~/components/firm/CountryRateSchedules.vue').default
+
+  afterEach(() => { delete global.fetch })
+
+  it('lists the schedule and names its gap', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Buefy)
+    localVue.use(VueI18n)
+    const i18n = new VueI18n({ locale: 'en', messages: { en: require('~/locales/en.json') } })
+    const schedule = { country: 'NZ', document: 'IR265', published: '2023-10', approvedBy: 'm', approvedAt: '2026-09-29T00:00:00Z', classes: 2302, unresolved: 2, pagesUnread: [{ from: 54, to: 58 }], originTier: 'mentor', inherited: true }
+    global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ schedules: [schedule], reads: [], mayLoad: true }) }))
+
+    const wrapper = mount(CountryRateSchedules, { localVue, i18n, propsData: { apiToken: 't' } })
+    for (let i = 0; i < 6; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
+
+    const row = wrapper.find('.crs table tbody tr')
+    expect(row.exists()).toBe(true)
+    expect(row.text()).toContain('54–58 of IR265')
+  })
+})
+
 describe('the client copy request screen has no English of its own', () => {
   // Found while fixing 10.2: this screen held ~60 English phrases typed into the page, so a
   // manager reading the hub in German met it entirely in English — and an English-speaking

@@ -599,6 +599,46 @@ describe('listing what this scope holds', () => {
     expect(res._body.schedules).toEqual([])
   })
 
+  test('🔴 a global group manager sees the mentor\'s countries as inherited, and its own replaces one', async () => {
+    // Mike, 2026-09-29: the countries available to them AS WELL AS their own. Nearest tier wins,
+    // exactly as the class picker resolves it, so the list never names a schedule not in force.
+    setFirmMembership({ [FIRM]: { globalGroup: 'Advisor-e', country: 'NZ' } })
+    const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
+    overlay.loadFirmConfigsByPrefix.mockImplementation((scopeId, prefix) => {
+      if (prefix !== schedules.CONFIG_KEY_PREFIX) { return Promise.resolve({}) }
+      if (scopeId === PLATFORM_SCOPE) {
+        return Promise.resolve({ NZ: approved({ document: 'IR265 (mentor)' }), AU: approved({ country: 'AU', document: 'TR 2022/1' }) })
+      }
+      if (scopeId === GROUP) { return Promise.resolve({ NZ: approved({ document: 'IR265 (group)' }) }) }
+      return Promise.resolve({})
+    })
+
+    const res = makeRes()
+    await routes.listSchedules(makeReq(), res)
+
+    expect(res._status).toBe(200)
+    const byCountry = {}
+    res._body.schedules.forEach((s) => { byCountry[s.country] = s })
+    expect(byCountry.AU).toMatchObject({ document: 'TR 2022/1', originTier: 'mentor', inherited: true })
+    expect(byCountry.NZ).toMatchObject({ document: 'IR265 (group)', originTier: 'global_group_manager', inherited: false })
+    expect(res._body.schedules).toHaveLength(2)
+  })
+
+  test('🔴 the mentor may load and approve one, and a group manager still may not', async () => {
+    const { PLATFORM_SCOPE } = require('../../server/utils/platformScope')
+    const { groupScopeId } = require('../../server/utils/tierChain')
+    holds({ [proposals.configKeyFor('NZ')]: pendingRead() })
+
+    const ok = makeRes()
+    await routes.approveSchedule(makeReq({ firmId: PLATFORM_SCOPE, body: { country: 'NZ' } }), ok)
+    expect(ok._status).toBe(200)
+    expect(overlay.saveFirmConfig.mock.calls[0][0]).toBe(PLATFORM_SCOPE)
+
+    const refused = makeRes()
+    await routes.approveSchedule(makeReq({ firmId: groupScopeId('Advisor-e', 'NZ'), body: { country: 'NZ' } }), refused)
+    expect(refused._status).toBe(403)
+  })
+
   test('a firm manager is told they may not load, rather than being refused the list', async () => {
     const res = makeRes()
     await routes.listSchedules(makeReq({ firmId: FIRM }), res)

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Combined Model Inputs Page</title>
+<!--
+================================================================================
+  ITEM 10.3 — Depreciation Rates, Tax Rates, Forecast Trend Thresholds and Property
+  Tax Rules become one hub page. Drawn 2026-09-29 on Mike's yes to draw it; Tax Rates
+  added and the page BUILT the same day on his word, without a further drawing.
+
+  It is the artefact the build will be measured against, per CLAUDE.md's
+  Save-the-Artefact rule.
+
+  WHY IT EXISTS. Mike, 2026-09-28: "make a task - to combine depreciation rates,
+  forecast trend, property tax into a single page - they dont need seperate tabs in
+  the hub".
+
+  WHAT THE CODE SAYS (components/FirmManagerHub.vue TAB_TIERS, 2026-09-29).
+  - depreciationRates: mentor, global, group, firm.
+  - trendThresholds:   mentor only (the default-is-mentor-alone ruling, 2026-08-24).
+  - propertyTaxRules:  global, group, firm — never the mentor (Mike, 2026-08-17:
+    "the mentor has no country of its own to speak for").
+  So no tier ever sees all three. Every tier sees two.
+  - Depreciation Rates and Forecast Trend Thresholds feed the Three-Way Forecast.
+    Property Tax Rules feeds the Multiple Property Assessment
+    (server/report/multiplePropertyModel.js).
+
+  Every word inside the three sections is the screen's own, as it reads today. The
+  page's name is Mike's to word; the drawing leaves a marked blank for it.
+================================================================================
+-->
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+    --good: #2e7d1f; --crit: #c0392b; --warn: #b56200;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+      --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+      --good: #7ccf6a; --crit: #ff8a7a; --warn: #ffb866;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+    --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+    --good: #7ccf6a; --crit: #ff8a7a; --warn: #ffb866;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    color: var(--body); background: var(--bg); margin: 0;
+    padding-block: 32px 80px; padding-inline: 16px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: clamp(24px, 4vw, 30px); margin: 0 0 6px; text-wrap: balance; }
+  h2 { color: var(--ink); font-size: clamp(18px, 3vw, 21px); margin: 36px 0 4px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 76ch; }
+  .lede b { color: var(--ink); }
+  .cap { color: var(--eg); font-size: 12.5px; margin: 8px 0 0; max-width: 80ch; }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 22px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .note li { margin: 0 0 5px; }
+  .dec { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px dashed var(--accent); border-radius: 4px; padding: 0 6px; margin-left: 6px; }
+
+  .screen { border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); background: var(--bg); overflow: hidden; margin: 14px 0 0;
+            display: grid; grid-template-columns: 230px minmax(0, 1fr); }
+  @media (max-width: 760px) { .screen { grid-template-columns: 1fr; } }
+  .rail { background: var(--wash); border-right: 1px solid var(--line); padding: 16px 14px; font-size: 13px; }
+  .rail h4 { margin: 0 0 8px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--eg); }
+  .rail ul { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 3px; }
+  .rail li { padding: 4px 8px; border-radius: 6px; }
+  .rail li.on { background: var(--accent); color: #fff; font-weight: 700; }
+  .rail li.gone { text-decoration: line-through; color: var(--eg); }
+  .rail .was { font-size: 11.5px; color: var(--eg); margin: -8px 0 0; }
+
+  .page { padding: 20px 24px 26px; min-width: 0; }
+  .ptitle { color: var(--ink); font-size: 20px; font-weight: 700; margin: 0 0 14px; }
+  .blank { display: inline-block; border: 2px dashed var(--warn); color: var(--warn); border-radius: 6px; padding: 0 10px; font-size: 15px; }
+  .sec { border-top: 2px solid var(--line); padding-top: 14px; margin-top: 18px; }
+  .sec:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+  .sec h3 { margin: 0 0 6px; color: var(--ink); font-size: 16px; }
+  .sec p { margin: 0 0 8px; font-size: 13.5px; max-width: 80ch; }
+  .field { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .box { border: 1px solid var(--line); border-radius: 6px; padding: 3px 10px; min-width: 70px; color: var(--eg); }
+  .btn { display: inline-block; background: var(--accent); color: #fff; border-radius: 6px; padding: 4px 12px; font-weight: 600; font-size: 13px; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .muted { color: var(--eg); font-size: 12.5px; }
+  table { border-collapse: collapse; font-size: 12.5px; width: 100%; margin-top: 6px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 5px 8px; text-align: left; }
+  th { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--eg); }
+  .inh { font-size: 11px; color: var(--eg); font-style: italic; }
+  .more { color: var(--eg); font-size: 12.5px; font-style: italic; margin: 8px 0 0; }
+
+  .count { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 10px; }
+  .count div { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
+  .count b { color: var(--ink); display: block; }
+
+  .decision { border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 15px; margin: 12px 0; background: var(--bg); }
+  .decision h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
+  .decision p { margin: 0 0 6px; }
+  .rec { font-weight: 600; color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Manager hubs · Model Inputs · item 10.3 · drawn 2026-09-29 · built 2026-09-29 on Mike's word</p>
+  <h1>Depreciation Rates, Tax Rates, Forecast Trend Thresholds and Property Tax Rules on one page</h1>
+  <p class="lede">These four share <b>one page</b> in the hub instead of four tabs. Every tier has Depreciation Rates and Tax
+    Rates; the mentor's third section is Forecast Trend Thresholds, and every other tier's is Property Tax Rules. So the page
+    carries <b>three sections at every tier</b>, and each tier loses <b>two tabs</b> from its Model Inputs menu. Nothing inside
+    the four screens changes: every word, box, save button and change history is exactly as it was. Its name is yours:
+    <b>Tax &amp; Forecast Rates</b>. Tax Rates was added on your yes of 2026-09-29, and you ruled the page built without a
+    further drawing: "just add them, I'm sure you'll get it right".</p>
+
+  <div class="note">
+    <h3>The impact test, stated before the design</h3>
+    <ul>
+      <li><b>The gain.</b> A manager finds a country's model settings in one place rather than three tabs.</li>
+      <li><b>How we'll know.</b> Model Inputs tabs per tier, counted from the code before and after:
+        <div class="count">
+          <div><b>Mentor</b>6 before → 4</div>
+          <div><b>Global group manager</b>5 before → 3</div>
+          <div><b>Group manager</b>4 before → 2</div>
+          <div><b>Firm manager</b>5 before → 3</div>
+        </div></li>
+      <li><b>What already does this job.</b> The Model Inputs heading already gathers all of them in the menu, which is why
+        the gain is two tabs per tier. Three of the four feed the Three-Way Forecast; Property Tax Rules feeds the Multiple
+        Property Assessment.</li>
+    </ul>
+  </div>
+
+  <h2>1 · The mentor's page</h2>
+  <p class="cap">The new entry takes the place of the first of them in the menu, at the top of Model Inputs. Depreciation
+    Rates and Tax Rates come first because every tier has them. <span class="dec">Decisions A, B and C</span></p>
+  <div class="screen">
+    <div class="rail">
+      <h4>Model Inputs</h4>
+      <ul>
+        <li class="on">Tax &amp; Forecast Rates</li>
+        <li>Imported Stock Prices</li>
+        <li>Industry Benchmarks</li>
+        <li>Owner Focus Tasks</li>
+      </ul>
+      <p class="was">Gone from the menu: Forecast Trend Thresholds, Depreciation Rates, Tax Rates.</p>
+    </div>
+    <div class="page">
+      <p class="ptitle">Tax &amp; Forecast Rates</p>
+
+      <section class="sec">
+        <h3>Depreciation Rates</h3>
+        <p>These are the rates the Three-Way Forecast writes assets down at, for clients in one country. Nothing here is any
+          country's tax rules until a document has been loaded and approved — until then the forecast uses the app's own six
+          figures, which are a starting point and are marked as one.</p>
+        <div class="field">Country <span class="box">NZ</span> <span class="btn">Show</span></div>
+        <p class="more">The rest of the Depreciation Rates screen follows, unchanged.</p>
+      </section>
+
+      <section class="sec">
+        <h3>Tax Rates</h3>
+        <p>These are the tax figures the Three-Way Forecast applies to clients in one country — the rate their profit is taxed
+          at, the GST or VAT rate, how often they file a return, and whether GST follows the invoice or the payment. Until a
+          figure here is approved, the forecast uses the app's own, which are New Zealand's and are marked as a starting point.</p>
+        <div class="field">Country <span class="box">NZ</span> <span class="btn">Show</span></div>
+        <p class="more">The rest of the Tax Rates screen follows, unchanged.</p>
+      </section>
+
+      <section class="sec">
+        <h3>Forecast Trend Thresholds</h3>
+        <p>These decide when the Three-Way Forecast's two-year comparison marks a measure amber or red. Every number here is
+          yours. A measure you leave blank is still shown in full, with both years and the movement — it is simply never
+          banded. That is the right setting for anything you would rather report than judge.</p>
+        <table>
+          <tr><th>Measure</th><th>Green up to</th><th>Amber up to</th><th>Red</th></tr>
+          <tr><td>Debtor days</td><td>35</td><td>45</td><td>anything above 45 <span class="inh">inherited</span></td></tr>
+          <tr><td>Creditor days</td><td>…</td><td>…</td><td>anything above 45 <span class="inh">inherited</span></td></tr>
+          <tr><td>Stock days</td><td>…</td><td>…</td><td>anything above 60 <span class="inh">inherited</span></td></tr>
+        </table>
+        <p class="more">The rest of the Forecast Trend Thresholds screen follows, unchanged, with its own save and history.</p>
+      </section>
+    </div>
+  </div>
+
+  <h2>2 · The global group, group and firm managers' page</h2>
+  <p class="cap">The same page. Forecast Trend Thresholds stays the mentor's alone, so these three tiers see Property Tax Rules
+    in its place. The firm manager is drawn; the two tiers above see the same two sections.</p>
+  <div class="screen">
+    <div class="rail">
+      <h4>Model Inputs</h4>
+      <ul>
+        <li class="on">Tax &amp; Forecast Rates</li>
+        <li>Currency</li>
+        <li>Owner Focus Tasks</li>
+      </ul>
+      <p class="was">Gone from the menu: Property Tax Rules, Depreciation Rates, Tax Rates.</p>
+    </div>
+    <div class="page">
+      <p class="ptitle">Tax &amp; Forecast Rates</p>
+
+      <section class="sec">
+        <h3>Depreciation Rates</h3>
+        <p>These are the rates the Three-Way Forecast writes assets down at, for clients in one country. …</p>
+        <div class="field">Country <span class="box">NZ</span> <span class="btn">Show</span></div>
+        <p class="more">The rest of the Depreciation Rates screen follows, unchanged.</p>
+      </section>
+
+      <section class="sec">
+        <h3>Tax Rates</h3>
+        <p>These are the tax figures the Three-Way Forecast applies to clients in one country — the rate their profit is taxed
+          at, the GST or VAT rate, how often they file a return, and whether GST follows the invoice or the payment. Until a
+          figure here is approved, the forecast uses the app's own, which are New Zealand's and are marked as a starting point.</p>
+        <div class="field">Country <span class="box">NZ</span> <span class="btn">Show</span></div>
+        <p class="more">The rest of the Tax Rates screen follows, unchanged.</p>
+      </section>
+
+      <section class="sec">
+        <h3>Property Tax Rules</h3>
+        <p>These settings decide how the Multiple Property Assessment treats tax and lending. A group normally sets them for its
+          country; a firm may correct them for itself. An advisor can still type over any of them on the report for one
+          client.</p>
+        <div class="field">Depreciation Method <span class="box">Diminishing Value</span> <span class="inh">inherited</span></div>
+        <div class="field">Depreciation Rate on Chattels (%) <span class="box">…</span> <span class="inh">inherited</span></div>
+        <div class="field">Maximum Loan to Value Ratio (%) <span class="box">…</span> <span class="inh">inherited</span></div>
+        <div class="field"><span class="btn">Save these settings</span> <span class="btn ghost">Go back to inherited</span></div>
+        <p class="more">The rest of the Property Tax Rules screen follows, unchanged, with its own change history.</p>
+      </section>
+    </div>
+  </div>
+
+  <h2>What does not change</h2>
+  <div class="note">
+    <ul>
+      <li><b>Each section keeps its own saves, history and restore.</b> Saving Property Tax Rules never saves Depreciation Rates.</li>
+      <li><b>Who sees what is unchanged.</b> Forecast Trend Thresholds stays the mentor's; Property Tax Rules stays off the
+        mentor's page; Depreciation Rates and Tax Rates are on every tier's.</li>
+      <li><b>Tax Rates keeps its own heading.</b> Your 9 September rename was so a name predicts what is beneath it; Tax Rates
+        is its own section under its own name, never folded into Depreciation Rates.</li>
+      <li><b>Country Rate Schedules stays its own tab.</b> It is the global group manager's library of whole country
+        schedules, not in your list.</li>
+      <li><b>Every word inside the sections is today's.</b> Only the page's name is new.</li>
+    </ul>
+  </div>
+
+  <h2>The decisions</h2>
+
+  <div class="decision"><h3>Decision A · the page's name — RULED</h3>
+    <p class="rec">Ruled by Mike, 2026-09-29, in his words: "lets call it Tax &amp; Forecast Rates". It appears in the menu and
+      as the page's title at every tier.</p></div>
+
+  <div class="decision"><h3>Decision B · where it sits in the menu — LEFT TO US, BUILT AS RECOMMENDED</h3>
+    <p class="rec">At the top of Model Inputs, where the first of them sat at every tier. The other entries keep their order.</p>
+    <p>Mike, 2026-09-29: "just add them, I'm sure you'll get it right".</p></div>
+
+  <div class="decision"><h3>Decision C · the order of the sections — LEFT TO US, BUILT AS RECOMMENDED</h3>
+    <p class="rec">Depreciation Rates, then Tax Rates, then the tier's third section.</p>
+    <p>The two every tier has come first, so the page opens the same way for everyone. The section headings are the old tab
+      names, word for word.</p></div>
+
+</div>
+</body>
+</html>

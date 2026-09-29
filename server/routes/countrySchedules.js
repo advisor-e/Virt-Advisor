@@ -8,8 +8,8 @@
  * Item 4.92, slice 3. Built from `design/mockups/depreciation-rates-country-schedules.html`,
  * approved by Mike 2026-09-11 with all three of its decisions ruled.
  *
- * 🔴 LOADING AND APPROVING ARE THE GLOBAL GROUP MANAGER'S ALONE — his ruling of 2026-09-11, and
- * it is enforced by the ROUTE rather than hidden on a screen. `mayLoadSchedules` reads the tier
+ * 🔴 LOADING AND APPROVING ARE THE MENTOR'S AND THE GLOBAL GROUP MANAGER'S — his rulings of
+ * 2026-09-11 and 2026-09-29, and it is enforced by the ROUTE rather than hidden on a screen. `mayLoadSchedules` reads the tier
  * from the caller's own VERIFIED scope; a firm manager who finds the URL is refused, exactly as
  * an advisor is refused the approve routes on the sibling feature.
  *
@@ -46,6 +46,7 @@ const schedules = require('../utils/countrySchedules')
 const proposals = require('../utils/countryScheduleProposals')
 const reader = require('../utils/countryScheduleRead')
 const aiLoadBudget = require('../utils/aiLoadBudget')
+const { scopeChain, tierOfScope } = require('../utils/tierChain')
 const { moderationReport } = require('../utils/moderationReport')
 
 /** Most classes one search may return. The picker shows a handful; the table is 2,800 rows. */
@@ -265,7 +266,7 @@ async function _runRead (opts) {
 }
 
 /**
- * POST /api/firm-manager/country-schedules  (global group manager)
+ * POST /api/firm-manager/country-schedules  (mentor, global group manager)
  *
  * Load one country's published schedule and start reading it. Answers as soon as the read has
  * started; the screen watches the record.
@@ -279,7 +280,7 @@ async function loadSchedule (req, res) {
     // Refused by the route, never hidden on the screen. A schedule reaches every firm in the
     // group, so who may load one is a permission and not a piece of navigation.
     return sendError(res, 403, 'NOT_PERMITTED',
-      'Country schedules are loaded by the global group manager.')
+      'Country schedules are loaded by the mentor or the global group manager.')
   }
 
   const form = formidable({
@@ -379,37 +380,52 @@ async function loadSchedule (req, res) {
 }
 
 /**
- * GET /api/firm-manager/country-schedules  (global group manager)
+ * GET /api/firm-manager/country-schedules  (mentor, global group manager)
  *
- * Every country this scope holds a schedule for, and every read in flight or waiting.
+ * Every country available to this scope — its own schedules AND those inherited from the tiers
+ * above, each saying which tier it came from — and every read of its own in flight or waiting.
+ *
+ * 🔴 THE INHERITED ONES ARE LISTED, Mike 2026-09-29: a global group manager sees *"the countries
+ * available to them AS WELL AS the ability to load their own"*. Walked top-down through the
+ * caller's own `scopeChain`, so a nearer tier's schedule for a country replaces a further one's —
+ * exactly the one `resolveCountrySchedule` hands the class picker, so the list and the search can
+ * never disagree about which schedule is in force.
  *
  * @route GET /api/firm-manager/country-schedules
- * @returns {{schedules: object[], reads: object[], mayLoad: boolean}}
+ * @returns {{schedules: object[], reads: object[], mayLoad: boolean}} each schedule carries
+ *   `originTier` and `inherited`
  */
 async function listSchedules (req, res) {
   try {
-    const [approved, pending] = await Promise.all([
-      readOwnByPrefix(req.firmId, schedules.CONFIG_KEY_PREFIX),
+    const chain = scopeChain(req.firmId)
+    const [approvedByScope, pending] = await Promise.all([
+      Promise.all(chain.map(scope => readOwnByPrefix(scope, schedules.CONFIG_KEY_PREFIX))),
       readOwnByPrefix(req.firmId, proposals.CONFIG_KEY_PREFIX)
     ])
 
-    const held = []
-    Object.keys(approved || {}).forEach((code) => {
-      const { ok, value } = schedules.validateCountrySchedule(approved[code], { expectCountry: code })
-      if (!ok) { return }
-      // The 2,800 rows never go to a browser. What a list needs is the shape, not the table.
-      held.push({
-        country: value.country,
-        document: value.document,
-        published: value.published,
-        approvedBy: value.approvedBy,
-        approvedAt: value.approvedAt,
-        classes: value.classes.length,
-        unresolved: value.unresolved.length,
-        // The page ranges only: the screen words the warning in its reader's language (10.2).
-        pagesUnread: value.pagesUnread
+    const byCountry = {}
+    chain.forEach((scope, i) => {
+      const approved = approvedByScope[i] || {}
+      Object.keys(approved).forEach((code) => {
+        const { ok, value } = schedules.validateCountrySchedule(approved[code], { expectCountry: code })
+        if (!ok) { return }
+        // The 2,800 rows never go to a browser. What a list needs is the shape, not the table.
+        byCountry[value.country] = {
+          country: value.country,
+          document: value.document,
+          published: value.published,
+          approvedBy: value.approvedBy,
+          approvedAt: value.approvedAt,
+          classes: value.classes.length,
+          unresolved: value.unresolved.length,
+          // The page ranges only: the screen words the warning in its reader's language (10.2).
+          pagesUnread: value.pagesUnread,
+          originTier: tierOfScope(scope),
+          inherited: scope !== req.firmId
+        }
       })
     })
+    const held = Object.keys(byCountry).sort().map(code => byCountry[code])
 
     const reads = []
     Object.keys(pending || {}).forEach((code) => {
@@ -430,7 +446,7 @@ async function listSchedules (req, res) {
 }
 
 /**
- * GET /api/firm-manager/country-schedules/read?country=NZ  (global group manager)
+ * GET /api/firm-manager/country-schedules/read?country=NZ  (mentor, global group manager)
  *
  * One country's read in full — its progress, or the table it is proposing.
  *
@@ -456,7 +472,7 @@ async function getRead (req, res) {
 }
 
 /**
- * POST /api/firm-manager/country-schedules/approve  (global group manager)
+ * POST /api/firm-manager/country-schedules/approve  (mentor, global group manager)
  *
  * Approve one country's proposed schedule into the table every firm beneath searches.
  *
@@ -471,7 +487,7 @@ async function getRead (req, res) {
 async function approveSchedule (req, res) {
   if (!schedules.mayLoadSchedules(req.firmId)) {
     return sendError(res, 403, 'NOT_PERMITTED',
-      'Country schedules are approved by the global group manager.')
+      'Country schedules are approved by the mentor or the global group manager.')
   }
 
   const country = normaliseCountry(req.body && req.body.country)
@@ -519,7 +535,7 @@ async function approveSchedule (req, res) {
 }
 
 /**
- * POST /api/firm-manager/country-schedules/reject  (global group manager)
+ * POST /api/firm-manager/country-schedules/reject  (mentor, global group manager)
  *
  * Throw a proposed schedule away. Whatever was already approved for that country stays.
  *
@@ -530,7 +546,7 @@ async function approveSchedule (req, res) {
 async function rejectSchedule (req, res) {
   if (!schedules.mayLoadSchedules(req.firmId)) {
     return sendError(res, 403, 'NOT_PERMITTED',
-      'Country schedules are decided by the global group manager.')
+      'Country schedules are decided by the mentor or the global group manager.')
   }
 
   const country = normaliseCountry(req.body && req.body.country)
@@ -584,7 +600,7 @@ async function searchClasses (req, res) {
 
   try {
     // `readOwn`, never the bare overlay call: a firm searching its group's table must reach the
-    // same store the global group manager wrote to, with or without a database. Passing the raw
+    // same store the mentor or global group manager wrote to, with or without a database. Passing the raw
     // reader here left the picker answering 503 on a machine where the schedule had just been
     // loaded successfully — the keeping fixed at one end and not the other.
     const resolved = await schedules.resolveCountrySchedule(req.firmId, country, readOwn)

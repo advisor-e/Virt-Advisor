@@ -174,8 +174,13 @@ const MENTOR_BEFORE = [
  *   levels and available at each lower level - of course, anything they add only affects them
  *   and levels BELOW them"*. 🔴 **ALL FOUR TIERS, AND HE NAMED THE CASCADE** — built mentor-only
  *   the same morning and widened on his word, on the standard rules (`tier-cascade.md` P3, P11).
+ * - `taxForecastRates` — Mike, 2026-09-28: *"combine depreciation rates, forecast trend, property
+ *   tax into a single page - they dont need seperate tabs in the hub"*; Tax Rates added and the
+ *   name *"Tax & Forecast Rates"* given on 2026-09-29 (item 10.3). ⚠ **A PAGE, NOT NEW
+ *   SETTINGS**: `propertyTaxRules`, `depreciationRates` and `taxRates` above stay in this list
+ *   because they still gate their own SECTIONS of it; they are no longer menu entries.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -243,8 +248,14 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
 /*
  * - `growthAspectQuestions` — the same ruling as the firm's (Mike, 2026-09-28). The mentor is
  *   where the cascade starts: the 98 arrive from his deck and every tier below inherits them.
+ * - `taxForecastRates` — the same ruling as the firm's (item 10.3, 2026-09-28/29). At the mentor
+ *   its third section is `trendThresholds`, which stays the mentor's alone.
+ * - `countrySchedules` — Mike, 2026-09-29: *"as a mentor, I should have ultimate control. From
+ *   there, global group manager could have a dropdown tab option of the countries available to
+ *   them AS WELL AS the ability to load their own."* The mentor's schedule is the base every tier
+ *   inherits; it widens his 2026-09-11 ruling, which put it at the global tier alone.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates', 'countrySchedules']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -374,10 +385,28 @@ describe('hub tab matrix — the two new tiers', () => {
     // ⚠ SEVENTEEN AND TWENTY-THREE SINCE 2026-09-28: `growthAspectQuestions` (item 15.2) is on
     // all four tiers in Mike's own words — "cascade down to other levels and available at each
     // lower level". The reasoning is beside FIRM_ADDED_SINCE.
-    expect(conditional).toHaveLength(17)
+    //
+    // ⚠ EIGHTEEN SINCE 2026-09-29, AND THE MATRIX IS NO LONGER THE MENU. `taxForecastRates`
+    // (item 10.3) is the eighteenth line, and three lines it replaced in the menu —
+    // `propertyTaxRules`, `depreciationRates`, `taxRates` — stay because they gate its
+    // sections. So the global tier's MENU is 6 + 18 - 3 = 21, asserted directly below.
+    expect(conditional).toHaveLength(18)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional)).toHaveLength(23)
-    expect(tabsAt('group')).toHaveLength(16)
+    expect(unconditional.concat(conditional.filter(k => everyMenuKey.includes(k)))).toHaveLength(21)
+    expect(tabsAt('group')).toHaveLength(17)
+  })
+
+  it('Tax & Forecast Rates shows each tier exactly the sections it saw as tabs', () => {
+    // Item 10.3: four former tabs are sections of one page, each still gated by its own line.
+    // A firm handed the mentor's thresholds, or the mentor handed a country's property tax
+    // rules, would be a tier seeing settings it was ruled out of — asserted by name.
+    const menuKeys = NAV_GROUPS.reduce((keys, g) => keys.concat(g.items.map(i => i.key)), [])
+    const sections = ['depreciationRates', 'taxRates', 'trendThresholds', 'propertyTaxRules']
+    sections.forEach(k => expect(menuKeys).not.toContain(k))
+    expect(menuKeys).toContain('taxForecastRates')
+    expect(TAB_TIERS.taxForecastRates).toEqual(['mentor', 'global', 'group', 'firm'])
+    expect(TAB_TIERS.trendThresholds).toEqual(['mentor'])
+    expect(TAB_TIERS.propertyTaxRules).not.toContain('mentor')
   })
 
   it('a middle tier takes the FIRM flavour of Advisory Distinctions, not the mentor\'s', () => {

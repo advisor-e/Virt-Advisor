@@ -6989,7 +6989,12 @@
       "inForce": "Schedule in force",
       "edition": "Edition",
       "classes": "Classes",
-      "approved": "Approved"
+      "approved": "Approved",
+      "from": "From"
+    },
+    "origin": {
+      "mentor": "Advisor-e",
+      "globalGroup": "Your global group"
     },
     "state": {
       "stopped": "Stopped",
@@ -7226,8 +7231,8 @@
       "unreadable": "Could not be read"
     },
     "upload": {
-      "heading": "Load a depreciation schedule",
-      "body": "PDF, up to 20 MB, as {country}'s tax authority publishes it. It is sent to the AI to be read and is not kept afterwards — the AI proposes, and nothing it proposes reaches a forecast until you approve it.",
+      "heading": "Load a single depreciation document",
+      "body": "PDF, up to 20 MB — one ruling or determination from {country}'s tax authority, not the whole schedule. A country's whole schedule is loaded once, on Country Rate Schedules, by Advisor-e or your global group. A document here is sent to the AI to be read and is not kept afterwards — the AI proposes, and nothing it proposes reaches a forecast until you approve it.",
       "choose": "Choose a file",
       "read": "The document was read. Check what it proposed before approving it.",
       "unreadable": "That document could not be read."
@@ -7431,6 +7436,7 @@
       "industryBenchmarks": "Industry Benchmarks",
       "depreciationRates": "Depreciation Rates",
       "taxRates": "Tax Rates",
+      "taxForecastRates": "Tax & Forecast Rates",
       "countryRateSchedules": "Country Rate Schedules",
       "compliance": "Compliance",
       "caseReviews": "Case Reviews"

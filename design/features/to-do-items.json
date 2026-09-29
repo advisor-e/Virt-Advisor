@@ -101,27 +101,6 @@
       "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.15). Score and scoreReason are ours; he has not ranked it. 2026-09-28 - Mike's call: PROCEED, starting from recording and summarising; at shutdown the same day, PROCEED again - he judges the ten drafts next."
     },
     {
-      "ref": "15.15",
-      "name": "Devil's Advocate - challenging optimistic thinking in the room",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "a facilitator tool, not a gate on the session",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A planning conversation drifts optimistic and nobody in the room is paid to disagree. Devil's Advocate asks the hard questions and challenges over-optimistic thinking, backed by known business concepts and market analysis data.",
-      "risk": "It argues with the client in front of the advisor, so its tone and its evidence both matter. \"Market analysis data\" needs a named source: this app holds none, and an AI asserting market facts without one commits the exact error the feature exists to catch.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - in his own words: \"DEVIL'S ADVOCATE - where AI asks the hard questions and challenges overly optimistic thoughts, supported by known business concepts and market analysis data\"."
-      },
-      "touches": "The Strategy Planner's session surface; a new Restify route for the model call; the 52 concept records as the 'known business concepts' source. The market analysis data source is unidentified and is the first question this item must answer.",
-      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.14. The impact test and the hub-page judgement are both unrun.",
-      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.14). Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "15.18",
       "name": "The advisor never sees the worked answer Mike wrote on a ruled table",
       "rankedByMike": false,
@@ -296,27 +275,6 @@
       "touches": "server/report/threeWayForecastModel.js and importShipmentModel.js, where every treatment lives; design/CALCULATION-ASSUMPTIONS.md, the record, extended beyond section 1; a disclosure screen for firm managers under the hub-page rule, its tiers stated at scoping; 13.5, which already covers the currency treatments.",
       "note": "NOT SCOPED. Standards in view, confirmed at scoping rather than assumed: FRS-42 (prospective statements), IAS 1 and IFRS 18 which replaces it for periods from 1 January 2027, IAS 2, IAS 7, IAS 12, IAS 16, IAS 21, IAS 23, IFRS 9, IFRS 15, IFRS 16, IAS 37. Output: every treatment the forecast makes, each ticked or warned against its standard, in design/CALCULATION-ASSUMPTIONS.md; each warning becomes a fix or a filed item on Mike's word. Impact test run at scoping. Already done: section 1 (currency, 13.5) and section 0 (the FRS-42 caution).",
       "comment": "2026-09-26 - filed on Mike's instruction during 13.5's drawing questions. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "10.3",
-      "name": "Depreciation Rates, Forecast Trend Thresholds and Property Tax Rules become one hub page",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 2,
-      "scoreReason": "fewer tabs for a manager to find their way through",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Three Model Inputs tabs each hold a few settings that feed the Three-Way Forecast. Mike ruled they do not need separate tabs in the hub.",
-      "risk": "The three reach different tiers today: Depreciation Rates all four, Forecast Trend Thresholds the mentor alone, Property Tax Rules every tier but the mentor. One page must show each tier only its own sections, or a firm manager is handed the mentor's thresholds. Each keeps its own store, history and restore; merging the pages must not merge the saves.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-28 - in his words: \"make a task - to combine depreciation rates, forecast trend, property tax into a single page - they dont need seperate tabs in the hub\""
-      },
-      "touches": "components/FirmManagerHub.vue (NAV_GROUPS, TAB_TIERS and the three panels); FirmDepreciationRates.vue, FirmForecastTrendThresholds.vue and FirmPropertyTaxRules.vue as sections of one new page; tests/unit/hubTabTiers.test.js; the page's name and section headings, which are Mike's wording.",
-      "note": "NOT SCOPED. Drawn for approval first, with the impact test run at scoping. Tax Rates is not in his list and stays its own tab - it was split from Depreciation Rates on his ruling of 2026-09-09. Three of these tabs also show a blank 'saved by' in their version history, raised with Mike the same day.",
-      "comment": "2026-09-28 - filed on Mike's instruction while 15.2's hub tab was being built. Score and scoreReason are ours; he has not ranked it."
     },
     {
       "ref": "22.2",

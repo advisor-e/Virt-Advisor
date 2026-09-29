@@ -172,25 +172,6 @@ section.firm-manager-hub.section
       div.hub-panel(v-show="activeTab === 'staircase'")
         firm-staircase(:api-token="apiToken")
 
-      //- ── Tab: Property Tax Rules ────────────────────────────────────────
-      //- Item 4.20's second half (2026-08-17). The tax settings the Multiple
-      //- Property Assessment is built on. Ruled by Mike: a GROUP — normally a
-      //- country — sets them, a FIRM may correct them, and an ADVISOR types over
-      //- them on the report for one client. Gated to the tiers with a layer above
-      //- them; the mentor is excluded by that same ruling.
-      div.hub-panel(v-if="showsTab('propertyTaxRules')" v-show="activeTab === 'propertyTaxRules'")
-        firm-property-tax-rules(:api-token="apiToken")
-
-      //- ── Tab: Forecast Trend Thresholds (item 4.61b) ─────────────────────
-      //- The bands the Three-Way Forecast's two-year trend read draws. Ruled by
-      //- Mike 2026-09-03, against the recommendation of a plain read with no
-      //- judgement: the bands go in, and the numbers behind them are his. This
-      //- screen is what makes that safe — the thresholds are visible and
-      //- changeable rather than buried in a constant. Mentor only, stated in
-      //- TAB_TIERS. design/mockups/three-way-forecast-trend.html.
-      div.hub-panel(v-if="showsTab('trendThresholds')" v-show="activeTab === 'trendThresholds'")
-        firm-forecast-trend-thresholds(:api-token="apiToken")
-
       //- ── Tab: Imported Stock Prices (item 4.64) ─────────────────────────
       //- The price ladder imported stock sells down at as it ages — Mike's own
       //- figures from his Import & Retail workbook. They move a client's revenue,
@@ -206,31 +187,47 @@ section.firm-manager-hub.section
       //- typed. Mentor only, stated in TAB_TIERS. design/mockups/benchmarker-hub-tab.html.
       div.hub-panel(v-if="showsTab('industryBenchmarks')" v-show="activeTab === 'industryBenchmarks'")
         firm-benchmarker(:api-token="apiToken")
-      //- ── Tab: Depreciation Rates (item 4.78) ─────────────────────────────
-      //- The rates a client's forecast writes assets down at, for the client's
-      //- own country, read from that country's tax authority's documents and
-      //- approved by a firm manager before anything uses them. Asked for by Mike
-      //- 2026-09-08; the FIRM owns it and it cascades all four tiers, on his
-      //- ruling that a firm is never reliant on the group manager.
-      //- ⚠ NOT "Tax Rules" — renamed on his ruling of 2026-09-09. IR265 is a
-      //- DEPRECIATION schedule published BY the tax office, not a set of tax
-      //- rules; the old name promised GST and company tax and delivered neither.
-      //- ⚠ Slice 2: this shows what a firm is working to and where each rate came
-      //- from. The upload and the AI extraction are slice 3.
-      div.hub-panel(v-if="showsTab('depreciationRates')" v-show="activeTab === 'depreciationRates'")
-        firm-depreciation-rates(:api-token="apiToken")
+      //- ── Tab: Tax & Forecast Rates (item 10.3) ───────────────────────────
+      //- 🔴 FOUR FORMER TABS AS SECTIONS OF ONE PAGE — Mike, 2026-09-28: "combine
+      //- depreciation rates, forecast trend, property tax into a single page - they
+      //- dont need seperate tabs in the hub"; Tax Rates added on his yes of
+      //- 2026-09-29, and the page's name is his. Each section is the same component
+      //- it always was, with its own saves, history and approval, and each is still
+      //- gated by its OWN line in TAB_TIERS — so no tier sees more than it did. The
+      //- mentor's page is Depreciation, Tax, Trend Thresholds; every other tier's is
+      //- Depreciation, Tax, Property Tax Rules. The headings are the old tab names.
+      //- design/mockups/hub-model-inputs-combined.html.
+      div.hub-panel(v-if="showsTab('taxForecastRates')" v-show="activeTab === 'taxForecastRates'")
+        //- Depreciation Rates (item 4.78): the rates a client's forecast writes assets
+        //- down at, read from the country's tax authority's documents and approved by
+        //- a manager before anything uses them. ⚠ NOT "Tax Rules" — renamed on his
+        //- ruling of 2026-09-09: IR265 is a DEPRECIATION schedule, not tax rules.
+        section.hub-section(v-if="showsTab('depreciationRates')")
+          h3.title.is-5.hub-section-title {{ $t('firmManagerHub.tabs.depreciationRates') }}
+          firm-depreciation-rates(:api-token="apiToken")
 
-      //- ── Tab: Tax Rates (item 4.81) ─────────────────────────────────────
-      //- The company tax rate, GST rate, filing cycle and accounting basis a
-      //- country's clients are taxed on. A SIBLING of the tab above, never part
-      //- of it: Mike renamed that one on 2026-09-09 because a tab called Tax
-      //- Rules promised GST and company tax and delivered a depreciation
-      //- schedule, and folding these back in would rebuild that confusion.
-      //- The two share one country table, one cascade and one approval gate in
-      //- the backend, and nothing on screen.
-      //- design/mockups/tax-rates.html, approved 2026-09-09.
-      div.hub-panel(v-if="showsTab('taxRates')" v-show="activeTab === 'taxRates'")
-        firm-tax-rates(:api-token="apiToken")
+        //- Tax Rates (item 4.81): company tax, GST, filing cycle and accounting basis.
+        //- Its OWN section under its own name, never inside the one above — the point of
+        //- his 2026-09-09 rename was that a heading predicts what is beneath it. The two
+        //- share one country table, cascade and approval gate in the backend.
+        //- design/mockups/tax-rates.html, approved 2026-09-09.
+        section.hub-section(v-if="showsTab('taxRates')")
+          h3.title.is-5.hub-section-title {{ $t('firmManagerHub.tabs.taxRates') }}
+          firm-tax-rates(:api-token="apiToken")
+
+        //- Forecast Trend Thresholds (item 4.61b): the bands the forecast's two-year
+        //- trend read draws, on numbers Mike sets. Mentor only, stated in TAB_TIERS.
+        //- design/mockups/three-way-forecast-trend.html.
+        section.hub-section(v-if="showsTab('trendThresholds')")
+          h3.title.is-5.hub-section-title {{ $t('firmManagerHub.tabs.forecastTrendThresholds') }}
+          firm-forecast-trend-thresholds(:api-token="apiToken")
+
+        //- Property Tax Rules (item 4.20): the settings the Multiple Property
+        //- Assessment is built on. A GROUP sets them, a FIRM may correct them, an
+        //- ADVISOR types over them on the report. Never the mentor — same ruling.
+        section.hub-section(v-if="showsTab('propertyTaxRules')")
+          h3.title.is-5.hub-section-title {{ $t('firmManagerHub.tabs.propertyTaxRules') }}
+          firm-property-tax-rules(:api-token="apiToken")
 
       //- ── Tab: Country Rate Schedules (item 4.92) ────────────────────────
       //- A country's WHOLE published schedule — about 2,800 classes for IR265 —
@@ -238,9 +235,9 @@ section.firm-manager-hub.section
       //- as Depreciation Rates above and never folded into it: that one is a
       //- firm's own documents and its own six rates, this one is the library
       //- those six rates are chosen FROM.
-      //- 🔴 The global group manager alone, on Mike's ruling of 2026-09-11 —
-      //- see TAB_TIERS.countrySchedules, where the judgement for the other
-      //- three tiers is stated rather than assumed.
+      //- 🔴 The mentor and the global group manager, on Mike's rulings of 2026-09-11
+      //- and 2026-09-29 — see TAB_TIERS.countrySchedules, where the judgement for the
+      //- other two tiers is stated rather than assumed.
       //- design/mockups/depreciation-rates-country-schedules.html, approved
       //- 2026-09-11 with all three of its decisions ruled.
       div.hub-panel(v-if="showsTab('countrySchedules')" v-show="activeTab === 'countrySchedules'")
@@ -1372,16 +1369,24 @@ const TAB_TIERS = {
   // to. The advisor's own half lives on the forecast, where they meet the problem.
   taxRates: ['mentor', 'global', 'group', 'firm'],
 
-  // 🔴 THE GLOBAL GROUP MANAGER ALONE, AND IT IS MIKE'S RULING OF 2026-09-11 RATHER THAN
-  // THE DEFAULT. This is the one tab in this list that is neither all four tiers nor the
-  // mentor: *"it loads at the global group manager tier — one person loads the schedules
-  // for every country their brand operates in"*. It OVERRIDES the default-is-mentor-alone
-  // rule of 2026-08-24 for this feature, and the reason he gave is the whole point of it —
-  // a country's schedule is read ONCE for a whole group instead of by every firm in it.
+  // 🔴 THE PAGE, NOT A FIFTH SET OF SETTINGS — item 10.3, Mike 2026-09-28/29. Since that day
+  // `depreciationRates`, `taxRates`, `trendThresholds` and `propertyTaxRules` above are
+  // SECTIONS of this one page rather than menu entries, and each still gates its own
+  // section by the line it always had, so no tier sees a section it did not see as a tab.
+  // All four tiers because its two first sections are on all four: every tier's page has
+  // three sections — Trend Thresholds at the mentor, Property Tax Rules everywhere else.
+  taxForecastRates: ['mentor', 'global', 'group', 'firm'],
+
+  // 🔴 THE MENTOR AND THE GLOBAL GROUP MANAGER — Mike's rulings of 2026-09-11 and 2026-09-29.
+  // The first put it at the global tier alone: *"one person loads the schedules for every
+  // country their brand operates in"*. The second added the mentor: *"as a mentor, I should
+  // have ultimate control. From there, global group manager could have a dropdown tab option
+  // of the countries available to them AS WELL AS the ability to load their own."* The
+  // mentor's schedule is the base every tier inherits; a global group manager sees it listed
+  // as inherited and may load their own, which replaces it for their brand. A country's
+  // schedule is still read ONCE for everyone beneath whoever loaded it.
   //
-  // The judgement for the other three, stated rather than assumed:
-  //   MENTOR — no. A schedule belongs to a country and the mentor is above every country;
-  //     there is nothing for it to hold that a group does not hold better.
+  // The judgement for the other two, stated rather than assumed:
   //   GROUP MANAGER — no, it INHERITS. A group manager works in one country and reads that
   //     country's table. A second copy would be two tables for one country with no rule for
   //     which wins.
@@ -1397,7 +1402,7 @@ const TAB_TIERS = {
   // ⚠ SEARCHING THE TABLE IS EVERYONE'S, and that asymmetry is the feature. Every firm
   // beneath searches this schedule from its own class picker — through the `classes` route,
   // which is deliberately not gated by tier.
-  countrySchedules: ['global'],
+  countrySchedules: ['mentor', 'global'],
 
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-08-21): "a 'AI Prompts' page
   // in the hub pages (Mentor, Global Group Manager, Group Manager and Firm Manager)".
@@ -1662,31 +1667,20 @@ const NAV_GROUPS = [
     // Mike's own words for this heading (2026-08-19), kept verbatim.
     heading: 'firmManagerHub.nav.modelInputs',
     items: [
-      { key: 'propertyTaxRules', i18n: 'firmManagerHub.tabs.propertyTaxRules' },
-      // Added at the END of the group on purpose: appending moves nothing that is
-      // already on a manager's screen. Mentor-only — see TAB_TIERS.trendThresholds.
-      { key: 'trendThresholds', i18n: 'firmManagerHub.tabs.forecastTrendThresholds' },
-      // Appended for the same reason as the line above, and the label is Mike's own —
-      // approved 2026-09-04. Mentor-only; see TAB_TIERS.sellDownLadder.
+      // Item 10.3 (Mike, 2026-09-28/29): Depreciation Rates, Tax Rates, Forecast Trend
+      // Thresholds and Property Tax Rules on one page, at the top of this group, where the
+      // first of them sat at every tier. The name is his. All four tiers; each section keeps
+      // its own tiers — see TAB_TIERS.taxForecastRates and the panel.
+      { key: 'taxForecastRates', i18n: 'firmManagerHub.tabs.taxForecastRates' },
+      // The label is Mike's own, approved 2026-09-04. Mentor-only; see TAB_TIERS.sellDownLadder.
       { key: 'sellDownLadder', i18n: 'firmManagerHub.tabs.importedStockPrices' },
-      // Appended for the same reason; the label is the drawing's, approved by Mike
-      // 2026-09-08. Mentor-only; see TAB_TIERS.industryBenchmarks.
+      // The label is the drawing's, approved by Mike 2026-09-08. Mentor-only; see
+      // TAB_TIERS.industryBenchmarks.
       { key: 'industryBenchmarks', i18n: 'firmManagerHub.tabs.industryBenchmarks' },
-      // Appended for the same reason as the two lines above — adding at the end moves
-      // nothing already on a manager's screen. All four tiers, on Mike's own ruling; see
-      // TAB_TIERS.depreciationRates. The label is the feature's name after his rename of
-      // 2026-09-09: it is a depreciation schedule, not a set of tax rules.
-      { key: 'depreciationRates', i18n: 'firmManagerHub.tabs.depreciationRates' },
-      // Appended for the same reason as every line above it — adding at the end moves
-      // nothing already on a manager's screen. All four tiers; see TAB_TIERS.taxRates.
-      // 🔴 A SEPARATE ENTRY FROM THE LINE ABOVE ON PURPOSE. Mike renamed that tab on
-      // 2026-09-09 so a tab's name would predict what is inside it; these are the tax
-      // rates that name promised and did not deliver.
-      { key: 'taxRates', i18n: 'firmManagerHub.tabs.taxRates' },
-      // Appended for the same reason as every line above it. THE GLOBAL GROUP MANAGER ALONE,
-      // on Mike's ruling of 2026-09-11; see TAB_TIERS.countrySchedules. A separate entry from
-      // the two above it on purpose: Depreciation Rates is a firm's own documents and its own
-      // six rates, and this is the country-wide library those six are chosen FROM.
+      // THE MENTOR AND THE GLOBAL GROUP MANAGER, on Mike's rulings of 2026-09-11 and
+      // 2026-09-29; see TAB_TIERS.countrySchedules. Not a section of Tax &
+      // Forecast Rates: Depreciation Rates there is a firm's own documents and its own six
+      // rates, and this is the country-wide library those six are chosen FROM.
       { key: 'countrySchedules', i18n: 'firmManagerHub.tabs.countryRateSchedules' },
       // Item 13.3, on Mike's ask of 2026-09-22: *"BOTH those issues must be fixed"*.
       // Under THIS heading because the currency every figure is labelled in is an input
@@ -3059,6 +3053,17 @@ export default {
 .hub-panel {
   flex: 1 1 320px;
   min-width: 0;
+}
+/* Tax & Forecast Rates (item 10.3): each former tab is a section, divided as the drawing
+   divides them, so four screens on one page still read as four things. */
+.hub-section + .hub-section {
+  border-top: 2px solid #d5e1ee;
+  margin-top: 28px;
+  padding-top: 20px;
+}
+.hub-section-title {
+  color: #002b64;
+  margin-bottom: 10px;
 }
 /* A distinction layer that was never checked — read as a fault, not as a quiet
    grey note among the other trace lines. Matches VirtualAdvisor's .trace-fault so
