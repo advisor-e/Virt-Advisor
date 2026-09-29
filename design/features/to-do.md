@@ -47,7 +47,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 10 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 11 | **7.17** Remove the three never-used options from the engine's briefing builder ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 12 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 13 | **44.2** Lay out the forecast's cash flow and profit the IAS 7 and IFRS 18 way ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 13 | **44.2** Lay out the forecast's cash flow and profit the IAS 7 and IFRS 18 way ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-09-30 |
 | 14 | **44.3** The forecast needs four facts: bad debts, deferred tax, leases, shipping terms ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
 **Fourteen live items. Six need Mike.** If this list passes about twenty, something is wrong.

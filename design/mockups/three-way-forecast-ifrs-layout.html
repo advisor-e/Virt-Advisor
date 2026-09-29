@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forecast Statements, IFRS Layout</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap">
+<style>
+/* ============================================================================
+   Item 44.2 — the Three-Way Forecast's Profit & loss and Cash flow tabs laid out
+   as IFRS 18 and IAS 7 set statements out. Drawing for Mike's approval, 2026-09-30.
+
+   The look is the approved forecast report's own (design/mockups/three-way-forecast-
+   report-detail.html): the same tokens, table, tabs and sub-row styles, reused
+   unchanged. Nothing here is a new look; only the ORDER and GROUPING of rows move.
+
+   FIGURES ARE REAL: year 1 of server/report/threeWayForecastModel.js on its own sample
+   (Big Bird Grass Seed), regrouped by a script that proved, month by month, that the
+   three cash groups add to the net movement and that profit before tax is unchanged.
+   No dark mode: one light look, RULED 2026-07-27.
+   ========================================================================= */
+:root{
+  --rs-content-width:1120px;
+  --rs-bg:#eef3f8; --rs-panel:#ffffff; --rs-panel-2:#f1f6fb;
+  --rs-ink:#002b64; --rs-muted:#5b6f8a; --rs-line:#d5e1ee;
+  --rs-accent:#0070c0; --rs-accent-bright:#00b1e0;
+  --rs-good:#4ca52d; --rs-warn:#ff9900; --rs-crit:#ff0000;
+  --rs-shadow:0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  --rs-radius:14px;
+  --rs-font:'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--rs-bg);color:var(--rs-ink);font-family:var(--rs-font);
+     font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased}
+.shell{max-width:var(--rs-content-width);margin:0 auto;padding:28px 16px 64px}
+.tw-root{display:flex;flex-direction:column;gap:16px}
+.tw-root strong,.tw-root b{font-weight:600}
+
+/* mockup-only chrome — never built */
+.mock{background:#fffbe6;border:1px solid #ffd666;border-radius:10px;padding:12px 14px;
+  font-size:12.5px;color:#614700;line-height:1.55}
+.stepmark{margin:30px 0 2px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#614700;font-weight:700;border-top:2px dashed #ffd666;padding-top:14px}
+
+.rs-top{padding:22px 24px;background:#002b64;border-radius:var(--rs-radius);color:#fff;box-shadow:var(--rs-shadow)}
+.rs-eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#00b1e0;font-weight:600}
+.rs-h1{margin:4px 0 3px;font-size:27px;font-weight:300;letter-spacing:-.01em}
+.rs-client{font-size:12.5px;opacity:.85}
+
+.tw-card{background:var(--rs-panel);border:1px solid var(--rs-line);border-radius:var(--rs-radius);
+  box-shadow:var(--rs-shadow);overflow:hidden}
+.tabrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 0;flex-wrap:wrap}
+.tabs{display:flex;gap:6px}
+.tabs span{font-size:12.5px;font-weight:600;border:1px solid var(--rs-line);border-bottom:0;
+  background:var(--rs-panel-2);color:var(--rs-muted);padding:8px 14px;border-radius:9px 9px 0 0}
+.tabs span.on{background:var(--rs-panel);color:var(--rs-ink)}
+.seg-small{display:inline-flex;border:1px solid var(--rs-line);border-radius:9px;overflow:hidden}
+.seg-small span{background:var(--rs-panel);padding:6px 14px;font-size:12px;font-weight:600;color:var(--rs-muted)}
+.seg-small span.on{background:var(--rs-accent);color:#fff}
+
+.tblwrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--rs-line);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;background:var(--rs-panel);min-width:240px;white-space:normal}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--rs-muted);font-weight:600}
+tr.rule td{border-top:2px solid var(--rs-line);font-weight:600}
+tr.strong td{font-weight:600}
+tr.sub td:first-child{padding-left:22px;font-weight:300;color:var(--rs-muted)}
+@media (max-width:600px){th:first-child,td:first-child{min-width:150px}}
+tr.section td{background:var(--rs-panel-2);font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--rs-muted);font-weight:700;border-top:2px solid var(--rs-line)}
+tr.muted td{color:var(--rs-muted);font-style:italic}
+.tblnote{font-size:11.5px;color:var(--rs-muted);padding:10px 16px 14px}
+
+/* marks on the drawing, not on the screen */
+.new{display:inline-block;margin-left:8px;font-size:9.5px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;border-radius:999px;padding:2px 7px;color:#614700;background:#fffbe6;border:1px solid #ffd666}
+.was{font-size:11px;color:var(--rs-muted);font-style:italic;margin-left:8px}
+
+.note-why{background:var(--rs-panel-2);border:1px solid var(--rs-line);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--rs-muted)}
+.note-why b{color:var(--rs-ink)}
+.q{background:var(--rs-panel);border:1px solid var(--rs-line);border-left:3px solid var(--rs-warn);
+  border-radius:10px;padding:14px 16px;font-size:13px}
+.q h2{font-size:12px;text-transform:uppercase;letter-spacing:.1em;margin:0 0 10px;color:var(--rs-muted)}
+.q table td,.q table th{text-align:left;white-space:normal}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="tw-root">
+
+<div class="mock"><b>Drawing for approval — item 44.2.</b> Two tabs of the Three-Way Forecast report,
+laid out as the accounting standards set statements out: the profit and loss with an
+<b>operating surplus before any interest</b> and a <b>financing</b> section beneath it (IFRS 18.60, 69),
+and the cash flow grouped into <b>operating, investing and financing</b> (IAS 7.10). Rows marked
+<span class="new">new</span> carry wording that needs your approval — all nine are listed at the end.
+Every other row keeps its current wording. Nothing about the figures changes: profit before tax,
+profit after tax, the monthly cash movement and the balance sheet are the same to the cent. Only
+where rows sit, and the subtotals between them, move.</div>
+
+<div class="rs-top">
+  <div class="rs-eyebrow">Three-Way Forecast</div>
+  <div class="rs-h1">Your forecast</div>
+  <div class="rs-client">Big Bird Grass Seed · the model's own sample · year 1</div>
+</div>
+
+<!-- ======================================================================= -->
+<div class="stepmark">1 · Profit &amp; loss — "Every line"</div>
+
+<div class="tw-card">
+  <div class="tabrow">
+    <div class="tabs"><span class="on">Profit &amp; loss</span><span>Cash flow</span><span>Balance sheet</span></div>
+    <div class="seg-small"><span>Summary</span><span class="on">Every line</span></div>
+  </div>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>Year 1</th><th>Year total</th></tr></thead>
+    <tbody>
+      <tr class="strong"><td>Revenue</td><td>890,000</td></tr>
+      <tr class="muted"><td>… cost of sales lines, unchanged …</td><td></td></tr>
+      <tr class="strong"><td>Gross surplus</td><td>217,837</td></tr>
+      <tr class="muted"><td>… overhead lines with a figure, unchanged — no interest among them …</td><td></td></tr>
+      <tr class="sub"><td>Depreciation</td><td>220,326</td></tr>
+      <tr class="rule"><td>Overheads <span class="was">today 465,886 — it held the interest</span></td><td>391,176</td></tr>
+      <tr class="sub"><td>Other income</td><td>0</td></tr>
+      <tr class="sub"><td>Other income (GST exempt)</td><td>0</td></tr>
+      <tr class="sub"><td>Gain or loss on asset sales</td><td>0</td></tr>
+      <tr class="rule strong"><td>Operating surplus <span class="was">today −248,049, after interest</span></td><td>−173,339</td></tr>
+      <tr class="sub"><td>Interest received</td><td>0</td></tr>
+      <tr class="sub"><td>Interest on shareholder accounts</td><td>2,916</td></tr>
+      <tr class="rule strong"><td>Surplus before financing and tax<span class="new">new</span></td><td>−170,423</td></tr>
+      <tr class="sub"><td>Interest — overdraft</td><td>17,815</td></tr>
+      <tr class="sub"><td>Interest — term loans</td><td>56,895</td></tr>
+      <tr class="sub"><td>Interest — facilities</td><td>0</td></tr>
+      <tr class="sub"><td>Interest — overseas suppliers<span class="new">new</span> <span class="was">shown only when it has a figure</span></td><td>—</td></tr>
+      <tr class="sub"><td>Interest on overdue tax <span class="was">moved from the overhead lines; shown only when it has a figure</span></td><td>—</td></tr>
+      <tr class="rule"><td>Financing costs<span class="new">new</span></td><td>74,710</td></tr>
+      <tr class="strong"><td>Surplus before tax</td><td>−245,133</td></tr>
+      <tr class="sub"><td>Tax</td><td>0</td></tr>
+      <tr class="rule strong"><td>After tax</td><td>−245,133</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tblnote">The screen keeps all twelve months and the three years, as today; this drawing shows the
+  year total only. "Total other income" goes: its lines now sit where the standard puts them —
+  other income and asset sales above the operating surplus, interest earned below it.</div>
+</div>
+
+<div class="note-why"><b>Why each row sits where it does.</b> IFRS 18.69 requires three subtotals:
+operating profit, profit before financing and income taxes, and profit. Interest on borrowings is
+financing (IFRS 18.60), and so is interest on other liabilities such as overdue tax and a supplier's
+charge for waiting to be paid (IFRS 18.61). Interest earned on cash and on loans to shareholders is
+investing (IFRS 18.53-54), which is why it sits between the operating surplus and the financing
+section. <b>Interest — overseas suppliers</b> is new because that charge is inside today's Overheads
+total with no row of its own, so for an importer the lines above the total did not add up to it.</div>
+
+<!-- ======================================================================= -->
+<div class="stepmark">2 · Profit &amp; loss — "Summary"</div>
+
+<div class="tw-card">
+  <div class="tabrow">
+    <div class="tabs"><span class="on">Profit &amp; loss</span><span>Cash flow</span><span>Balance sheet</span></div>
+    <div class="seg-small"><span class="on">Summary</span><span>Every line</span></div>
+  </div>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>Year 1</th><th>Year total</th></tr></thead>
+    <tbody>
+      <tr><td>Revenue</td><td>890,000</td></tr>
+      <tr><td>Gross surplus</td><td>217,837</td></tr>
+      <tr><td>Overheads</td><td>391,176</td></tr>
+      <tr class="strong"><td>Operating surplus <span class="was">added to the summary</span></td><td>−173,339</td></tr>
+      <tr><td>Financing costs<span class="new">new</span></td><td>74,710</td></tr>
+      <tr class="rule"><td>After tax</td><td>−245,133</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tblnote">Today's summary has four rows: revenue, gross surplus, overheads, after tax. The two
+  added rows are the figures a lender reads first.</div>
+</div>
+
+<!-- ======================================================================= -->
+<div class="stepmark">3 · Cash flow — "Every line"</div>
+
+<div class="tw-card">
+  <div class="tabrow">
+    <div class="tabs"><span>Profit &amp; loss</span><span class="on">Cash flow</span><span>Balance sheet</span></div>
+    <div class="seg-small"><span>Summary</span><span class="on">Every line</span></div>
+  </div>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>Year 1</th><th>Year total</th></tr></thead>
+    <tbody>
+      <tr class="section"><td colspan="2">Operating activities<span class="new">new</span></td></tr>
+      <tr class="sub"><td>Received from customers</td><td>969,416</td></tr>
+      <tr class="sub"><td>GST refunded</td><td>0</td></tr>
+      <tr class="sub"><td>Tax refunded</td><td>0</td></tr>
+      <tr class="sub"><td>Other income</td><td>0</td></tr>
+      <tr class="sub"><td>Paid to suppliers</td><td>−750,247</td></tr>
+      <tr class="sub"><td>Paid this month (GST inclusive)</td><td>−9,772</td></tr>
+      <tr class="sub"><td>Paid this month (GST free)</td><td>−206,350</td></tr>
+      <tr class="sub"><td>GST paid</td><td>−31,712</td></tr>
+      <tr class="sub"><td>Tax paid</td><td>0</td></tr>
+      <tr class="muted"><td>… the overseas and stock-in-transit rows, when the business imports — the supplier balance now without its interest …</td><td></td></tr>
+      <tr class="rule strong"><td>Net cash from operating activities<span class="new">new</span></td><td>−28,665</td></tr>
+
+      <tr class="section"><td colspan="2">Investing activities<span class="new">new</span></td></tr>
+      <tr class="sub"><td>Interest received</td><td>0</td></tr>
+      <tr class="sub"><td>Asset sales banked</td><td>0</td></tr>
+      <tr class="sub"><td>Assets bought</td><td>0</td></tr>
+      <tr class="rule strong"><td>Net cash from investing activities<span class="new">new</span></td><td>0</td></tr>
+
+      <tr class="section"><td colspan="2">Financing activities<span class="new">new</span></td></tr>
+      <tr class="sub"><td>New borrowing drawn</td><td>0</td></tr>
+      <tr class="sub"><td>Shareholder advances in</td><td>0</td></tr>
+      <tr class="sub"><td>Interest paid <span class="was">now includes interest paid to overseas suppliers</span></td><td>−74,710</td></tr>
+      <tr class="sub"><td>Loan principal repaid</td><td>−119,385</td></tr>
+      <tr class="sub"><td>Shareholder drawings</td><td>0</td></tr>
+      <tr class="rule strong"><td>Net cash from financing activities<span class="new">new</span></td><td>−194,095</td></tr>
+
+      <tr class="rule"><td>Movement</td><td>−222,760</td></tr>
+      <tr class="rule strong"><td>Cash at month end</td><td>−400,760</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tblnote">Money going out is shown with a minus, so each group adds down to its own subtotal
+  and the three subtotals add to the movement. The two totals "Money in" and "Money out" are replaced
+  by the three group subtotals on this view.</div>
+</div>
+
+<div class="note-why"><b>Why each row sits where it does.</b> IAS 7.10 groups cash flows as
+operating, investing and financing. Buying and selling assets is investing (IAS 7.16); borrowing,
+repaying and shareholders' money in and out is financing (IAS 7.17). Tax is operating (IAS 7.35).
+IAS 7.31-33 let interest paid be financing and interest received be investing, which matches where the
+profit and loss now puts them — the same interest never sits in two different sections of the two
+statements.</div>
+
+<!-- ======================================================================= -->
+<div class="stepmark">4 · Cash flow — "Summary"</div>
+
+<div class="tw-card">
+  <div class="tabrow">
+    <div class="tabs"><span>Profit &amp; loss</span><span class="on">Cash flow</span><span>Balance sheet</span></div>
+    <div class="seg-small"><span class="on">Summary</span><span>Every line</span></div>
+  </div>
+  <div class="tblwrap">
+  <table>
+    <thead><tr><th>Year 1</th><th>Month 1</th><th>Month 2</th><th>Month 3</th><th>…</th><th>Year total</th></tr></thead>
+    <tbody>
+      <tr><td>Net cash from operating activities<span class="new">new</span></td><td>−32,359</td><td>45,113</td><td>36,894</td><td>…</td><td>−28,665</td></tr>
+      <tr class="muted"><td>… the overseas and stock-in-transit rows, when the business imports, as today …</td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>Net cash from investing activities<span class="new">new</span></td><td>0</td><td>0</td><td>0</td><td>…</td><td>0</td></tr>
+      <tr><td>Net cash from financing activities<span class="new">new</span></td><td>−15,728</td><td>−16,009</td><td>−15,839</td><td>…</td><td>−194,095</td></tr>
+      <tr class="rule"><td>Movement</td><td>−48,088</td><td>29,104</td><td>21,055</td><td>…</td><td>−222,760</td></tr>
+      <tr class="rule strong"><td>Cash at month end</td><td>−226,088</td><td>−196,983</td><td>−175,928</td><td>…</td><td>−400,760</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tblnote">Today's summary shows "Money in" and "Money out"; these three subtotals take their
+  place. The overseas rows keep their own lines, as ruled on 2026-09-04, so a deposit or a freight bill
+  is still visible in the month it is paid.</div>
+</div>
+
+<div class="note-why"><b>What the sample shows a lender, that today's layout hides.</b> Trading used
+28,665 of cash over the year; servicing the loans used 194,095 — nearly seven times as much. Before interest,
+the business lost 173,339 on its operations, not 248,049. Both statements already held these figures;
+neither showed them.</div>
+
+<div class="stepmark">5 · Printing</div>
+<div class="note-why">The printed statement pages follow the same rows as the "Every line" view, one
+page per statement per year, as today. The forecast caution line stays under every page.</div>
+
+<!-- ======================================================================= -->
+<div class="q">
+  <h2>The nine new labels, for your approval</h2>
+  <table>
+    <thead><tr><th>Label</th><th>Where</th><th>The standard's own name</th></tr></thead>
+    <tbody>
+      <tr><td>Surplus before financing and tax</td><td>Profit &amp; loss, every line</td><td>Profit or loss before financing and income taxes (IFRS 18.69)</td></tr>
+      <tr><td>Interest — overseas suppliers</td><td>Profit &amp; loss, every line, when it has a figure</td><td>—</td></tr>
+      <tr><td>Financing costs</td><td>Profit &amp; loss, both views</td><td>Financing category (IFRS 18.60-61)</td></tr>
+      <tr><td>Operating activities</td><td>Cash flow, every line</td><td>Operating activities (IAS 7.10)</td></tr>
+      <tr><td>Investing activities</td><td>Cash flow, every line</td><td>Investing activities (IAS 7.10)</td></tr>
+      <tr><td>Financing activities</td><td>Cash flow, every line</td><td>Financing activities (IAS 7.10)</td></tr>
+      <tr><td>Net cash from operating activities</td><td>Cash flow, both views</td><td>Net cash from operating activities (IAS 7)</td></tr>
+      <tr><td>Net cash from investing activities</td><td>Cash flow, both views</td><td>Net cash from investing activities (IAS 7)</td></tr>
+      <tr><td>Net cash from financing activities</td><td>Cash flow, both views</td><td>Net cash from financing activities (IAS 7)</td></tr>
+    </tbody>
+  </table>
+  <p class="tblnote" style="padding:10px 0 0">The report says "surplus" rather than "profit" throughout,
+  so the first label follows it. "Operating surplus" keeps its name; what it measures changes, to the
+  figure before any interest.</p>
+</div>
+
+</div>
+</div>
+</body>
+</html>

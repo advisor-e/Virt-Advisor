@@ -349,8 +349,12 @@
         "detail": "2026-09-30 - from 44.1's review. Mike: \"if our model differs from international best practice standards, and you have identified a fix - then fix it please - yes to anything that makes our model best practice\". Filed rather than built because the statements' layout changes and needs a drawing he approves first."
       },
       "touches": "server/report/threeWayForecastModel.js (a financing section and the cash-flow grouping in its output); components/ThreeWayForecastReport.vue's profit and cash-flow rows and their print pages; locales/en.json for the new headings; a drawing in design/mockups/ first.",
-      "note": "FILED 2026-09-30. Basis and paragraphs: design/CALCULATION-ASSUMPTIONS.md §2.4 and §2.8. The engine already keeps overdraft, term-loan and facility interest as separate series, so the P&L half is mostly layout.",
-      "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it."
+      "note": "DRAWN 2026-09-30, awaiting Mike's approval: design/mockups/three-way-forecast-ifrs-layout.html - both tabs, both views, nine new labels. Regrouping proved on the sample: the three cash groups add to the net movement every month; profit before tax unchanged. Basis: design/CALCULATION-ASSUMPTIONS.md §2.4 and §2.8.",
+      "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-09-30: PROCEED - the drawing first, design/mockups/three-way-forecast-ifrs-layout.html. Folds in supplier interest, which sits inside total overheads with no row of its own.",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-30"
+      }
     },
     {
       "ref": "44.3",
