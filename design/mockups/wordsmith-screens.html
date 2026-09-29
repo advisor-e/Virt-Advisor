@@ -1,0 +1,490 @@
+<title>Wordsmith Screens</title>
+<!--
+================================================================================
+  WORDSMITH — THE TWO SCREENS. Item 15.14. Drawn 2026-09-29 on Mike's yes.
+  NOT APPROVED. NOTHING ON THIS PAGE IS BUILT except the engine it calls.
+
+  Part 1 is the Wordsmith panel on the Alignment Statements card in Run session,
+  drawn in the style of the approved recording drawing
+  (design/mockups/strategy-session-recording.html).
+  Part 2 is the Wordsmith tab in the hub, drawn to the hub's own look: the chrome
+  of components/FirmManagerHub.vue and the row pattern of the newest cascading tab,
+  components/firm/FirmGrowthAspectQuestions.vue, whose labels ("inherited",
+  "edited here", "added here", "Use theirs", "Keep mine", "Earlier versions") are
+  reused word for word. Mike, 2026-09-29: "just check the colours and format match
+  that of the other pages in the hub".
+
+  What the screens show and who may edit it is already RULED on
+  design/mockups/wordsmith-style-settings.html. The statement boxes' labels are the
+  Alignment Statements capture form as shipped. The client's words are Mike's own
+  dictation from the Wordsmith Lab. EVERY OTHER WORD IS OURS and is in the wording
+  table for Mike to rule on.
+================================================================================
+-->
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff; --page: #f5f5f5;
+    --good: #2e7d32; --crit: #c0392b; --warn: #b36b00; --rec: #d32f2f;
+    --goodwash: #edf7ee; --critwash: #fdeeee; --warnwash: #fffbeb;
+    --tag: #f5f5f5; --tagink: #363636; --infotag: #eff5fb; --infoink: #296fa8;
+    --oktag: #effaf5; --okink: #257953; --rowline: #f0f3f7; --text: #4a4a4a; --strong: #363636;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+      --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726; --page: #0a121e;
+      --good: #7fcf85; --crit: #ff8a80; --warn: #ffb74d; --rec: #ff6b6b;
+      --goodwash: #16301c; --critwash: #3a1c1c; --warnwash: #2e2614;
+      --tag: #1c2a3d; --tagink: #d6deea; --infotag: #16283d; --infoink: #8cc0f5;
+      --oktag: #15291f; --okink: #8fdcae; --rowline: #1c2a3d; --text: #c5d3e3; --strong: #e2e9f2;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+    --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726; --page: #0a121e;
+    --good: #7fcf85; --crit: #ff8a80; --warn: #ffb74d; --rec: #ff6b6b;
+    --goodwash: #16301c; --critwash: #3a1c1c; --warnwash: #2e2614;
+    --tag: #1c2a3d; --tagink: #d6deea; --infotag: #16283d; --infoink: #8cc0f5;
+    --oktag: #15291f; --okink: #8fdcae; --rowline: #1c2a3d; --text: #c5d3e3; --strong: #e2e9f2;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: 'Open Sans', system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding-block: 32px 80px; padding-inline: 16px; line-height: 1.55; }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: clamp(24px, 4vw, 30px); margin: 0 0 6px; text-wrap: balance; }
+  h2 { color: var(--ink); font-size: clamp(18px, 3vw, 21px); margin: 44px 0 4px; text-wrap: balance; }
+  .part { margin-top: 56px; padding-top: 18px; border-top: 3px solid var(--accent); }
+  .part > h2 { margin-top: 0; font-size: clamp(20px, 3.4vw, 24px); }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 80ch; }
+  .cap { color: var(--eg); font-size: 12.5px; margin: 8px 0 0; max-width: 84ch; }
+  .cap b { color: var(--ink); }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 18px 0 0; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 20px; }
+  .note li { margin: 0 0 5px; }
+  code { font-size: 12.5px; }
+  .dec { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px dashed var(--accent); border-radius: 4px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .tablewrap { overflow-x: auto; }
+  table.m { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+  table.m th, table.m td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.m th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+
+  /* ── Part 1: Run session, from the approved recording drawing ── */
+  .screen { border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); background: var(--bg); overflow: hidden; margin: 14px 0 0; }
+  .rail { display: flex; gap: 4px; padding: 10px 14px; background: var(--wash); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .rail span { font-size: 12.5px; padding: 4px 10px; border-radius: 6px; color: var(--eg); }
+  .rail span.on { background: #0070c0; color: #fff; font-weight: 700; }
+  .frame { border: 10px solid #0070c0; margin: 14px; padding: 18px 20px; }
+  .runhead { color: var(--ink); font-weight: 700; margin: 0 0 10px; font-size: 15px; }
+  .card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 0 0 14px; }
+  .cardtop { background: var(--wash); padding: 10px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .cardtop b { color: var(--ink); }
+  .grow { flex: 1; }
+  .muted { color: var(--eg); font-size: 12.5px; }
+  .btn { display: inline-block; background: var(--accent); color: #fff; border-radius: 6px; padding: 6px 13px; font-weight: 600; font-size: 13.5px; white-space: nowrap; }
+  .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .btn.small { padding: 3px 10px; font-size: 12.5px; }
+  .btn.off { background: var(--wash); color: var(--eg); border: 1px solid var(--line); }
+  .sec { font-size: 12px; border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; white-space: nowrap; }
+  .sec.done { border-color: var(--good); color: var(--good); background: var(--goodwash); }
+  .boxes { display: grid; gap: 10px; padding: 14px; }
+  .field { border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; }
+  .field h5 { margin: 0 0 5px; color: var(--ink); font-size: 13.5px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .field .typed { border: 1px solid var(--line); border-radius: 5px; min-height: 34px; padding: 6px 8px; font-size: 13px; }
+  .field .typed.empty { color: var(--eg); font-style: italic; }
+  .field.kept { border-color: var(--good); }
+  .stamp { font-size: 11px; font-weight: 700; color: var(--good); }
+  .acts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+  .ws { margin: 0 14px 14px; border: 2px solid var(--accent); border-radius: 10px; overflow: hidden; }
+  .wshead { background: var(--accent); color: #fff; padding: 8px 14px; font-weight: 700; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .wshead .muted { color: #e1efff; font-weight: 400; }
+  .wsbody { padding: 14px; display: grid; gap: 14px; }
+  .ask { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+  .ask label { display: block; font-weight: 700; color: var(--ink); font-size: 13.5px; margin: 0 0 4px; }
+  .ask .typed { border: 1px solid var(--line); border-radius: 5px; padding: 7px 9px; font-size: 13.5px; min-height: 40px; }
+  .ask .eg { font-size: 12px; color: var(--eg); margin: 4px 0 0; }
+  .settings { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12.5px; }
+  .settings .lbl { font-weight: 700; color: var(--ink); }
+  .pick { border: 1px solid var(--line); border-radius: 5px; padding: 2px 8px; background: var(--bg); color: var(--ink); white-space: nowrap; }
+  .pick::after { content: " \25BE"; color: var(--eg); }
+  .draft { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .drafthead { background: var(--wash); padding: 7px 12px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .drafthead b { color: var(--ink); }
+  .dom { font-size: 11.5px; color: var(--eg); }
+  .draftbody { padding: 10px 12px; display: grid; gap: 8px; font-size: 13.5px; }
+  .words { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; color: var(--ink); background: var(--bg); }
+  .why { font-size: 12.5px; color: var(--eg); }
+  .why b { color: var(--body); }
+  details.said { font-size: 12.5px; }
+  details.said summary { color: var(--accent); cursor: pointer; font-weight: 600; }
+  details.said blockquote { margin: 6px 0 0; padding: 6px 10px; border-left: 3px solid var(--line); color: var(--body); }
+  .room { border: 1px dashed var(--warn); background: var(--warnwash); border-radius: 7px; padding: 8px 10px; font-size: 13px; }
+  .room b { color: var(--warn); }
+  .room .typed { border: 1px solid var(--line); border-radius: 5px; padding: 5px 8px; margin: 6px 0; background: var(--bg); min-height: 30px; }
+  .flag { border-left: 3px solid var(--warn); background: var(--warnwash); padding: 6px 10px; border-radius: 0 6px 6px 0; font-size: 12.5px; }
+  .flag b { color: var(--warn); }
+  .tick { display: inline-block; width: 14px; height: 14px; border: 1.5px solid var(--eg); border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+  .tick.on { background: var(--good); border-color: var(--good); }
+  .nothing { color: var(--eg); font-style: italic; font-size: 13px; }
+  .banner { padding: 10px 14px; border-radius: 8px; font-size: 13.5px; }
+  .banner.fail { background: var(--critwash); border-left: 4px solid var(--crit); }
+  .banner.fail b { color: var(--crit); }
+  .working { display: flex; gap: 10px; align-items: center; font-size: 13.5px; color: var(--ink); }
+  .spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--accent); display: inline-block; }
+
+  /* ── Part 2: the hub, from FirmManagerHub.vue and FirmGrowthAspectQuestions.vue ── */
+  .hub { background: var(--page); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 14px 0 0; padding: 18px; font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--text); }
+  .hubtitle { font-size: 1.5rem; font-weight: 600; color: var(--strong); margin: 0; }
+  .hubsub { font-size: 1rem; color: #7a7a7a; margin: 2px 0 16px; }
+  .hubshell { display: flex; flex-wrap: wrap; gap: 1.25rem; }
+  .hubmenu { flex: 0 0 232px; font-size: .9rem; }
+  .hubmenu .mlabel { font-size: .75em; letter-spacing: .1em; text-transform: uppercase; color: #7a7a7a; margin: 10px 0 4px; }
+  .hubmenu a { display: block; padding: .35em .75em; border-radius: 2px; color: var(--text); text-decoration: none; }
+  .hubmenu a.on { background: #0070c0; color: #fff; }
+  .hubmenu a.new { outline: 1px dashed #0070c0; outline-offset: -1px; }
+  .hubmenu .more { color: #9a9a9a; padding: .1em .75em; font-size: .8rem; }
+  .hubpanel { flex: 1 1 320px; min-width: 0; background: var(--bg); border-radius: 6px; box-shadow: 0 .5em 1em -.125em #0a0a0a1a; padding: 1.25rem; }
+  .hgp { background: rgba(0,112,192,.09); border: 1px solid rgba(0,112,192,.33); border-left: 3px solid #0070c0; border-radius: 0 12px 12px 0; padding: .9rem 1.1rem; font-size: .9rem; margin-bottom: 1rem; }
+  .hgp .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .hgp h4 { margin: 0; font-weight: 600; font-size: .95rem; color: #002b64; }
+  .hgp ol { margin: .5rem 0 0; padding-left: 1.2rem; }
+  .bbtn { display: inline-block; font-size: .75rem; border-radius: 4px; padding: .2em .7em; border: 1px solid transparent; background: #f5f5f5; color: #363636; white-space: nowrap; }
+  .bbtn.primary { background: #0070c0; color: #fff; }
+  .bbtn.outline { background: transparent; border-color: #0070c0; color: #0070c0; }
+  .bbtn.danger { background: #feecf0; color: #cc0f35; }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 1rem; }
+  .chip { border: 1px solid #dfe6ee; border-radius: 999px; background: var(--bg); font-size: .85rem; padding: .25rem .8rem; color: var(--text); white-space: nowrap; }
+  .chip.on { border-color: #0070c0; box-shadow: 0 0 0 1px #0070c0; color: #002b64; font-weight: 600; }
+  .chip em { font-style: normal; color: #7a8ba0; }
+  .plabel { font-size: .75rem; font-weight: 700; color: var(--strong); margin: 1.1rem 0 .3rem; }
+  .plabel .hint { font-weight: 400; color: #7a7a7a; }
+  .q { display: flex; gap: .6rem; align-items: flex-start; padding: .45rem .25rem; border-bottom: 1px solid var(--rowline); font-size: .9rem; flex-wrap: wrap; }
+  .q .txt { flex: 1 1 260px; min-width: 0; color: var(--text); }
+  .q .btns { display: flex; gap: .3rem; flex-wrap: wrap; }
+  .q.changed { background: #f1f6fb; }
+  .q.changed .txt small { display: block; font-size: .75rem; margin-top: .3rem; color: var(--text); }
+  .q.off { color: #9a9a9a; }
+  .q.editing { background: #f5fbff; border-left: 3px solid #3298dc; border-radius: 4px; }
+  .q.editing .area { border: 1px solid #dbdbdb; border-radius: 4px; padding: .4rem .5rem; background: var(--bg); color: var(--strong); margin: .3rem 0; }
+  .tag { display: inline-block; font-size: .7rem; border-radius: 4px; padding: .1em .55em; background: var(--tag); color: var(--tagink); white-space: nowrap; }
+  .tag.basis { background: var(--infotag); color: var(--infoink); }
+  .tag.fixed { background: transparent; border: 1px solid #dbdbdb; color: #7a7a7a; }
+  .cite { display: block; font-size: .75rem; color: #7a8ba0; margin-top: .15rem; }
+  .cite a { color: #0070c0; }
+  .inp { display: inline-block; border: 1px solid #dbdbdb; border-radius: 4px; padding: .1em .5em; min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; background: var(--bg); color: var(--strong); }
+  .footer { font-size: .75rem; color: #7a7a7a; margin-top: 1rem; }
+  .footer a { color: #0070c0; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .q.changed { background: #16263a; }
+    :root:not([data-theme="light"]) .q.editing { background: #13233a; }
+    :root:not([data-theme="light"]) .hgp h4 { color: #cfe3ff; }
+  }
+  :root[data-theme="dark"] .q.changed { background: #16263a; }
+  :root[data-theme="dark"] .q.editing { background: #13233a; }
+  :root[data-theme="dark"] .hgp h4 { color: #cfe3ff; }
+
+  .decision { border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 15px; margin: 12px 0; background: var(--bg); }
+  .decision h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
+  .decision p { margin: 0 0 6px; }
+  .rec { font-weight: 600; color: var(--ink); }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">Strategy Planner · Wordsmith · item 15.14 · drawn 2026-09-29 · <b>approved by Mike 2026-09-29 as the design to build from · not built</b></p>
+  <h1>Wordsmith: the planner panel and the hub tab</h1>
+  <p class="lede">Two places. <b>In Run session</b>, the advisor presses Wordsmith on the Alignment Statements card once
+    its recorded section has been turned into text, says what the statements are for and how they should sound, and gets
+    a draft of each of the five statements to edit and approve. <b>In the hub</b>, each manager shapes what Wordsmith
+    knows: the definitions, the writing rules, the questions, the word limits and the style wording, cascading down on the
+    standard rules. What each screen shows, and who may change it, was ruled on
+    <code>wordsmith-style-settings.html</code>; this page draws it.</p>
+
+  <div class="note">
+    <h3>Already settled, and not asked again here</h3>
+    <ul>
+      <li><b>Only the Alignment Statements recording</b> is ever sent, with the session's confirmed consent (your privacy ruling, 2026-09-28). Checked against the twelve OpenAI rules at scoping; it passes.</li>
+      <li><b>The five steps</b> and what each reads, <b>the five domain writing rules</b>, and <b>who can shape what</b>, all approved 2026-09-29.</li>
+      <li><b>How Wordsmith is measured is open</b>, on your ruling. Whatever measure you choose, the build records each statement's AI draft, the final approved wording and the time taken, so it can be counted later.</li>
+    </ul>
+  </div>
+
+  <!-- ═══════════════════════════ PART 1 ═══════════════════════════ -->
+  <section class="part">
+    <h2>Part 1 · In Run session</h2>
+
+    <h2>1 · The Wordsmith button, once the section is text</h2>
+    <p class="cap">The button sits on the Alignment Statements card, beside the summary the advisor and client already
+      approve. Until that card's recorded section has been turned into text it is greyed, with the reason beside it.
+      <span class="dec">Decision A</span></p>
+    <div class="screen">
+      <div class="rail"><span>1 · Scope session</span><span>2 · Build session</span><span class="on">3 · Run session</span><span>4 · Objectives &amp; actions</span><span>5 · Produce plan</span></div>
+      <div class="frame">
+        <p class="runhead">Business Targets</p>
+        <div class="card">
+          <div class="cardtop"><b>Alignment Statements</b><span class="grow"></span>
+            <span class="sec done">section 4 · text ready · audio deleted</span>
+            <span class="btn">Wordsmith</span></div>
+          <div class="boxes">
+            <div class="field"><h5>Vision</h5><div class="typed empty">Enter Vision statement here…</div></div>
+            <div class="field"><h5>Purpose</h5><div class="typed empty">Enter Purpose statement here…</div></div>
+            <p class="muted" style="margin:0">…Values, Mission and Strategy, then the Who We're Talking To / What We Say / What We Mean table, as today…</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="cardtop"><b>Alignment Statements</b> <span class="muted">· the same card, before its section is text</span><span class="grow"></span>
+            <span class="btn off">Wordsmith</span></div>
+          <p class="muted" style="margin:10px 14px">Wordsmith works from what was said here. Record this section first.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2>2 · What are these statements for, and how should they sound?</h2>
+    <p class="cap">Wordsmith opens inside the card and asks the room the two questions you set out: the purpose and the
+      style. Both are the room's own words, treated as untrusted input on the backend. The grey examples are yours.</p>
+    <div class="screen">
+      <div class="frame">
+        <div class="card">
+          <div class="cardtop"><b>Alignment Statements</b><span class="grow"></span><span class="sec done">section 4 · text ready · audio deleted</span></div>
+          <div class="ws">
+            <div class="wshead">Wordsmith <span class="muted">· writes the five statements from what the client said</span></div>
+            <div class="wsbody">
+              <div class="ask">
+                <div><label>What are these statements for?</label><div class="typed">This supports a bank loan application.</div>
+                  <p class="eg">For example: "This supports a bank loan" or "This is to put on a poster and hang in our staff room".</p></div>
+                <div><label>How should they sound?</label><div class="typed">Professional. Educated people will review our submission.</div>
+                  <p class="eg">For example: "Humble but positive" or "Professional; educated people will review our submission".</p></div>
+              </div>
+              <div class="acts"><span class="btn">Write the statements</span><span class="btn ghost small">Close Wordsmith</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>3 · The drafts, one per statement, each with its reasons</h2>
+    <p class="cap">Wordsmith shows the settings it read from the style, and the advisor can change any of them and write
+      again <span class="dec">Decision B</span>. Each statement shows its draft, why it was written that way, and the
+      client's own words it came from. A missing date or measure is a question for the room, never an invention
+      <span class="dec">Decision C</span>. Anything the code's checks caught is shown, not hidden. Nothing reaches the
+      box until the client agrees and the advisor presses "Use this wording" <span class="dec">Decision D</span>.</p>
+    <div class="screen">
+      <div class="frame">
+        <div class="card">
+          <div class="cardtop"><b>Alignment Statements</b><span class="grow"></span><span class="sec done">section 4 · text ready · audio deleted</span></div>
+          <div class="ws">
+            <div class="wshead">Wordsmith <span class="muted">· for: a bank loan application · sound: professional</span></div>
+            <div class="wsbody">
+              <div class="settings"><span class="lbl">Written as:</span>
+                <span class="pick">Medium sentences</span><span class="pick">Professional</span><span class="pick">No jargon</span><span class="pick">"We"</span>
+                <span class="muted">· feels confident, clear, concise · for bank loan reviewers</span>
+                <span class="btn ghost small">Write again with these</span></div>
+
+              <div class="draft">
+                <div class="drafthead"><b>Vision</b><span class="dom">Being · written as if already achieved</span></div>
+                <div class="draftbody">
+                  <div class="words">We are the best suspension business, known for communicating how to make suspension work for the average rider. We take all the jargon out and make it easy for people to set up their suspension.</div>
+                  <p class="why" style="margin:0"><b>Why:</b> It states the owner's ambition as already true, then names clear communication as what sets the business apart.</p>
+                  <details class="said"><summary>What the client said (3 passages)</summary>
+                    <blockquote>So um we run a suspension business and we want to be the best suspension business…</blockquote></details>
+                  <div class="room"><b>A question for the room:</b> By when do you want this to be true?
+                    <div class="typed">By 2030</div>
+                    <span class="btn ghost small">Write again with this answer</span></div>
+                  <p style="margin:0;font-size:13px"><span class="tick"></span>The client has read this and agrees with it</p>
+                  <div class="acts"><span class="btn small">Use this wording</span><span class="btn ghost small">Edit</span><span class="btn ghost small">Write again</span></div>
+                </div>
+              </div>
+
+              <div class="draft">
+                <div class="drafthead"><b>Strategy</b><span class="dom">Doing · the chosen way to win</span></div>
+                <div class="draftbody">
+                  <div class="words">We combine quality parts and really good education, giving equal emphasis to suspension parts and track adjustments. We use technology, including an app, to support education for riders across Hamilton.</div>
+                  <div class="flag"><b>Check this:</b> "Hamilton" is not in anything the client said. Wordsmith wrote it again and it is still there.</div>
+                  <div class="room"><b>A question for the room:</b> Which customers or work is this strategy not for?
+                    <div class="typed empty" style="color:var(--eg);font-style:italic">Type the room's answer</div>
+                    <span class="btn ghost small">Write again with this answer</span></div>
+                  <p style="margin:0;font-size:13px"><span class="tick"></span>The client has read this and agrees with it</p>
+                  <div class="acts"><span class="btn small">Use this wording</span><span class="btn ghost small">Edit</span><span class="btn ghost small">Write again</span></div>
+                </div>
+              </div>
+
+              <div class="draft">
+                <div class="drafthead"><b>Values</b><span class="dom">Relating</span></div>
+                <div class="draftbody"><p class="nothing" style="margin:0">Nothing was said about Values in this section, so there is nothing to write from.</p></div>
+              </div>
+              <p class="muted" style="margin:0">…Purpose and Mission in the same form. The "Hamilton" check and the empty Values are drawn to show those states; your own recording produced neither.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>4 · The approved wording in its box</h2>
+    <p class="cap">"Use this wording" puts the statement into its box, marked as written with Wordsmith, and records the
+      AI's draft, the final wording and who approved it. After that the box is an ordinary box: editing it is allowed, and
+      it prints in the plan as it does today. The communication table below the five boxes stays as the advisor types it
+      <span class="dec">Decision E</span>.</p>
+    <div class="screen">
+      <div class="frame">
+        <div class="card">
+          <div class="cardtop"><b>Alignment Statements</b><span class="grow"></span><span class="btn ghost small">Wordsmith</span></div>
+          <div class="boxes">
+            <div class="field kept"><h5>Vision <span class="stamp">✓ written with Wordsmith · client agreed · 10:42 am</span></h5>
+              <div class="typed">By 2030, we are the best suspension business, known for communicating how to make suspension work for the average rider. We take all the jargon out and make it easy for people to set up their suspension.</div></div>
+            <div class="field"><h5>Purpose</h5><div class="typed empty">Enter Purpose statement here…</div></div>
+            <p class="muted" style="margin:0">…the other boxes as before…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>5 · When Wordsmith cannot write</h2>
+    <p class="cap">If the AI's answer is unusable twice, or OpenAI cannot be reached, the room is told plainly and nothing
+      in the boxes changes.</p>
+    <div class="screen">
+      <div class="frame">
+        <div class="ws" style="margin:0">
+          <div class="wshead">Wordsmith</div>
+          <div class="wsbody">
+            <div class="working"><span class="spin"></span>Writing the five statements…</div>
+            <div class="banner fail"><b>Wordsmith couldn't write these statements.</b> Nothing in the boxes has changed. <span class="btn ghost small">Try again</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ PART 2 ═══════════════════════════ -->
+  <section class="part">
+    <h2>Part 2 · The Wordsmith tab in the hub</h2>
+    <p class="cap">Drawn to the hub's own look: the hub's title, grey page and left menu from
+      <code>FirmManagerHub.vue</code>, the guidance panel from <code>HubGuidePanel.vue</code>, and the rows, tags and
+      buttons of <b>Growth Aspect Questions</b>, whose labels are reused word for word. The tab sits at the end of
+      <b>Your AI coach</b>, after Growth Aspect Questions, and shows at all four levels, as ruled.</p>
+
+    <h2>6 · At the Mentor Hub: the mentor's content</h2>
+    <div class="hub">
+      <p class="hubtitle">Mentor Hub</p><p class="hubsub">platform</p>
+      <div class="hubshell">
+        <nav class="hubmenu" aria-label="Hub menu">
+          <p class="mlabel">Your AI coach</p>
+          <a>Domain Support</a><a>Advisory Distinctions</a><p class="more">…</p><a>Growth Aspect Questions</a>
+          <a class="on new">Wordsmith</a>
+          <p class="mlabel">Your Team In Action</p><p class="more">…</p>
+        </nav>
+        <div class="hubpanel">
+          <div class="hgp"><div class="top"><h4>How to use this page</h4><span class="bbtn outline">Got it</span></div>
+            <p style="margin:.4rem 0 0">This is what Wordsmith knows when it writes a client's Vision, Purpose, Values, Mission and Strategy
+              from what they said in the Alignment Statements section. What you change here reaches the levels below you.</p>
+            <ol><li>Pick a statement, or Style wording.</li><li>Edit, switch off or add a row. It saves when you press Save.</li><li>The five statement names, the safety rules and the code's checks are fixed at every level.</li></ol></div>
+
+          <div class="chips">
+            <span class="chip on">Vision <em>3</em></span><span class="chip">Purpose <em>3</em></span><span class="chip">Values <em>3</em></span>
+            <span class="chip">Mission <em>2</em></span><span class="chip">Strategy <em>3</em></span><span class="chip">Style wording <em>10</em></span>
+          </div>
+
+          <p class="plabel">How a Vision is written <span class="hint">· the Being domain</span></p>
+          <div class="q"><span class="tag">inherited</span><span class="txt">Written in the affirmative, in the present tense: it must sound real now, as if already achieved.</span><span class="btns"><span class="bbtn">Edit</span></span></div>
+
+          <p class="plabel">What a Vision statement is <span class="hint">· the Alignment document wins wherever best practice differs</span></p>
+          <div class="q"><span class="tag">inherited</span><span class="tag basis">Alignment document</span><span class="txt">Speaks to stakeholders: where the business will be in future, and when. It answers Where and When.</span><span class="btns"><span class="bbtn">Edit</span><span class="bbtn danger">Switch off</span></span></div>
+          <div class="q editing"><span class="tag">inherited</span><span class="tag basis">Best practice</span><span class="txt">
+              <div class="area">A future the business can actually reach, with a finish line, so everyone will know when it has been achieved.</div>
+              <span class="cite">Source: Collins &amp; Porras, <a href="https://hbr.org/1996/09/building-your-companys-vision" target="_blank" rel="noopener">Building Your Company's Vision, Harvard Business Review, 1996</a> · <a>Edit source</a></span></span>
+            <span class="btns"><span class="bbtn primary">Save</span><span class="bbtn">Cancel</span></span></div>
+          <div class="q"><span class="tag">inherited</span><span class="tag basis">Best practice</span><span class="txt">Vivid enough to picture, and specific to this business: a sentence any competitor could say is not a vision.
+              <span class="cite">Sources: Collins &amp; Porras; Collis &amp; Rukstad</span></span><span class="btns"><span class="bbtn">Edit</span><span class="bbtn danger">Switch off</span></span></div>
+          <p style="margin:.5rem 0 0"><span class="bbtn">Add a row</span></p>
+
+          <p class="plabel">Questions for the room <span class="hint">· asked when the client did not say it</span></p>
+          <div class="q"><span class="tag">inherited</span><span class="txt">By when do you want this to be true?</span><span class="btns"><span class="bbtn">Edit</span><span class="bbtn danger">Switch off</span></span></div>
+          <p style="margin:.5rem 0 0"><span class="bbtn">Add a question</span></p>
+
+          <p class="plabel">Word limit</p>
+          <div class="q"><span class="txt">A Vision is at most <span class="inp">45</span> words.</span></div>
+
+          <p class="footer">Saved 29 Sep 2026 by Mike · <a>Earlier versions</a></p>
+        </div>
+      </div>
+    </div>
+    <p class="cap">At the Mentor Hub the rows are the shipped content, so they read "inherited" as Growth Aspect
+      Questions' rows do there. The row being edited shows the hub's editing style. The statement names in the chips
+      carry no edit button: they are fixed.</p>
+
+    <h2>7 · At a Firm Manager Hub: the firm's changes, and an offer from above</h2>
+    <div class="hub">
+      <p class="hubtitle">Firm Manager Hub</p><p class="hubsub">firm-2041</p>
+      <div class="hubshell">
+        <nav class="hubmenu" aria-label="Hub menu">
+          <p class="mlabel">Your AI coach</p>
+          <p class="more">…</p><a>Growth Aspect Questions</a><a class="on">Wordsmith</a>
+        </nav>
+        <div class="hubpanel">
+          <div class="chips">
+            <span class="chip">Vision <em>3</em></span><span class="chip">Purpose <em>3</em></span><span class="chip">Values <em>3</em></span>
+            <span class="chip">Mission <em>2</em></span><span class="chip">Strategy <em>3</em></span><span class="chip on">Style wording <em>10</em></span>
+          </div>
+          <p class="plabel">Voice <span class="hint">· what the AI is told for each choice; the choices themselves are fixed</span></p>
+          <div class="q"><span class="tag">edited here</span><span class="tag fixed">we</span><span class="txt">Speak as "we", the whole team together.</span><span class="btns"><span class="bbtn">Edit</span><span class="bbtn">Use the inherited wording</span></span></div>
+          <div class="q changed"><span class="tag">inherited</span><span class="tag fixed">the business</span><span class="txt">Speak about the business in the third person ("the business", "it"), never "we".
+              <small><b>This has been rewritten above you.</b> Above you it now reads: "Speak about the business by its name or as "the business", never "we"."</small></span>
+            <span class="btns"><span class="bbtn primary">Use theirs</span><span class="bbtn">Keep mine</span></span></div>
+          <p class="plabel">Formality</p>
+          <div class="q"><span class="tag">inherited</span><span class="tag fixed">plain</span><span class="txt">Everyday words a person would say out loud. Contractions are fine.</span><span class="btns"><span class="bbtn">Edit</span></span></div>
+          <p class="muted" style="margin:.4rem 0 0;font-size:.8rem">…professional, formal, then Sentence length and Jargon…</p>
+          <p class="footer">Saved 30 Sep 2026 by the firm manager · <a>Earlier versions</a></p>
+        </div>
+      </div>
+    </div>
+    <p class="cap"><b>A style choice cannot be switched off or added</b>: the code checks the AI chooses from that fixed
+      list, so a row here offers only Edit, as ruled. Definitions and questions can be switched off, edited and added at
+      every level, as in screen 6. "This has been rewritten above you", "Use theirs" and "Keep mine" are Growth Aspect
+      Questions' own words. The rewritten "the business" row and the firm's "we" edit are invented for the drawing.</p>
+  </section>
+
+  <h2>The decisions this drawing needs</h2>
+  <p class="cap">Each goes to you on its own, in this order, with the recommendation beside it.</p>
+  <div class="decision"><h3>Decision A · when the Wordsmith button can be pressed <span class="dec">RULED 2026-09-29: yes, as recommended</span></h3>
+    <p class="rec">Recommended: only once the Alignment Statements card's recorded section has been turned into text; greyed before, with the reason.</p>
+    <p>Wordsmith writes only from what was said, so before the text exists there is nothing to write from.</p></div>
+  <div class="decision"><h3>Decision B · changing the settings Wordsmith read from the style <span class="dec">RULED 2026-09-29: yes, as recommended</span></h3>
+    <p class="rec">Recommended: the advisor can change any of the four settings and press "Write again with these".</p>
+    <p>The AI's reading of "professional" may not be the room's. Changing a setting costs one more writing pass.</p></div>
+  <div class="decision"><h3>Decision C · answering a question for the room <span class="dec">RULED 2026-09-29: yes, as recommended</span></h3>
+    <p class="rec">Recommended: the advisor types the room's answer under the question and presses "Write again with this answer"; the answer counts as something the client said.</p>
+    <p>A Vision with no date and a Mission with no measure are incomplete by your own definitions. Without this, the only way to add the date is to edit it in by hand.</p></div>
+  <div class="decision"><h3>Decision D · who agrees to a statement before it goes in the box <span class="dec">RULED 2026-09-29: yes, as recommended</span></h3>
+    <p class="rec">Recommended: the same tick the concept summaries use, "The client has read this and agrees with it", before "Use this wording" can be pressed.</p>
+    <p>The wording goes into the client's plan and possibly a bank submission. The tick records that they agreed, as the summaries already do.</p></div>
+  <div class="decision"><h3>Decision E · the communication table under the five statements <span class="dec">RULED 2026-09-29: yes, as recommended</span></h3>
+    <p class="rec">Recommended: Wordsmith writes the five statements only; the Who We're Talking To / What We Say / What We Mean table stays as the advisor types it, for now.</p>
+    <p>The engine was built and measured for the five statements. The table could come later, once the five are in use.</p></div>
+
+  <h2>Every new word on this page <span class="dec">WORDING APPROVED BY MIKE 2026-09-29: "keep it all"</span></h2>
+  <div class="tablewrap">
+    <table class="m">
+      <thead><tr><th>Where</th><th>Words</th></tr></thead>
+      <tbody>
+        <tr><td>Card button</td><td>Wordsmith <i>(your name for it)</i></td></tr>
+        <tr><td>Greyed reason</td><td>Wordsmith works from what was said here. Record this section first.</td></tr>
+        <tr><td>Panel heading</td><td>Wordsmith · writes the five statements from what the client said</td></tr>
+        <tr><td>The two questions</td><td>What are these statements for? · How should they sound?</td></tr>
+        <tr><td>Their examples</td><td>Your own examples, quoted: "This supports a bank loan" · "This is to put on a poster and hang in our staff room" · "Humble but positive" · "Professional; educated people will review our submission"</td></tr>
+        <tr><td>Buttons</td><td>Write the statements · Close Wordsmith · Write again with these · Write again with this answer · Use this wording · Edit · Write again · Try again</td></tr>
+        <tr><td>Settings line</td><td>Written as: · Medium sentences / Short sentences / Long sentences · Plain / Professional / Formal · No jargon / Jargon allowed · "We" / "The business" · feels … · for …</td></tr>
+        <tr><td>Each draft</td><td>Why: · What the client said (N passages) · A question for the room: · Type the room's answer · Check this: … is not in anything the client said. · Nothing was said about Values in this section, so there is nothing to write from.</td></tr>
+        <tr><td>Agreement</td><td>The client has read this and agrees with it <i>(the concept summaries' own words)</i></td></tr>
+        <tr><td>Box stamp</td><td>✓ written with Wordsmith · client agreed · 10:42 am</td></tr>
+        <tr><td>Failure</td><td>Writing the five statements… · Wordsmith couldn't write these statements. Nothing in the boxes has changed.</td></tr>
+        <tr><td>Hub tab</td><td>Wordsmith · Style wording · How a Vision is written · What a Vision statement is · Questions for the room · asked when the client did not say it · Word limit · A Vision is at most N words. · Alignment document / Best practice · Source: · Edit source · Add a row · what the AI is told for each choice; the choices themselves are fixed</td></tr>
+        <tr><td>Hub guidance</td><td>The paragraph and three steps under "How to use this page" in screen 6</td></tr>
+        <tr><td>Reused, not ours</td><td>How to use this page · Got it · inherited · edited here · Edit · Switch off · Save · Cancel · Add a question · Use the inherited wording · This has been rewritten above you. · Above you it now reads: · Use theirs · Keep mine · Saved … by … · Earlier versions</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>

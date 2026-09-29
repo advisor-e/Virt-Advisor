@@ -1716,7 +1716,8 @@ down"*); the split, **approved by him the same day** as the one the hub tab is b
 definition rows, their sources, each domain writing rule, the questions for the room, word limits,
 the style instructions; **fixed at every tier** — the five statement names and order, which
 recording Wordsmith may read, the safety rules, the code's checks, and keeping the client's strongest
-phrases. Spelling is fixed to New Zealand English in the code, an open question. **When the hub tab is built, its colours and format match the other
+phrases. Spelling is New Zealand English in the code for now; a firm's own language and spelling
+come with translation reaching every hub page and level (Mike, 2026-09-29 — item 13.7). **When the hub tab is built, its colours and format match the other
 tabs in the hub** (Mike, 2026-09-29: *"just check the colours and format match that of the other
 pages in the hub when you go to build stage"*) — checked beside an existing tab before it ships; the
 drawing `wordsmith-style-settings.html` shows the content, not the screen.
@@ -1741,6 +1742,15 @@ id for the cascade), and step 4 tells the model that statement's rule; Wordsmith
 without one. Added on his yes the same day: the Lab's Vision drafts moved from "We aim to be the
 best suspension business" to "We are the best suspension business", and every Purpose now opens
 "We believe".
+
+**The two screens** are drawn on
+[`../mockups/wordsmith-screens.html`](../mockups/wordsmith-screens.html), **approved by Mike
+2026-09-29 as the design to build from, wording included ("keep it all")**, with its five decisions
+ruled the same day, each as recommended: **A** the Wordsmith button works
+only once the Alignment Statements section is text; **B** the advisor can change any of the four
+settings and write again; **C** the room's typed answer to a question for the room is written in as
+the client's own; **D** "Use this wording" waits for the client's agreement tick, as the concept
+summaries do; **E** Wordsmith writes the five statements only — the communication table stays typed.
 
 **How Wordsmith will be measured: OPEN.** Mike ruled 2026-09-29 that the scoping measure — he
 hand-judges ten drafts, seven usable with light edits — is flawed, and it is not the test. He
