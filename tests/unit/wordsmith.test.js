@@ -392,7 +392,7 @@ describe('run — the five steps together', () => {
     expect(write.chat.completions.create).toHaveBeenCalledTimes(2)
   })
 
-  it('sends every call as personal, moderating what people said and typed only', async () => {
+  it('sends every call as personal, moderating what people said and typed only — each draft what it sends', async () => {
     const read = fakeClient([SORT, STYLE])
     const write = fakeClient([{ draft: 'We build riders.' }])
     await ws.run(Object.assign({}, allowed, { clients: { read, write } }))
@@ -402,7 +402,8 @@ describe('run — the five steps together', () => {
     const [, draftOpts] = write.chat.completions.create.mock.calls[0]
     expect(sortOpts).toMatchObject({ personal: true, moderate: SEGMENTS.map(s => s.text) })
     expect(styleOpts.moderate).toEqual(['a staff room poster', 'humble but positive'])
-    expect(draftOpts.moderate).toEqual(SEGMENTS.map(s => s.text).concat(['a staff room poster', 'humble but positive']))
+    // The Vision draft carries line 1 only, so that and the typed words are what it moderates.
+    expect(draftOpts.moderate).toEqual([SEGMENTS[0].text, 'a staff room poster', 'humble but positive'])
     ;[sortOpts, styleOpts, draftOpts].forEach(o => expect(o.personal).toBe(true))
     // The drafting model accepts only its default temperature; sending one is a 400.
     expect(write.chat.completions.create.mock.calls[0][0]).not.toHaveProperty('temperature')
@@ -479,5 +480,103 @@ describe('run — the five steps together', () => {
     const read = { chat: { completions: { create: jest.fn(() => Promise.reject(new Error('socket hang up'))) } } }
     await expect(ws.run(Object.assign({}, allowed, { clients: { read, write: read } }))).rejects.toThrow('socket hang up')
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining('[wordsmith:sort]'))
+  })
+
+  it('shows no questions for a statement nobody spoke about', async () => {
+    const out = await ws.run(Object.assign({}, allowed, { clients: { read: fakeClient([{ statements: [] }, STYLE]), write: fakeClient([{ draft: 'x' }]) } }))
+    out.statements.forEach(s => expect(s).toMatchObject({ empty: true, questions: [], draft: null }))
+  })
+})
+
+describe('writing again — the advisor\'s settings, one statement, the room\'s answers (Decisions B and C)', () => {
+  const allowed = { conceptId: 'alignment-statements', consentConfirmed: true, segments: SEGMENTS, purpose: 'a bank loan', style: 'professional' }
+  const SETTINGS_B = { sentenceLength: 'long', formality: 'formal', jargon: 'allow', voice: 'the-business', tone: ['confident'], audience: 'bank reviewers' }
+  const kept = () => {
+    const sorted = {}
+    ws.STATEMENT_NAMES.forEach((n) => { sorted[n] = [] })
+    sorted.Vision = [{ line: 1, text: SEGMENTS[0].text, start: 0, role: 'client' }]
+    sorted.Mission = [{ line: 4, text: SEGMENTS[3].text, start: 41, role: 'client' }]
+    return sorted
+  }
+
+  it('writes with the advisor\'s settings and a kept sort, asking no model to sort or read the style', async () => {
+    const read = fakeClient(['never asked'])
+    const write = fakeClient([{ draft: 'The business is the most trusted.' }])
+    const out = await ws.run(Object.assign({}, allowed, { settings: SETTINGS_B, sorted: kept(), clients: { read, write } }))
+    expect(read.chat.completions.create).not.toHaveBeenCalled()
+    expect(out.settings.voice).toBe('the-business')
+    expect(write.chat.completions.create.mock.calls[0][0].messages[0].content).toContain('never "we"')
+  })
+
+  it('refuses settings outside the fixed choices', async () => {
+    const run = ws.run(Object.assign({}, allowed, { settings: Object.assign({}, SETTINGS_B, { voice: 'pirate' }), sorted: kept(), clients: { read: fakeClient([]), write: fakeClient([]) } }))
+    await expect(run).rejects.toMatchObject({ code: 'WORDSMITH_INVALID', message: expect.stringContaining('style') })
+  })
+
+  it.each([
+    ['an advisor\'s line', q => Object.assign(q, { role: 'advisor' })],
+    ['a room answer', q => Object.assign(q, { room: true })],
+    ['a missing statement', null]
+  ])('refuses a kept sort holding %s', async (_what, spoil) => {
+    const sorted = kept()
+    if (spoil) { spoil(sorted.Vision[0]) } else { delete sorted.Values }
+    const run = ws.run(Object.assign({}, allowed, { settings: SETTINGS_B, sorted, clients: { read: fakeClient([]), write: fakeClient([]) } }))
+    await expect(run).rejects.toMatchObject({ code: 'WORDSMITH_INVALID', message: expect.stringContaining('sort') })
+  })
+
+  it('drafts only the statement asked for', async () => {
+    const write = fakeClient([{ draft: 'We build riders.' }])
+    const out = await ws.run(Object.assign({}, allowed, { settings: SETTINGS_B, sorted: kept(), only: ['Mission'], clients: { read: fakeClient([]), write } }))
+    expect(out.statements.map(s => s.name)).toEqual(['Mission'])
+    expect(write.chat.completions.create).toHaveBeenCalledTimes(1)
+  })
+
+  it('writes a room answer in as the client\'s words: its question goes, its date is not invented, it is moderated', async () => {
+    const write = fakeClient([{ draft: 'By 2030 the business is the most trusted in the Bay of Plenty.' }])
+    const answers = { Vision: [{ elementId: 'ws-vision-e1', text: 'By 2030​' }] }
+    const out = await ws.run(Object.assign({}, allowed, { settings: SETTINGS_B, sorted: kept(), only: ['Vision'], roomAnswers: answers, clients: { read: fakeClient([]), write } }))
+    const vision = out.statements[0]
+    expect(vision.questions).toEqual([])
+    expect(vision.checks.issues.map(i => i.code)).not.toContain('invented-number')
+    expect(vision.quotes[1]).toMatchObject({ text: 'By 2030', role: 'client', room: true })
+    const [body, opts] = write.chat.completions.create.mock.calls[0]
+    expect(body.messages[1].content).toContain('CLIENT')
+    expect(body.messages[1].content).toContain('By 2030')
+    expect(opts.moderate).toContain('By 2030')
+  })
+
+  it('drops an answer to a question the statement does not ask, a second answer, and caps the length', () => {
+    const vision = byName('Vision')
+    const got = ws.roomAnswerQuotes(vision, [
+      { elementId: 'ws-mission-e1', text: 'By 2031' },
+      { elementId: 'ws-vision-e1', text: 'x'.repeat(900) },
+      { elementId: 'ws-vision-e1', text: 'By 2032' },
+      { elementId: 'ws-vision-e1', text: 42 }
+    ], [])
+    expect(got).toHaveLength(1)
+    expect(got[0].text).toHaveLength(300)
+  })
+})
+
+describe('checkStatements and styleGuideFrom — a manager\'s content meets the shipped file\'s checks', () => {
+  it('refuses a statement with no definition row, or a blank one', () => {
+    const noRows = STATEMENTS.map((s, i) => (i === 1 ? Object.assign({}, s, { definition: [] }) : s))
+    expect(() => ws.checkStatements(noRows)).toThrow(/Purpose needs at least one definition row/)
+    const blank = STATEMENTS.map((s, i) => (i === 1 ? Object.assign({}, s, { definition: [{ id: 'x', basis: 'alignment', text: ' ' }] }) : s))
+    expect(() => ws.checkStatements(blank)).toThrow(/Purpose/)
+    expect(ws.checkStatements(STATEMENTS)).toBe(STATEMENTS)
+  })
+
+  it('builds the same guide from rows as the shipped file loads', () => {
+    const rows = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/wordsmith-statements.json'), 'utf8')).styleSettings
+    expect(ws.styleGuideFrom(rows)).toEqual(ws.loadStyleSettings())
+    expect(() => ws.styleGuideFrom(null)).toThrow(/no instruction/)
+  })
+
+  it('never sends a row\'s sources to the model', () => {
+    const cited = STATEMENTS.map(s => Object.assign({}, s, { definition: s.definition.map(r => Object.assign({}, r, { cites: [{ author: 'SENTINEL-AUTHOR', title: 't', url: 'https://example.com/x' }] })) }))
+    const sort = ws.buildSortMessages({ segments: SEGMENTS, statements: cited })
+    const draft = ws.buildDraftMessages({ statement: cited[0], quotes: [], purpose: 'p', style: 's', settings: { sentenceLength: 'short', formality: 'plain', jargon: 'avoid', voice: 'we', tone: [], audience: '' }, modelElements: [] })
+    expect(JSON.stringify(sort.concat(draft))).not.toMatch(/SENTINEL-AUTHOR|example\.com/)
   })
 })

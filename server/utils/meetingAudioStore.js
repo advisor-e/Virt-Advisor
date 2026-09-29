@@ -613,7 +613,9 @@ function destroyTranscript (meetingId) {
     TRANSCRIPT_FILE,
     _reportName('summary'),
     _reportName('coaching'),
-    CORRECTIONS_FILE
+    CORRECTIONS_FILE,
+    // Wordsmith's records quote the client's words and the drafts written from them.
+    WORDSMITH_FILE
   ].concat(segmentText)
 
   let removed = 0
@@ -931,6 +933,38 @@ function readSegmentSummary (meetingId, n) {
   }
 }
 
+/**
+ * Wordsmith's record of each statement put in a box (item 15.14): the AI's draft, the client's
+ * words it came from, the final wording and who agreed. It quotes the client, so it lives here
+ * and dies with the transcript (`destroyTranscript`), as the concept summaries do — Mike's build
+ * detail 1, 2026-09-29.
+ */
+const WORDSMITH_FILE = 'wordsmith.json'
+
+/** Every Wordsmith record for this meeting, oldest first; none when absent or unreadable. */
+function readWordsmithRecords (meetingId) {
+  try {
+    const rows = JSON.parse(fs.readFileSync(path.join(_meetingDir(meetingId), WORDSMITH_FILE), 'utf8'))
+    return Array.isArray(rows) ? rows : []
+  } catch (_e) {
+    return []
+  }
+}
+
+/**
+ * Append one Wordsmith record. Throws when it cannot be written: the route writes the record
+ * before the box, so a statement never reaches a plan without its record.
+ * @param {string} meetingId
+ * @param {object} record
+ * @returns {Array<object>} every record now held
+ */
+function appendWordsmithRecord (meetingId, record) {
+  const rows = readWordsmithRecords(meetingId)
+  rows.push(record)
+  fs.writeFileSync(path.join(_meetingDir(meetingId), WORDSMITH_FILE), JSON.stringify(rows, null, 2))
+  return rows
+}
+
 /** Does any segment's text remain? What the expiry sweep asks before skipping a meeting. */
 function hasSegmentText (meetingId) {
   try {
@@ -977,6 +1011,9 @@ module.exports = {
   hasAudio,
   writeSegmentSummary,
   readSegmentSummary,
+  WORDSMITH_FILE,
+  readWordsmithRecords,
+  appendWordsmithRecord,
   audioRoot,
   createMeeting,
   listMeetingIds,

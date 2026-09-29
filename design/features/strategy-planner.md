@@ -1703,12 +1703,15 @@ replaced by:
 **The definitions cascade (Mike, 2026-09-29):** *"as for every other section in this app, what is
 loaded into the mentor hub cascades down thru the layers to firm manager with the same adopt or
 decline rules as all other cascade content."* The standard rules (`tier-cascade.md` P3, P11), all
-four tiers. Each definition is a row with a stable id, ready for `resolveInheritedRows`; the five
-statement names are fixed keys, like the Growth Aspects'. The instruction each style choice sends
-the model lives in the same file (`styleSettings`, one id per choice; moved out of the code on
-Mike's yes, 2026-09-29); the choices themselves stay fixed in code, and Wordsmith refuses to run if
-any choice lacks its instruction. Until the hub tab is built the shipped file is the mentor's
-content. **Managers at every level shape it** (Mike, 2026-09-29: *"I want
+four tiers. The five statement names are fixed keys, like the Growth Aspects'. The instruction
+each style choice sends the model lives in the same file (`styleSettings`, one id per choice); the
+choices themselves stay fixed in code, and Wordsmith refuses to run if any choice lacks its
+instruction. **Built** (`server/utils/wordsmithContent.js`, `growthAspects.js`'s shape): each tier's
+decisions are one versioned record, resolved through `resolveInheritedRows` up the tier chain, with
+Use theirs / Keep mine; the hub routes are `server/routes/wordsmithContent.js`. The planner's
+routes (`server/routes/wordsmith.js`) resolve the advisor's firm's content on the server and refuse
+rather than fall back when it cannot be read. **The hub tab and the planner panel are not built**:
+both edit files the desktop's 15.13/10.3 work changed, so they follow its merge to master. **Managers at every level shape it** (Mike, 2026-09-29: *"I want
 various level managers to feel as if they have some input into the shaping/improvement of the AI and
 its advice for their firm or group - therefore - appropriate fields must be editable and cascade
 down"*); the split, **approved by him the same day** as the one the hub tab is built to
