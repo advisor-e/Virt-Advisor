@@ -200,11 +200,15 @@ function assertAllowed (args) {
   }
 }
 
-/** A statement's definition as the model reads it — the Alignment document's rows first. */
+/**
+ * A statement's definition as the model reads it — the Alignment document's rows first.
+ * The marker is `basis`, never `source`: `resolveInheritedRows` stamps `source` with the tier a
+ * row came from, and would erase which rows are the Alignment document's.
+ */
 function definitionText (statement) {
   const rows = statement.definition.slice()
-  rows.sort((a, b) => (a.source === 'alignment' ? 0 : 1) - (b.source === 'alignment' ? 0 : 1))
-  return rows.map(r => '- ' + (r.source === 'alignment' ? '[Alignment document] ' : '[Best practice] ') + r.text).join('\n')
+  rows.sort((a, b) => (a.basis === 'alignment' ? 0 : 1) - (b.basis === 'alignment' ? 0 : 1))
+  return rows.map(r => '- ' + (r.basis === 'alignment' ? '[Alignment document] ' : '[Best practice] ') + r.text).join('\n')
 }
 
 // ── Step 1: sort ──────────────────────────────────────────────────────────────────────────
@@ -235,7 +239,7 @@ function buildSortMessages (input) {
   const system = [
     'You sort what a business owner said in a strategy planning session into five statements.',
     'Each statement, and what it is:',
-    input.statements.map(s => '- ' + s.name + ': ' + (s.definition.find(r => r.source === 'alignment') || s.definition[0] || {}).text).join('\n'),
+    input.statements.map(s => '- ' + s.name + ': ' + (s.definition.find(r => r.basis === 'alignment') || s.definition[0] || {}).text).join('\n'),
     '',
     'Every transcript line starts with its number (L1, L2, ...). Answer with line numbers, never with copied words.',
     '',

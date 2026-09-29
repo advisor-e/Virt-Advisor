@@ -271,6 +271,15 @@ describe('step 4 — draft', () => {
     expect(system.content).toContain('ws-strategy-e1 (scope)')
   })
 
+  it('keeps the Alignment document first after the rows pass through the cascade', () => {
+    const { resolveInheritedRows } = require('../../server/utils/resolveInheritedRows')
+    const vision = byName('Vision')
+    const resolved = Object.assign({}, vision, { definition: resolveInheritedRows(vision.definition.slice().reverse(), {}) })
+    const [system] = ws.buildDraftMessages(Object.assign({}, base, { statement: resolved, modelElements: [] }))
+    expect(system.content).toContain('[Alignment document] ' + vision.definition[0].text)
+    expect(system.content.indexOf('[Alignment document]')).toBeLessThan(system.content.indexOf('[Best practice]'))
+  })
+
   it('tells the model the statement\'s own domain rule, and no other statement\'s', () => {
     const vision = ws.buildDraftMessages(Object.assign({}, base, { statement: byName('Vision'), modelElements: [] }))[0].content
     expect(vision).toContain('(the Being domain)')
