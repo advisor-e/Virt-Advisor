@@ -1,11 +1,16 @@
 <template lang="pug">
 .fac
-  b-message(v-if="error" type="is-danger" size="is-small") {{ error }}
+  //- 🔴 A REFUSAL SITS INSIDE EACH STEP, JUST ABOVE ITS BUTTONS, AT FULL SIZE — where the eye is
+  //- when Next or Save is pressed. It was one small strip above the card, and Mike read a refused
+  //- upload ("A concept teaches from up to 10 pages.") as a success on 2026-09-29.
 
   //- Step 1 — the section, then the teaching PDFs, taught in the order dropped.
   .card(v-if="step === 'teaching'")
     header.card-header: p.card-header-title {{ $t('strategyConcepts.step1.heading') }}
     .card-content
+      //- Each step says what it is for and what to do — the wording Mike approved 2026-09-29,
+      //- design/ADD-CONCEPT-INSTRUCTIONS.md, after he could not tell how to drive these screens.
+      p.mb-4 {{ $t('strategyConcepts.step1.intro') }}
       b-field(:label="$t('strategyConcepts.step1.section')" horizontal)
         b-select(v-model="section" expanded)
           option(v-for="s in sections" :key="s.id" :value="s.id") {{ s.name }}
@@ -22,8 +27,10 @@
             td.has-text-right
               b-button(size="is-small" type="is-light" :disabled="busy" @click="teaching.splice(i, 1)") {{ $t('strategyConcepts.mark.remove') }}
       p.is-size-7.has-text-grey.mt-3 {{ $t('strategyConcepts.step1.noAi') }}
+      b-message.fac-error(v-if="error" type="is-danger") {{ error }}
       .fac-actions
         span.has-text-grey.is-size-7(v-if="busy") {{ $t('strategyConcepts.converting') }}
+        span.has-text-grey.is-size-7(v-else-if="!teaching.length || !section") {{ $t('strategyConcepts.step1.whyGrey') }}
         b-button(type="is-light" @click="$emit('cancel')") {{ $t('strategyConcepts.cancel') }}
         b-button(type="is-primary" :loading="busy" :disabled="!teaching.length || !section" @click="convertTeaching") {{ $t('strategyConcepts.next') }}
 
@@ -33,6 +40,7 @@
       p.card-header-title {{ $t('strategyConcepts.step2.heading') }}
       p.card-header-icon.is-size-7.has-text-grey {{ $t('strategyConcepts.step2.converted', { s: seconds, kb: kilobytes }) }}
     .card-content
+      p.mb-4 {{ $t('strategyConcepts.step2.intro') }}
       .mb-4(v-for="(p, i) in pages" :key="i")
         p.is-size-7.has-text-grey.mb-1(v-if="pages.length > 1") {{ $t('strategyConcepts.step2.pageOf', { i: i + 1, n: pages.length }) }}
         imported-concept-page(v-bind="pageProps(p)")
@@ -42,6 +50,7 @@
         b-input(:value="sectionName" readonly)
       b-field(:label="$t('strategyConcepts.step2.helps')" :message="$t('strategyConcepts.step2.helpsHint')" horizontal)
         b-input(v-model="helps" :maxlength="limits.maxHelps" :placeholder="$t('strategyConcepts.step2.helpsPlaceholder')")
+      b-message.fac-error(v-if="error" type="is-danger") {{ error }}
       .fac-actions
         b-button(type="is-light" @click="$emit('cancel')") {{ $t('strategyConcepts.cancel') }}
         b-button(type="is-light" @click="step = 'teaching'") {{ $t('strategyConcepts.back') }}
@@ -51,11 +60,13 @@
   .card(v-if="step === 'response'")
     header.card-header: p.card-header-title {{ $t('strategyConcepts.step3.heading') }}
     .card-content
+      p.mb-4 {{ $t('strategyConcepts.step3.intro') }}
       pdf-drop-zone(
         :big="$t('strategyConcepts.step3.drop')"
         :small="$t('strategyConcepts.step3.dropSmall')"
         :disabled="busy"
         @files="convertResponse")
+      b-message.fac-error(v-if="error" type="is-danger") {{ error }}
       .fac-actions
         span.has-text-grey.is-size-7(v-if="busy") {{ $t('strategyConcepts.converting') }}
         b-button(type="is-light" @click="$emit('cancel')") {{ $t('strategyConcepts.cancel') }}
@@ -67,7 +78,7 @@
       p.card-header-title {{ $t('strategyConcepts.mark.heading') }}
       p.card-header-icon.is-size-7.has-text-grey {{ $tc('strategyConcepts.mark.count', boxes.length, { n: boxes.length }) }}
     .card-content
-      p.is-size-7.mb-3 {{ $t('strategyConcepts.mark.instruction') }}
+      p.mb-3 {{ $t('strategyConcepts.mark.instruction') }}
       concept-box-marker(
         :page="responsePage"
         :boxes="boxes"
@@ -75,8 +86,9 @@
         :max-boxes="limits.maxBoxes"
         v-bind="brandProps"
         @change="b => (boxes = b)")
-      p.is-size-7.has-text-grey(v-if="!boxes.length") {{ $t('strategyConcepts.mark.noneYet') }}
+      b-message.fac-error(v-if="error" type="is-danger") {{ error }}
       .fac-actions
+        span.has-text-grey.is-size-7(v-if="!ready && !busy") {{ $t('strategyConcepts.mark.noneYet') }}
         b-button(type="is-light" @click="$emit('cancel')") {{ $t('strategyConcepts.cancel') }}
         b-button(type="is-light" :disabled="busy" @click="step = 'response'") {{ $t('strategyConcepts.back') }}
         b-button(type="is-primary" :loading="busy" :disabled="!ready" @click="save") {{ $t('strategyConcepts.mark.save') }}
@@ -181,7 +193,7 @@ export default {
       try {
         let pages = []
         for (const file of this.teaching) { pages = pages.concat(await this.preview(file)) }
-        if (pages.length > this.limits.maxTeachingPages) { throw this.failure('TOO_MANY_PAGES') }
+        if (pages.length > this.limits.maxTeachingPages) { throw this.failure('TOO_MANY_PAGES', pages.length) }
         this.pages = pages
         this.seconds = ((Date.now() - began) / 1000).toFixed(1)
         this.kilobytes = Math.round(pages.reduce((n, p) => n + p.svg.length, 0) / 1024)
@@ -204,7 +216,7 @@ export default {
       this.error = ''
       try {
         const pages = await this.preview(files[0])
-        if (pages.length !== 1) { throw this.failure('RESPONSE_ONE_PAGE') }
+        if (pages.length !== 1) { throw this.failure('RESPONSE_ONE_PAGE', pages.length) }
         this.responseFile = files[0]
         this.responsePage = pages[0]
         this.boxes = []
@@ -245,14 +257,25 @@ export default {
       return data.pages || []
     },
 
-    failure (code) {
-      return new Error(this.message(code))
+    /**
+     * @param {string} code
+     * @param {number} [n] - the page count two of the sentences name
+     * @returns {Error}
+     */
+    failure (code, n) {
+      return new Error(this.message(code, n))
     },
 
-    /** An error code as Mike's approved sentence, or the general one. */
-    message (code) {
+    /**
+     * An error code as Mike's approved sentence, or the general one. The two sentences that name
+     * a page count fall back to the general one when the count is unknown — a refusal from the
+     * backend's own check — rather than print "{n}".
+     */
+    message (code, n) {
       const key = 'strategyConcepts.errors.' + code
-      return this.$te(key) ? this.$t(key) : this.$t('strategyConcepts.errors.failed')
+      const counted = code === 'TOO_MANY_PAGES' || code === 'RESPONSE_ONE_PAGE'
+      if (!this.$te(key) || (counted && typeof n !== 'number')) { return this.$t('strategyConcepts.errors.failed') }
+      return this.$t(key, { n })
     },
 
     /**
@@ -280,5 +303,6 @@ export default {
 </script>
 
 <style scoped>
+.fac-error { margin: 16px 0 0; }
 .fac-actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 16px; }
 </style>

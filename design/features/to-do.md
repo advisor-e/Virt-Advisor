@@ -36,18 +36,17 @@ repository sees; the two never both appear, and the build stops if they would.
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
 | 1 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 2 | **15.20** Nobody but a developer can add a concept, and each one costs a day ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-09-23 |
-| 3 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
-| 4 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-25 |
-| 5 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 6 | **13.6** Translations mistake business words and three screens split sentences around bold text ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 7 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 8 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 9 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 10 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 11 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 2 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
+| 3 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-25 |
+| 4 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 5 | **13.6** Translations mistake business words and three screens split sentences around bold text ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 6 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 7 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 8 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 9 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 10 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 
-**Eleven live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Ten live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

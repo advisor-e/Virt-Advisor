@@ -10,6 +10,7 @@
     .cbm-layer(ref="layer" @mousedown.prevent="start" @mousemove="move" @mouseup="finish" @mouseleave="finish")
       .cbm-box(v-for="(b, i) in boxes" :key="i" :style="place(b)") {{ (i + 1) + ' · ' + b.label }}
       .cbm-box.is-drawing(v-if="drawing" :style="place(drawing)")
+  p.help.is-danger(v-if="tooSmall") {{ $t('strategyConcepts.mark.tooSmall') }}
 
   table.table.is-fullwidth.is-narrow.mt-3
     thead
@@ -70,7 +71,9 @@ export default {
       /** Where the drag began, as fractions of the page, or null. */
       anchor: null,
       /** The box being dragged, or null. */
-      drawing: null
+      drawing: null,
+      /** The last drag was too small to be a box — said, so the drag does not simply vanish. */
+      tooSmall: false
     }
   },
 
@@ -98,6 +101,7 @@ export default {
       const box = boxBetween(this.anchor, this.at(e))
       this.anchor = null
       this.drawing = null
+      this.tooSmall = !box
       // Payload: the whole list with the new, still unlabelled box last.
       if (box) { this.$emit('change', this.boxes.concat([Object.assign({ label: '' }, box)])) }
     },

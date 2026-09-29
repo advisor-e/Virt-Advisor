@@ -1584,6 +1584,20 @@ the three things that decided whether one printed — and listed the answers und
 table question 7 ruled out. An untouched form prints the one "not worked through yet" line, as
 every untouched table does. No new words.
 
+✅ **EACH SCREEN SAYS WHAT TO DO — Mike's wording, approved 2026-09-29,
+[`ADD-CONCEPT-INSTRUCTIONS.md`](../ADD-CONCEPT-INSTRUCTIONS.md).** Written after he added his own
+Customer Journey and could not tell that the Response Form must be its own one-page PDF, that boxes
+are dragged with the mouse, or why Save stayed grey. Each step opens with what it is for; a grey
+button says what turns it on; a refusal sits inside the step, above its buttons, and names the page
+count. *"its working - just needs better instructions."*
+
+🔴 **EACH IMPORTED PAGE'S FONTS ARE RENAMED TO THAT PAGE** (`utils/importedPageFonts.js`, applied in
+`ImportedConceptPage.vue`, piece 5). The reader names every converted page's fonts `g_d0_f1`…
+afresh, so with two imported pages on one screen the later page's font replaced the earlier's of
+the same name, and p11 printed "beliefs2" for "beliefs?". Each page converts correctly alone —
+proved by drawing p11 alone and beside p14. Renaming at drawing time also mends every concept
+already saved.
+
 ⚠ **Differences from the drawing's question 7, named:** a box whose answer continues ends in "…" —
 the drawing says only that the answer continues below; and an untouched form prints the
 not-worked line rather than the blank form, which the drawing does not cover.

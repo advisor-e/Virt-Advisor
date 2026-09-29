@@ -97,31 +97,6 @@
       "comment": "2026-09-23 - found by reading what an advisor would actually see after the heading fix landed, not by any test failing. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "15.20",
-      "name": "Nobody but a developer can add a concept, and each one costs a day",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "helps sell the package",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Adding a concept today is five developer steps, one of them hand-drawing a deck page in code - about a day. All 48 concepts were built that way, and no screen anywhere lets anyone add a 49th.",
-      "risk": "The planner can only ever teach what we drew for it: a firm holding its own material has no route in, and that content stays in a PDF the app cannot see. The counter-risk is fidelity - an imported page that does not look like the 35 drawn slides is visibly foreign to a client in session and in the printed plan, which is the one thing Mike ruled out.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-23, his own words: \"i want to click a button called 'Add Concept' which enables me to drag and drop a pdf - have it rendered and converted into a concept\", plus the section choice, a second PDF for the 'Response Form', \"the same branding format need apply\", and that it \"cascades from mentor through each level to firm and then client/busines enitiy\". All five are quoted in strategy-planner.md section 9."
-      },
-      "touches": "A new upload route and store on the Restify backend, following server/utils/depreciationExtract.js; data/strategy-frameworks.json, whose concepts array an imported concept must join; scripts/build-concept-graphics.js and components/strategy/concepts/; FirmManagerHub.vue and its TAB_TIERS; server/utils/tierChain.js for the cascade; strategyCaptureForms.js for the Response Form; and the converter, server/utils/pdfConvert.js with its worker, on pdfjs-dist 2.16.105.",
-      "note": "PIECES 1-4 BUILT, each walked or printed in a built app: the converter (669fc1ef, pdfjs-dist 2.16.105); storage, routes and the hub tab at all four tiers; the planner; and the printed plan, answers inside their boxes (question 7). NEXT, PIECE 5: in bold text on an imported page '?' shows as '2', ')' as '6' and '(' as a box - the reader's conversion of the bold font, not the source PDF (Organisational Review p11). READ SECTION 9 OF design/features/strategy-planner.md AND design/mockups/add-concept.html, NOT THIS - the drawing carries all SIX rulings, and section 9 the 2026-09-23 measurement. THE CLIENT/BUSINESS ENTITY IS THE DESTINATION, NOT A FIFTH LEVEL - so TIERS needs no change.",
-      "comment": "2026-09-23 - asked for by Mike in his own words and filed on his yes; score is ours. ALL SIX DRAWING QUESTIONS RULED and THE DRAWING APPROVED - 'make a note now that i approve the drawing'. Two rulings went against the recommendation: teach AND response both required; the client is the destination, not an authoring level. 2026-09-24 - reader CVE contained three ways; box-marking screen (5b) approved; questions 7 and 8 ruled; the converter BUILT (slice 1). 2026-09-29 - PDFs ruled into the database; storage, routes and hub screens built. All in Brief section 9. Piece 3 built that evening, piece 4 the next session. MIKE'S CALL 2026-09-29: PROCEED - piece 5, the bold punctuation fault, kept inside 15.20.",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-23"
-      }
-    },
-    {
       "ref": "15.21",
       "name": "The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes",
       "rankedByMike": false,

@@ -8453,9 +8453,11 @@
     "cancel": "Cancel",
     "back": "Back",
     "converting": "Converting…",
-    "saved": "{name} added. Every level below sees it now.",
+    "saved": "{name} added. Every level below sees it now. An advisor with the Strategy Planner already open sees it after refreshing the page.",
     "step1": {
       "heading": "Add Concept — 1 of 3 · The teaching pages",
+      "intro": "Drop the PDF pages you teach from. You can drop more than one file; they are taught in the order you drop them. The page your client writes on comes later, in step 3.",
+      "whyGrey": "Choose a section and drop at least one PDF to go on.",
       "section": "Which section?",
       "drop": "Drop the teaching pages here",
       "dropSmall": "or choose files · PDF only · up to 20 MB each · taught in the order you drop them",
@@ -8463,6 +8465,7 @@
     },
     "step2": {
       "heading": "Add Concept — 2 of 3 · Check and name it",
+      "intro": "Check each page came through as it should. This is how your client will see it, with your firm's mark. Then name the concept as it should appear on the scope menu.",
       "converted": "Converted in {s} s · {kb} KB",
       "pageOf": "Page {i} of {n}",
       "name": "Concept name",
@@ -8475,25 +8478,27 @@
     },
     "step3": {
       "heading": "Add Concept — 3 of 3 · The Response Form",
+      "intro": "Drop the one page your client writes on. It must be a PDF of a single page: if it sits inside a longer deck, save that page as its own PDF first.",
       "drop": "Drop the Response Form page here",
       "dropSmall": "or choose a file · PDF only · up to 20 MB"
     },
     "mark": {
       "heading": "Mark the boxes your client writes in",
-      "instruction": "Drag a box over each space on the page where your client writes an answer, then give it a short label.",
+      "instruction": "Press and drag across each space on the page where your client writes an answer. A row appears below for each box: type a short label in it — the advisor sees that label beside the box in the session.",
+      "tooSmall": "That box was too small — drag a larger one.",
       "count": "{n} box marked | {n} boxes marked",
       "list": "Boxes on this page",
       "labelPlaceholder": "Label, e.g. Our core values",
       "remove": "Remove",
-      "noneYet": "Mark at least one box before adding the concept.",
+      "noneYet": "Draw at least one box and label every box to save.",
       "save": "Save concept"
     },
     "errors": {
       "NOT_A_PDF": "That file is not a PDF.",
       "FILE_TOO_LARGE": "Each PDF can be up to 20 MB.",
       "TOO_MANY_FILES": "A concept takes up to 5 teaching PDFs.",
-      "TOO_MANY_PAGES": "A concept teaches from up to 10 pages.",
-      "RESPONSE_ONE_PAGE": "The Response Form must be a single page.",
+      "TOO_MANY_PAGES": "These files come to {n} pages, and a concept teaches from up to 10. Remove a file with Remove, or drop a shorter PDF.",
+      "RESPONSE_ONE_PAGE": "That PDF has {n} pages. Save just the page your client writes on as its own PDF, then drop that.",
       "UNREADABLE": "We could not read that page. It may be scanned rather than typed, or protected against copying. Try exporting it again from the original file.",
       "CONVERT_FAILED": "That file could not be converted. Try again, or export it again from the original file.",
       "failed": "That could not be saved just now. Nothing was changed — try again."

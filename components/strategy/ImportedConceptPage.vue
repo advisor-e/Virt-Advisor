@@ -24,6 +24,7 @@
 
 <script>
 import DOMPurify from 'isomorphic-dompurify'
+import { ownFontNames } from '~/utils/importedPageFonts'
 
 /**
  * ImportedConceptPage — one page of a concept a manager imported from a PDF (item 15.20), drawn
@@ -59,7 +60,8 @@ export default {
 
   computed: {
     clean () {
-      return DOMPurify.sanitize(this.svg, { USE_PROFILES: { svg: true, svgFilters: true }, ADD_TAGS: ['style'] })
+      // Its fonts renamed first, so it cannot borrow another imported page's on the same screen.
+      return DOMPurify.sanitize(ownFontNames(this.svg), { USE_PROFILES: { svg: true, svgFilters: true }, ADD_TAGS: ['style'] })
     },
 
     ratio () {
