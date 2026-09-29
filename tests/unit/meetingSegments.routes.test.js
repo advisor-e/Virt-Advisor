@@ -78,10 +78,12 @@ function newSession () {
   return store.createMeeting({ firmId: FIRM, advisor: ADVISOR, scenarioId: 'strategy_session', retentionMonths: 18, segmented: true }).meetingId
 }
 
-/** Open a segment through the route, and put one chunk in it directly. */
+/** Open a segment through the route, and put one chunk in it directly. A label that is a real
+ * concept id records under it; any other label records as an unlabelled (framing) section. */
 function recordSegment (meetingId, label) {
   const res = makeRes()
-  seg.openNextSegment(req(meetingId, { body: { conceptId: label.toLowerCase(), label } }), res)
+  const conceptId = require('../../server/utils/strategyFrameworks').getConcept(label) ? label : null
+  seg.openNextSegment(req(meetingId, { body: { conceptId, label } }), res)
   const n = res._body.segment
   store.appendSegmentChunk(meetingId, n, 1, Buffer.from('AUDIO-' + n))
   return n
@@ -341,6 +343,23 @@ describe('who may do what', () => {
     const res = makeRes()
     seg.openNextSegment(req(id, { body: { label: '  ' } }), res)
     expect(bodyOf(res).error.code).toBe('NO_LABEL')
+  })
+
+  test('a segment may only be labelled with a real concept or framework — the label gates what reaches a model', () => {
+    const id = newSession()
+    const forged = makeRes()
+    seg.openNextSegment(req(id, { body: { conceptId: 'made-up-concept', label: 'Alignment Statements' } }), forged)
+    expect(bodyOf(forged).error.code).toBe('UNKNOWN_CONCEPT')
+    const notText = makeRes()
+    seg.openNextSegment(req(id, { body: { conceptId: { id: 'alignment-statements' }, label: 'A' } }), notText)
+    expect(bodyOf(notText).error.code).toBe('UNKNOWN_CONCEPT')
+    expect(store.readMeta(id).segments || []).toHaveLength(0)
+
+    for (const conceptId of ['alignment-statements', 'swot-pest', null]) {
+      const ok = makeRes()
+      seg.openNextSegment(req(id, { body: { conceptId, label: 'A' } }), ok)
+      expect(ok._status).toBe(201)
+    }
   })
 
   test('opening a segment tells the browser when to roll over', () => {

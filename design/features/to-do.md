@@ -48,8 +48,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 11 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 12 | **10.3** Depreciation Rates, Forecast Trend Thresholds and Property Tax Rules become one hub page ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 13 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 14 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**Thirteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Fourteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

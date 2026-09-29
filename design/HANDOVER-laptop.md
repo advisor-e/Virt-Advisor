@@ -9,30 +9,23 @@
 
 ---
 
-## 2026-09-28 (second session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-29 · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed; 24 ahead of `master` (this note's own commit included), 0 behind. All in PR #139** (open, mergeable; title
-and description updated today to include 15.17).
+**Clean and pushed once this note's commit lands; 5 ahead of `master`, 0 behind.** Suite green:
+660 suites / 14,336 tests on Node 14.15, audit PASS.
 
-**Closed on Mike's word:** 15.17. Cultural Core Values was drawn from Organisational Review
-p11, approved and built; it shows on Run session and in the plan. Its row stays an agenda row
-on page 2, because the loader refuses a mixed deck.
+**15.14 Wordsmith, proceed, in hand here.** Built today on Mike's rulings (Brief §9b): the
+five-step engine `server/utils/wordsmith.js` (no route, no screen), its definitions
+`data/wordsmith-statements.json` (mentor content, cascading on the standard rules), 69 tests, and
+the Wordsmith Lab (`node -r dotenv/config scripts/wordsmith-lab.js --ai`, report
+`design/WORDSMITH-LAB-REPORT.md`). **Mike stopped the tuning:** he declined hand-marked
+must-keep phrases as rules drawn from one sample, and the next step is HIS decision on what makes
+a good draft and who judges it. Do not tune the instructions against the Lab's style measures
+before then — they are ours and unproven. The drafting rule is the approved one.
 
-**15.14 Wordsmith, proceed, in hand here:** scoped, and ZDR and impact test checked.
-**Privacy ruled by Mike:** it may send the Alignment Statements segment's spoken words to
-OpenAI, recorded in `CLAUDE.md`. **Next: Mike judges the ten-draft test** at
-https://claude.ai/artifact/Ru1ZaarwJ2i9ooEpGPQ9h9. His edits and thoughts are in that page's
-`notes` collection, which you read with ArtifactData. Seven or more usable of ten means draw
-the screens. Known weaknesses to date: the two styles barely differ, "Bayou" is dictation's
-mishearing of "Bay of Plenty", and the spelling is American.
+**8.4 next:** screen 4 still needs Decisions D and F from Mike. **15.20:** untouched today, still in
+hand here.
 
-**8.4 next:** screen 4 still needs Decisions D and F from Mike.
-
-**FOR THE DESKTOP:** 8.4 is still not on `master` (PR #139), so 15.13's two insertions still
-wait. Shared files changed: `CLAUDE.md` (privacy exception), `strategy-planner.md`,
-`ARTEFACTS.md`, the to-do files, `scripts/build-concept-graphics.js`,
-`components/strategy/concepts/index.js`, and the counts in `conceptGraphics.test.js`
-(43 drawings, 36 self-titled).
-
-**In hand here:** 8.4, 15.14, 15.20. Local test data only: dev firm "dev-firm-001" now has a
-compliance declaration, and dev sessions 176–178 exist.
+**FOR THE DESKTOP:** 8.4's first build is on `master` (PR #139), so 15.13's two insertions can go.
+Shared files changed today: `strategy-planner.md` §9b, the to-do files, `CONTENT-ROUTING.md`
+(regenerated for the new data file).
