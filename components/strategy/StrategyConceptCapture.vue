@@ -50,6 +50,18 @@ section.scc2
   //- Item 12.2 — the org chart shows its own, from its own microphone.
   speech-status-line(v-if="!isOrgChart && !isModel" :state="speechState")
 
+  //- 🔴 A SAVED REPORT BROUGHT IN ABOVE THE CARD'S OWN BOXES — item 15.13, from
+  //- design/mockups/strategy-current-position-import.html, approved by Mike 2026-09-28.
+  //- The panel sits ABOVE the form because his page names the reports as part of the step.
+  strategy-report-import(
+    v-if="capture.importReport && clientId"
+    :client-id="clientId"
+    :client-name="clientName"
+    :api-token="token"
+    :brought-in="entries[reportImportKey] === 'yes'"
+    @brought-in="onReportBroughtIn"
+  )
+
   //- 🔴 A CONCEPT WITH NO TABLE SAYS SO RATHER THAN SHOWING AN EMPTY ONE. Nothing
   //- is borrowed from another concept: a table an advisor puts in front of a client
   //- has to be the table Mike wrote.
@@ -223,6 +235,7 @@ import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 import { hasConceptGraphic, conceptTitlesItself, conceptSheetCount } from '~/components/strategy/concepts'
 import { agendaSheetCount } from '~/utils/agendaLayout'
 import { sheetEdits } from '~/utils/conceptTextBlocks'
+const { REPORT_IMPORT_KEY } = require('~/utils/reportImport')
 
 /** The one capture form that is a small application rather than a page of boxes. */
 const ORG_CHART_FORM = 'parent-child-list'
@@ -290,7 +303,8 @@ export default {
     StrategyCaptureBox,
     StrategyOrgChartBuilder,
     SpeechStatusLine,
-    ReportShell: () => import('~/components/base/ReportShell.vue')
+    ReportShell: () => import('~/components/base/ReportShell.vue'),
+    StrategyReportImport: () => import('~/components/strategy/StrategyReportImport.vue')
   },
 
   mixins: [speechMixin],
@@ -423,6 +437,11 @@ export default {
   },
 
   computed: {
+    /** The session entry that records the report was brought in (item 15.13). */
+    reportImportKey () {
+      return REPORT_IMPORT_KEY
+    },
+
     /**
      * How many teaching sheets this concept has — 0 where it has no drawing.
      * Looped rather than assumed; Collaborative Thinking has two, and Our Session
@@ -723,6 +742,16 @@ export default {
     relayTextEdit (edit, done) {
       // Payload: the page edit and its done(ok) callback, unchanged — the page saves it.
       this.$emit('text-edited', edit, done)
+    },
+
+    /**
+     * The report panel's one saved entry, sent the way every box saves, so the backend's
+     * save guard admits it on this concept alone.
+     * @param {{key: string, value: string}} payload
+     */
+    onReportBroughtIn (payload) {
+      // { fieldKey, value } — the marker, never a figure (Decision D)
+      this.$emit('field-changed', { fieldKey: payload.key, value: payload.value })
     },
 
     /**

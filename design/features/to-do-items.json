@@ -76,31 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "15.13",
-      "name": "No import button pulls the forecast and performance figures into a planning session",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "assessing the current position is a required part of formal planning",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-28"
-      },
-      "why": "Formal strategic planning starts by assessing the current position - staff, customer and supplier feedback, financial analysis, economic outlook. The three-way forecast and the performance reports already hold much of the financial half, and nothing carries it across.",
-      "risk": "An advisor retypes figures the app already holds, or skips the assessment. The review must also say what CANNOT be imported: staff, customer and supplier feedback and the economic outlook are named by Mike as part of the same component, and no report in this app holds any of them.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - in his own words: \"i want you to make a task to review the 3 way forecast model and the financial assessment reports / performance reports (in the perf reports section) to see what could be 'pulled in' by clicking an import button\"."
-      },
-      "touches": "CONCEPT_IMPORT_REPORTS in server/utils/strategyFrameworks.js; strategyCaptureForms.js; the concept assess-current-position-by-reviewing-pre-meeting-data-sectio in data/strategy-frameworks.json; the new panel, plan page, mixin and util; and, once 8.4 has merged, StrategyConceptCapture.vue and pages/strategy-planner.vue.",
-      "note": "PROCEED ON MIKE'S WORD 2026-09-28. Approved drawing: design/mockups/strategy-current-position-import.html (the whole Business Performance Report in the card, his no-report message, the plan printing its Executive Summary). Impact measure: figures reaching the step and plan untyped - 0 today. BUILT 2026-09-28, tested, NOT YET ON SCREEN: the concept's importReport, the save guard's marker, utils/reportImport.js, mixins/businessReportImport.js, components/strategy/StrategyReportImport.vue and StrategyReportPlanPage.vue. WAITS ON 8.4 REACHING MASTER, on his yes: two insertions in files 8.4 holds - the panel into StrategyConceptCapture.vue (saving its brought-in marker), the plan page into pages/strategy-planner.vue. Then walk it in a browser beside the drawing.",
-      "comment": "2026-09-28 - Mike: proceed, and after the build (fc030cac) proceed again - it stays live, waiting for 8.4 to reach master before its two insertions and browser check. The impact test found saved multi-year forecasts reopening as one year; fixed first on his yes (1c866a94). Score ours, not ranked by him."
-    },
-    {
       "ref": "15.14",
       "name": "Wordsmith - turning what the client said into statements they can use",
       "rankedByMike": false,
@@ -124,27 +99,6 @@
       "touches": "The Strategy Planner's capture boxes and its facilitation half; a new Restify route for the model call; 8.4's recorded concept segments as its source - spoken content, so it sits under Meeting Review's privacy exception and its P13. Ruled 2026-09-28: not the typed boxes.",
       "note": "PROCEED. ALL MIKE'S RULINGS ARE IN strategy-planner.md §9b - read that, not this. BUILT 2026-09-29: the five-step engine (server/utils/wordsmith.js), the Wordsmith Lab, and in data/wordsmith-statements.json a writing rule per domain, the style instructions and the best-practice sources. RULED 2026-09-29 on design/mockups/wordsmith-style-settings.html: which fields each manager tier may edit. MEASURE OPEN: Mike ruled hand-judging ten drafts flawed. STILL TO BUILD: the cascade storage and resolution, the route, the planner screen, the Mentor Hub tab (matching the hub's look). Spelling outside New Zealand comes with translation, item 13.7.",
       "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.15). Score and scoreReason are ours; he has not ranked it. 2026-09-29 - Mike's call at shutdown: PROCEED - he stopped to think about what a good draft is and who judges it."
-    },
-    {
-      "ref": "15.15",
-      "name": "Devil's Advocate - challenging optimistic thinking in the room",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "a facilitator tool, not a gate on the session",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "A planning conversation drifts optimistic and nobody in the room is paid to disagree. Devil's Advocate asks the hard questions and challenges over-optimistic thinking, backed by known business concepts and market analysis data.",
-      "risk": "It argues with the client in front of the advisor, so its tone and its evidence both matter. \"Market analysis data\" needs a named source: this app holds none, and an AI asserting market facts without one commits the exact error the feature exists to catch.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-22 - in his own words: \"DEVIL'S ADVOCATE - where AI asks the hard questions and challenges overly optimistic thoughts, supported by known business concepts and market analysis data\"."
-      },
-      "touches": "The Strategy Planner's session surface; a new Restify route for the model call; the 52 concept records as the 'known business concepts' source. The market analysis data source is unidentified and is the first question this item must answer.",
-      "note": "NOT ASSESSED - recorded on Mike's instruction for a later build stage, never scoped. One of two facilitator assistants he named together; the other is 15.14. The impact test and the hub-page judgement are both unrun.",
-      "comment": "2026-09-22 - filed on Mike's instruction, one of three planning ideas he gave in the same message (with 15.13 and 15.14). Score and scoreReason are ours; he has not ranked it."
     },
     {
       "ref": "15.18",
@@ -323,27 +277,6 @@
       "comment": "2026-09-26 - filed on Mike's instruction during 13.5's drawing questions. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "10.3",
-      "name": "Depreciation Rates, Forecast Trend Thresholds and Property Tax Rules become one hub page",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 2,
-      "scoreReason": "fewer tabs for a manager to find their way through",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Three Model Inputs tabs each hold a few settings that feed the Three-Way Forecast. Mike ruled they do not need separate tabs in the hub.",
-      "risk": "The three reach different tiers today: Depreciation Rates all four, Forecast Trend Thresholds the mentor alone, Property Tax Rules every tier but the mentor. One page must show each tier only its own sections, or a firm manager is handed the mentor's thresholds. Each keeps its own store, history and restore; merging the pages must not merge the saves.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-28 - in his words: \"make a task - to combine depreciation rates, forecast trend, property tax into a single page - they dont need seperate tabs in the hub\""
-      },
-      "touches": "components/FirmManagerHub.vue (NAV_GROUPS, TAB_TIERS and the three panels); FirmDepreciationRates.vue, FirmForecastTrendThresholds.vue and FirmPropertyTaxRules.vue as sections of one new page; tests/unit/hubTabTiers.test.js; the page's name and section headings, which are Mike's wording.",
-      "note": "NOT SCOPED. Drawn for approval first, with the impact test run at scoping. Tax Rates is not in his list and stays its own tab - it was split from Depreciation Rates on his ruling of 2026-09-09. Three of these tabs also show a blank 'saved by' in their version history, raised with Mike the same day.",
-      "comment": "2026-09-28 - filed on Mike's instruction while 15.2's hub tab was being built. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "22.2",
       "name": "The desktop's default Node is version 20, not the locked 14.15",
       "rankedByMike": false,
@@ -385,6 +318,5 @@
       "note": "NOT SCOPED. 10.1 and 10.2 already brought the manager screens and the hub's backend wording into translation. First job at scoping: list which hub pages and tiers still show English that bypasses it, and name how Wordsmith learns a firm's language and spelling. The impact test is unrun.",
       "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
     }
-
   ]
 }

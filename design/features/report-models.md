@@ -1200,9 +1200,9 @@ The last pair share their numbers because a point of margin lost and a point of 
 gained cost exactly the same money — both are a point of sales. **A measure with no threshold
 is shown in full and never banded**, which is a supported setting rather than a gap.
 
-**The thresholds live on a screen, not in a constant** — the mentor's *Forecast Trend
-Thresholds* tab under Model Inputs, beside Property Tax Rules, with version history and
-restore. That is what makes banding safe: the numbers are the firm's advisory judgement, so
+**The thresholds live on a screen, not in a constant** — the *Forecast Trend Thresholds*
+section of the mentor's *Tax & Forecast Rates* page under Model Inputs (item 10.3), with
+version history and restore. That is what makes banding safe: the numbers are the firm's advisory judgement, so
 they have to be visible and changeable. Mentor tier alone for now; the resolver and routes
 carry every tier already, so a firm that needs its own numbers costs one line in `TAB_TIERS`.
 

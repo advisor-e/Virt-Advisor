@@ -2596,7 +2596,7 @@
           "atRisk": "At risk"
         },
         "noScore": "No score yet: the score counts the measures your advisor's firm has set thresholds for, and none could be banded — usually because last year's reports have not been read.",
-        "scoreMethod": "Scored on the {n} banded measures on pages 2 and 5: 2 in green, 1 in amber, 0 in red against your firm's thresholds, out of 100. The method follows the Piotroski F-score, the pass-or-fail test count investors use to screen a company's financial strength.",
+        "scoreMethod": "Scored on the {n} banded measures on pages 2 and 5, each judged against your firm's thresholds: a green measure earns 2 points, an amber 1 and a red none, and the total is shown out of 100. The method follows the Piotroski F-score, the pass-or-fail test count investors use to screen a company's financial strength.",
         "scoreAllGreen": "All {n} measures are in the green.",
         "scorePulledDown": "{green} of {n} measures green; {list} pull the score down.",
         "measure": {
@@ -6989,7 +6989,12 @@
       "inForce": "Schedule in force",
       "edition": "Edition",
       "classes": "Classes",
-      "approved": "Approved"
+      "approved": "Approved",
+      "from": "From"
+    },
+    "origin": {
+      "mentor": "Advisor-e",
+      "globalGroup": "Your global group"
     },
     "state": {
       "stopped": "Stopped",
@@ -7226,8 +7231,8 @@
       "unreadable": "Could not be read"
     },
     "upload": {
-      "heading": "Load a depreciation schedule",
-      "body": "PDF, up to 20 MB, as {country}'s tax authority publishes it. It is sent to the AI to be read and is not kept afterwards — the AI proposes, and nothing it proposes reaches a forecast until you approve it.",
+      "heading": "Load a single depreciation document",
+      "body": "PDF, up to 20 MB — one ruling or determination from {country}'s tax authority, not the whole schedule. A country's whole schedule is loaded once, on Country Rate Schedules, by Advisor-e or your global group. A document here is sent to the AI to be read and is not kept afterwards — the AI proposes, and nothing it proposes reaches a forecast until you approve it.",
       "choose": "Choose a file",
       "read": "The document was read. Check what it proposed before approving it.",
       "unreadable": "That document could not be read."
@@ -7431,6 +7436,7 @@
       "industryBenchmarks": "Industry Benchmarks",
       "depreciationRates": "Depreciation Rates",
       "taxRates": "Tax Rates",
+      "taxForecastRates": "Tax & Forecast Rates",
       "countryRateSchedules": "Country Rate Schedules",
       "compliance": "Compliance",
       "caseReviews": "Case Reviews"

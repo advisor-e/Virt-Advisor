@@ -171,6 +171,10 @@ describe('the card', () => {
     expect(wrapper.vm.importStatus).toBe('ready')
     expect(wrapper.findAll('.drd-page').length).toBeGreaterThan(8)
     expect(wrapper.vm.strip[0].label).toBe('1 report.dashboardReports.doc.section.summary')
+    // The two pages whose own title differs from their contents entry still carry their number.
+    const labels = wrapper.vm.strip.map(p => p.label)
+    expect(labels).toContain('3 report.dashboardReports.doc.profitLossTitle')
+    expect(labels).toContain('4 report.dashboardReports.doc.balanceSheetTitle')
     expect(wrapper.vm.strip.map(p => p.title)).not.toContain('report.dashboardReports.doc.contents')
     expect(wrapper.emitted('brought-in')[0][0]).toEqual({ key: REPORT_IMPORT_KEY, value: 'yes' })
   })
@@ -201,6 +205,34 @@ describe('the card', () => {
   })
 })
 
+describe('the Run-session card hosts the panel', () => {
+  const StrategyConceptCapture = require('~/components/strategy/StrategyConceptCapture.vue').default
+
+  function mountCard (conceptId) {
+    return mountWithBuefy(StrategyConceptCapture, {
+      propsData: { name: 'Card', conceptId, capture: forms.captureForConcept(frameworks.getConcept(conceptId)), clientId: CLIENT, token: 'tok-9' },
+      stubs: { StrategyReportImport: true, StrategyConceptGraphic: true }
+    })
+  }
+
+  it('🔴 saves the brought-in marker under the one key the backend admits', async () => {
+    const wrapper = mountCard(CONCEPT_ID)
+    await settle(wrapper)
+    const panel = wrapper.findComponent({ name: 'StrategyReportImport' })
+    expect(panel.exists()).toBe(true)
+    panel.vm.$emit('brought-in', { key: REPORT_IMPORT_KEY, value: 'yes' })
+    const saved = wrapper.emitted('field-changed')[0][0]
+    expect(saved).toEqual({ fieldKey: REPORT_IMPORT_KEY, value: 'yes' })
+    expect(forms.hasCaptureField(CONCEPT_ID, saved.fieldKey, frameworks.getConcept)).toBe(true)
+  })
+
+  it('is on no card whose concept names no report', async () => {
+    const wrapper = mountCard('porters-5-forces')
+    await settle(wrapper)
+    expect(wrapper.findComponent({ name: 'StrategyReportImport' }).exists()).toBe(false)
+  })
+})
+
 describe('the plan page — Decision D', () => {
   it('🔴 prints the report\'s Executive Summary and nothing else', async () => {
     mockRoutes(savedAnswer(fullState()))
@@ -209,6 +241,25 @@ describe('the plan page — Decision D', () => {
     const pages = wrapper.findAll('.drd-page')
     expect(pages.length).toBe(1)
     expect(pages.at(0).find('.drd-title').text()).toBe('report.dashboardReports.doc.section.summary')
+  })
+
+  it('🔴 the client\'s plan carries it only where the report was brought in', async () => {
+    const StrategyPlanDocument = require('~/components/strategy/StrategyPlanDocument.vue').default
+    const item = reportImport => ({ key: 'k', conceptId: CONCEPT_ID, name: 'Assess', hasTable: true, summary: '', prompts: [], lines: [], reportImport })
+    const plan = reportImport => mountWithBuefy(StrategyPlanDocument, {
+      propsData: { clientName: 'Harbour Joinery Limited', clientId: CLIENT, apiToken: 'tok-9', steps: [{ name: 'Step', items: [item(reportImport)] }] },
+      stubs: { StrategyReportPlanPage: true, StrategyConceptGraphic: true }
+    })
+    const withIt = plan(true)
+    await settle(withIt)
+    const page = withIt.findComponent({ name: 'StrategyReportPlanPage' })
+    expect(page.exists()).toBe(true)
+    // A stub of a lazily loaded component declares no props, so what it was handed shows as attributes.
+    expect(page.attributes()).toMatchObject({ 'client-id': CLIENT, 'api-token': 'tok-9' })
+
+    const without = plan(false)
+    await settle(without)
+    expect(without.findComponent({ name: 'StrategyReportPlanPage' }).exists()).toBe(false)
   })
 
   it('prints nothing for a client with no completed report', async () => {

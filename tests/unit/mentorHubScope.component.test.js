@@ -285,21 +285,20 @@ describe('the two tiers are recognisably the same screen', () => {
   // per the note above. 🔴 It does NOT leave the Model Library: Mike ruled on 2026-09-23
   // that the picker appears in BOTH, the Hub to set it and the library read-only, so a
   // reader can still tell which currency a report is in.
-  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'firmManagerHub.tabs.clientCopyRequest', 'firmTeamProgress.tab', 'firmManagerHub.tabs.teamCaseStudies', 'firmManagerHub.tabs.teamPipeline', 'firmManagerHub.tabs.salesTrackerLists', 'firmManagerHub.tabs.propertyTaxRules', 'firmCurrency.tab', 'outcomeConsent.tab']
+  // ⚠ AMENDED 2026-09-29: `Property Tax Rules` left the menu. It is a section of Tax & Forecast
+  // Rates (item 10.3, Mike 2026-09-28/29), a page every tier has, so it is no longer a
+  // firm-only menu entry; the section itself still never reaches the mentor (hubTabTiers.test.js).
+  const FIRM_ONLY = ['firmTemplateLibrary.tab', 'firmManagerHub.tabs.clientCopyRequest', 'firmTeamProgress.tab', 'firmManagerHub.tabs.teamCaseStudies', 'firmManagerHub.tabs.teamPipeline', 'firmManagerHub.tabs.salesTrackerLists', 'firmCurrency.tab', 'outcomeConsent.tab']
   // `templateLibrary.tab` — Mike, 2026-08-31 (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1):
   // the master export upload, mentor-only beside Template Check, drawn last in the menu.
   //
-  // ⚠ `Forecast Trend Thresholds` IS MENTOR-ONLY BUT IS **NOT** IN THE TAIL, and that is
-  // why there are two lists below rather than one. Every other mentor-only tab sits under
+  // ⚠ `Imported Stock Prices` IS MENTOR-ONLY BUT IS **NOT** IN THE TAIL, and that is why
+  // there are two lists below rather than one. Every other mentor-only tab sits under
   // "Rolled up from below", the last heading; this one sits under "Model Inputs", which
-  // comes before it (Mike, 2026-09-03, item 4.61b — the bands the forecast's two-year
-  // trend read draws, mentor-only per the default of 2026-08-24). The old single list
-  // conflated "mentor-only" with "at the end of the menu", which was true until today.
-  //
-  // ⚠ AMENDED 2026-09-04: `Imported Stock Prices` joins it, for the same structural reason.
-  // It is the price ladder imported stock sells down at as it ages (Mike, 2026-09-04, item
-  // 4.64 — the tab's name is his), and it sits beside `Forecast Trend Thresholds` under
-  // "Model Inputs", not in the tail. Mentor-only per the same default of 2026-08-24.
+  // comes before it (Mike, 2026-09-04, item 4.64 — the price ladder imported stock sells
+  // down at as it ages; the tab's name is his). Mentor-only per the default of 2026-08-24.
+  // `Forecast Trend Thresholds` sat here too until 2026-09-29, when it became a section of
+  // Tax & Forecast Rates (item 10.3) rather than a menu entry.
   //
   // ⚠ AMENDED 2026-09-11: `outcomeLearning.tab` joins the tail — the mentor's Outcome Learning
   // page (item 4.87, Mike 2026-09-10: "It surfaces on the Mentor Hub first"), drawn last under
@@ -333,7 +332,10 @@ describe('the two tiers are recognisably the same screen', () => {
   // force and the two-file upload that replaces it (Mike, 2026-09-08, item 4.70 stage 3; the
   // tab's name is the approved drawing's). Under "Model Inputs" beside the two above. Mentor-only
   // by DESIGN rather than by default: one national table, and no firm has a different Stats NZ.
-  const MENTOR_ONLY = ['firmManagerHub.tabs.forecastTrendThresholds', 'firmManagerHub.tabs.importedStockPrices', 'firmManagerHub.tabs.industryBenchmarks'].concat(MENTOR_ONLY_TAIL)
+  // ⚠ AMENDED 2026-09-29: `Country Rate Schedules` joins it — Mike's ruling that the mentor has
+  // ultimate control of a country's schedule. Under "Model Inputs", not in the tail; the firm
+  // never sees it, and the global group manager keeps it beside the mentor.
+  const MENTOR_ONLY = ['firmManagerHub.tabs.importedStockPrices', 'firmManagerHub.tabs.industryBenchmarks', 'firmManagerHub.tabs.countryRateSchedules'].concat(MENTOR_ONLY_TAIL)
 
   /**
    * A selector that matches nothing makes every comparison below succeed against an
@@ -489,7 +491,11 @@ describe('the hub menu — the sidebar itself', () => {
     // ⚠ AND 26 ON 2026-09-28, when Growth Aspect Questions joined the END of "Your AI coach"
     // (item 15.2 — all four tiers in Mike's own words). It lands at index 9, after Client Copy
     // Request, so the four index assertions below are untouched and the fifth pins it.
-    expect(tabLabels(wrapper)).toHaveLength(26)
+    //
+    // ⚠ AND 24 ON 2026-09-29: Depreciation Rates, Tax Rates and Property Tax Rules left the
+    // menu as sections of ONE page, Tax & Forecast Rates, at the top of "Model Inputs" (item
+    // 10.3 — Mike's ask, and his name for it). Three out, one in; "Your AI coach" is untouched.
+    expect(tabLabels(wrapper)).toHaveLength(24)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -504,9 +510,9 @@ describe('the hub menu — the sidebar itself', () => {
     // ⚠ THIS TEST SAID THE OPPOSITE UNTIL 2026-09-03, and the change is a ruling rather
     // than a regression. The mentor had NO Model Inputs heading because the only thing in
     // that group — Property Tax Rules — is gated to the tiers with a layer above them.
-    // Forecast Trend Thresholds joined the group that day (Mike, item 4.61b) and is
-    // mentor-only, so the heading now appears for the mentor and holds exactly that one
-    // entry, while Property Tax Rules stays absent.
+    // Since 2026-09-29 the mentor's Model Inputs opens with Tax & Forecast Rates (item 10.3),
+    // and Property Tax Rules is not a menu entry at any tier: it is a section of that page,
+    // which at the mentor carries Forecast Trend Thresholds in its place.
     //
     // The rule the old test was really protecting — an empty group is DROPPED, not drawn
     // empty, because one gap in a list of twelve reads as a bug — is unchanged and is
@@ -528,7 +534,7 @@ describe('the hub menu — the sidebar itself', () => {
       'firmManagerHub.nav.yourAiCoach', 'firmManagerHub.nav.yourTeamInAction', 'firmManagerHub.nav.modelInputs', 'firmManagerHub.nav.compliance', 'firmManagerHub.nav.rolledUpFromBelow'
     ])
     const names = tabLabels(wrapper)
-    expect(names).toContain('firmManagerHub.tabs.forecastTrendThresholds')
+    expect(names).toContain('firmManagerHub.tabs.taxForecastRates')
     expect(names).not.toContain('firmManagerHub.tabs.propertyTaxRules')
   })
 
@@ -619,7 +625,9 @@ describe('the hub menu — the sidebar itself', () => {
     // 5.4), on all four tiers in Mike's own words.
     // ⚠ AND 22 ON 2026-09-28: Growth Aspect Questions, appended to the END of "Your AI coach"
     // (item 15.2), on all four tiers in Mike's own words.
-    expect(tabLabels(wrapper)).toHaveLength(22)
+    // ⚠ AND 20 ON 2026-09-29: Depreciation Rates, Tax Rates and Property Tax Rules became
+    // sections of one page, Tax & Forecast Rates (item 10.3). Three out, one in.
+    expect(tabLabels(wrapper)).toHaveLength(20)
     expect(tabLabels(wrapper)).not.toContain('firmManagerHub.tabs.teamCaseStudies')
     expect(tabLabels(wrapper)).toContain('firmManagerHub.tabs.caseReviews')
   })

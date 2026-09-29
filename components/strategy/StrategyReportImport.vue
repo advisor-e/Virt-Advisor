@@ -68,6 +68,13 @@ const OFF_STRIP = ['report.dashboardReports.doc.contents', 'report.dashboardRepo
 /** The eight numbered sections, as the report's contents page numbers them. */
 const NUMBERED = ['summary', 'dashboard', 'profitLoss', 'balanceSheet', 'cashFlow', 'inventory', 'trends', 'nextSteps']
 
+/**
+ * Two pages title themselves differently from their contents entry — "Profit & Loss Summary"
+ * is section 3, "Balance Sheet Summary" section 4 — so a strip matched on the section name
+ * alone left both unnumbered. Found walking the build beside the drawing, 2026-09-29.
+ */
+const OWN_TITLES = { profitLossTitle: 3, balanceSheetTitle: 4 }
+
 export default {
   name: 'StrategyReportImport',
 
@@ -145,6 +152,7 @@ export default {
       const skip = OFF_STRIP.map(k => this.$t(k))
       const numbered = {}
       NUMBERED.forEach((k, i) => { numbered[this.$t('report.dashboardReports.doc.section.' + k)] = i + 1 })
+      Object.keys(OWN_TITLES).forEach((k) => { numbered[this.$t('report.dashboardReports.doc.' + k)] = OWN_TITLES[k] })
       this.strip = Array.from(viewer.querySelectorAll('.drd-page .drd-title'))
         .map(el => el.textContent.trim())
         .filter(title => title && !skip.includes(title))
