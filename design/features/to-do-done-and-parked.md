@@ -379,6 +379,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**40.1 · Nothing on the AI Prompts tab changed what any AI is sent — and the tab said it did.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29 ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)). No feature
+  sends the cash flow prompt — deliberate, per the Brief — but the tab opened *"These are the
+  instructions the AI is given…"*, so a manager changing materiality believed they had changed
+  something.
+- **What was done:** `firmAiPrompts.intro` now says no feature uses the settings yet, in wording
+  Mike approved word for word, recorded in [`ai-prompts.md`](ai-prompts.md) P7. The comment in
+  `server/routes/economicAnalysis.js` claiming banned research sites could be added on the tab
+  without a developer now says they are a developer's change to the platform file.
+- **Not done, on purpose:** screens for the six hardcoded prompts — a new feature Mike has not
+  asked for. What proves it: the wording is on the page, visible in UAT; no code path changed.
+  Commit: `git log --grep "(40.1)"`.
+
 **15.30 · Planner Suggest sent a client's saved case summaries marked not personal.**
 ✅ **Closed 2026-09-29 by Mike ("yes" — done, on the recommendation to close).**
 

@@ -294,27 +294,6 @@
       "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "40.1",
-      "name": "Nothing on the AI Prompts tab changes what any AI is sent",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "The tab's only editable settings belong to the cash-flow forecast prompt, and no code ever sends that prompt. Every other prompt on it is locked, and six more are hardcoded with no screen at all.",
-      "risk": "A manager who changes materiality, granularity or currency believes they have tuned the AI, and nothing changes. A comment in the market-research route also says banned research sites can be added on this tab without a developer; the validator would drop them. It falls short of the hub-page rule: what the AI reads, somebody must be able to see and change.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
-      },
-      "touches": "data/ai-prompts.json (cashflow-forecast); server/utils/aiPrompts.js validateAiPromptOverrides; server/routes/economicAnalysis.js (~lines 263-267); components/FirmAiPrompts.vue; the hardcoded prompts in salesBlogEngine, anonymiseCase, primaryIssueProposer, uiTranslation and data/prompts/*.txt.",
-      "note": "FOUND 2026-09-29. What a manager should be able to tune is Mike's decision before any build. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
-      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "8.6",
       "name": "After a recorded strategy session the next meeting's coaching notes check nothing from it",
       "rankedByMike": false,

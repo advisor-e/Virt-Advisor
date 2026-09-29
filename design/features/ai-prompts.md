@@ -92,6 +92,14 @@ latter (and it is) then your version risks being too complicated for them."*
 What that produced, and each half matters:
 - **The cash flow prompt stays exactly as drawn.** *Materiality*, *three-way forecast*, *draft and
   publish*, *auditability* are an accountant's **own** vocabulary. Seeing it reassures them.
+- **The page says the settings are not yet in use, because they are not.** No feature sends the
+  cash flow prompt, so a manager must not be told the AI already follows it. The tab's opening
+  sentence, **approved word for word by Mike on 2026-09-29 (item 40.1)**, is `firmAiPrompts.intro`
+  in `locales/en.json`: *"These are the instructions the AI will follow when it builds a cash flow
+  model for your clients. No feature in the app uses them yet, so the settings below take effect
+  once one does. The method is fixed — it is what makes the output auditable, and it is shown in
+  full below so you can see the standard your firm is held to."* When a feature starts sending
+  this prompt, that sentence is the one to change.
 - **The security prompt is MENTOR-ONLY.** Its seven headings — *the lethal trifecta*, *gate the
   sinks not the reads*, *taint-gate memory writes* — were **7 of the 19 sections a firm manager
   saw**, in a different profession's language. That is the opposite of reassurance: a list of
