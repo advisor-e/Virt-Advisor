@@ -222,6 +222,10 @@ Advisor's own — *Save & Continue* for typed answers, *Confirm selection* for p
 "Other" length accepts 29–480 minutes, the least that holds one concept; and two lines derived from
 his approved wording — the bar's singular form, and *"Nothing in the menu matched your answers.
 Tick the concepts yourself."* — both approved by him exactly as written the same day.
+☑ **THE MEASUREMENT, AS MIKE SET IT (2026-09-30):** the five-situation bench is dropped — it would
+need answers nobody should invent. Three checks stand met: a new client gets a suggestion (never,
+before); the count fits the session (enforced and tested); a client with history is unchanged (the
+measured prompt, so Pivot's 4 of 9 stands). The fourth is his own try-out of the screen.
 ☑ **THE FRAME NEVER TAKES A SLOT — Mike, 2026-09-30.** The first real run spent one of its four
 slots on *Our Session Objective*, which **is** the frame his 6 minutes already cover. The guided
 suggestion now never offers it (`FRAME_CONCEPT_ID` in `strategyIntake.js`); the advisor can still
