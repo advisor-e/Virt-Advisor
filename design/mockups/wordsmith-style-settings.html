@@ -1,0 +1,501 @@
+<title>Wordsmith Style Settings</title>
+<style>
+  :root {
+    --navy:#002b64; --ink:#2f3540; --grey:#6b7686; --line:#dfe4eb; --paper:#ffffff; --ground:#f4f6f9;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#8fd1ab;
+    --amber:#9a4a06; --amber-bg:#fff8ee; --amber-line:#f0c48a;
+    --slate:#4f5f75; --slate-bg:#f1f4f8; --slate-line:#c3cfdd;
+    --code-bg:#f6f8fb; --code-ink:#243049; --key:#0a5ea8; --str:#1f7a45;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --navy:#9cc2f0; --ink:#dde3ec; --grey:#9aa5b5; --line:#2e3746; --paper:#1a2130; --ground:#121823;
+      --green:#7fd6a3; --green-bg:#16271f; --green-line:#2f5f45;
+      --amber:#f3bd7a; --amber-bg:#2a2115; --amber-line:#6a4a22;
+      --slate:#b3c0d2; --slate-bg:#1d2533; --slate-line:#3a4659;
+      --code-bg:#161d2a; --code-ink:#d6deea; --key:#8cc0f5; --str:#8fdcae;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --navy:#9cc2f0; --ink:#dde3ec; --grey:#9aa5b5; --line:#2e3746; --paper:#1a2130; --ground:#121823;
+    --green:#7fd6a3; --green-bg:#16271f; --green-line:#2f5f45;
+    --amber:#f3bd7a; --amber-bg:#2a2115; --amber-line:#6a4a22;
+    --slate:#b3c0d2; --slate-bg:#1d2533; --slate-line:#3a4659;
+    --code-bg:#161d2a; --code-ink:#d6deea; --key:#8cc0f5; --str:#8fdcae;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink);
+    font:15px/1.6 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:980px; margin:0 auto; padding:2.2rem 16px 5rem; display:flex; flex-direction:column; gap:2.6rem; }
+  h1 { font-size:1.55rem; margin:0 0 0.35rem; color:var(--navy); text-wrap:balance; }
+  h2 { font-size:1.12rem; margin:0 0 0.3rem; color:var(--navy); text-wrap:balance; }
+  .lede, .sub { color:var(--grey); font-size:0.9rem; margin:0; max-width:62ch; }
+  .sub { margin-bottom:1.1rem; }
+
+  .banner { background:var(--amber-bg); border:1px solid var(--amber-line); border-radius:6px;
+    padding:0.85rem 1rem; font-size:0.85rem; }
+  .banner strong { color:var(--amber); }
+  .banner p { margin:0; }
+  .banner p + p { margin-top:0.45rem; }
+
+  .tablebox { overflow-x:auto; background:var(--paper); border:1px solid var(--line); border-radius:8px; }
+  table { border-collapse:collapse; width:100%; min-width:560px; font-size:0.88rem; }
+  th, td { text-align:left; padding:0.6rem 0.85rem; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:0.72rem; letter-spacing:0.07em; text-transform:uppercase; color:var(--grey); font-weight:700; }
+  tr:last-child td { border-bottom:0; }
+  td.setting { font-weight:700; color:var(--navy); white-space:nowrap; }
+  td.group-start { border-top:2px solid var(--line); }
+  code, .mono { font-family:ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace; font-size:0.82rem; }
+  td .id { color:var(--grey); }
+  td.words { color:var(--ink); }
+
+  pre { margin:0; background:var(--code-bg); color:var(--code-ink); border:1px solid var(--line);
+    border-radius:8px; padding:1rem 1.1rem; overflow-x:auto; font-size:0.8rem; line-height:1.55; }
+  pre .k { color:var(--key); }
+  pre .s { color:var(--str); }
+  pre .c { color:var(--grey); font-style:italic; }
+
+  .facts { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:0.9rem; }
+  .fact { border-radius:7px; padding:0.85rem 1rem; font-size:0.86rem; border:1px solid; }
+  .fact h3 { margin:0 0 0.35rem; font-size:0.92rem; }
+  .fact ul { margin:0; padding-left:1.1rem; }
+  .fact li + li { margin-top:0.3rem; }
+  .same { background:var(--green-bg); border-color:var(--green-line); }
+  .same h3 { color:var(--green); }
+  .stays { background:var(--slate-bg); border-color:var(--slate-line); }
+  .stays h3 { color:var(--navy); }
+
+  .domains td.num { font-variant-numeric:tabular-nums; }
+  .stmts { display:flex; flex-direction:column; gap:1.1rem; }
+  .stmt { background:var(--paper); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .stmt > header { display:flex; justify-content:space-between; align-items:baseline; gap:0.8rem; flex-wrap:wrap;
+    padding:0.75rem 1rem; border-bottom:1px solid var(--line); }
+  .stmt > header h3 { margin:0; font-size:1.05rem; color:var(--navy); }
+  .stmt > header .meta { font-size:0.78rem; color:var(--grey); }
+  .cols { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); }
+  .col { padding:0.85rem 1rem 1rem; display:flex; flex-direction:column; gap:0.7rem; font-size:0.86rem; }
+  .col + .col { border-left:1px solid var(--line); }
+  @media (max-width: 660px) { .col + .col { border-left:0; border-top:1px solid var(--line); } }
+  .col.infile { background:var(--green-bg); }
+  .colhead { font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; font-weight:700; }
+  .infile .colhead { color:var(--green); }
+  .notes .colhead { color:var(--amber); }
+  .col h4 { margin:0 0 0.2rem; font-size:0.78rem; color:var(--navy); }
+  .col p { margin:0; max-width:68ch; }
+  .col ul { margin:0; padding-left:1.1rem; display:flex; flex-direction:column; gap:0.3rem; }
+  .row { display:flex; gap:0.5rem; align-items:baseline; }
+  .tag { flex:0 0 auto; font-size:0.66rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;
+    border:1px solid var(--slate-line); background:var(--paper); color:var(--slate); border-radius:3px; padding:0.05rem 0.35rem; }
+  .tag.al { border-color:var(--green-line); color:var(--green); }
+  .q { font-style:italic; }
+  .src { display:flex; flex-direction:column; gap:0.2rem; font-size:0.8rem; }
+  .src a { color:var(--key); }
+  .gap { font-size:0.8rem; color:var(--amber); }
+
+  ol.steps { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.6rem; counter-reset:step; }
+  ol.steps > li { counter-increment:step; background:var(--paper); border:1px solid var(--line); border-radius:8px;
+    padding:0.8rem 1rem 0.85rem 3.1rem; position:relative; font-size:0.87rem; }
+  ol.steps > li::before { content:counter(step); position:absolute; left:1rem; top:0.78rem; width:1.5rem; height:1.5rem;
+    border-radius:50%; background:var(--navy); color:var(--paper); font-weight:700; font-size:0.8rem;
+    display:flex; align-items:center; justify-content:center; }
+  .stephead { display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap; margin-bottom:0.25rem; }
+  .stephead strong { color:var(--navy); font-size:0.95rem; }
+  .chip { font-size:0.66rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; border-radius:3px;
+    padding:0.08rem 0.4rem; border:1px solid; }
+  .chip.ai { color:var(--key); border-color:var(--key); }
+  .chip.code { color:var(--slate); border-color:var(--slate-line); }
+  .reads { margin-top:0.35rem; color:var(--slate); font-size:0.82rem; }
+  .reads b { color:var(--ink); }
+  .never { margin-top:0.7rem; font-size:0.84rem; color:var(--slate); }
+
+  .tierline { display:flex; flex-wrap:wrap; gap:0.35rem; align-items:center; font-size:0.8rem; margin:0 0 1rem; }
+  .tierline span.t { border:1px solid var(--slate-line); background:var(--paper); border-radius:4px; padding:0.15rem 0.5rem; color:var(--navy); font-weight:600; }
+  .tierline span.arrow { color:var(--grey); }
+  td.yes { color:var(--green); font-weight:700; white-space:nowrap; }
+  td.no { color:var(--grey); font-weight:700; white-space:nowrap; }
+  td .why { color:var(--slate); font-size:0.82rem; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Wordsmith: what is saved, and what would be</h1>
+    <p class="lede">Item 15.14. Everything Wordsmith's mentor content holds today in
+      <code>data/wordsmith-statements.json</code>, beside the fuller descriptions and best-practice sources written on
+      2026-09-28 (commit <code>f925ac2b</code>), and the style wording that would move into the same file.</p>
+  </header>
+
+  <section>
+    <h2>How Wordsmith uses this material</h2>
+    <p class="sub">Five steps, run once for each Alignment Statements recording. The AI does three of them; the app's
+      own code does the other two and checks the AI's work. "Reads" names the material on this page that each step uses.</p>
+    <ol class="steps">
+      <li>
+        <div class="stephead"><strong>Sort what was said</strong><span class="chip ai">AI</span><span class="chip code">then code</span></div>
+        The AI reads the transcript and points, by line number, at what the client said about each of the five
+        statements, sorting by meaning. The code then takes those lines word for word. Anything the advisor said is
+        dropped, and a statement nobody spoke about stays empty.
+        <div class="reads"><b>Reads:</b> each statement's name and its first Alignment definition row.</div>
+      </li>
+      <li>
+        <div class="stephead"><strong>Find what is missing</strong><span class="chip code">Code</span></div>
+        The code checks each statement against its questions for the room: is there a date for the Vision, a date and
+        a measure for the Mission? Anything missing becomes a question for the advisor and client, never an invention.
+        The Strategy's scope is judged by the AI in step 4.
+        <div class="reads"><b>Reads:</b> the questions for the room.</div>
+      </li>
+      <li>
+        <div class="stephead"><strong>Turn the style into settings</strong><span class="chip ai">AI</span></div>
+        The room's own words about what the statements are for and how they should sound become four settings the
+        advisor can see: sentence length, formality, jargon and voice, plus a tone and a reader.
+        <div class="reads"><b>Reads:</b> the list of style choices.</div>
+      </li>
+      <li>
+        <div class="stephead"><strong>Draft each statement</strong><span class="chip ai">AI</span></div>
+        One statement at a time, from the client's own sorted words only. The AI is told what the statement is, with the
+        Alignment document first and winning wherever best practice differs. It is also told how to write for the chosen
+        style, and the rules: nothing the client did not say, their strongest phrases kept, New Zealand spelling, and the
+        word limit.
+        <div class="reads"><b>Reads:</b> every definition row, the style instruction for each chosen setting, the word
+          limit, and once saved, the statement's domain writing rule.</div>
+      </li>
+      <li>
+        <div class="stephead"><strong>Check every draft</strong><span class="chip code">Code</span></div>
+        The code checks each draft for numbers and names nobody said, American spelling, and length. A failed draft is
+        written once more with the failures listed; anything still wrong is shown to the advisor, never hidden.
+        <div class="reads"><b>Reads:</b> the word limit.</div>
+      </li>
+    </ol>
+    <p class="never"><strong>Never sent to the AI:</strong> the sources behind each best-practice row, and last night's
+      notes in the amber panels below. They are there for the people shaping the content.</p>
+  </section>
+
+  <section>
+    <h2>Who can shape it <span class="chip code" style="vertical-align:middle">Approved by you, 2026-09-29</span></h2>
+    <p class="sub">The mentor's content arrives working at every level below. Each manager can change what suits their
+      brand, country or firm, and what they change passes down to the levels beneath them. These are the standard cascade
+      rules every other hub tab follows.</p>
+    <div class="tierline" aria-label="Cascade order">
+      <span class="t">Mentor</span><span class="arrow">&rarr;</span><span class="t">Global group manager</span><span class="arrow">&rarr;</span><span class="t">Group manager</span><span class="arrow">&rarr;</span><span class="t">Firm manager</span>
+    </div>
+    <ul class="fact stays" style="margin:0 0 1rem; padding:0.85rem 1rem 0.85rem 2rem; font-size:0.85rem">
+      <li>A level holds only its own changes. A row it has not touched keeps receiving improvements from above automatically.</li>
+      <li>A level can edit a row, switch it off, reset it, or add its own. Its changes are in force at once for the levels below.</li>
+      <li>When the level above later changes a row that a level has already edited, it is offered: Adopt, or Keep mine. Nothing is forced.</li>
+      <li>Nothing passes upward. A firm's change never reaches its group.</li>
+    </ul>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>What</th><th>Editable</th><th>What a manager can do</th></tr></thead>
+        <tbody>
+          <tr><td class="setting">Definition rows</td><td class="yes">All four tiers</td><td>Edit a row's wording, switch it off, reset it, or add their own Alignment or best-practice row. <span class="why">Shapes step 4, and step 1 for the first Alignment row.</span></td></tr>
+          <tr><td class="setting">Sources on a best-practice row</td><td class="yes">All four tiers</td><td>Edit or add the author, title and link behind a row they change or add. <span class="why">Never sent to the AI.</span></td></tr>
+          <tr><td class="setting">Domain writing rule</td><td class="yes">All four tiers</td><td>Reword how a statement is written, such as the Being rule for the Vision. <span class="why">Shapes step 4.</span></td></tr>
+          <tr><td class="setting">Questions for the room</td><td class="yes">All four tiers</td><td>Reword a question, switch it off, or add their own. <span class="why">Shapes step 2. An added question is judged by the AI, as the Strategy's scope is.</span></td></tr>
+          <tr><td class="setting">Word limit</td><td class="yes">All four tiers</td><td>Set a statement's limit. <span class="why">Shapes steps 4 and 5.</span></td></tr>
+          <tr><td class="setting">Style instructions</td><td class="yes">All four tiers</td><td>Reword what the AI is told for each style choice. <span class="why">Shapes step 4. The choices themselves stay fixed, because the code checks the AI picks from that list.</span></td></tr>
+          <tr><td class="setting">The five statement names and their order</td><td class="no">No tier</td><td><span class="why">Fixed keys. Every level's content attaches to them.</span></td></tr>
+          <tr><td class="setting">Which recording Wordsmith may read</td><td class="no">No tier</td><td><span class="why">Your privacy ruling: the Alignment Statements recording only.</span></td></tr>
+          <tr><td class="setting">The safety rules</td><td class="no">No tier</td><td><span class="why">Only the client's own words, word for word; nothing invented; what people typed treated as untrusted. These protect the client in every firm.</span></td></tr>
+          <tr><td class="setting">The code's checks</td><td class="no">No tier</td><td><span class="why">Invented numbers and names, length. They check the AI; they are not advice.</span></td></tr>
+          <tr><td class="setting">Keep the client's strongest phrases</td><td class="no">No tier</td><td><span class="why">Your approved drafting rule of 2026-09-29.</span></td></tr>
+          <tr><td class="setting">Spelling</td><td class="no">Not yet</td><td><span class="why">Fixed to New Zealand English in the code today. Open: a brand outside New Zealand may need its own.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="banner">
+    <p><strong>For approval.</strong> Only the best-practice sources are saved so far; the rest of this page is not. Green panels are in the file today and reach the AI.
+      Amber panels come from last night's ten-draft test page (<code>design/mockups/wordsmith-bench.html</code>): they
+      are <strong>not in the file</strong>, and the AI never sees them.</p>
+    <p>There is <strong>no screen</strong> in this step. The file is where a Mentor Hub tab would later read from;
+      building that tab is a separate decision.</p>
+  </div>
+
+  <section>
+    <h2>The five statements, from your Alignment document</h2>
+    <p class="sub">Page 7 of your Alignment document places each statement in a domain; page 8 says who it speaks to.
+      This comes from last night's notes and is <strong>not in the file</strong>. The domain is a rule for how the
+      statement is written. The deck states no such rule. All five rules are yours, approved
+      2026-09-29: Being as you gave it, the other four drawn from the background you supplied. None is in the file
+      yet.</p>
+    <div class="tablebox">
+      <table class="domains">
+        <thead><tr><th>Statement</th><th>Speaks to</th><th>Domain</th><th>Answers</th><th>Delivers</th><th>How the domain shapes the writing</th><th>Word limit in the file</th></tr></thead>
+        <tbody>
+          <tr><td class="setting">Vision</td><td>Stakeholders</td><td>Being</td><td>Where and When</td><td>Contextual Awareness</td><td><strong>Written in the affirmative, in the present tense: it must sound real now, as if already achieved.</strong> <span class="id">Your ruling, 2026-09-29.</span></td><td class="num">45</td></tr>
+          <tr><td class="setting">Purpose</td><td>Customers and Stakeholders</td><td>Knowing</td><td>Why</td><td>Frameworks</td><td>Written as a conviction the business holds: what it believes to be true about the world, stated as the reason that makes sense of everything it does. Never finished; never a goal, a date or a number. <span class="id">Approved by you, 2026-09-29.</span></td><td class="num">40</td></tr>
+          <tr><td class="setting">Values</td><td>Customers and Stakeholders</td><td>Relating</td><td>Who</td><td>Networks</td><td>Written as how the business treats named people (the team, customers, suppliers, the community) by what it does and what it refuses to do, phrased so it holds true from their side: what they can rely on from us. Rules that do not change when the market does. <span class="id">Approved by you, 2026-09-29.</span></td><td class="num">50</td></tr>
+          <tr><td class="setting">Mission</td><td>Stakeholders</td><td>Having</td><td>What</td><td>Influence</td><td>Written as the one milestone the business will have in hand by a stated date, with a measure, named as the next step towards the Vision. Stated towards what it wants, never away from what it fears. It says what and by when; never how (that is Strategy) or why (that is Purpose). <span class="id">Approved by you, 2026-09-29.</span></td><td class="num">45</td></tr>
+          <tr><td class="setting">Strategy</td><td>Board Members and Owners</td><td>Doing</td><td>How</td><td>Leverage</td><td>Written in active verbs as the business's chosen way to win: the few choices that govern what it does, meaning where it plays, the advantage it relies on, and what it will not do. A philosophy of how, not a list of tasks, and no dates or targets (those are the Mission's). The one statement expected to change as conditions change. <span class="id">Approved by you, 2026-09-29.</span></td><td class="num">35</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="fact stays" style="margin-top:1rem">
+      <h3>Where the Knowing, Relating, Having and Doing rules come from</h3>
+      <p>Background you supplied on 2026-09-29: the five Meta-Content Domains of NLP and Neuro-Semantics (L. Michael
+        Hall), the "filing cabinets" for where a person directs attention and language.</p>
+      <ul style="margin-top:0.5rem">
+        <li><strong>Being</strong>: identity and core state; the top of Dilts' Logical Levels. "Who am I?"</li>
+        <li><strong>Knowing</strong>: beliefs and how we make sense of reality; the Meta-Model and Meta-Programs. "What do I believe?"</li>
+        <li><strong>Relating</strong>: connection and how we treat others; rapport and perceptual positions (self, other, observer). "How do I treat others, and how do they treat me?"</li>
+        <li><strong>Having</strong>: getting and keeping resources; Well-Formed Outcomes and Toward/Away-From motivation. "How do I get what I need, and hold onto it?"</li>
+        <li><strong>Doing</strong>: action, behaviour and strategy; the TOTE model. "What steps do I take?"</li>
+      </ul>
+      <p style="margin-top:0.5rem">Your Alignment deck's sheet 6 already writes Values this way: "Who we're talking to /
+        What we say / What we mean".</p>
+    </div>
+    <p class="sub" style="margin-top:0.8rem">Why it matters: last night's Vision drafts were written as future hopes,
+      "We aim to be the best suspension business". Under the Being rule the same words read "We are the best suspension
+      business". The file does not carry the rule today, so the AI was never told.</p>
+  </section>
+
+  <section>
+    <h2>Each statement: what the file holds, and what the notes hold</h2>
+    <p class="sub">Since 2026-09-29, on your yes, each best-practice row in the file also records its sources (author,
+      title and link) in a <code>cites</code> field, shown here in the amber panel's Sources. The AI is never sent
+      them.</p>
+    <div class="stmts">
+
+      <article class="stmt">
+        <header><h3>Vision</h3><span class="meta">Being · Where and When · 45 words</span></header>
+        <div class="cols">
+          <div class="col infile">
+            <div class="colhead">In the file today · the AI is told</div>
+            <div class="row"><span class="tag al">Alignment</span><span>Speaks to stakeholders: where the business will be in future, and when. It answers Where and When.</span></div>
+            <div class="row"><span class="tag">Best practice</span><span>A future the business can actually reach, with a finish line, so everyone will know when it has been achieved.</span></div>
+            <div class="row"><span class="tag">Best practice</span><span>Vivid enough to picture, and specific to this business: a sentence any competitor could say is not a vision.</span></div>
+            <div><h4>Question for the room</h4><p class="q">By when do you want this to be true?</p></div>
+            <p class="gap">Missing: the Being rule. Nothing here tells the AI to write the Vision as already achieved.</p>
+          </div>
+          <div class="col notes">
+            <div class="colhead">Last night's notes · not in the file</div>
+            <div><h4>Your Alignment document says</h4><p>Speaking to your stakeholders: where you see the business in future, and when. It answers Where and When, and delivers Contextual Awareness.</p></div>
+            <div><h4>Best practice says</h4><ul>
+              <li>A picture of a future the business can actually reach, with a finish line, so everyone will know when it has been achieved (Collins &amp; Porras).</li>
+              <li>Pitched as a stretch: a 10 to 30 year goal with roughly 50 to 70 per cent odds, which the team still believes it can hit.</li>
+              <li>Described vividly enough that people can picture it. It turns the vision from words into pictures.</li>
+              <li>Specific to this business. "Recognised leader in the insurance field" fails because any firm could say it (Collis &amp; Rukstad).</li>
+            </ul></div>
+            <div><h4>How it differs from its neighbours</h4><p>Vision can be reached and carries a date. Purpose is never finished. In your method, Mission is the next milestone on the way to the Vision, and Strategy is how you intend to get there.</p></div>
+            <div class="src"><h4>Sources</h4>
+              <a href="https://hbr.org/1996/09/building-your-companys-vision" target="_blank" rel="noopener">Collins &amp; Porras, Building Your Company's Vision, HBR 1996</a>
+              <a href="https://hbr.org/2008/04/can-you-say-what-your-strategy-is" target="_blank" rel="noopener">Collis &amp; Rukstad, Can You Say What Your Strategy Is?, HBR 2008</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="stmt">
+        <header><h3>Purpose</h3><span class="meta">Knowing · Why · 40 words</span></header>
+        <div class="cols">
+          <div class="col infile">
+            <div class="colhead">In the file today · the AI is told</div>
+            <div class="row"><span class="tag al">Alignment</span><span>Speaks to customers and stakeholders: why the business does what it does, beyond the need to make money. It answers Why.</span></div>
+            <div class="row"><span class="tag">Best practice</span><span>Lasts indefinitely and is never finished. It does not need to be unique, and making money for the owners is never a purpose.</span></div>
+            <div class="row"><span class="tag al">Alignment</span><span>One of five statements held in balance, not the master statement.</span></div>
+            <div><h4>Question for the room</h4><p class="q">None.</p></div>
+          </div>
+          <div class="col notes">
+            <div class="colhead">Last night's notes · not in the file</div>
+            <div><h4>Your Alignment document says</h4><p>Speaking to both Customers and Stakeholders: why you do what you do beyond economic requirement. It answers Why, and delivers Frameworks.</p></div>
+            <div><h4>Best practice says</h4><ul>
+              <li>The reason the business exists beyond making money. It lasts indefinitely and is never achieved: "a guiding star on the horizon, forever pursued but never reached" (Collins &amp; Porras).</li>
+              <li>Found by asking "why is that important?" five times, starting from what the business makes.</li>
+              <li>A common form is "To [contribution] so that [impact]" (Simon Sinek).</li>
+              <li>It does not have to be unique, and "maximise shareholder wealth" is never a purpose.</li>
+            </ul></div>
+            <div><h4>How it differs from its neighbours</h4><p>Vision says where you are going; Purpose says why. Values guide how you behave on the way. Drucker, and Collis &amp; Rukstad, call this statement the "mission". In your method it is Purpose.</p></div>
+            <div><h4>Where the two disagree</h4><p>Your page 7 warns that the "discover your WHY" fashion ignores the other four domains. Much of the web's best practice (Sinek) puts WHY first. Your method treats Purpose as one of five statements in balance.</p></div>
+            <div class="src"><h4>Sources</h4>
+              <a href="https://hbr.org/1996/09/building-your-companys-vision" target="_blank" rel="noopener">Collins &amp; Porras, Building Your Company's Vision, HBR 1996</a>
+              <a href="https://simonsinek.com/stories/learn-simons-simple-exercise-for-finding-your-why" target="_blank" rel="noopener">Simon Sinek, Find Your Why</a>
+              <a href="https://drucker.institute/wp-content/uploads/2018/08/Reading_Drucker-on-Mission.pdf" target="_blank" rel="noopener">Drucker Institute, Drucker on Mission</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="stmt">
+        <header><h3>Values</h3><span class="meta">Relating · Who · 50 words</span></header>
+        <div class="cols">
+          <div class="col infile">
+            <div class="colhead">In the file today · the AI is told</div>
+            <div class="row"><span class="tag al">Alignment</span><span>Speaks to customers and stakeholders: how the business's action or inaction affects others, and what guides its decisions about people inside and outside it. It answers Who.</span></div>
+            <div class="row"><span class="tag">Best practice</span><span>A few principles, five or six at most, that actually decide behaviour, including when keeping them costs the business.</span></div>
+            <div class="row"><span class="tag">Best practice</span><span>Concrete decision rules beat bland words; integrity, teamwork and customer focus alone say nothing.</span></div>
+            <div><h4>Question for the room</h4><p class="q">None.</p></div>
+          </div>
+          <div class="col notes">
+            <div class="colhead">Last night's notes · not in the file</div>
+            <div><h4>Your Alignment document says</h4><p>Speaking to both Customers and Stakeholders: the social element, meaning how your action or inaction affects others, and what guides your decisions about how you deal with people inside and outside the business. It answers Who, and delivers Networks.</p></div>
+            <div><h4>Best practice says</h4><ul>
+              <li>A few principles, five or six at most, that actually decide behaviour. More than that usually means practices or strategies mixed in (Collins &amp; Porras).</li>
+              <li>The test: would we keep this value if it cost us? Real values "inflict pain" (Lencioni).</li>
+              <li>Separate true core values from aspirational ones, from permission-to-play ones such as honesty, which every business must meet anyway, and from accidental ones (Lencioni).</li>
+              <li>Built into hiring, reviews, promotion and dismissal. Avoid bland words: integrity, teamwork and customer focus appear on half the Fortune 100's lists, and on Enron's.</li>
+            </ul></div>
+            <div><h4>How it differs from its neighbours</h4><p>Purpose is why the business exists. Values are how its people treat others while pursuing it. Unlike Strategy, values do not change when the market does.</p></div>
+            <div class="src"><h4>Sources</h4>
+              <a href="https://hbr.org/2002/07/make-your-values-mean-something" target="_blank" rel="noopener">Lencioni, Make Your Values Mean Something, HBR 2002</a>
+              <a href="https://hbr.org/1996/09/building-your-companys-vision" target="_blank" rel="noopener">Collins &amp; Porras, Building Your Company's Vision, HBR 1996</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="stmt">
+        <header><h3>Mission</h3><span class="meta">Having · What · 45 words</span></header>
+        <div class="cols">
+          <div class="col infile">
+            <div class="colhead">In the file today · the AI is told</div>
+            <div class="row"><span class="tag al">Alignment</span><span>Speaks to stakeholders: the milestone that must be achieved within a stated timeframe, the mission period, for the longer-term Vision to succeed. It answers What.</span></div>
+            <div class="row"><span class="tag al">Alignment</span><span>The next staging post on the way to the Vision, with a date and a measure.</span></div>
+            <div><h4>Questions for the room</h4><p class="q">By when should this milestone be reached?</p><p class="q">How will you measure that it has been reached?</p></div>
+          </div>
+          <div class="col notes">
+            <div class="colhead">Last night's notes · not in the file</div>
+            <div><h4>Your Alignment document says</h4><p>Speaking to Stakeholders: what milestone needs to be achieved within a specified timeframe, the mission period, to ensure the success of the longer-term Vision. It answers What, and delivers Influence.</p></div>
+            <div><h4>Best practice says</h4><ul>
+              <li>The sources disagree most here, and fall into three camps.</li>
+              <li>Camp 1: mission means the reason the business exists, and it lasts forever. Drucker says it "should fit on a T-shirt"; Collis &amp; Rukstad call it "why we exist".</li>
+              <li>Camp 2: mission means what we do, and for whom (Bain).</li>
+              <li>Camp 3: mission means a bold goal with a finish line and a date. Collins &amp; Porras use NASA's moon landing as the example. Your document sits in this camp: one measurable milestone, a date, and a clear step towards the Vision.</li>
+            </ul></div>
+            <div><h4>How it differs from its neighbours</h4><p>In your method, Mission is the next staging post, Vision is the destination, and Strategy is the route. Readers from camp 1 will take a milestone mission for a purpose statement, so it helps to say which kind this is in the plan.</p></div>
+            <div class="src"><h4>Sources</h4>
+              <a href="https://drucker.institute/wp-content/uploads/2018/08/Reading_Drucker-on-Mission.pdf" target="_blank" rel="noopener">Drucker Institute, Drucker on Mission</a>
+              <a href="https://www.bain.com/insights/management-tools-mission-and-vision-statements/" target="_blank" rel="noopener">Bain, Mission and Vision Statements</a>
+              <a href="https://hbr.org/1996/09/building-your-companys-vision" target="_blank" rel="noopener">Collins &amp; Porras, Building Your Company's Vision, HBR 1996</a>
+            </div>
+            <p class="gap">The file holds no best-practice row for Mission. Your Alignment wording stands alone, as your document wins wherever the camps differ.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="stmt">
+        <header><h3>Strategy</h3><span class="meta">Doing · How · 35 words</span></header>
+        <div class="cols">
+          <div class="col infile">
+            <div class="colhead">In the file today · the AI is told</div>
+            <div class="row"><span class="tag al">Alignment</span><span>Speaks to board members and owners: the over-arching philosophy of how the business intends to achieve the Vision. It answers How.</span></div>
+            <div class="row"><span class="tag">Best practice</span><span>A short statement of choices, not a plan: which customers and where, and the advantage that makes customers choose this business.</span></div>
+            <div class="row"><span class="tag">Best practice</span><span>Says what the business will not do; a statement a competitor could equally make is not a strategy.</span></div>
+            <div><h4>Question for the room</h4><p class="q">Which customers or work is this strategy not for?</p></div>
+          </div>
+          <div class="col notes">
+            <div class="colhead">Last night's notes · not in the file</div>
+            <div><h4>Your Alignment document says</h4><p>Speaking to Board Members and Owners: the over-arching philosophy about how you intend to achieve the Vision. It answers How, and delivers Leverage.</p></div>
+            <div><h4>Best practice says</h4><ul>
+              <li>A short statement of choices, not a plan. Collis &amp; Rukstad suggest 35 words or fewer covering three things: the objective (one measurable, time-bound goal), the scope (which customers, where, and what you will not do) and the advantage (why customers choose you, and what you do that others cannot combine).</li>
+              <li>Lafley &amp; Martin put it as two choices at the heart: where to play and how to win.</li>
+              <li>Two tests: could a competitor say the same thing? Does it say what you will not do? A plan that never says what you won't do is not a strategy (Martin).</li>
+            </ul></div>
+            <div><h4>How it differs from its neighbours</h4><p>Strategy is the one statement of the five expected to change as conditions change; Purpose and Values stay. Mission is the what-by-when; Strategy is the how.</p></div>
+            <div><h4>Where the two disagree</h4><p>Best practice puts the measurable objective inside the strategy; your document puts it in the Mission.</p></div>
+            <div class="src"><h4>Sources</h4>
+              <a href="https://hbr.org/2008/04/can-you-say-what-your-strategy-is" target="_blank" rel="noopener">Collis &amp; Rukstad, Can You Say What Your Strategy Is?, HBR 2008</a>
+              <a href="https://hbr.org/2014/01/the-big-lie-of-strategic-planning" target="_blank" rel="noopener">Roger Martin, The Big Lie of Strategic Planning, HBR 2014</a>
+              <a href="https://www.lennysnewsletter.com/p/the-ultimate-guide-to-strategy-roger-martin" target="_blank" rel="noopener">Roger Martin on strategy (Lenny's Newsletter)</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>The ten instructions that move</h2>
+    <p class="sub">When the room states a purpose and style, Wordsmith turns it into one choice per setting. The AI then
+      receives the instruction in the right-hand column for each choice.</p>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Setting</th><th>Choice</th><th>What the AI is told</th><th>Fixed id</th></tr></thead>
+        <tbody>
+          <tr><td class="setting group-start" rowspan="3">Sentence length</td><td class="mono group-start">short</td><td class="words group-start">Short sentences, twelve words or fewer each.</td><td class="group-start"><code class="id">ws-style-length-short</code></td></tr>
+          <tr><td class="mono">medium</td><td class="words">Sentences of about twelve to twenty words.</td><td><code class="id">ws-style-length-medium</code></td></tr>
+          <tr><td class="mono">long</td><td class="words">One or two full, flowing sentences.</td><td><code class="id">ws-style-length-long</code></td></tr>
+
+          <tr><td class="setting group-start" rowspan="3">Formality</td><td class="mono group-start">plain</td><td class="words group-start">Everyday words a person would say out loud. Contractions are fine.</td><td class="group-start"><code class="id">ws-style-formality-plain</code></td></tr>
+          <tr><td class="mono">professional</td><td class="words">Precise, measured business language. No contractions, no slang, no filler.</td><td><code class="id">ws-style-formality-professional</code></td></tr>
+          <tr><td class="mono">formal</td><td class="words">Formal written language suited to an official document. No contractions.</td><td><code class="id">ws-style-formality-formal</code></td></tr>
+
+          <tr><td class="setting group-start" rowspan="2">Jargon</td><td class="mono group-start">avoid</td><td class="words group-start">No industry or business jargon; say it the way a customer would understand it.</td><td class="group-start"><code class="id">ws-style-jargon-avoid</code></td></tr>
+          <tr><td class="mono">allow</td><td class="words">Industry terms are fine where the reader will know them.</td><td><code class="id">ws-style-jargon-allow</code></td></tr>
+
+          <tr><td class="setting group-start" rowspan="2">Voice</td><td class="mono group-start">we</td><td class="words group-start">Speak as "we".</td><td class="group-start"><code class="id">ws-style-voice-we</code></td></tr>
+          <tr><td class="mono">the-business</td><td class="words">Speak about the business in the third person ("the business", "it"), never "we".</td><td><code class="id">ws-style-voice-the-business</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>How it sits in the file</h2>
+    <p class="sub">A new <code>styleSettings</code> list beside the existing <code>statements</code>. Each choice
+      has a fixed id, like the definition rows, so a lower tier can later adopt, change or decline it on the standard
+      cascade rules.</p>
+<pre><span class="c">// data/wordsmith-statements.json (the five statements are unchanged and shortened here)</span>
+{
+  <span class="k">"readme"</span>: <span class="s">"… (one sentence added: styleSettings holds the instruction the AI receives for each style choice)"</span>,
+  <span class="k">"statements"</span>: [ <span class="c">… Vision, Purpose, Values, Mission, Strategy, as today …</span> ],
+  <span class="k">"styleSettings"</span>: [
+    {
+      <span class="k">"key"</span>: <span class="s">"sentenceLength"</span>,
+      <span class="k">"options"</span>: [
+        { <span class="k">"id"</span>: <span class="s">"ws-style-length-short"</span>,  <span class="k">"value"</span>: <span class="s">"short"</span>,  <span class="k">"instruction"</span>: <span class="s">"Short sentences, twelve words or fewer each."</span> },
+        { <span class="k">"id"</span>: <span class="s">"ws-style-length-medium"</span>, <span class="k">"value"</span>: <span class="s">"medium"</span>, <span class="k">"instruction"</span>: <span class="s">"Sentences of about twelve to twenty words."</span> },
+        { <span class="k">"id"</span>: <span class="s">"ws-style-length-long"</span>,   <span class="k">"value"</span>: <span class="s">"long"</span>,   <span class="k">"instruction"</span>: <span class="s">"One or two full, flowing sentences."</span> }
+      ]
+    },
+    {
+      <span class="k">"key"</span>: <span class="s">"formality"</span>,
+      <span class="k">"options"</span>: [
+        { <span class="k">"id"</span>: <span class="s">"ws-style-formality-plain"</span>,        <span class="k">"value"</span>: <span class="s">"plain"</span>,        <span class="k">"instruction"</span>: <span class="s">"Everyday words a person would say out loud. Contractions are fine."</span> },
+        { <span class="k">"id"</span>: <span class="s">"ws-style-formality-professional"</span>, <span class="k">"value"</span>: <span class="s">"professional"</span>, <span class="k">"instruction"</span>: <span class="s">"Precise, measured business language. No contractions, no slang, no filler."</span> },
+        { <span class="k">"id"</span>: <span class="s">"ws-style-formality-formal"</span>,       <span class="k">"value"</span>: <span class="s">"formal"</span>,       <span class="k">"instruction"</span>: <span class="s">"Formal written language suited to an official document. No contractions."</span> }
+      ]
+    },
+    {
+      <span class="k">"key"</span>: <span class="s">"jargon"</span>,
+      <span class="k">"options"</span>: [
+        { <span class="k">"id"</span>: <span class="s">"ws-style-jargon-avoid"</span>, <span class="k">"value"</span>: <span class="s">"avoid"</span>, <span class="k">"instruction"</span>: <span class="s">"No industry or business jargon; say it the way a customer would understand it."</span> },
+        { <span class="k">"id"</span>: <span class="s">"ws-style-jargon-allow"</span>, <span class="k">"value"</span>: <span class="s">"allow"</span>, <span class="k">"instruction"</span>: <span class="s">"Industry terms are fine where the reader will know them."</span> }
+      ]
+    },
+    {
+      <span class="k">"key"</span>: <span class="s">"voice"</span>,
+      <span class="k">"options"</span>: [
+        { <span class="k">"id"</span>: <span class="s">"ws-style-voice-we"</span>,           <span class="k">"value"</span>: <span class="s">"we"</span>,           <span class="k">"instruction"</span>: <span class="s">"Speak as \"we\"."</span> },
+        { <span class="k">"id"</span>: <span class="s">"ws-style-voice-the-business"</span>, <span class="k">"value"</span>: <span class="s">"the-business"</span>, <span class="k">"instruction"</span>: <span class="s">"Speak about the business in the third person (\"the business\", \"it\"), never \"we\"."</span> }
+      ]
+    }
+  ]
+}</pre>
+  </section>
+
+  <section class="facts">
+    <div class="fact same">
+      <h3>What stays exactly the same</h3>
+      <ul>
+        <li>The AI receives the same words, in the same order. The Wordsmith Lab is re-run afterwards to prove it.</li>
+        <li>The choices the AI may pick from (short, medium, long and so on) are read from this file too, so the list
+          and its wording cannot drift apart.</li>
+        <li>Nobody can edit any of this yet. That needs the Mentor Hub tab.</li>
+      </ul>
+    </div>
+    <div class="fact stays">
+      <h3>What is still in the code after this step</h3>
+      <ul>
+        <li>Two sentences that wrap words the room gave: <em>"It should feel [tone]."</em> and
+          <em>"The reader is [audience]: lead with what matters most to them."</em></li>
+        <li>The rest of the drafting instructions: the five-step rules you approved on 2026-09-29, such as keeping
+          the owner's strongest phrases and New Zealand spelling.</li>
+      </ul>
+    </div>
+  </section>
+</div>

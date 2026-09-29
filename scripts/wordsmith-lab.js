@@ -168,19 +168,17 @@ function report (results, m) {
     })
     ws.STATEMENT_NAMES.forEach((n) => {
       lines.push('### ' + n, '')
-      const first = runs.find(r => r.out)
-      const s0 = first && first.out.statements.find(s => s.name === n)
-      if (s0) {
-        lines.push('Quotes used: ' + (s0.quotes.length ? s0.quotes.map(q => '"' + q.text + '"').join(' · ') : '*none — nothing was said*'))
-        if (s0.questions.length) { lines.push('', 'Questions for the room: ' + s0.questions.map(q => q.question).join(' · ')) }
-        lines.push('')
-      }
+      // Each style runs its own sort, so its quotes and questions are printed with its own draft.
       runs.filter(r => r.out).forEach((r) => {
         const s = r.out.statements.find(x => x.name === n)
-        if (s.error) { lines.push('- **' + r.style.id + '** ❌ ' + s.error) }
-        if (!s.draft) { return }
-        const verdict = s.checks.passed ? '✅' : '⚠ ' + s.checks.issues.map(i => i.code + ' (' + i.detail + ')').join(', ')
-        lines.push('- **' + r.style.id + '** (attempt ' + s.attempts + ') ' + verdict, '  > ' + s.draft.text, '  *Why:* ' + s.draft.why)
+        lines.push('- **' + r.style.id + '** — quotes used: ' + (s.quotes.length ? s.quotes.map(q => '"' + q.text + '"').join(' · ') : '*none — nothing was said*'))
+        if (s.questions.length) { lines.push('  Questions for the room: ' + s.questions.map(q => q.question).join(' · ')) }
+        if (s.error) { lines.push('  ❌ ' + s.error) }
+        if (s.draft) {
+          const verdict = s.checks.passed ? '✅' : '⚠ ' + s.checks.issues.map(i => i.code + ' (' + i.detail + ')').join(', ')
+          lines.push('  Draft (attempt ' + s.attempts + ') ' + verdict, '  > ' + s.draft.text, '  *Why:* ' + s.draft.why)
+        }
+        lines.push('')
       })
       lines.push('')
     })

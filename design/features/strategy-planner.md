@@ -1705,15 +1705,43 @@ loaded into the mentor hub cascades down thru the layers to firm manager with th
 decline rules as all other cascade content."* The standard rules (`tier-cascade.md` P3, P11), all
 four tiers. Each definition is a row with a stable id, ready for `resolveInheritedRows`; the five
 statement names are fixed keys, like the Growth Aspects'. Until the hub tab is built the shipped
-file is the mentor's content.
+file is the mentor's content. **Managers at every level shape it** (Mike, 2026-09-29: *"I want
+various level managers to feel as if they have some input into the shaping/improvement of the AI and
+its advice for their firm or group - therefore - appropriate fields must be editable and cascade
+down"*); the split, **approved by him the same day** as the one the hub tab is built to
+(`wordsmith-style-settings.html`, "Who can shape it"): **editable at all four tiers, cascading** —
+definition rows, their sources, each domain writing rule, the questions for the room, word limits,
+the style instructions; **fixed at every tier** — the five statement names and order, which
+recording Wordsmith may read, the safety rules, the code's checks, and keeping the client's strongest
+phrases. Spelling is fixed to New Zealand English in the code, an open question. **When the hub tab is built, its colours and format match the other
+tabs in the hub** (Mike, 2026-09-29: *"just check the colours and format match that of the other
+pages in the hub when you go to build stage"*) — checked beside an existing tab before it ships; the
+drawing `wordsmith-style-settings.html` shows the content, not the screen.
 
-**How Wordsmith will be measured** (impact test, stated before design): a bench of ten drafts
-from a real recorded segment, the five statements each written in two styles. Mike judges them,
-and fewer than seven usable with light edits means it is not earning its place. **The Wordsmith
-Lab** (`scripts/wordsmith-lab.js`, his yes 2026-09-29) re-runs that bench through the saved
-instructions and runs the code's own checks on each step. Its style measures are ours and unproven:
-what makes a good draft, and who judges it, is Mike's open decision (2026-09-29) — he declined
-hand-marked must-keep phrases as rules drawn from one sample. After
+**Each statement's domain is a rule for how it is written (Mike, 2026-09-29).** The five domains
+on the Alignment deck's sheet 5 — Being, Knowing, Relating, Having, Doing — are not labels. In his
+words: *"BEING relates to the construction of a Vision statement by reminding people to create their
+statement for the future in the affirmative - in order for it to be 'being' it must be/sound real
+NOW. so statements must sound as if already achieved"*. **Vision is written in the present tense,
+as if already achieved.** The deck states no writing rule for any domain. For the other four he
+supplied the NLP background the same day (the Meta-Content Domains, L. Michael Hall's
+Neuro-Semantics), and the rule drawn from it for each was **approved by him the same day**, word for
+word as on [`../mockups/wordsmith-style-settings.html`](../mockups/wordsmith-style-settings.html):
+**Purpose (Knowing)** a conviction the business holds, never finished, never a goal, date or number;
+**Values (Relating)** how it treats named people by what it does and refuses to do, true from their
+side, unchanged by the market; **Mission (Having)** the one milestone in hand by a stated date, with a
+measure, the next step towards the Vision, stated towards what it wants, what and by when only;
+**Strategy (Doing)** active verbs, the chosen way to win — where it plays, its advantage, what it
+will not do — a philosophy of how with no dates or targets, the one statement expected to change.
+Not yet in `data/wordsmith-statements.json`, so the drafts do not follow it: the Lab's Vision
+drafts of 2026-09-29 all read as future hopes ("We aim to be…").
+
+**How Wordsmith will be measured: OPEN.** Mike ruled 2026-09-29 that the scoping measure — he
+hand-judges ten drafts, seven usable with light edits — is flawed, and it is not the test. He
+declined hand-marked must-keep phrases for the same reason: rules drawn from one sample. **The
+Wordsmith Lab** (`scripts/wordsmith-lab.js`, his yes 2026-09-29) re-runs a bench of ten drafts
+from his own recorded dictation (five statements, two styles) and runs the code's own checks on
+each step; its style measures are ours and unproven. After
 it is built: the time from pressing Wordsmith to approved text, and how much of each draft
 survives unedited.
 

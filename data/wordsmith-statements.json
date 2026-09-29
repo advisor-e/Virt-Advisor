@@ -1,13 +1,20 @@
 {
-  "readme": "Wordsmith's five Alignment Statements (item 15.14). The MENTOR'S shipped content: it loads at the Mentor Hub and cascades on the standard rules (tier-cascade.md P3, P11; Mike, 2026-09-29). The five names are fixed keys and are not editable at any tier. Every definition row and element carries a stable id so resolveInheritedRows can switch it off, edit it or add beside it. Alignment document rows come first and win wherever best practice differs (strategy-planner.md 9b). Element questions are DRAFT WORDING, not yet approved by Mike.",
+  "readme": "Wordsmith's five Alignment Statements (item 15.14). The MENTOR'S shipped content: it loads at the Mentor Hub and cascades on the standard rules (tier-cascade.md P3, P11; Mike, 2026-09-29). The five names are fixed keys and are not editable at any tier. Every definition row and element carries a stable id so resolveInheritedRows can switch it off, edit it or add beside it. Alignment document rows come first and win wherever best practice differs (strategy-planner.md 9b). Each best-practice row names what it was drawn from in cites (author, title, url; Mike, 2026-09-29): for the person reviewing it, never sent to the AI. Element questions are DRAFT WORDING, not yet approved by Mike.",
   "statements": [
     {
       "name": "Vision",
       "maxWords": 45,
       "definition": [
         { "id": "ws-vision-d1", "source": "alignment", "text": "Speaks to stakeholders: where the business will be in future, and when. It answers Where and When." },
-        { "id": "ws-vision-d2", "source": "best-practice", "text": "A future the business can actually reach, with a finish line, so everyone will know when it has been achieved." },
-        { "id": "ws-vision-d3", "source": "best-practice", "text": "Vivid enough to picture, and specific to this business: a sentence any competitor could say is not a vision." }
+        { "id": "ws-vision-d2", "source": "best-practice", "text": "A future the business can actually reach, with a finish line, so everyone will know when it has been achieved.",
+          "cites": [
+            { "author": "Collins & Porras", "title": "Building Your Company's Vision, Harvard Business Review, 1996", "url": "https://hbr.org/1996/09/building-your-companys-vision" }
+          ] },
+        { "id": "ws-vision-d3", "source": "best-practice", "text": "Vivid enough to picture, and specific to this business: a sentence any competitor could say is not a vision.",
+          "cites": [
+            { "author": "Collins & Porras", "title": "Building Your Company's Vision, Harvard Business Review, 1996", "url": "https://hbr.org/1996/09/building-your-companys-vision" },
+            { "author": "Collis & Rukstad", "title": "Can You Say What Your Strategy Is?, Harvard Business Review, 2008", "url": "https://hbr.org/2008/04/can-you-say-what-your-strategy-is" }
+          ] }
       ],
       "elements": [
         { "id": "ws-vision-e1", "detect": "date", "label": "when", "question": "By when do you want this to be true?" }
@@ -18,7 +25,10 @@
       "maxWords": 40,
       "definition": [
         { "id": "ws-purpose-d1", "source": "alignment", "text": "Speaks to customers and stakeholders: why the business does what it does, beyond the need to make money. It answers Why." },
-        { "id": "ws-purpose-d2", "source": "best-practice", "text": "Lasts indefinitely and is never finished. It does not need to be unique, and making money for the owners is never a purpose." },
+        { "id": "ws-purpose-d2", "source": "best-practice", "text": "Lasts indefinitely and is never finished. It does not need to be unique, and making money for the owners is never a purpose.",
+          "cites": [
+            { "author": "Collins & Porras", "title": "Building Your Company's Vision, Harvard Business Review, 1996", "url": "https://hbr.org/1996/09/building-your-companys-vision" }
+          ] },
         { "id": "ws-purpose-d3", "source": "alignment", "text": "One of five statements held in balance, not the master statement." }
       ],
       "elements": []
@@ -28,8 +38,15 @@
       "maxWords": 50,
       "definition": [
         { "id": "ws-values-d1", "source": "alignment", "text": "Speaks to customers and stakeholders: how the business's action or inaction affects others, and what guides its decisions about people inside and outside it. It answers Who." },
-        { "id": "ws-values-d2", "source": "best-practice", "text": "A few principles, five or six at most, that actually decide behaviour, including when keeping them costs the business." },
-        { "id": "ws-values-d3", "source": "best-practice", "text": "Concrete decision rules beat bland words; integrity, teamwork and customer focus alone say nothing." }
+        { "id": "ws-values-d2", "source": "best-practice", "text": "A few principles, five or six at most, that actually decide behaviour, including when keeping them costs the business.",
+          "cites": [
+            { "author": "Collins & Porras", "title": "Building Your Company's Vision, Harvard Business Review, 1996", "url": "https://hbr.org/1996/09/building-your-companys-vision" },
+            { "author": "Lencioni", "title": "Make Your Values Mean Something, Harvard Business Review, 2002", "url": "https://hbr.org/2002/07/make-your-values-mean-something" }
+          ] },
+        { "id": "ws-values-d3", "source": "best-practice", "text": "Concrete decision rules beat bland words; integrity, teamwork and customer focus alone say nothing.",
+          "cites": [
+            { "author": "Lencioni", "title": "Make Your Values Mean Something, Harvard Business Review, 2002", "url": "https://hbr.org/2002/07/make-your-values-mean-something" }
+          ] }
       ],
       "elements": []
     },
@@ -50,8 +67,16 @@
       "maxWords": 35,
       "definition": [
         { "id": "ws-strategy-d1", "source": "alignment", "text": "Speaks to board members and owners: the over-arching philosophy of how the business intends to achieve the Vision. It answers How." },
-        { "id": "ws-strategy-d2", "source": "best-practice", "text": "A short statement of choices, not a plan: which customers and where, and the advantage that makes customers choose this business." },
-        { "id": "ws-strategy-d3", "source": "best-practice", "text": "Says what the business will not do; a statement a competitor could equally make is not a strategy." }
+        { "id": "ws-strategy-d2", "source": "best-practice", "text": "A short statement of choices, not a plan: which customers and where, and the advantage that makes customers choose this business.",
+          "cites": [
+            { "author": "Collis & Rukstad", "title": "Can You Say What Your Strategy Is?, Harvard Business Review, 2008", "url": "https://hbr.org/2008/04/can-you-say-what-your-strategy-is" },
+            { "author": "Lafley & Martin", "title": "Roger Martin on strategy: where to play and how to win, Lenny's Newsletter", "url": "https://www.lennysnewsletter.com/p/the-ultimate-guide-to-strategy-roger-martin" }
+          ] },
+        { "id": "ws-strategy-d3", "source": "best-practice", "text": "Says what the business will not do; a statement a competitor could equally make is not a strategy.",
+          "cites": [
+            { "author": "Roger Martin", "title": "The Big Lie of Strategic Planning, Harvard Business Review, 2014", "url": "https://hbr.org/2014/01/the-big-lie-of-strategic-planning" },
+            { "author": "Collis & Rukstad", "title": "Can You Say What Your Strategy Is?, Harvard Business Review, 2008", "url": "https://hbr.org/2008/04/can-you-say-what-your-strategy-is" }
+          ] }
       ],
       "elements": [
         { "id": "ws-strategy-e1", "detect": "model", "label": "scope", "question": "Which customers or work is this strategy not for?" }
