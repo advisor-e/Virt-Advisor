@@ -141,8 +141,10 @@ method, and the tab says *"Nothing here is yours to set"* rather than showing an
 **Deferred on purpose: the Flagged Issues Register.** The cash flow document's register — every
 assumption listed with a status of *open / accountant-accepted / resolved* — is the single most
 valuable thing either document offers, and this app has nothing like it. It is **not built**,
-because it is an approval workflow for AI output and **no report calls the AI yet**
-(`server/routes/report.js` never touches OpenAI). Building a sign-off screen for output nothing
+because it is an approval workflow for AI output and **no feature sends the cash flow prompt it
+belongs to**. Two report features do now call the AI — the market research for the Three-Way
+Forecast and the Next Steps draft on page 8 of the Business Performance Report — and neither uses
+this prompt. Building a sign-off screen for output nothing
 generates is work with no user. The prompt section describing it stays locked, so a model
 following the prompt still produces one; the app-side workflow waits until a report actually
 invokes a model. **This was a judgement call, made 2026-08-21, and it is recorded here so the
