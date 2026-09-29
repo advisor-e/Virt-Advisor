@@ -241,7 +241,12 @@ await page.evaluate(() => [...document.querySelectorAll('.hub-panel')]
 
 `__webpack_hmr` and `_loading/sse` aborting are the dev server, not faults. So is
 `403 NOT_FIRM_TIER` on `/api/firm-manager/meeting-patterns` from a manager hub above the firm —
-that is Meeting Review P13 keeping meeting figures inside the firm, working correctly.
+that is Meeting Review P13 keeping meeting figures inside the firm, working correctly. So is
+`500 DB_ERROR` ("Could not read …") on `/api/mentor/outcome-learning` and
+`/api/firm-manager/outcome-consent` **on the laptop**: both deliberately keep no dev-file stand-in —
+a consent held only in a JSON file on one machine is a consent nobody could audit
+(`server/routes/outcomeConsent.js`) — so without MySQL they refuse, safely. They load on the desktop
+and in UAT.
 
 ---
 

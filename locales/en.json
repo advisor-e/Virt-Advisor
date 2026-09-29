@@ -6163,6 +6163,57 @@
       "failed": "This summary couldn't be written.",
       "retry": "Write it again"
     },
+    "wordsmith": {
+      "button": "Wordsmith",
+      "notReady": "Wordsmith works from what was said here. Record this section first.",
+      "stillTranscribing": "Wordsmith can start once this section has been turned into text.",
+      "nothingSaidSection": "Nothing was said in this section, so there is nothing to write from.",
+      "headingNote": "writes the five statements from what the client said",
+      "forSound": "for: {purpose} · sound: {style}",
+      "forQuestion": "What are these statements for?",
+      "soundQuestion": "How should they sound?",
+      "forExample": "For example: \"This supports a bank loan\" or \"This is to put on a poster and hang in our staff room\".",
+      "soundExample": "For example: \"Humble but positive\" or \"Professional; educated people will review our submission\".",
+      "buttons": {
+        "write": "Write the statements",
+        "close": "Close Wordsmith",
+        "againWithThese": "Write again with these",
+        "againWithAnswer": "Write again with this answer",
+        "use": "Use this wording",
+        "edit": "Edit",
+        "again": "Write again",
+        "tryAgain": "Try again",
+        "replace": "Replace",
+        "cancel": "Cancel"
+      },
+      "settings": {
+        "writtenAs": "Written as:",
+        "sentenceLength": { "short": "Short sentences", "medium": "Medium sentences", "long": "Long sentences" },
+        "formality": { "plain": "Plain", "professional": "Professional", "formal": "Formal" },
+        "jargon": { "avoid": "No jargon", "allow": "Jargon allowed" },
+        "voice": { "we": "\"We\"", "the-business": "\"The business\"" },
+        "feels": "feels {tone}",
+        "for": "for {audience}"
+      },
+      "draft": {
+        "why": "Why:",
+        "said": "What the client said ({n} passage) | What the client said ({n} passages)",
+        "roomQuestion": "A question for the room:",
+        "roomPlaceholder": "Type the room's answer",
+        "check": "Check this: \"{words}\" is not in anything the client said.",
+        "checkNumber": "Check this: the number {number} is not in anything the client said.",
+        "checkSpelling": "American spelling: {word} → {nz}.",
+        "checkLength": "Too long: {n} words, the limit is {max}.",
+        "checkStill": "Wordsmith wrote it again and it is still there.",
+        "nothingSaid": "Nothing was said about {name} in this section, so there is nothing to write from."
+      },
+      "clientAgrees": "The client has read this statement and agrees with it",
+      "replace": "Replace what's in the {name} box?",
+      "stamp": "✓ written with Wordsmith · client agreed · {time}",
+      "working": "Writing the five statements…",
+      "failed": "Wordsmith couldn't write these statements.",
+      "failedNote": "Nothing in the boxes has changed."
+    },
     "scope": {
       "domainsHeading": "The four Planning Domains",
       "domainsCaption": "Pick the domains this session covers. The descriptions are the deck's own words.",
@@ -7426,6 +7477,7 @@
       "meetingReview": "Meeting Review",
       "clientCopyRequest": "Client Copy Request",
       "growthAspectQuestions": "Growth Aspect Questions",
+      "wordsmith": "Wordsmith",
       "teamCaseStudies": "Team Case Studies",
       "sessionProcesses": "Session Processes",
       "teamPipeline": "Team Pipeline",
@@ -8272,6 +8324,45 @@
       "loadFailed": "The kinds of meeting could not be loaded: {message}",
       "unreachable": "The server could not be reached. Check your connection and try again.",
       "notSaved": "That could not be saved."
+    }
+  },
+  "wordsmith": {
+    "hub": {
+      "guide": {
+        "intro": "This is what Wordsmith knows when it writes a client's Vision, Purpose, Values, Mission and Strategy from what they said in the Alignment Statements section. What you change here reaches the levels below you.",
+        "point1": "Pick a statement, or Style wording.",
+        "point2": "Edit, switch off or add a row. It saves when you press Save.",
+        "point3": "The five statement names, the safety rules and the code's checks are fixed at every level."
+      },
+      "styleChip": "Style wording",
+      "howWritten": "How a {name} is written",
+      "howWrittenPlural": "How {name} are written",
+      "domainHint": "the {domain} domain",
+      "whatIs": "What a {name} statement is",
+      "whatIsHint": "the Alignment document wins wherever best practice differs",
+      "questions": "Questions for the room",
+      "questionsHint": "asked when the client did not say it",
+      "wordLimit": "Word limit",
+      "wordLimitLine": "A {name} is at most {n} words.",
+      "wordLimitLinePlural": "{name} are at most {n} words.",
+      "basis": {
+        "alignment": "Alignment document",
+        "bestPractice": "Best practice"
+      },
+      "source": "Source:",
+      "sources": "Sources:",
+      "editSource": "Edit source",
+      "citeAuthor": "Author",
+      "citeTitle": "Title",
+      "citeLink": "Link",
+      "addRow": "Add a row",
+      "styleHint": "what the AI is told for each choice; the choices themselves are fixed",
+      "settingNames": {
+        "sentenceLength": "Sentence length",
+        "formality": "Formality",
+        "jargon": "Jargon",
+        "voice": "Voice"
+      }
     }
   },
   "growthAspectQuestions": {

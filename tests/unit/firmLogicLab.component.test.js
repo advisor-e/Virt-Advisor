@@ -338,12 +338,13 @@ describe('Try a wording change', () => {
   it('posts add/remove to the preview route for the PICKED table', async () => {
     const w = await mountLab({ select: 'staff_performance' })
 
-    await w.setData({ addedPhrases: ['rehiring', 'turnover'], removedPhrases: [] })
+    // Phrases the table does not already carry — the screen refuses to add one it does.
+    await w.setData({ addedPhrases: ['rehiring', 'churn'], removedPhrases: [] })
     await w.vm.runPreview()
 
     const [url, opts] = global.fetch.mock.calls[0]
     expect(url).toBe('/api/firm-manager/logic-trees/staff_performance/preview-triggers')
-    expect(JSON.parse(opts.body)).toEqual({ add: ['rehiring', 'turnover'], remove: [] })
+    expect(JSON.parse(opts.body)).toEqual({ add: ['rehiring', 'churn'], remove: [] })
   })
 
   it('will not call the route with nothing proposed — the server rejects that', async () => {

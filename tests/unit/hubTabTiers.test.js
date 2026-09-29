@@ -180,7 +180,13 @@ const MENTOR_BEFORE = [
  *   SETTINGS**: `propertyTaxRules`, `depreciationRates` and `taxRates` above stay in this list
  *   because they still gate their own SECTIONS of it; they are no longer menu entries.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates']
+/*
+ * - `wordsmith` — Mike, 2026-09-29 (item 15.14, screens 6 and 7): "as for every other section in
+ *   this app, what is loaded into the mentor hub cascades down thru the layers to firm manager with
+ *   the same adopt or decline rules", and "I want various level managers to feel as if they have
+ *   some input into the shaping/improvement of the AI". ALL FOUR TIERS, on the standard rules.
+ */
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates', 'wordsmith']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -255,7 +261,11 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
  *   them AS WELL AS the ability to load their own."* The mentor's schedule is the base every tier
  *   inherits; it widens his 2026-09-11 ruling, which put it at the global tier alone.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates', 'countrySchedules']
+/*
+ * - `wordsmith` — the same ruling as the firm's (Mike, 2026-09-29, item 15.14). The mentor is
+ *   where the cascade starts: the shipped content is his, and every tier below inherits it.
+ */
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates', 'countrySchedules', 'wordsmith']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -390,10 +400,13 @@ describe('hub tab matrix — the two new tiers', () => {
     // (item 10.3) is the eighteenth line, and three lines it replaced in the menu —
     // `propertyTaxRules`, `depreciationRates`, `taxRates` — stay because they gate its
     // sections. So the global tier's MENU is 6 + 18 - 3 = 21, asserted directly below.
-    expect(conditional).toHaveLength(18)
+    //
+    // ⚠ NINETEEN, 22 AND 18 SINCE 2026-09-29 (later): `wordsmith` (item 15.14) is on all four
+    // tiers in Mike's own words. The reasoning is beside FIRM_ADDED_SINCE.
+    expect(conditional).toHaveLength(19)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional.filter(k => everyMenuKey.includes(k)))).toHaveLength(21)
-    expect(tabsAt('group')).toHaveLength(17)
+    expect(unconditional.concat(conditional.filter(k => everyMenuKey.includes(k)))).toHaveLength(22)
+    expect(tabsAt('group')).toHaveLength(18)
   })
 
   it('Tax & Forecast Rates shows each tier exactly the sections it saw as tabs', () => {
