@@ -379,6 +379,20 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.15 · In client mode the engine read past case studies and never used them.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29 ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)). Client mode
+  always returns (~line 4086) before the prompt that carries case studies (~4160).
+- **Waste, not a lost feature:** before the 2026-08-03 security fix (`f10b87bd`) that added the
+  server-side read, client mode already returned first — the fix copied a "client or discover"
+  condition from a line client mode could never reach. Client recommendations never used them.
+- **What was done:** `server/advisorEngine.js` reads case studies in discover mode only; the
+  comment claiming client mode uses them is corrected; a warning above the discover/plan/learn
+  path says the later `mode === 'client'` tests never match. Nothing the AI is told changes.
+- **What proves it:** the 54 suites related to the engine, 922 tests. Not walked in a running app —
+  a removed read whose result was discarded. Commit: `git log --grep "(7.15)"`.
+
 **40.1 · Nothing on the AI Prompts tab changed what any AI is sent — and the tab said it did.**
 ✅ **Closed 2026-09-29 by Mike ("yes" — done).**
 

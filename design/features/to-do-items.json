@@ -315,27 +315,6 @@
       "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.15",
-      "name": "In client mode the engine reads past case studies and never uses them",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "For client and discover modes the engine loads the advisor's saved case studies from the database. Discover puts them in the prompt; client mode always returns first (line ~4085), so its read is wasted.",
-      "risk": "Either a wasted database read on every client-mode turn, or a lost feature - case studies may have been meant to inform client recommendations. Which is a question for Mike first, since adding them changes what the AI is told. Several later client-mode checks (~4140-4256) never run for the same reason.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
-      },
-      "touches": "server/advisorEngine.js loadPromptCases call (~line 2233), the client-mode branch (~2276-4086), formatCaseSummaries (~4155).",
-      "note": "FOUND 2026-09-29. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
-      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "7.16",
       "name": "A privacy test's comment says the engines bypass the privacy seam; they no longer do",
       "rankedByMike": false,
