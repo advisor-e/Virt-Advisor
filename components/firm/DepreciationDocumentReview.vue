@@ -307,7 +307,9 @@ export default {
   computed: {
     /** The unread-pages warning, in the reader's language — one wording, one home. */
     scheduleUnreadNote () {
-      return scheduleUnreadSentence(this.schedulePagesUnread, this.scheduleDoc && this.scheduleDoc.document, this.$t, this.$tc)
+      // Bound, never `this.$t` bare: vue-i18n's $t reads `this.$i18n`, and detached it threw.
+      return scheduleUnreadSentence(this.schedulePagesUnread, this.scheduleDoc && this.scheduleDoc.document,
+        (k, v) => this.$t(k, v), (k, n, v) => this.$tc(k, n, v))
     },
 
     /** The six category labels, in the order the forecast holds them. */

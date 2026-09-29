@@ -359,12 +359,12 @@ describe('searchScheduleClasses', () => {
 describe('mayLoadSchedules', () => {
   afterEach(() => setFirmMembership({}))
 
-  it('lets a global group manager load, which is Mike\'s ruling of 2026-09-11', () => {
+  it('lets the mentor and a global group manager load — Mike\'s rulings of 2026-09-11 and 2026-09-29', () => {
+    expect(mayLoadSchedules(PLATFORM_SCOPE)).toBe(true)
     expect(mayLoadSchedules(globalScopeId('Advisor-e'))).toBe(true)
   })
 
-  it('does not let the mentor, a group manager or a firm load one', () => {
-    expect(mayLoadSchedules(PLATFORM_SCOPE)).toBe(false)
+  it('does not let a group manager or a firm load one', () => {
     expect(mayLoadSchedules(groupScopeId('Advisor-e', 'NZ'))).toBe(false)
     expect(mayLoadSchedules('firm-1')).toBe(false)
   })

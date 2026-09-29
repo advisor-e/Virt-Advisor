@@ -9,24 +9,30 @@
 
 ---
 
-## 2026-09-28 (second session) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-29 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed. 21 ahead, 0 behind `master` — all of it in PR #138 (open, not merged).
-Green: 645 suites / 13,929 tests on Node 14.15, audit PASS.** Run tests, commits and pushes with
-the 14.15 folder first on PATH (item 22.2).
+**Clean and pushed; 6 ahead of `master`, 0 behind.** Green: 659 suites / 14,241 tests on Node
+14.15. Run tests, commits and pushes with the 14.15 folder first on PATH (item 22.2).
 
-**Closed on Mike's word:** 10.2 — the hub's backend sends facts and the screens word them; the
-client copy request screen translated whole, English unchanged. **Parked:** 8.3, with a REMINDERS
-DUE box in `npm run check:branch` from 15 Dec 2026 (`design/features/reminders.json`).
-**Fixed:** a saved 2- or 3-year forecast reopened as one year (`1c866a94`).
-**In hand here:** 15.13 — drawn, approved, own parts built; waits on 8.4 reaching master.
+**Closed on Mike's word:** 15.13 (the report brought into Assess current position, printed on
+one framed plan sheet) and 10.3 (Tax & Forecast Rates: one hub page, four former tabs as
+sections). **Parked:** 15.15, for his re-think.
 
-### 🔴 FOR THE LAPTOP
+**Also built today, on his rulings:** the mentor loads and approves country schedules and they
+cascade — a global group manager sees them as "Advisor-e" and may load their own. The real
+IR265 is loaded at mentor level in this computer's test database. **Fixed:** the plan's Print
+button (blank since 22 Sep), the schedules list drawing blank when pages were unread, and the
+Depreciation Rates upload wording.
 
-- 15.13 needs two insertions in files 8.4 holds — the panel into `StrategyConceptCapture.vue`, the
-  plan page into `pages/strategy-planner.vue`. Nothing touched them here; say when 8.4 is merged.
-- Shared files changed: `threeWayForecastSavedShape.js` (5 new keys), `en.json`
-  (`strategyPlanner.reportImport`, `clientCopyRequestDetail`, `firmClientCopyRequests.units`),
-  `data/strategy-frameworks.json` (`importReport` on one concept), `strategyCaptureForms.js`,
-  `scripts/check-branch-state.js`, `.claude/commands/startup.md`.
-- Your copy of 15.2 and 15.14 is newer than ours; keep yours on merge.
+**Local test database only:** the Strategy Planner's three tables now exist here, with practice
+session 1 and a completed practice report for Dev Client Ltd.
+
+### FOR THE LAPTOP
+
+- Merge `master` once this branch reaches it; nothing of yours was touched.
+- Shared files changed: `components/FirmManagerHub.vue` (NAV_GROUPS, TAB_TIERS:
+  `taxForecastRates`, and `countrySchedules` now mentor too), `locales/en.json`,
+  `pages/strategy-planner.vue` (print rules, 15.13), `StrategyConceptCapture.vue` and
+  `StrategyPlanDocument.vue` (15.13 insertions; 8.4 is yours), `hubTabTiers.test.js`,
+  `mentorHubScope.component.test.js`.
+- 15.14, 15.20 and 8.4 remain yours.

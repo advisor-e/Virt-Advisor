@@ -334,6 +334,7 @@
       strategy-plan-document(
         :client-name="clientName"
         :client-id="clientId || ''"
+        :api-token="apiToken"
         :decks="planDecks"
         :steps="planSteps"
         :closing="closingCards"
@@ -399,6 +400,7 @@ import { getSavedReport } from '~/utils/clientReports'
 import { requestFromSaved, contrastFrom } from '~/utils/ownerExpectationsPrint'
 import { agendaGroups as groupsOfSteps } from '~/utils/agendaLayout'
 import firmBrand from '~/mixins/firmBrand'
+const { REPORT_IMPORT_KEY } = require('~/utils/reportImport')
 
 /** Where the master app leaves the advisor's token before our pages load. */
 const TOKEN_KEY = 'advisor_e_token'
@@ -887,6 +889,10 @@ export default {
           // A hosted model prints its own page from the client's record (item 15.23).
           model,
           modelPrint: model ? (this.modelPrints[visit.conceptId] || null) : null,
+          // The advisor brought the client's report in on Run session, so the plan prints its
+          // Executive Summary here (item 15.13, Decision D). A marker, never a figure.
+          reportImport: Boolean(capture.importReport) &&
+            this.entries[visit.conceptId + '::' + REPORT_IMPORT_KEY] === 'yes',
           // His own column heading, read off the workbook, so the client's plan heads the
           // list with the same word the advisor typed under.
           orgChartHead: (capture.orgChart && capture.orgChart.headLabel) || '',
@@ -2682,12 +2688,18 @@ export default {
 
   /* A visibility:hidden element still occupies its space, so the heading, the stage
      rail and the coverage wheel would push blank sheets ahead of and behind the
-     client's document. They are siblings, not ancestors, so collapsing them outright
-     cannot take the document with them.
+     client's document, so they are collapsed outright.
+     🔴 THE DOCUMENT SITS INSIDE `.sp-sheet`, SO THAT WRAPPER MUST SURVIVE. The screen's
+     frame (item 16.2, 2026-09-22) wraps every stage; a rule collapsing every child of
+     `.sp` but the document collapsed the wrapper, and the Print button printed one blank
+     sheet from that day until 2026-09-29. The wrapper stays; everything in it but the
+     document goes, including its own frame and mark — every page draws its own.
      🔴 THE COVERAGE WHEEL IS THE ADVISOR'S, NOT THE CLIENT'S. It appears nowhere in
      the approved drawing (design/mockups/strategy-plan-output.html §3), which is the
      whole of the reason it is not in the printed plan. */
-  body.sp-printing .sp > *:not(.spd) { display: none !important; }
+  body.sp-printing .sp > *:not(.sp-sheet),
+  body.sp-printing .sp-sheet > *:not(.spd) { display: none !important; }
+  body.sp-printing .sp-sheet { padding: 0; container-type: normal; }
 
   /* The page's reading width and its gutters are for a screen. A printed sheet has
      @page margins of its own, and keeping both would inset every slide twice. */

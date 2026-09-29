@@ -14,7 +14,8 @@
 > sibling of this one under the same request of Mike's, riding the same country table and the
 > same approval gate (history §3b). It also does not cover the Multiple Property
 > Assessment's tax settings, a separate block ruled on differently — see
-> [`report-models.md`](report-models.md) and the Property Tax Rules tab.
+> [`report-models.md`](report-models.md) and the Property Tax Rules section of the hub's
+> *Tax & Forecast Rates* page, where this feature's screen is the first section (item 10.3).
 
 ---
 
@@ -140,11 +141,14 @@ the truth is that we do not know:
 *Ignore this and one advisor re-loading the same PDF runs up a bill nobody sees until it
 arrives.*
 
-**P12 · A COUNTRY's whole schedule is loaded ONCE, at the global group manager tier** (item
-4.92, Mike's ruling of 2026-09-11). One person loads the schedules for every country their
-group operates in, each tagged with its country; group managers and firms inherit the one
-matching their client and load none. **This overrides the default-is-mentor-alone rule of
-2026-08-24 for this feature**, and it is the layer P10's picker chooses from: a firm's own
+**P12 · A COUNTRY's whole schedule is loaded ONCE, by the mentor or a global group manager**
+(item 4.92, Mike's rulings of 2026-09-11 and 2026-09-29 — *"as a mentor, I should have ultimate
+control"*). The mentor's schedule is the base every tier inherits; a global group manager's
+Country Rate Schedules list shows it as inherited, **from Advisor-e**, beside any of their own,
+and one they load for the same country replaces the mentor's for their brand — nearest tier
+wins, the same walk the picker resolves. Group managers and firms inherit and load none. Until
+Advisor-e supplies firm membership, every firm's chain runs straight to the mentor, so the
+mentor's is the one a firm actually reaches. It is the layer P10's picker chooses from: a firm's own
 document offers 250 classes, and a country's schedule offers all of them. *Ignore this and
 every firm pays to re-read the same published document, and an advisor's client is depreciated
 at the nearest of six buckets rather than the class the tax authority publishes.*
@@ -320,7 +324,7 @@ here and nowhere else; its closure, with his own $800,000 tractor costing, is on
 | The tier seam every cascading block asks | [`server/utils/tierChain.js`](../../server/utils/tierChain.js) |
 | The engine whose rate this sets | [`server/report/threeWayForecastModel.js`](../../server/report/threeWayForecastModel.js) |
 | The screen the six rates are entered on, where the advisor meets the gap | [`components/ThreeWayForecastIntake.vue`](../../components/ThreeWayForecastIntake.vue) · [`tests`](../../tests/unit/forecastCountryDepreciation.component.test.js) |
-| **The country schedule (item 4.92)** — one country's whole published table, approved once at the global group tier, with the tier resolver and the server-side search | [`server/utils/countrySchedules.js`](../../server/utils/countrySchedules.js) · [`tests`](../../tests/unit/countrySchedules.test.js) |
+| **The country schedule (item 4.92)** — one country's whole published table, approved once by the mentor or a global group manager, nearest tier winning, with the tier resolver and the server-side search | [`server/utils/countrySchedules.js`](../../server/utils/countrySchedules.js) · [`tests`](../../tests/unit/countrySchedules.test.js) |
 | Reading one in passes — a survey, then a request per eight pages, added up here | [`server/utils/countryScheduleRead.js`](../../server/utils/countryScheduleRead.js) · [`tests`](../../tests/unit/countryScheduleRead.test.js) |
 | Where a schedule PROPOSAL lives while it is read and until it is approved | [`server/utils/countryScheduleProposals.js`](../../server/utils/countryScheduleProposals.js) · [`tests`](../../tests/unit/countryScheduleProposals.test.js) |
 | Its six routes — load, list, watch, approve, reject, and the class SEARCH every tier calls | [`server/routes/countrySchedules.js`](../../server/routes/countrySchedules.js) · [`tests`](../../tests/unit/countrySchedules.routes.test.js) |

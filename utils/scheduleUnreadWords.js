@@ -21,6 +21,8 @@ export function scheduleUnreadSentence (ranges, document, t, tc) {
   const list = parts.length === 1
     ? parts[0]
     : t('countryRateSchedules.unread.lastPair', { rest: parts.slice(0, -1).join(', '), last: parts[parts.length - 1] })
-  const pages = tc('countryRateSchedules.unread.pages', parts.length, { list })
+  // Plural by PAGES, never by ranges (Mike, 2026-09-29): one range of five pages read "page 54–58".
+  const pageCount = ranges.reduce((n, r) => n + Math.max(1, Number(r.to) - Number(r.from) + 1), 0)
+  const pages = tc('countryRateSchedules.unread.pages', pageCount, { list })
   return t('countryRateSchedules.unread.sentence', { pages, document: document || '' })
 }

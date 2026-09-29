@@ -224,7 +224,7 @@ page.on('response', r => { if (r.status() >= 400) console.log(`[http ${r.status(
 
 await page.goto('http://localhost:3000/mentor', { waitUntil: 'domcontentloaded', timeout: 120000 })
 await page.waitForTimeout(6000)
-await page.locator('text="Tax Rates"').first().click()   // hub tabs are plain text links
+await page.locator('text="Tax & Forecast Rates"').first().click()   // hub tabs are plain text links
 await page.screenshot({ path: 'out.png', fullPage: true })
 ```
 
@@ -262,15 +262,14 @@ platform. Check that list before reporting a tab as missing.
 
 | Tab | Where it appears | How to get past the empty state |
 |---|---|---|
-| **Tax Rates**, **Depreciation Rates** | all four tiers | Type a 2-letter country (`NZ`) → **Show**. Nothing renders until you do — the empty state says so. |
+| **Tax & Forecast Rates** | all four tiers | One page, three sections (item 10.3): **Depreciation Rates** and **Tax Rates** everywhere — type a 2-letter country (`NZ`) → **Show** in each; nothing renders until you do — then **Forecast Trend Thresholds** at the mentor, **Property Tax Rules** at the other three. |
 | **Template Check** | mentor only | Loads on open. Filter chips across the top; the list paginates. |
 | **AI Prompts**, **Meeting Review** | all four tiers | Load on open. |
 | **Case Reviews**, **How firms are using the app**, **Logic Lab Report** | mentor + two middle tiers | Roll-ups from below; thin without seeded data. |
-| **Property Tax Rules** | the two middle tiers + firm — **not** the mentor | — |
 | **Team Case Studies** | firm only | — |
-| **Forecast Trend Thresholds**, **Imported Stock Prices**, **Template Library** | mentor only | — |
+| **Imported Stock Prices**, **Template Library** | mentor only | — |
 
-**The rate tabs are the pattern worth understanding.** Both answer *"what does a client in this
+**The two rate sections are the pattern worth understanding.** Both answer *"what does a client in this
 country get, and who decided it?"* Every figure carries a **provenance badge** — `app default`
 until a manager approves a real table, then the tier that approved it. A manager loads a published
 PDF, the AI proposes a table, and **nothing reaches a forecast until a manager approves it** — the

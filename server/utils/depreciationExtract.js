@@ -140,15 +140,15 @@ const UNREADABLE_MESSAGE = 'This document could not be read reliably — nothing
  * only an `unreadable` one may be (item 4.88). `countryScheduleRead` already refuses its own
  * version of this (`NOTHING_READ`); the two readers now agree.
  *
- * ⚠ DELIBERATELY THE COUNTRY READER'S SENTENCE, with only the words that must differ changed —
- * it stores nothing, this keeps a failed row. A manager who loads a whole schedule and one who
- * loads a single document have had the same thing happen to them, and two wordings for one
- * event is how a screen starts sounding like two different products. Approved by Mike
- * 2026-09-11.
+ * 🔴 IT NAMES THE WHOLE SCHEDULE AS THE LIKELY CAUSE — Mike, 2026-09-29, after loading IR265
+ * here and being told to download it again, which could never have worked. A whole national
+ * schedule is too long for this one reading; its home is Country Rate Schedules. The country
+ * reader keeps its own sentence, where "download it again" is the right advice.
  */
 const NOTHING_READ_MESSAGE = 'This document was opened and named, but nothing could be read ' +
-  'from it — no rates and no classes. Nothing has been proposed. Try downloading it again ' +
-  'from the tax authority\'s website, or load a different edition.'
+  'from it — no rates and no classes. Nothing has been proposed. If it is the country\'s ' +
+  'whole schedule, it is loaded on Country Rate Schedules instead; otherwise try downloading ' +
+  'it again from the tax authority\'s website, or load a different edition.'
 
 /**
  * What a person is told when the AI SERVICE ITSELF refused the request.

@@ -1,5 +1,9 @@
 <template lang="pug">
 .srpp(v-if="importStatus === 'ready' && reportFigures")
+  //- The plan's own sheet furniture — frame, mark, running foot — handed in by the plan, so
+  //- the page wears the same sheet as its neighbours and nothing is drawn for a report that
+  //- is not there.
+  slot
   dashboard-report-summary(
     :number="number"
     :client-name="clientName"

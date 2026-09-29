@@ -54,10 +54,41 @@ describe('a country schedule\'s unread pages, worded on the screen', () => {
   })
 
   it('🔴 names one range, and several joined as a person writes them', () => {
+    // Plural by pages, not ranges — Mike, 2026-09-29. A range of eight pages is "pages".
     expect(scheduleUnreadSentence([{ from: 41, to: 48 }], 'IR265', $t, $tc)).toBe(
-      'Some of this schedule could not be read: page 41–48 of IR265 were not read, so a class printed there is missing from this list.')
+      'Some of this schedule could not be read: pages 41–48 of IR265 were not read, so a class printed there is missing from this list.')
+    expect(scheduleUnreadSentence([{ from: 54, to: 54 }], 'IR265', $t, $tc)).toContain('page 54 of IR265')
     expect(scheduleUnreadSentence([{ from: 41, to: 48 }, { from: 50, to: 50 }, { from: 52, to: 53 }], 'IR265', $t, $tc))
       .toContain('pages 41–48, 50 and 52–53 of IR265')
+  })
+})
+
+describe('🔴 a schedule with unread pages still draws, under the REAL translator', () => {
+  // Found 2026-09-29: the screens passed `this.$t` detached, and vue-i18n's real $t reads
+  // `this.$i18n` — so it threw, and the Country Rate Schedules table drew BLANK for any schedule
+  // with unread pages (IR265 always has some). The mocks above are plain functions and cannot
+  // see it; this mounts the screen with vue-i18n itself installed.
+  const { createLocalVue, mount } = require('@vue/test-utils')
+  const Buefy = require('buefy').default
+  const VueI18n = require('vue-i18n')
+  const CountryRateSchedules = require('~/components/firm/CountryRateSchedules.vue').default
+
+  afterEach(() => { delete global.fetch })
+
+  it('lists the schedule and names its gap', async () => {
+    const localVue = createLocalVue()
+    localVue.use(Buefy)
+    localVue.use(VueI18n)
+    const i18n = new VueI18n({ locale: 'en', messages: { en: require('~/locales/en.json') } })
+    const schedule = { country: 'NZ', document: 'IR265', published: '2023-10', approvedBy: 'm', approvedAt: '2026-09-29T00:00:00Z', classes: 2302, unresolved: 2, pagesUnread: [{ from: 54, to: 58 }], originTier: 'mentor', inherited: true }
+    global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ schedules: [schedule], reads: [], mayLoad: true }) }))
+
+    const wrapper = mount(CountryRateSchedules, { localVue, i18n, propsData: { apiToken: 't' } })
+    for (let i = 0; i < 6; i++) { await wrapper.vm.$nextTick(); await Promise.resolve() }
+
+    const row = wrapper.find('.crs table tbody tr')
+    expect(row.exists()).toBe(true)
+    expect(row.text()).toContain('54–58 of IR265')
   })
 })
 

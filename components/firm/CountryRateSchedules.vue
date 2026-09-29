@@ -28,6 +28,7 @@
             th {{ $t('countryRateSchedules.table.edition') }}
             th.has-text-right {{ $t('countryRateSchedules.table.classes') }}
             th {{ $t('countryRateSchedules.table.approved') }}
+            th {{ $t('countryRateSchedules.table.from') }}
         tbody
           tr(v-for="s in schedules" :key="s.country")
             td.has-text-weight-semibold {{ s.country }}
@@ -42,6 +43,10 @@
               | {{ s.approvedBy }}
               br
               span.has-text-grey {{ shortDate(s.approvedAt) }}
+            //- Which tier's schedule this is (Mike, 2026-09-29). An inherited one is in force here
+            //- until this tier loads its own for the same country, which then replaces it.
+            td
+              b-tag(:type="s.inherited ? 'is-light' : 'is-info is-light'") {{ originLabel(s.originTier) }}
 
     //- ── Reads in flight, and reads waiting for a decision ──────────────
     .box.mb-4(v-for="r in reads" :key="r.country")
@@ -138,10 +143,11 @@
  * `design/mockups/depreciation-rates-country-schedules.html`, approved by him the same day with
  * all three of its decisions ruled.
  *
- * 🔴 IT LOADS AT THE GLOBAL GROUP MANAGER TIER, AND THAT IS HIS RULING. One person loads the
- * schedules for every country their brand operates in; group managers and firms inherit the one
- * matching their client and load none. It OVERRIDES the default-is-mentor-alone rule of
- * 2026-08-24 for this feature. The tab is gated in `TAB_TIERS.countrySchedules`, and the ROUTES
+ * 🔴 IT LOADS AT THE MENTOR AND GLOBAL GROUP MANAGER TIERS — his rulings of 2026-09-11 and
+ * 2026-09-29. The mentor's schedule is the base; a global group manager sees it listed as
+ * inherited, with the tier it came from, and may load their own for the same country, which
+ * replaces it for their brand. Group managers and firms inherit and load none. The tab is gated
+ * in `TAB_TIERS.countrySchedules`, and the ROUTES
  * check the tier again from the caller's own verified scope — this screen is the third lock on
  * that door, never the first.
  *
@@ -270,7 +276,20 @@ export default {
      * @returns {string} '' when every page was read
      */
     libraryUnreadNote (s) {
-      return scheduleUnreadSentence(s.pagesUnread, s.document, this.$t, this.$tc)
+      // Bound, never `this.$t` bare: vue-i18n's $t reads `this.$i18n`, and detached it threw and
+      // blanked this whole table for any schedule with unread pages — IR265 always has some.
+      return scheduleUnreadSentence(s.pagesUnread, s.document, (k, v) => this.$t(k, v), (k, n, v) => this.$tc(k, n, v))
+    },
+
+    /**
+     * The tier a listed schedule came from, in words.
+     * @param {string} tier - 'mentor' | 'global_group_manager'
+     * @returns {string}
+     */
+    originLabel (tier) {
+      return tier === 'mentor'
+        ? this.$t('countryRateSchedules.origin.mentor')
+        : this.$t('countryRateSchedules.origin.globalGroup')
     },
 
     /**
