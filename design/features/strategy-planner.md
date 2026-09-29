@@ -180,9 +180,9 @@ without one. A person reads that as *"the AI found nothing"*, which is the one t
 apart from a broken button. It now greys out exactly as *Build the session* does beside it, pinned by
 `tests/unit/strategyCapture.component.test.js`.
 
-⚠ **THE SUGGESTION IS ONLY AS GOOD AS THE CLIENT'S RECORDED CONVERSATIONS**, which is the drawing's
-own input. A client with none gets an honest empty and the model is never called. A client with thin
-summaries gets a thin suggestion. Stated before the build rather than discovered after it.
+⚠ **A CLIENT WITH SAVED CONVERSATIONS IS SUGGESTED FOR FROM THEIR SUMMARIES**, which is the drawing's
+own input, so thin summaries give a thin suggestion. A client with none is asked the guided questions
+instead (item 15.31, below).
 
 ☑ **RULED BY MIKE 2026-09-30 — A CLIENT WITH NO CONVERSATION IS ASKED, NOT SENT AWAY (item 15.31).**
 When the client has no saved conversation, the planner puts **the Virtual Advisor's own intake

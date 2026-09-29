@@ -505,11 +505,11 @@ async function putScope (req, res) {
  * client, advisor or firm — and **no transcript goes**: a transcript is personal data and
  * Meeting Review is the only feature cleared to send one (CLAUDE.md, Mike 2026-09-01).
  *
- * ⚠ A CLIENT WITH NO HISTORY GETS AN HONEST EMPTY, NOT A GUESS. The drawing's input is
- * "this client's last two conversations"; a client with none, or whose summaries are
- * blank, replies `reason: 'no-history'` with no concepts, so the screen can say so.
- * Inventing a suggestion from nothing would be the failure this route exists to avoid —
- * a pre-tick nobody can account for.
+ * ⚠ A CLIENT WITH NO HISTORY IS ASKED, NEVER GUESSED FOR. With no summaries and no
+ * `answers`, the route replies `reason: 'no-history'` with no concepts, which is what
+ * makes the screen ask the guided questions (item 15.31). Inventing a suggestion from
+ * nothing would be the failure this route exists to avoid — a pre-tick nobody can
+ * account for.
  *
  * @route POST /api/strategy/suggest
  * @param {object} req - firmAuth-verified; body `{ clientId, sessionId?, answers? }` — `answers`
