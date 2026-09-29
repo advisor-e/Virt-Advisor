@@ -1704,8 +1704,11 @@ replaced by:
 loaded into the mentor hub cascades down thru the layers to firm manager with the same adopt or
 decline rules as all other cascade content."* The standard rules (`tier-cascade.md` P3, P11), all
 four tiers. Each definition is a row with a stable id, ready for `resolveInheritedRows`; the five
-statement names are fixed keys, like the Growth Aspects'. Until the hub tab is built the shipped
-file is the mentor's content. **Managers at every level shape it** (Mike, 2026-09-29: *"I want
+statement names are fixed keys, like the Growth Aspects'. The instruction each style choice sends
+the model lives in the same file (`styleSettings`, one id per choice; moved out of the code on
+Mike's yes, 2026-09-29); the choices themselves stay fixed in code, and Wordsmith refuses to run if
+any choice lacks its instruction. Until the hub tab is built the shipped file is the mentor's
+content. **Managers at every level shape it** (Mike, 2026-09-29: *"I want
 various level managers to feel as if they have some input into the shaping/improvement of the AI and
 its advice for their firm or group - therefore - appropriate fields must be editable and cascade
 down"*); the split, **approved by him the same day** as the one the hub tab is built to
@@ -1733,8 +1736,11 @@ side, unchanged by the market; **Mission (Having)** the one milestone in hand by
 measure, the next step towards the Vision, stated towards what it wants, what and by when only;
 **Strategy (Doing)** active verbs, the chosen way to win — where it plays, its advantage, what it
 will not do — a philosophy of how with no dates or targets, the one statement expected to change.
-Not yet in `data/wordsmith-statements.json`, so the drafts do not follow it: the Lab's Vision
-drafts of 2026-09-29 all read as future hopes ("We aim to be…").
+Each statement carries its domain and rule in `data/wordsmith-statements.json` (`domain`, with an
+id for the cascade), and step 4 tells the model that statement's rule; Wordsmith refuses to run
+without one. Added on his yes the same day: the Lab's Vision drafts moved from "We aim to be the
+best suspension business" to "We are the best suspension business", and every Purpose now opens
+"We believe".
 
 **How Wordsmith will be measured: OPEN.** Mike ruled 2026-09-29 that the scoping measure — he
 hand-judges ten drafts, seven usable with light edits — is flawed, and it is not the test. He

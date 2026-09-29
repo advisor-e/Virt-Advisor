@@ -23,9 +23,10 @@
  * text only: no id of any kind reaches a prompt. `personal: true` on every call, and
  * `moderate:` with what people said or typed, never the app's own framing (ZDR rule Z3).
  *
- * 🔴 THE DEFINITIONS ARE THE MENTOR'S SHIPPED CONTENT (`data/wordsmith-statements.json`) and
- * cascade on the standard rules (Mike, 2026-09-29). Callers pass the resolved statements in;
- * this file never decides whose content is in force.
+ * 🔴 THE DEFINITIONS AND STYLE INSTRUCTIONS ARE THE MENTOR'S SHIPPED CONTENT
+ * (`data/wordsmith-statements.json`) and cascade on the standard rules (Mike, 2026-09-29). Callers
+ * pass the resolved statements and style settings in; this file never decides whose content is in
+ * force.
  *
  * Node 14, CommonJS.
  */
@@ -56,6 +57,11 @@ const DATA_FILE = path.resolve(__dirname, '../../data/wordsmith-statements.json'
 const ROLE_READ = 'report'
 const ROLE_WRITE = 'draft'
 
+/**
+ * The style choices the model may pick from. Fixed in code, because `validateStyle` checks every
+ * reply against them; the instruction each choice sends the model is content, in the data file's
+ * `styleSettings` (Mike, 2026-09-29).
+ */
 const SETTINGS = {
   sentenceLength: ['short', 'medium', 'long'],
   formality: ['plain', 'professional', 'formal'],
@@ -113,7 +119,7 @@ const NUMBER_RE = new RegExp('\\d|\\b(' + NUMBER_WORDS + ')\\b|per ?cent|%', 'i'
 
 /**
  * The mentor's shipped statements, checked: the five names, in order, each with an array of
- * definition rows and elements.
+ * definition rows and elements, a word limit, and its domain's writing rule.
  *
  * @param {string} [file]
  * @returns {Array<object>}
@@ -130,8 +136,53 @@ function loadStatements (file) {
     if (!Array.isArray(s.definition) || !Array.isArray(s.elements) || !(s.maxWords > 0)) {
       throw new Error('Statement ' + s.name + ' needs definition, elements and maxWords')
     }
+    // The domain is how the statement is written (Being: a Vision sounds already achieved).
+    // Drafted without it, a statement reads fine and follows the wrong rule.
+    if (!s.domain || !String(s.domain.name || '').trim() || !String(s.domain.rule || '').trim()) {
+      throw new Error('Statement ' + s.name + ' needs a domain with its writing rule')
+    }
   })
   return statements
+}
+
+/**
+ * The instruction the draft sends for each style choice, checked against the fixed choices.
+ *
+ * 🔴 A CHOICE WITH NO INSTRUCTION STOPS WORDSMITH. Missing wording would silently tell the model
+ * nothing about that setting, and a draft written without it looks like a working one.
+ *
+ * @param {string} [file]
+ * @returns {Object.<string, Object.<string, string>>} setting key → choice → instruction
+ * @throws {Error} when a setting or choice is missing, unknown, or has no instruction
+ */
+function loadStyleSettings (file) {
+  const data = JSON.parse(fs.readFileSync(file || DATA_FILE, 'utf8'))
+  const rows = Array.isArray(data.styleSettings) ? data.styleSettings : []
+  const guide = {}
+  rows.forEach((row) => {
+    if (!row || !SETTINGS[row.key] || !Array.isArray(row.options)) {
+      throw new Error('styleSettings holds an unknown or malformed setting: ' + (row && row.key))
+    }
+    guide[row.key] = {}
+    row.options.forEach((o) => {
+      if (!o || !SETTINGS[row.key].includes(o.value)) {
+        throw new Error('styleSettings ' + row.key + ' holds an unknown choice: ' + (o && o.value))
+      }
+      guide[row.key][o.value] = typeof o.instruction === 'string' ? o.instruction.trim() : ''
+    })
+  })
+  Object.keys(SETTINGS).forEach((k) => {
+    SETTINGS[k].forEach((v) => {
+      if (!guide[k] || !guide[k][v]) { throw new Error('styleSettings has no instruction for ' + k + ': ' + v) }
+    })
+  })
+  return guide
+}
+
+let shippedGuide = null
+function shippedStyleSettings () {
+  if (!shippedGuide) { shippedGuide = loadStyleSettings() }
+  return shippedGuide
 }
 
 /**
@@ -310,41 +361,20 @@ function validateStyle (reply) {
 // ── Step 4: draft ─────────────────────────────────────────────────────────────────────────
 
 /**
- * What each setting means for the words on the page. One terse line of settings, beside a rule
- * to keep the owner's phrases, produced two styles that read alike in 8 of 10 pairs (the Lab,
+ * What each chosen setting means for the words on the page. One terse line of settings, beside a
+ * rule to keep the owner's phrases, produced two styles that read alike in 8 of 10 pairs (the Lab,
  * 2026-09-29); a setting has to say what it changes.
- */
-const SETTING_GUIDE = {
-  sentenceLength: {
-    short: 'Short sentences, twelve words or fewer each.',
-    medium: 'Sentences of about twelve to twenty words.',
-    long: 'One or two full, flowing sentences.'
-  },
-  formality: {
-    plain: 'Everyday words a person would say out loud. Contractions are fine.',
-    professional: 'Precise, measured business language. No contractions, no slang, no filler.',
-    formal: 'Formal written language suited to an official document. No contractions.'
-  },
-  jargon: {
-    avoid: 'No industry or business jargon; say it the way a customer would understand it.',
-    allow: 'Industry terms are fine where the reader will know them.'
-  },
-  voice: {
-    we: 'Speak as "we".',
-    'the-business': 'Speak about the business in the third person ("the business", "it"), never "we".'
-  }
-}
-
-/**
+ *
  * @param {object} st - settings from `validateStyle`
+ * @param {Object.<string, Object.<string, string>>} guide - from `loadStyleSettings`
  * @returns {string}
  */
-function settingsText (st) {
+function settingsText (st, guide) {
   return [
-    SETTING_GUIDE.sentenceLength[st.sentenceLength],
-    SETTING_GUIDE.formality[st.formality],
-    SETTING_GUIDE.jargon[st.jargon],
-    SETTING_GUIDE.voice[st.voice],
+    guide.sentenceLength[st.sentenceLength],
+    guide.formality[st.formality],
+    guide.jargon[st.jargon],
+    guide.voice[st.voice],
     st.tone.length ? 'It should feel ' + st.tone.join(', ') + '.' : '',
     st.audience ? 'The reader is ' + st.audience + ': lead with what matters most to them.' : ''
   ].filter(Boolean).map(line => '- ' + line).join('\n')
@@ -359,6 +389,7 @@ function settingsText (st) {
  * @param {object} input.settings - from `validateStyle`
  * @param {Array<object>} input.modelElements - elements only the model can judge
  * @param {Array<string>} [input.retryIssues] - what the previous attempt failed on
+ * @param {object} [input.styleSettings] - the resolved `loadStyleSettings` guide; the shipped file if absent
  * @returns {Array<{role: string, content: string}>}
  */
 function buildDraftMessages (input) {
@@ -370,8 +401,11 @@ function buildDraftMessages (input) {
     'What a ' + s.name + ' statement is. Where the Alignment document and best practice differ, follow the Alignment document:',
     definitionText(s),
     '',
+    'How a ' + s.name + ' statement is written (the ' + s.domain.name + ' domain):',
+    s.domain.rule,
+    '',
     'How to write it. The same words will also be written for other purposes and styles, so this version must sound unmistakably like its own purpose and style:',
-    settingsText(st),
+    settingsText(st, input.styleSettings || shippedStyleSettings()),
     '',
     'Rules:',
     '- Use only what the owner said. Never add a date, number, name, place or promise they did not say.',
@@ -507,6 +541,7 @@ function invalid (step, errors) {
  * @param {string} args.purpose - what the statements are for (untrusted)
  * @param {string} args.style - how they should sound (untrusted)
  * @param {Array<object>} [args.statements] - the resolved statements; the shipped file if absent
+ * @param {object} [args.styleSettings] - the resolved `loadStyleSettings` guide; the shipped file if absent
  * @param {Object.<string, Array<string>>} [args.mustKeep] - per statement, phrases a draft must keep (the Lab)
  * @param {{read: object, write: object}} [args.clients] - injected clients (tests)
  * @returns {Promise<object>} settings, and per statement its quotes, questions, draft and checks —
@@ -517,6 +552,7 @@ async function run (args) {
   assertAllowed(args)
   const segments = Array.isArray(args.segments) ? args.segments : []
   const statements = args.statements || loadStatements()
+  const styleSettings = args.styleSettings || shippedStyleSettings()
   const read = (args.clients && args.clients.read) || getClient(ROLE_READ)
   const write = (args.clients && args.clients.write) || getClient(ROLE_WRITE)
   const spoken = segments.map(s => String((s && s.text) || ''))
@@ -544,7 +580,7 @@ async function run (args) {
     let retryIssues = null
     while (entry.attempts < 2) {
       entry.attempts += 1
-      const messages = buildDraftMessages({ statement, quotes, purpose: args.purpose, style: args.style, settings: style.settings, modelElements: gaps.modelElements, retryIssues })
+      const messages = buildDraftMessages({ statement, quotes, purpose: args.purpose, style: args.style, settings: style.settings, styleSettings, modelElements: gaps.modelElements, retryIssues })
       const checked = validateDraft(await callModel(write, ROLE_WRITE, 'draft', messages, spoken.concat(typed), null), allowed)
       if (!checked.valid) {
         if (entry.draft) { break }
@@ -582,6 +618,7 @@ module.exports = {
   ALIGNMENT_CONCEPT_ID,
   SETTINGS,
   loadStatements,
+  loadStyleSettings,
   assertAllowed,
   buildSortMessages,
   validateSort,

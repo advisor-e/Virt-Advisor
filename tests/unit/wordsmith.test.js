@@ -65,11 +65,51 @@ describe('loadStatements — the shipped file is the five, in order', () => {
     expect(() => ws.loadStatements(tmp({ statements: broken }))).toThrow(/Values/)
   })
 
+  it('refuses a statement without its domain writing rule', () => {
+    const noRule = STATEMENTS.map((s, i) => (i === 0 ? Object.assign({}, s, { domain: { id: 'x', name: 'Being', rule: ' ' } }) : s))
+    expect(() => ws.loadStatements(tmp({ statements: noRule }))).toThrow(/Vision needs a domain/)
+  })
+
   it('gives every definition row and element an id unique across the file, for the cascade', () => {
     const ids = []
     STATEMENTS.forEach(s => s.definition.concat(s.elements).forEach(r => ids.push(r.id)))
     expect(ids.every(Boolean)).toBe(true)
     expect(new Set(ids).size).toBe(ids.length)
+  })
+})
+
+describe('loadStyleSettings — every style choice has its instruction, or Wordsmith stops', () => {
+  const shipped = JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/wordsmith-statements.json'), 'utf8'))
+  const tmp = (styleSettings) => {
+    const file = path.join(os.tmpdir(), 'ws-style-' + Date.now() + Math.random() + '.json')
+    fs.writeFileSync(file, JSON.stringify({ styleSettings }))
+    return file
+  }
+  const changed = (key, options) => shipped.styleSettings.map(r => (r.key === key ? Object.assign({}, r, { options: options(r.options) }) : r))
+  const without = (key, value) => changed(key, opts => opts.filter(o => o.value !== value))
+
+  it('gives every fixed choice an instruction in the shipped file, each with its own id', () => {
+    const guide = ws.loadStyleSettings()
+    Object.keys(ws.SETTINGS).forEach(k => ws.SETTINGS[k].forEach(v => expect(guide[k][v]).toBeTruthy()))
+    const ids = shipped.styleSettings.flatMap(r => r.options.map(o => o.id))
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('refuses a file missing a choice, a blank instruction, or a choice the code does not know', () => {
+    expect(() => ws.loadStyleSettings(tmp(without('voice', 'we')))).toThrow(/no instruction for voice: we/)
+    const blank = changed('jargon', opts => opts.map(o => Object.assign({}, o, { instruction: ' ' })))
+    expect(() => ws.loadStyleSettings(tmp(blank))).toThrow(/no instruction for jargon/)
+    const extra = shipped.styleSettings.concat([{ key: 'rhyme', options: [] }])
+    expect(() => ws.loadStyleSettings(tmp(extra))).toThrow(/unknown or malformed setting: rhyme/)
+    expect(() => ws.loadStyleSettings(tmp([]))).toThrow(/no instruction for sentenceLength/)
+  })
+
+  it('sends a resolved instruction in place of the shipped one — the seam a manager\'s edit comes through', () => {
+    const guide = ws.loadStyleSettings()
+    guide.voice.we = 'Speak as "we", the whole team together.'
+    const settings = { sentenceLength: 'short', formality: 'plain', jargon: 'avoid', voice: 'we', tone: [], audience: '' }
+    const [system] = ws.buildDraftMessages({ statement: byName('Vision'), quotes: [], purpose: 'p', style: 's', settings, modelElements: [], styleSettings: guide })
+    expect(system.content).toContain('the whole team together')
   })
 })
 
@@ -229,6 +269,13 @@ describe('step 4 — draft', () => {
     expect(system.content.indexOf('[Alignment document]')).toBeLessThan(system.content.indexOf('[Best practice]'))
     expect(system.content).toContain('At most 35 words')
     expect(system.content).toContain('ws-strategy-e1 (scope)')
+  })
+
+  it('tells the model the statement\'s own domain rule, and no other statement\'s', () => {
+    const vision = ws.buildDraftMessages(Object.assign({}, base, { statement: byName('Vision'), modelElements: [] }))[0].content
+    expect(vision).toContain('(the Being domain)')
+    expect(vision).toContain(byName('Vision').domain.rule)
+    expect(vision).not.toContain(byName('Mission').domain.rule)
   })
 
   it('fences the quotes, purpose and style, and carries a retry\'s failures', () => {

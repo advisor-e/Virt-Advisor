@@ -176,7 +176,8 @@ function report (results, m) {
         if (s.error) { lines.push('  ❌ ' + s.error) }
         if (s.draft) {
           const verdict = s.checks.passed ? '✅' : '⚠ ' + s.checks.issues.map(i => i.code + ' (' + i.detail + ')').join(', ')
-          lines.push('  Draft (attempt ' + s.attempts + ') ' + verdict, '  > ' + s.draft.text, '  *Why:* ' + s.draft.why)
+          // A poster-style draft puts one line per value; every line stays inside the quote.
+          lines.push('  Draft (attempt ' + s.attempts + ') ' + verdict, s.draft.text.split('\n').map(l => '  > ' + l).join('  \n'), '  *Why:* ' + s.draft.why)
         }
         lines.push('')
       })
