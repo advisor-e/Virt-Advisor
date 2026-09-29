@@ -294,27 +294,6 @@
       "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "15.29",
-      "name": "Wordsmith can write one client's approved wording into another client's plan",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "privacy",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "When an advisor uses an approved statement, the server checks only that the planning session belongs to the same firm - never that it is the same client or advisor as the recorded meeting.",
-      "risk": "One client's spoken words, cleared under Meeting Review's exception for that client only, could land in another client's plan and printed document. It needs a wrong or crafted session number, so it is unlikely in normal use, but nothing stops it. Contributing cause: a new planning session never records its meeting, so the existing meeting check never fires.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
-      },
-      "touches": "server/routes/wordsmith.js, the use route's session guard (~line 340); server/routes/strategyPlanner.js createSession, which never sets meetingId; server/utils/strategySessionStore.js, which already supports it; tests/unit/wordsmith.routes.test.js.",
-      "note": "FOUND 2026-09-29 by reading the code, not by a failing test. Proposed fix: refuse unless the session's client and advisor match the meeting's. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
-      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it. The code is the laptop's 15.14 build, closed the same day."
-    },
-    {
       "ref": "7.14",
       "name": "The primary-issue tie-break sends the advisor's words about a client marked not personal",
       "rankedByMike": false,

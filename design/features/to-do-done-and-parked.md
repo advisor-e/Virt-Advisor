@@ -379,6 +379,22 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.29 · Wordsmith can write one client's approved wording into another client's plan.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done).**
+
+- **Found:** 2026-09-29, reading every AI call for his whole-brain question
+  ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)). "Use this wording" checked only
+  that the planning session was the same firm's and not tied to another meeting; new sessions never
+  record a meeting, so any session in the firm was accepted.
+- **What was done:** `server/routes/wordsmith.js` `useWording` now refuses, before the record or any
+  box is written, unless the session's client is the recording's client and its advisor is the one
+  pressing the button. A recording with no client is refused rather than guessed. Same "No such
+  planning session" message; no screen wording changed.
+- **What proves it:** three new cases in `wordsmith.routes.test.js` — another client's session,
+  another advisor's session, a recording with no client — each refused with nothing recorded or
+  written; all three fail with the fix removed. The matching-session case still passes. Commit:
+  `git log --grep "(15.29)"`.
+
 **15.14 · Wordsmith - turning what the client said into statements they can use.**
 ✅ **Closed 2026-09-29 by Mike ("yes" to closing it as done).**
 

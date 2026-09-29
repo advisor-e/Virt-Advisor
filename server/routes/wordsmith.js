@@ -340,6 +340,13 @@ async function useWording (req, res) {
     if (!session || (session.meetingId && session.meetingId !== meta.meetingId)) {
       return sendError(res, 404, 'NOT_FOUND', 'No such planning session')
     }
+    // 🔴 Item 15.29: the firm matching is not enough. The words were cleared for THIS client
+    // only, so the plan must be this recording's client's and this advisor's. A recording with
+    // no client cannot be matched, so it is refused rather than guessed.
+    if (!meta.clientId || String(session.clientId) !== String(meta.clientId) ||
+        String(session.advisorId) !== String(req.advisorId)) {
+      return sendError(res, 404, 'NOT_FOUND', 'No such planning session')
+    }
 
     const approvedAt = new Date().toISOString()
     // The record first: a statement never reaches a plan without it (CLAUDE.md: Original |
