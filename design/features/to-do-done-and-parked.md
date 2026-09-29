@@ -379,6 +379,31 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.14 · Wordsmith - turning what the client said into statements they can use.**
+✅ **Closed 2026-09-29 by Mike ("yes" to closing it as done).**
+
+- **His rulings:** all in [`strategy-planner.md`](strategy-planner.md) §9b — the five-step design;
+  a writing rule per domain (Being his own, the other four drawn from his NLP background and
+  approved); the style wording, sources and room questions as mentor content cascading through all
+  four tiers, with which fields each tier may edit
+  ([`wordsmith-style-settings.html`](../mockups/wordsmith-style-settings.html)); and the screens,
+  decisions A–E, their wording and 16 build details
+  ([`wordsmith-screens.html`](../mockups/wordsmith-screens.html)). Privacy: the Alignment
+  Statements segment only, under Meeting Review's conditions.
+- **What was done:** the engine; the four-tier cascade and its hub routes; the planner routes; the
+  hub tab at the end of "Your AI coach"; the panel above the Alignment Statements card, where
+  "Use this wording" needs the client's tick and writes the record beside the transcript before
+  the box and its stamp. The server now checks every recording section's concept label.
+- **What proves it:** `wordsmith.test.js`, `wordsmithContent.test.js`, both route suites,
+  `wordsmithMarker.test.js` and the two component tests; walked in a built app beside the drawing —
+  a mentor edit reached a firm as inherited, and one real run on a seeded consented recording wrote
+  five drafts and put one in its box with its stamp. Pull request #142. Commit:
+  `git log --grep "(15.14)"`.
+- **Left to the desktop or UAT, and not holding it open:** real database saving, and a live
+  recording flowing end to end into Wordsmith. **The measure is open by Mike's ruling** (he judged
+  hand-marking ten drafts flawed); the build records each AI draft, the final wording and the time
+  from first press to approval, so any measure he sets can be counted — a new item if he asks.
+
 **10.3 · Depreciation Rates, Forecast Trend Thresholds and Property Tax Rules become one hub page.**
 ✅ **Closed 2026-09-29 by Mike ("yes" — done).**
 

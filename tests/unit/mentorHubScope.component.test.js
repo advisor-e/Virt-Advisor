@@ -53,6 +53,19 @@ function tabLabels (wrapper) {
 }
 
 /**
+ * Every request answered empty — except the Adviser Network's console, answered empty but
+ * complete, as the real `/api/people/firm` always is. A bare `{}` there made its panel throw on
+ * `c.advisers.length` 66 times a run, burying any real warning in the output.
+ * @returns {Function} a jest fetch stand-in
+ */
+function standInFetch () {
+  return jest.fn(url => Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve(String(url) === '/api/people/firm' ? { advisers: [], approvals: [], activity: [] } : {})
+  }))
+}
+
+/**
  * Mount the hub with every network call stubbed. The tab bodies each load themselves on
  * mount; none of that is what these tests are about, and letting the real loaders run
  * would make them fail for reasons unrelated to the tab list they guard.
@@ -61,7 +74,7 @@ function tabLabels (wrapper) {
  * @returns {object} the test-utils Wrapper.
  */
 async function mountHub (props) {
-  global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
+  global.fetch = standInFetch()
   const wrapper = mountWithBuefy(FirmManagerHub, {
     propsData: Object.assign({ firmId: 'firm-1', apiToken: 'test-token' }, props)
   })
@@ -675,7 +688,7 @@ describe('/mentor page', () => {
   // The page is four lines of wiring, and every one of them is a way to ship a Mentor
   // Hub that silently renders the firm's screen instead.
   async function mountPage () {
-    global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
+    global.fetch = standInFetch()
     const wrapper = mountWithBuefy(MentorPage)
     await new Promise(resolve => setTimeout(resolve, 0))
     await wrapper.vm.$nextTick()
