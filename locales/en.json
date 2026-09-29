@@ -6255,7 +6255,14 @@
       "suggestNoHistory": "This client has no recorded conversations yet, so there is nothing to suggest from. Tick the concepts yourself.",
       "suggestNothing": "Nothing in the menu matched this client's recent conversations. Tick the concepts yourself.",
       "suggestFailed": "The suggestion could not be produced just now. Tick the concepts yourself and try again later.",
-      "suggestedBadge": "Suggested"
+      "suggestedBadge": "Suggested",
+      "intakeHeading": "A few questions first",
+      "intakeIntro": "This client has no saved conversation, so the suggestion will come from your answers here. They are the same questions the Virtual Advisor asks.",
+      "intakeSuggest": "Suggest from these answers",
+      "intakeSkip": "Tick them myself",
+      "suggestBarAnswers": "Suggested, not applied. {count} row was pre-ticked from your answers, with one line saying why. | Suggested, not applied. {count} rows were pre-ticked from your answers, each with one line saying why.",
+      "suggestNothingAnswers": "Nothing in the menu matched your answers. Tick the concepts yourself.",
+      "intakeChange": "change answers"
     },
     "card": {
       "placeholder": "Record it as it comes up…",

@@ -211,6 +211,21 @@ is NOT in the first build** (his yes, same day): it can steer nothing until he h
 branch of `client_planning` to his deck concepts, and it is added then.
 ☑ **The six pieces of new wording are approved exactly as written** (Mike, 2026-09-30) — listed at the
 foot of `design/mockups/strategy-suggest-intake.html`, where the build takes them from.
+☑ **That drawing, with every ruling above, is APPROVED TO BUILD FROM** (Mike, 2026-09-30).
+✅ **BUILT 2026-09-30.** `server/utils/strategyIntake.js` (the questions, the ceiling, the checks),
+`server/utils/intakeQuestions.js` (the wording the Virtual Advisor and the planner now both read),
+`GET /api/strategy/suggest/questions`, `answers` on `POST /api/strategy/suggest`, and
+`components/strategy/StrategySuggestIntake.vue`. **Walked in a browser with one real model call:**
+a 90-minute session pre-ticked exactly 4, each with its reason. **Differences from the drawing,
+named:** Screen 1 is one question at a time (his ruling); the answer buttons are the Virtual
+Advisor's own — *Save & Continue* for typed answers, *Confirm selection* for pickers; a typed
+"Other" length accepts 29–480 minutes, the least that holds one concept; and two lines derived from
+his approved wording — the bar's singular form, and *"Nothing in the menu matched your answers.
+Tick the concepts yourself."* — both approved by him exactly as written the same day.
+☑ **THE FRAME NEVER TAKES A SLOT — Mike, 2026-09-30.** The first real run spent one of its four
+slots on *Our Session Objective*, which **is** the frame his 6 minutes already cover. The guided
+suggestion now never offers it (`FRAME_CONCEPT_ID` in `strategyIntake.js`); the advisor can still
+tick it by hand.
 **Impact test, stated before design:** *problem* — a new client's first strategy meeting gets no
 guidance, and every client's suggestion ignores the four lenses; *measurement* — new-client cases
 that get a suggestion (0 today), recall on Pivot's 9 (4 today), overlap across the five situations

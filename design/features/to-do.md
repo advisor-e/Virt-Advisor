@@ -45,9 +45,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 8 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 9 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 10 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 11 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 11 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
+| 12 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**Eleven live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

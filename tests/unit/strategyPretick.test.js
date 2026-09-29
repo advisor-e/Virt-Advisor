@@ -228,3 +228,29 @@ describe('buildMessages — what is actually sent', () => {
     expect(() => pretick.buildMessages()).not.toThrow()
   })
 })
+
+// Item 15.31 — a session's ceiling, set by its length. The model is told the number; the
+// validator is what makes it true, and it is the half a tester cannot see.
+describe('a ceiling on how many rows', () => {
+  const known = ['a', 'b', 'c', 'd']
+  const reply = { ticks: known.map(id => ({ id, reason: 'Fits.' })) }
+
+  it('keeps no more rows than the ceiling, and counts the rest as dropped', () => {
+    const out = pretick.validateSuggestion(reply, known, 2)
+    expect(out.concepts.map(c => c.id)).toEqual(['a', 'b'])
+    expect(out.dropped).toEqual([{ id: 'c', why: 'over-cap' }, { id: 'd', why: 'over-cap' }])
+  })
+
+  it('behaves exactly as before when no ceiling is given', () => {
+    expect(pretick.validateSuggestion(reply, known).concepts).toHaveLength(4)
+    expect(pretick.validateSuggestion(reply, known, 0).concepts).toHaveLength(4)
+  })
+
+  it('leaves the measured system message untouched when there is no ceiling', () => {
+    const plain = pretick.buildMessages({ situation: 's', concepts: [] })
+    expect(plain[0].content).toBe(pretick.SYSTEM_PROMPT)
+    const capped = pretick.buildMessages({ situation: 's', concepts: [], maxConcepts: 1 })
+    expect(capped[0].content.startsWith(pretick.SYSTEM_PROMPT)).toBe(true)
+    expect(capped[0].content).toMatch(/at most 1 concept\./)
+  })
+})

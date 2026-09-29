@@ -311,19 +311,42 @@ function normaliseEdits (raw) {
  * back as the session's ticks — Decision C(a). It is bounded by the same ceiling the
  * validator applies, so a stored row cannot outgrow what the screen would ever show.
  *
- * @param {*} raw - `{ at, concepts: [{id, reason}] }`
- * @returns {{at: string, concepts: Array<{id: string, reason: string}>}|null}
+ * `answers` is present only when the suggestion came from the guided questions (item 15.31):
+ * what the advisor was asked is part of the record of why these rows were proposed.
+ *
+ * @param {*} raw - `{ at, concepts: [{id, reason}], answers? }`
+ * @returns {{at: string, concepts: Array<{id: string, reason: string}>, answers?: Object<string, string>}|null}
  */
 function normaliseSuggestion (raw) {
   if (isNil(raw) || typeof raw !== 'object' || Array.isArray(raw)) { return null }
   const concepts = Array.isArray(raw.concepts) ? raw.concepts : []
-  return {
+  const out = {
     at: String(raw.at || '').slice(0, 40),
     concepts: concepts.slice(0, MAX_SCOPE_ENTRIES).map(c => ({
       id: String((c && c.id) || '').slice(0, MAX_KEY),
       reason: String((c && c.reason) || '').slice(0, MAX_VALUE)
     })).filter(c => c.id)
   }
+  const answers = normaliseAnswers(raw.answers)
+  if (answers) { out.answers = answers }
+  return out
+}
+
+/**
+ * The guided answers stored with a suggestion: string values under short keys, bounded like
+ * every other field here. Anything else is dropped rather than stored.
+ * @param {*} raw
+ * @returns {Object<string, string>|null}
+ */
+function normaliseAnswers (raw) {
+  if (isNil(raw) || typeof raw !== 'object' || Array.isArray(raw)) { return null }
+  const out = {}
+  Object.keys(raw).slice(0, 20).forEach((key) => {
+    const value = raw[key]
+    if (typeof value !== 'string' || !value.trim()) { return }
+    out[String(key).slice(0, MAX_KEY)] = value.slice(0, MAX_VALUE)
+  })
+  return Object.keys(out).length ? out : null
 }
 
 /**

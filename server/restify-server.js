@@ -1145,6 +1145,7 @@ server.put('/api/strategy/sessions/:id/edits', firmAuth, strategyPlannerRoute.pu
 // stored beside them as the audit trail rather than in place of them. Keyed on the CLIENT,
 // not a session: the button sits on Scope session, which is open before any session exists.
 server.post('/api/strategy/suggest', firmAuth, strategyPlannerRoute.postSuggest)
+server.get('/api/strategy/suggest/questions', firmAuth, strategyPlannerRoute.getSuggestQuestions)
 // Decision 11's mechanism, not telemetry: which box was open, and when. It is what lets
 // a recording's words reach the right box without a model deciding anything.
 server.post('/api/strategy/sessions/:id/timeline', firmAuth, strategyPlannerRoute.postTimeline)

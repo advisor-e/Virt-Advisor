@@ -37,6 +37,8 @@ const frameworks = require('../utils/strategyFrameworks')
 const captureForms = require('../utils/strategyCaptureForms')
 const store = require('../utils/strategySessionStore')
 const pretick = require('../utils/strategyPretick')
+const strategyIntake = require('../utils/strategyIntake')
+const { loadBlendedStaircase } = require('../utils/staircaseConfig')
 const caseStore = require('../utils/caseStore')
 const clientStore = require('../utils/clientStore')
 const { getClient } = require('../utils/aiProvider')
@@ -510,7 +512,10 @@ async function putScope (req, res) {
  * a pre-tick nobody can account for.
  *
  * @route POST /api/strategy/suggest
- * @param {object} req - firmAuth-verified; body `{ clientId, sessionId? }`
+ * @param {object} req - firmAuth-verified; body `{ clientId, sessionId?, answers? }` — `answers`
+ *   is `{ [field]: string }` for every question of `GET /suggest/questions`, read only when the
+ *   client has no saved conversation (item 15.31); it caps the rows at the session's length
+ * @returns {400} when answers are sent incomplete, or with a session length the planner cannot use
  * @param {object} res
  * @returns {200} { success, suggestion: { at, concepts: [{id, reason}] }, reason, timestamp }
  * @returns {404} when no client with that id belongs to the caller's firm
@@ -538,7 +543,20 @@ async function postSuggest (req, res) {
     }
 
     const cases = await caseStore.listForClient(req.advisorId, firmId, clientId)
-    const situation = pretick.situationFromCases(cases)
+    let situation = pretick.situationFromCases(cases)
+    // Item 15.31: a client with no saved conversation is ASKED, not sent away. The screen
+    // shows the guided questions on 'no-history' and comes back with the answers. A client
+    // WITH history keeps the measured path exactly — any answers sent are ignored.
+    let intake = null
+    if (!situation && body.answers !== undefined) {
+      intake = strategyIntake.normaliseAnswers(body.answers)
+      if (!intake) {
+        sendError(res, 400, 'BAD_INPUT', 'Every question needs an answer, and a session length the planner can use')
+        return
+      }
+      const staircase = await loadBlendedStaircase(firmId, loadFirmConfig)
+      situation = strategyIntake.situationFromAnswers(intake.answers, strategyIntake.questions(staircase))
+    }
     if (!situation) {
       res.send(200, {
         success: true,
@@ -549,19 +567,25 @@ async function postSuggest (req, res) {
       return
     }
 
-    const concepts = frameworks.listConcepts()
+    // The guided path never offers the frame — its time is already counted (Mike, 2026-09-30).
+    // Leaving it out of `known` too means a model that names it anyway is dropped.
+    const concepts = intake
+      ? strategyIntake.suggestableConcepts(frameworks.listConcepts())
+      : frameworks.listConcepts()
+    const cap = intake ? strategyIntake.conceptCap(intake.minutes) : 0
     let reply
     try {
       reply = await getClient('classify').chat.completions.create({
-        messages: pretick.buildMessages({ situation, concepts }),
+        messages: pretick.buildMessages({ situation, concepts, maxConcepts: cap || undefined }),
         temperature: 0,
         max_tokens: 1800,
         response_format: { type: 'json_object' }
-        // moderate: [] — the situation is saved case summaries, nothing typed here (item 8.2).
-        // personal: true — each summary is the AI's last reply in an advisor's saved conversation
-        // about a real client, so it describes that client; the advisor conversation is personal
-        // by Mike's ruling of 2026-09-15 (item 15.30). No id travels with it.
-      }, { personal: true, moderate: [] })
+        // moderate — the saved case summaries are not typed here (item 8.2), so the history path
+        // passes []. The guided answers ARE typed by the advisor, so those go to moderation (rule
+        // Z3); the picker answers are the app's own words and do not.
+        // personal: true — either way the text describes a real client (item 15.30). No id
+        // travels with it.
+      }, { personal: true, moderate: intake ? strategyIntake.typedAnswers(intake.answers) : [] })
     } catch (err) {
       console.error('[strategy-planner] postSuggest model call failed:', err.message)
       sendError(res, 502, 'SUGGEST_UNAVAILABLE',
@@ -574,7 +598,7 @@ async function postSuggest (req, res) {
 ? reply.choices[0].message.content
 : ''
     const known = concepts.map(c => c.id)
-    const validated = pretick.validateSuggestion(content, known)
+    const validated = pretick.validateSuggestion(content, known, cap || undefined)
 
     // Decision C(c) again, on the logging side: what the model got wrong is recorded
     // server-side rather than shown. A row it invented is a fact about the model, not
@@ -584,7 +608,10 @@ async function postSuggest (req, res) {
         ' tick(s): ' + validated.dropped.map(d => d.id + '(' + d.why + ')').join(', '))
     }
 
+    // The answers ride with the suggestion, so the record holds what was asked, what the AI
+    // proposed and — beside it in the scope — what the advisor kept (Decision D).
     const suggestion = { at: new Date().toISOString(), concepts: validated.concepts }
+    if (intake) { suggestion.answers = intake.answers }
     // 🔴 A FAILED WRITE DOES NOT WITHHOLD THE SUGGESTION. The advisor is in front of a
     // client; losing the audit row is a real fault and is logged as one, but refusing to
     // show a suggestion that was produced would be the worse of the two. With no session
@@ -1070,7 +1097,49 @@ async function restoreSessionProcessVersion (req, res) {
   }
 }
 
+/**
+ * GET /api/strategy/suggest/questions
+ *
+ * The guided questions for a client with no saved conversation — item 15.31. The screen
+ * asks for them only after `POST /suggest` has answered 'no-history'.
+ *
+ * The Staircase question is the caller's FIRM's, from the same blended config the Virtual
+ * Advisor reads, so a firm that reworded it asks in its own words on both screens. The firm
+ * comes from the token, never the request.
+ *
+ * @route GET /api/strategy/suggest/questions
+ * @param {object} req - firmAuth-verified
+ * @param {object} res
+ * @returns {200} { success, questions: [{field, kind, text}], minutes: {frame, agenda, perConcept, min, max}, timestamp }
+ */
+async function getSuggestQuestions (req, res) {
+  const firmId = firmOf(req)
+  if (!firmId) {
+    sendError(res, 400, 'MISSING_SCOPE', 'No firm on this request')
+    return
+  }
+  try {
+    const staircase = await loadBlendedStaircase(firmId, loadFirmConfig)
+    res.send(200, {
+      success: true,
+      questions: strategyIntake.questions(staircase),
+      minutes: {
+        frame: strategyIntake.FRAME_MINUTES,
+        agenda: strategyIntake.AGENDA_MINUTES,
+        perConcept: strategyIntake.MINUTES_PER_CONCEPT,
+        min: strategyIntake.MIN_SESSION_MINUTES,
+        max: strategyIntake.MAX_SESSION_MINUTES
+      },
+      timestamp: new Date().toISOString()
+    })
+  } catch (err) {
+    console.error('[strategy-planner] getSuggestQuestions failed:', err.message)
+    sendError(res, 500, 'QUESTIONS_ERROR', 'Could not load the questions')
+  }
+}
+
 module.exports = {
+  getSuggestQuestions,
   getFrameworks,
   getConcepts,
   getConceptCapture,

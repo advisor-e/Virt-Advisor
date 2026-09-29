@@ -141,10 +141,18 @@ function situationFromCases (cases) {
  * @param {object} params
  * @param {string} params.situation - from `situationFromCases`
  * @param {Array<object>} params.concepts - the whole catalogue
+ * @param {number} [params.maxConcepts] - the session's ceiling (item 15.31). Omitted, the
+ *   system message is exactly the measured one; given, one sentence is added to it. The
+ *   ceiling is enforced again in `validateSuggestion` — this only tells the model.
  * @returns {Array<{role: string, content: string}>}
  */
 function buildMessages (params) {
   const p = params || {}
+  const cap = Number.isInteger(p.maxConcepts) && p.maxConcepts > 0 ? p.maxConcepts : 0
+  const system = cap
+    ? SYSTEM_PROMPT + '\n\nThe session has time for at most ' + cap + ' concept' +
+      (cap === 1 ? '' : 's') + '. Choose no more than that.'
+    : SYSTEM_PROMPT
   const user = [
     '<CLIENT_SITUATION>',
     fenceUntrusted(p.situation),
@@ -156,7 +164,7 @@ function buildMessages (params) {
   ].join('\n')
 
   return [
-    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'system', content: system },
     { role: 'user', content: user }
   ]
 }
@@ -172,12 +180,17 @@ function buildMessages (params) {
  *
  * Reasons are truncated, never dropped, since a long reason is still a true one.
  *
+ * 🔴 A SESSION'S CEILING IS ENFORCED HERE, NOT TRUSTED TO THE MODEL (item 15.31). The model is
+ * told the number; this is what makes it true. Rows past it are counted as dropped.
+ *
  * @param {*} raw - the model's message content: an object, a JSON string, or anything else
  * @param {Array<string>|Set<string>} knownIds - every id the catalogue really holds
+ * @param {number} [cap] - the most rows allowed, below `MAX_SUGGESTIONS`; omitted keeps that
  * @returns {{concepts: Array<{id: string, reason: string}>, dropped: Array<{id: string, why: string}>}}
  */
-function validateSuggestion (raw, knownIds) {
+function validateSuggestion (raw, knownIds, cap) {
   const known = (knownIds instanceof Set) ? knownIds : new Set(Array.isArray(knownIds) ? knownIds : [])
+  const limit = (Number.isInteger(cap) && cap > 0) ? Math.min(cap, MAX_SUGGESTIONS) : MAX_SUGGESTIONS
   const out = { concepts: [], dropped: [] }
 
   let parsed = raw
@@ -189,7 +202,12 @@ function validateSuggestion (raw, knownIds) {
 
   const seen = new Set()
   for (let i = 0; i < parsed.ticks.length; i++) {
-    if (out.concepts.length >= MAX_SUGGESTIONS) { break }
+    if (out.concepts.length >= limit) {
+      if (limit === MAX_SUGGESTIONS) { break }
+      const extra = parsed.ticks[i]
+      out.dropped.push({ id: String((extra && extra.id) || ''), why: 'over-cap' })
+      continue
+    }
 
     const tick = parsed.ticks[i]
     if (!tick || typeof tick !== 'object' || Array.isArray(tick)) { continue }
