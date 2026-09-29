@@ -1682,10 +1682,92 @@ Values, Mission and Strategy, plus a three-column table. Its own instruction alr
 purpose and audience: *"say them in words the team, the customers and the community each
 understand."*
 
-**How Wordsmith will be measured** (impact test, stated before design): a bench of ten drafts
-from a real recorded segment, the five statements each written in two styles. Mike judges them,
-and fewer than seven usable with light edits means it is not earning its place. After it is built:
-the time from pressing Wordsmith to approved text, and how much of each draft survives unedited.
+**How Wordsmith works — five steps (Mike's yes, 2026-09-29).** The 2026-09-28 test was one model
+call that saw only the purpose, the style and the words; it never saw a definition. That is
+replaced by:
+
+1. **Sort.** The model sorts what was said into the five statements by meaning, answering with
+   the transcript's **line numbers**; the code takes those lines word for word, the client's only.
+   Asked to copy passages instead, the model tidied them (the Lab, 2026-09-29), so the exact words
+   are guaranteed by construction. Speech that fits none is left out; a statement nobody spoke
+   about says so.
+2. **Check against the definition.** Each statement carries its definition — the Alignment
+   document first, best practice second where it agrees, the Alignment document wherever they
+   differ. What is missing (a Mission's date and measure, a Strategy's scope) becomes a question
+   for the advisor and client, never an invention.
+3. **Style becomes settings** — sentence length, formality, jargon, voice — shown to the advisor.
+4. **Draft** from the sorted quotes, the definition, the purpose and the settings: the client's
+   strongest phrases kept, New Zealand spelling, a length per statement.
+5. **Code checks every draft** — invented facts, lost key phrases, spelling, length — retries once,
+   then shows any failure to the advisor.
+
+**The definitions cascade (Mike, 2026-09-29):** *"as for every other section in this app, what is
+loaded into the mentor hub cascades down thru the layers to firm manager with the same adopt or
+decline rules as all other cascade content."* The standard rules (`tier-cascade.md` P3, P11), all
+four tiers. Each definition is a row with a stable id, ready for `resolveInheritedRows`; the five
+statement names are fixed keys, like the Growth Aspects'. The instruction each style choice sends
+the model lives in the same file (`styleSettings`, one id per choice; moved out of the code on
+Mike's yes, 2026-09-29); the choices themselves stay fixed in code, and Wordsmith refuses to run if
+any choice lacks its instruction. Until the hub tab is built the shipped file is the mentor's
+content. **Managers at every level shape it** (Mike, 2026-09-29: *"I want
+various level managers to feel as if they have some input into the shaping/improvement of the AI and
+its advice for their firm or group - therefore - appropriate fields must be editable and cascade
+down"*); the split, **approved by him the same day** as the one the hub tab is built to
+(`wordsmith-style-settings.html`, "Who can shape it"): **editable at all four tiers, cascading** —
+definition rows, their sources, each domain writing rule, the questions for the room, word limits,
+the style instructions; **fixed at every tier** — the five statement names and order, which
+recording Wordsmith may read, the safety rules, the code's checks, and keeping the client's strongest
+phrases. Spelling is New Zealand English in the code for now; a firm's own language and spelling
+come with translation reaching every hub page and level (Mike, 2026-09-29 — item 13.7). **When the hub tab is built, its colours and format match the other
+tabs in the hub** (Mike, 2026-09-29: *"just check the colours and format match that of the other
+pages in the hub when you go to build stage"*) — checked beside an existing tab before it ships; the
+drawing `wordsmith-style-settings.html` shows the content, not the screen.
+
+**Each statement's domain is a rule for how it is written (Mike, 2026-09-29).** The five domains
+on the Alignment deck's sheet 5 — Being, Knowing, Relating, Having, Doing — are not labels. In his
+words: *"BEING relates to the construction of a Vision statement by reminding people to create their
+statement for the future in the affirmative - in order for it to be 'being' it must be/sound real
+NOW. so statements must sound as if already achieved"*. **Vision is written in the present tense,
+as if already achieved.** The deck states no writing rule for any domain. For the other four he
+supplied the NLP background the same day (the Meta-Content Domains, L. Michael Hall's
+Neuro-Semantics), and the rule drawn from it for each was **approved by him the same day**, word for
+word as on [`../mockups/wordsmith-style-settings.html`](../mockups/wordsmith-style-settings.html):
+**Purpose (Knowing)** a conviction the business holds, never finished, never a goal, date or number;
+**Values (Relating)** how it treats named people by what it does and refuses to do, true from their
+side, unchanged by the market; **Mission (Having)** the one milestone in hand by a stated date, with a
+measure, the next step towards the Vision, stated towards what it wants, what and by when only;
+**Strategy (Doing)** active verbs, the chosen way to win — where it plays, its advantage, what it
+will not do — a philosophy of how with no dates or targets, the one statement expected to change.
+Each statement carries its domain and rule in `data/wordsmith-statements.json` (`domain`, with an
+id for the cascade), and step 4 tells the model that statement's rule; Wordsmith refuses to run
+without one. Added on his yes the same day: the Lab's Vision drafts moved from "We aim to be the
+best suspension business" to "We are the best suspension business", and every Purpose now opens
+"We believe".
+
+**The two screens** are drawn on
+[`../mockups/wordsmith-screens.html`](../mockups/wordsmith-screens.html), **approved by Mike
+2026-09-29 as the design to build from, wording included ("keep it all")**, with its five decisions
+ruled the same day, each as recommended: **A** the Wordsmith button works
+only once the Alignment Statements section is text; **B** the advisor can change any of the four
+settings and write again; **C** the room's typed answer to a question for the room is written in as
+the client's own; **D** "Use this wording" waits for the client's agreement tick, as the concept
+summaries do ("The client has read this statement and agrees with it"); **E** Wordsmith writes the
+five statements only — the communication table stays typed. Its 16 build details are ruled on the
+same page. The ones that shape the product: the record of each statement (the AI's draft, the final
+wording, who agreed) is kept beside the meeting's transcript and deleted with it; the stamp shows
+only while the box holds the approved wording; 10 writing runs per meeting; if a manager's saved
+content cannot be read, Wordsmith stops rather than using the mentor's. **The server checks every
+recording section's concept label** against the planner's concepts and frameworks, so "the Alignment
+Statements segment only" is not the browser's to keep (Mike's yes, 2026-09-29).
+
+**How Wordsmith will be measured: OPEN.** Mike ruled 2026-09-29 that the scoping measure — he
+hand-judges ten drafts, seven usable with light edits — is flawed, and it is not the test. He
+declined hand-marked must-keep phrases for the same reason: rules drawn from one sample. **The
+Wordsmith Lab** (`scripts/wordsmith-lab.js`, his yes 2026-09-29) re-runs a bench of ten drafts
+from his own recorded dictation (five statements, two styles) and runs the code's own checks on
+each step; its style measures are ours and unproven. After
+it is built: the time from pressing Wordsmith to approved text, and how much of each draft
+survives unedited.
 
 ## 10. Where it lives
 

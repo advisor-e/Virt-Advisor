@@ -45,8 +45,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 8 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 9 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 10 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 11 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**Ten live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Eleven live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

@@ -5,15 +5,15 @@
 > and `npm run code-size` runs on its own. Mike asked for this as a rolling summary on
 > 2026-09-10; rolling means computed at build time, never typed.
 >
-> **Measured 2026-09-29 at commit `9b984496`.**
+> **Measured 2026-09-29 at commit `e8d5815f`.**
 
-**Working code: 127,482 lines** across 630 files — blank lines and
+**Working code: 127,891 lines** across 631 files — blank lines and
 comment lines stripped; tests, design documents, data, scripts and locale strings left out.
 
 | Where | Files | Lines of code | Comment lines |
 |---|---:|---:|---:|
 | Screens and components (`components`) | 244 | 65,126 | 21,069 |
-| The Restify backend (`server`) | 265 | 54,081 | 39,755 |
+| The Restify backend (`server`) | 266 | 54,490 | 39,941 |
 | Pages (`pages`) | 51 | 3,319 | 2,318 |
 | Front-end helpers (`utils`) | 43 | 3,167 | 2,716 |
 | Mixins (`mixins`) | 15 | 1,227 | 527 |
@@ -22,17 +22,17 @@ comment lines stripped; tests, design documents, data, scripts and locale string
 | Nuxt configuration (`nuxt.config.js`) | 1 | 98 | 141 |
 | Plugins (`plugins`) | 2 | 88 | 54 |
 | Layouts (`layouts`) | 2 | 19 | 7 |
-| **Total working code** | **630** | **127,482** | **66,867** |
+| **Total working code** | **631** | **127,891** | **67,053** |
 
 | By kind | Files | Lines of code |
 |---|---:|---:|
-| JavaScript | 334 | 59,292 |
+| JavaScript | 335 | 59,701 |
 | Vue screens and components | 296 | 68,190 |
 
 **Beside the code, and not counted in it:**
 
-- **Comments and documentation** inside those same files: 66,867 lines. The JSDoc rule asks for the *why*, and this is what it costs.
-- **Tests**: 670 files, 118,007 lines of test code.
+- **Comments and documentation** inside those same files: 67,053 lines. The JSDoc rule asks for the *why*, and this is what it costs.
+- **Tests**: 671 files, 118,429 lines of test code.
 - **Locale strings**: 8,858 non-blank lines across the language files. Words on screens, not logic.
 - **The content the engine reads** — logic trees, prompts, observation points, templates — lives in `data/` and is Mike's material, not code.
 
