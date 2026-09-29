@@ -1750,7 +1750,14 @@ ruled the same day, each as recommended: **A** the Wordsmith button works
 only once the Alignment Statements section is text; **B** the advisor can change any of the four
 settings and write again; **C** the room's typed answer to a question for the room is written in as
 the client's own; **D** "Use this wording" waits for the client's agreement tick, as the concept
-summaries do; **E** Wordsmith writes the five statements only — the communication table stays typed.
+summaries do ("The client has read this statement and agrees with it"); **E** Wordsmith writes the
+five statements only — the communication table stays typed. Its 16 build details are ruled on the
+same page. The ones that shape the product: the record of each statement (the AI's draft, the final
+wording, who agreed) is kept beside the meeting's transcript and deleted with it; the stamp shows
+only while the box holds the approved wording; 10 writing runs per meeting; if a manager's saved
+content cannot be read, Wordsmith stops rather than using the mentor's. **The server checks every
+recording section's concept label** against the planner's concepts and frameworks, so "the Alignment
+Statements segment only" is not the browser's to keep (Mike's yes, 2026-09-29).
 
 **How Wordsmith will be measured: OPEN.** Mike ruled 2026-09-29 that the scoping measure — he
 hand-judges ten drafts, seven usable with light edits — is flawed, and it is not the test. He

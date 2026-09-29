@@ -358,10 +358,18 @@ function openNextSegment (req, res) {
   const body = req.body || {}
   const label = typeof body.label === 'string' ? body.label.trim() : ''
   if (!label) { return sendError(res, 400, 'NO_LABEL', 'A segment needs the name of its concept') }
+  // The label decides which words may reach a model: Wordsmith sends only the Alignment
+  // Statements segment (CLAUDE.md's privacy exception). An unchecked name from the browser
+  // would make that rule the browser's to keep. A card sends a concept's id or, for a
+  // framework card, the framework's; none means the framing and agenda section.
+  const conceptId = body.conceptId === undefined || body.conceptId === null ? null : body.conceptId
+  if (conceptId !== null && !(typeof conceptId === 'string' && (frameworks.getConcept(conceptId) || frameworks.getFramework(conceptId)))) {
+    return sendError(res, 400, 'UNKNOWN_CONCEPT', 'That section is not part of the Strategy Planner')
+  }
 
   try {
     closeLiveSegment(meta.meetingId)
-    const opened = store.openSegment(meta.meetingId, { conceptId: body.conceptId, label })
+    const opened = store.openSegment(meta.meetingId, { conceptId, label })
     res.send(201, {
       segment: opened.n,
       rollBytes: store.SEGMENT_ROLL_BYTES,
