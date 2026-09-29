@@ -292,6 +292,153 @@
       "touches": "Every hub tab under FirmManagerHub.vue at the four tiers; locales/en.json; server/utils/uiTranslation.js; and Wordsmith's language: the New Zealand spelling rule in buildDraftMessages and the AMERICAN check in server/utils/wordsmith.js.",
       "note": "NOT SCOPED. 10.1 and 10.2 already brought the manager screens and the hub's backend wording into translation. First job at scoping: list which hub pages and tiers still show English that bypasses it, and name how Wordsmith learns a firm's language and spelling. The impact test is unrun.",
       "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.29",
+      "name": "Wordsmith can write one client's approved wording into another client's plan",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "privacy",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "When an advisor uses an approved statement, the server checks only that the planning session belongs to the same firm - never that it is the same client or advisor as the recorded meeting.",
+      "risk": "One client's spoken words, cleared under Meeting Review's exception for that client only, could land in another client's plan and printed document. It needs a wrong or crafted session number, so it is unlikely in normal use, but nothing stops it. Contributing cause: a new planning session never records its meeting, so the existing meeting check never fires.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
+      },
+      "touches": "server/routes/wordsmith.js, the use route's session guard (~line 340); server/routes/strategyPlanner.js createSession, which never sets meetingId; server/utils/strategySessionStore.js, which already supports it; tests/unit/wordsmith.routes.test.js.",
+      "note": "FOUND 2026-09-29 by reading the code, not by a failing test. Proposed fix: refuse unless the session's client and advisor match the meeting's. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
+      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it. The code is the laptop's 15.14 build, closed the same day."
+    },
+    {
+      "ref": "7.14",
+      "name": "The primary-issue tie-break sends the advisor's words about a client marked not personal",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "privacy",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Every other call in the advisory conversation is marked personal (Mike's ruling, 2026-09-15). This one, which breaks a tie between two issue labels, is marked not personal though it sends the advisor's own description of the client's problem.",
+      "risk": "Marked not personal, the call may fall back to a second AI provider nobody has cleared, if one is ever configured. None is known to be configured, so nothing is known to have left; the flag is wrong and would fail silently.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
+      },
+      "touches": "server/utils/primaryIssueProposer.js tiebreakWithModel (~line 354); tests/unit/aiCallSitesPersonal.test.js, whose register should have caught it.",
+      "note": "FOUND 2026-09-29. A one-word fix, plus the register entry so it cannot recur. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
+      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.30",
+      "name": "Planner Suggest sends a client's saved case summaries as not personal, unmoderated",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "privacy",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The Suggest button sends the advisor's saved case summaries for a named client to the AI to pre-tick topics. It marks them not personal and passes nothing to moderation, reasoning that nothing was typed on that screen.",
+      "risk": "Case summaries are advisor-written text about a real client, so the same fault as 7.14 applies - a possible fallback to an uncleared provider - and the moderation rule, which covers text a person wrote, is skipped for it.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
+      },
+      "touches": "server/routes/strategyPlanner.js postSuggest (~lines 478-484); server/utils/strategyPretick.js situationFromCases; tests/unit/aiCallSitesPersonal.test.js.",
+      "note": "FOUND 2026-09-29. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
+      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "40.1",
+      "name": "Nothing on the AI Prompts tab changes what any AI is sent",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The tab's only editable settings belong to the cash-flow forecast prompt, and no code ever sends that prompt. Every other prompt on it is locked, and six more are hardcoded with no screen at all.",
+      "risk": "A manager who changes materiality, granularity or currency believes they have tuned the AI, and nothing changes. A comment in the market-research route also says banned research sites can be added on this tab without a developer; the validator would drop them. It falls short of the hub-page rule: what the AI reads, somebody must be able to see and change.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
+      },
+      "touches": "data/ai-prompts.json (cashflow-forecast); server/utils/aiPrompts.js validateAiPromptOverrides; server/routes/economicAnalysis.js (~lines 263-267); components/FirmAiPrompts.vue; the hardcoded prompts in salesBlogEngine, anonymiseCase, primaryIssueProposer, uiTranslation and data/prompts/*.txt.",
+      "note": "FOUND 2026-09-29. What a manager should be able to tune is Mike's decision before any build. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
+      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "8.6",
+      "name": "After a recorded strategy session the next meeting's coaching notes check nothing from it",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Coaching Notes check whether the previous meeting's agreed actions were followed through. A recorded strategy session's summary is joined from approved concept summaries, and its action list is always empty.",
+      "risk": "The advisor gets no follow-through on the meeting where most was agreed, and nothing on screen says so. Whether a strategy session carries actions, and where they come from, is a design decision - Decision J made its summary approved-summaries only.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
+      },
+      "touches": "server/utils/conceptSummary.js composeMeetingSummary (actions always empty, ~line 302); server/utils/meetingFollowThrough.js findPrevious (~lines 98-109); server/routes/meetingReview.js runReports. These sit beside 8.4's files, which are the laptop's.",
+      "note": "FOUND 2026-09-29. Not a regression - so since the segmented recording was built. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
+      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.15",
+      "name": "In client mode the engine reads past case studies and never uses them",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "For client and discover modes the engine loads the advisor's saved case studies from the database. Discover puts them in the prompt; client mode always returns first (line ~4085), so its read is wasted.",
+      "risk": "Either a wasted database read on every client-mode turn, or a lost feature - case studies may have been meant to inform client recommendations. Which is a question for Mike first, since adding them changes what the AI is told. Several later client-mode checks (~4140-4256) never run for the same reason.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
+      },
+      "touches": "server/advisorEngine.js loadPromptCases call (~line 2233), the client-mode branch (~2276-4086), formatCaseSummaries (~4155).",
+      "note": "FOUND 2026-09-29. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
+      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.16",
+      "name": "A privacy test's comment says the engines bypass the privacy seam; they no longer do",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 1,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "tests/unit/aiCallSitesPersonal.test.js says advisorEngine and courseEngine are \"NOT YET ROUTED THROUGH THE SEAM\". Both now call aiProvider.getClient (advisorEngine.js ~678 and 683; courseEngine.js ~45).",
+      "risk": "A session reading it will believe those calls escape the personal-data check, and may redo work or distrust the guard. Low harm, but it is a stale claim inside a guard file.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
+      },
+      "touches": "tests/unit/aiCallSitesPersonal.test.js (~line 53); whether its register should list the engines' call sites is part of the fix.",
+      "note": "FOUND 2026-09-29. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
+      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

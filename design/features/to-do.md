@@ -45,8 +45,15 @@ repository sees; the two never both appear, and the build stops if they would.
 | 8 | **44.1** Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 9 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 10 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 11 | **15.29** Wordsmith can write one client's approved wording into another client's plan ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 12 | **7.14** The primary-issue tie-break sends the advisor's words about a client marked not personal ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 13 | **15.30** Planner Suggest sends a client's saved case summaries as not personal, unmoderated ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 14 | **40.1** Nothing on the AI Prompts tab changes what any AI is sent ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 15 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 16 | **7.15** In client mode the engine reads past case studies and never uses them ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 17 | **7.16** A privacy test's comment says the engines bypass the privacy seam; they no longer do ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 
-**Ten live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Seventeen live items. Seven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
