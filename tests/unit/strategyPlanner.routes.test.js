@@ -35,6 +35,13 @@ jest.mock('../../server/utils/strategySessionStore', () => ({
   closeOpenField: jest.fn()
 }))
 
+// A firm's imported concepts (item 15.20) — none, unless a test says otherwise; their own
+// behaviour is tests/unit/strategyPlannerImported.routes.test.js.
+jest.mock('../../server/utils/importedConcepts', () => Object.assign(
+  {}, jest.requireActual('../../server/utils/importedConcepts'),
+  { loadVisible: jest.fn(() => Promise.resolve({})), findVisible: jest.fn(() => Promise.resolve(null)) }
+))
+
 const store = require('../../server/utils/strategySessionStore')
 const routes = require('../../server/routes/strategyPlanner')
 const growthAspects = require('../../server/utils/growthAspects')
@@ -124,9 +131,9 @@ describe('GET /api/strategy/frameworks', () => {
 })
 
 describe('GET /api/strategy/concepts — the session scope menu', () => {
-  it('returns the five panels, in Mike\'s order, holding all 48 concepts', () => {
+  it('returns the five panels, in Mike\'s order, holding all 48 concepts', async () => {
     const res = makeRes()
-    routes.getConcepts(req(), res)
+    await routes.getConcepts(req(), res)
 
     expect(res._status).toBe(200)
     expect(res._body.decks).toHaveLength(5)
@@ -135,12 +142,12 @@ describe('GET /api/strategy/concepts — the session scope menu', () => {
     expect(res._body.decks.reduce((n, d) => n + d.concepts.length, 0)).toBe(48)
   })
 
-  it('🔴 groups by DECK, so Pivot\'s eleven are reachable in one pass', () => {
+  it('🔴 groups by DECK, so Pivot\'s eleven are reachable in one pass', async () => {
     // Strategic Orientation is one Planning Domain in two decks, and Pivot takes nine
     // concepts from the second of them and two from Sales & Marketing. Grouping by domain
     // would put nine of them under a heading shared with another deck's agenda rows.
     const res = makeRes()
-    routes.getConcepts(req(), res)
+    await routes.getConcepts(req(), res)
 
     const ids = res._body.decks.map(d => d.id)
     expect(ids).toEqual([
@@ -154,13 +161,13 @@ describe('GET /api/strategy/concepts — the session scope menu', () => {
     expect(so).toHaveLength(2)
   })
 
-  it('🔴 returns an agenda row\'s description exactly as stored — never filled, never reworded', () => {
+  it('🔴 returns an agenda row\'s description exactly as stored — never filled, never reworded', async () => {
     // Decision B: an agenda row's description is Mike's to write. A generated or inferred
     // sentence would look exactly like his and could not be told apart afterwards. His ten
     // approved lines are in the data since 2026-09-24 (item 15.3); the route must hand each
     // back untouched, and a row with none must come back null rather than filled.
     const res = makeRes()
-    routes.getConcepts(req(), res)
+    await routes.getConcepts(req(), res)
     const stored = {}
     require('../../data/strategy-frameworks.json').concepts
       .forEach((c) => { stored[c.id] = c.helpsClientTo || null })
@@ -177,12 +184,12 @@ describe('GET /api/strategy/concepts — the session scope menu', () => {
     })
   })
 
-  it('resolves a shared cell rather than returning an empty one', () => {
+  it('resolves a shared cell rather than returning an empty one', async () => {
     // Decision E: Price For Delivery Medium holds no text of its own — both its columns
     // are one cell in the deck, shared with the row above. A screen that rendered the raw
     // record would show two blanks where Mike wrote a sentence.
     const res = makeRes()
-    routes.getConcepts(req(), res)
+    await routes.getConcepts(req(), res)
 
     const so2 = res._body.decks.find(d => d.id === 'strategic-orientation-2')
     const shared = so2.concepts.find(c => c.id === 'price-for-delivery-medium')
@@ -526,13 +533,13 @@ describe('every route handles both kinds of failure', () => {
     expect(JSON.stringify(res._body)).not.toContain('ENOENT')
   })
 
-  it('reports a session scope menu that cannot be read, without leaking why', () => {
+  it('reports a session scope menu that cannot be read, without leaking why', async () => {
     jest.spyOn(frameworksModule, 'listDecks').mockImplementation(() => {
       throw new Error('ENOENT: data/strategy-frameworks.json')
     })
     const res = makeRes()
 
-    routes.getConcepts(req(), res)
+    await routes.getConcepts(req(), res)
 
     expect(res._status).toBe(500)
     expect(JSON.stringify(res._body)).not.toContain('ENOENT')

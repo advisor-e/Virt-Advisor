@@ -343,6 +343,119 @@ async function mintId (scopeId, savedBy) {
   return minted.id
 }
 
+// ── In the planner (piece 3) ─────────────────────────────────────────────────────────
+
+/**
+ * The capture form an imported concept's card is laid out by: its labelled boxes, one under
+ * another, in the order the manager drew them (drawing §5b: "The capture card lists the labelled
+ * boxes as fields, in their drawn order").
+ */
+const IMPORTED_FORM = 'imported'
+
+/**
+ * Every imported concept a scope can see — its own and every tier's above it — with its pages.
+ *
+ * @param {string} scopeId - from the verified JWT
+ * @returns {Promise<Object.<string, object>>} id → record; a lower tier wins on a clash, which the
+ *   tier-prefixed ids make impossible in practice
+ */
+async function loadVisible (scopeId) {
+  const out = {}
+  for (const scope of scopeChain(scopeId)) {
+    Object.assign(out, await readOwn(scope))
+  }
+  return out
+}
+
+/**
+ * One imported concept this scope can see, or null. An id that is not shaped like an imported
+ * one is answered without reading anything.
+ *
+ * @param {string} scopeId - from the verified JWT
+ * @param {*} id
+ * @returns {Promise<object|null>}
+ */
+async function findVisible (scopeId, id) {
+  if (typeof id !== 'string' || !ID_PATTERN.test(id)) { return null }
+  return (await loadVisible(scopeId))[id] || null
+}
+
+/**
+ * An imported concept in the shape the planner gives every concept (`strategyFrameworks`
+ * `buildConcept`), so the menu, the session and the plan treat it as any other. It has no deck
+ * page, no summary line and no instruction pages — only what the manager supplied.
+ *
+ * @param {object} record
+ * @returns {object}
+ */
+function plannerConcept (record) {
+  return {
+    id: record.id,
+    name: record.name,
+    planningDomain: record.planningDomain,
+    deck: null,
+    document: null,
+    page: null,
+    source: 'imported',
+    conceptSummary: null,
+    conceptSummaryRef: null,
+    helpsClientTo: record.helpsClientTo || null,
+    helpsClientToRef: null,
+    teachingForm: null,
+    captureForm: IMPORTED_FORM,
+    captureTemplate: null,
+    captureFormBasis: 'measured',
+    responsePage: null,
+    lastPage: null,
+    pageWords: [],
+    model: null,
+    importReport: null,
+    imported: true
+  }
+}
+
+/**
+ * An imported concept's capture card. Each box is a field keyed as a one-column table
+ * (`t0r<i>c0`), which is the key shape the capture card and the save guard already read, so the
+ * card needs no special path to lay it out. The teaching pages travel with it, as a drawn
+ * concept's drawing does.
+ *
+ * @param {object} record
+ * @returns {{supplied: true, form: string, fields: Array<object>, teachingPages: Array<object>}}
+ */
+function captureOf (record) {
+  return {
+    supplied: true,
+    form: IMPORTED_FORM,
+    tableForms: [IMPORTED_FORM],
+    // The label is the COLUMN label: the card heads each block with it and prints a field's row
+    // label again beneath, so carried as a row label it showed twice (walked 2026-09-29).
+    fields: record.boxes.map((b, i) => ({
+      key: 't0r' + i + 'c0',
+      row: i,
+      column: 0,
+      columnLabel: b.label,
+      rowLabel: '',
+      example: ''
+    })),
+    teachingPages: record.teachingPages.map(p => ({ svg: p.svg, width: p.width, height: p.height })),
+    importReport: null
+  }
+}
+
+/**
+ * Is this a real box on this imported concept's card? The save guard's whitelist, as
+ * `strategyCaptureForms.hasCaptureField` is for a shipped concept.
+ *
+ * @param {object} record
+ * @param {*} fieldKey
+ * @returns {boolean}
+ */
+function hasBox (record, fieldKey) {
+  const m = /^t0r(\d+)c0$/.exec(String(fieldKey || ''))
+  return Boolean(m) && Number(m[1]) < record.boxes.length
+}
+
 /**
  * Store one concept's record.
  * @param {string} scopeId - from the verified JWT
@@ -376,5 +489,11 @@ module.exports = {
   nextId,
   mintId,
   saveRecord,
-  deleteRecord
+  deleteRecord,
+  IMPORTED_FORM,
+  loadVisible,
+  findVisible,
+  plannerConcept,
+  captureOf,
+  hasBox
 }

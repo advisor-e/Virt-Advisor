@@ -37,6 +37,7 @@ const { allSettled, joinTranscripts, restorePausedTime, publicSegments } = requi
 const conceptSummary = require('../utils/conceptSummary')
 const frameworks = require('../utils/strategyFrameworks')
 const captureForms = require('../utils/strategyCaptureForms')
+const importedConcepts = require('../utils/importedConcepts')
 
 /** The same callback wrapper `meetingReview.js` uses around formidable v2's parse(). */
 function parseForm (form, req) {
@@ -145,12 +146,24 @@ const summaryJobs = new Map()
 
 /**
  * The headings a segment's summary is written under, from its concept's own capture table.
+ *
+ * An imported concept's headings are the box labels its manager typed, and its name — Mike's
+ * ruling of 2026-09-29. Its PDF is never read here and never sent (strategy-planner.md §9).
+ *
  * @param {object} seg - one entry of `meta.segments`
- * @returns {{headings: Array<string>, conceptName: string}}
+ * @param {string|null} firmId - the meeting's own firm, whose imported concepts it can see
+ * @returns {Promise<{headings: Array<string>, conceptName: string}>}
  */
-function headingsForSegment (seg) {
-  const concept = seg.conceptId ? frameworks.getConcept(seg.conceptId) : null
-  const capture = concept ? captureForms.captureForConcept(concept) : null
+async function headingsForSegment (seg, firmId) {
+  let concept = seg.conceptId ? frameworks.getConcept(seg.conceptId) : null
+  let capture = concept ? captureForms.captureForConcept(concept) : null
+  if (!concept && seg.conceptId && firmId) {
+    const record = await importedConcepts.findVisible(firmId, seg.conceptId)
+    if (record) {
+      concept = { name: record.name }
+      capture = importedConcepts.captureOf(record)
+    }
+  }
   return {
     headings: conceptSummary.headingsFor(concept, capture, seg.label),
     conceptName: (concept && concept.name) || seg.label
@@ -179,7 +192,7 @@ async function runSegmentSummary (meetingId, n) {
   summaryJobs.set(key, 'writing')
   store.updateSegment(meetingId, n, { summaryState: 'writing' })
   try {
-    const { headings, conceptName } = headingsForSegment(seg)
+    const { headings, conceptName } = await headingsForSegment(seg, meta.firmId)
     const spoken = text.segments || []
     // Decision N: nothing was said, so there is nothing to summarise and no model is asked —
     // every heading reads "Nothing was said about this."
@@ -352,7 +365,7 @@ async function uploadVoiceReference (req, res) {
  * @param {object} req.body - `{ conceptId?: string, label: string }`
  * @returns {{segment: number, rollBytes: number, maxBytes: number, segments: Array<object>}}
  */
-function openNextSegment (req, res) {
+async function openNextSegment (req, res) {
   const meta = recordingSession(req, res)
   if (!meta) { return }
   const body = req.body || {}
@@ -361,10 +374,17 @@ function openNextSegment (req, res) {
   // The label decides which words may reach a model: Wordsmith sends only the Alignment
   // Statements segment (CLAUDE.md's privacy exception). An unchecked name from the browser
   // would make that rule the browser's to keep. A card sends a concept's id or, for a
-  // framework card, the framework's; none means the framing and agenda section.
+  // framework card, the framework's; none means the framing and agenda section. An imported
+  // concept counts only where this meeting's own firm can see it (item 15.20).
   const conceptId = body.conceptId === undefined || body.conceptId === null ? null : body.conceptId
   if (conceptId !== null && !(typeof conceptId === 'string' && (frameworks.getConcept(conceptId) || frameworks.getFramework(conceptId)))) {
-    return sendError(res, 400, 'UNKNOWN_CONCEPT', 'That section is not part of the Strategy Planner')
+    let record = null
+    try { record = await importedConcepts.findVisible(meta.firmId, conceptId) } catch (err) {
+      console.error('[meeting-segments] imported concept could not be read:', err.message)
+    }
+    if (!record) {
+      return sendError(res, 400, 'UNKNOWN_CONCEPT', 'That section is not part of the Strategy Planner')
+    }
   }
 
   try {
@@ -662,7 +682,9 @@ function mountable (fn) {
 module.exports = {
   uploadVoiceReference,
   uploadSegmentChunk,
-  openNextSegment: mountable(openNextSegment),
+  // Async since item 15.20 (it may read the firm's imported concepts), so it is mounted as the
+  // uploads above are — `mountable` would answer before the handler had.
+  openNextSegment,
   closeSegment: mountable(closeSegment),
   recordPause: mountable(recordPause),
   getSegmentSummary: mountable(getSegmentSummary),

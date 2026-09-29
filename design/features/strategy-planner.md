@@ -1339,8 +1339,8 @@ each of the five above.
 ## 9. Adding a concept — approved to build, and what was measured before design
 
 **Item 15.20, asked for by Mike 2026-09-23 in his own words.** Built: the converter, the
-backend (storage and routes) and the hub screens, described at the end of this section. Not
-built: imported pages in the planner, and answers printed inside their boxes.
+backend (storage and routes), the hub screens and imported concepts in the planner, described at
+the end of this section. Not built: answers printed inside their boxes in the plan.
 
 ✅ **THE DRAWING IS APPROVED TO BUILD FROM — [`add-concept.html`](../mockups/add-concept.html),
 Mike, 2026-09-23:** *"make a note now that i approve the drawing."* Asked as its own question
@@ -1443,6 +1443,13 @@ not generalise; this was therefore a fresh decision, not an inference from that 
 ⚠ **A session proposing to send these PDFs to a model to name a concept, draft a summary or read
 a response table is re-opening a settled ruling.** It was offered and declined.
 
+✅ **RULED BY MIKE 2026-09-29 — RECORDING WORKS ON AN IMPORTED CONCEPT'S CARD.** When an advisor
+records a section there, OpenAI writes that section's summary under the manager's **box labels**
+and the concept's **name**, exactly as it does for every other concept. **The PDF itself is never
+sent.** The name was read from the PDF's title and then confirmed or retyped by the manager; the
+labels were typed by hand. Nothing else of an imported concept reaches a model — "Suggest for this
+client" never offers one.
+
 ### 🔴 RULED BY MIKE 2026-09-23 — THE UPLOAD FOLLOWS THE SHIPPED DEPRECIATION PATTERN
 
 **The file comes to our own Restify backend**, is accepted only if it is genuinely a PDF under a
@@ -1542,6 +1549,18 @@ is: it points at a deck the client never sees. Found walking p11 in the frame. T
 text that is only one to three digits and lies wholly in the bottom-right corner
 (`PAGE_NUMBER_ZONE`), located from the page's own text layer, because the drawn glyphs are font
 codes and cannot be read; a word, or a number elsewhere, is kept. Proved on p11 in the frame.
+
+✅ **BUILT 2026-09-29 — imported concepts in the planner, slice 4. Walked in a built app the same
+day**, a mentor's concept used by an advisor in `dev-firm-001`. An imported concept behaves as any
+other (drawing §9): on the **scope menu** at the end of its section's last panel (for Strategic
+Orientation, the second), page a dash; in **Build** and **Run session**; its card shows the teaching
+pages in the app's frame with the firm's mark and no second title, and its labelled boxes one under
+another in drawn order (`t0r<i>c0`, form `imported`). The scope save, the entry save, the timeline
+and "Record this section" accept an imported concept only where the firm can see it — one shared
+check, `unknownBoxes` in `strategyPlanner.js`, serves the save and the timeline. **Kept out:**
+"Suggest for this client" (it asks OpenAI to choose), Session Processes, and text edits on an
+imported page. **Not walked live:** a recorded section's summary (it needs a microphone and a
+real OpenAI call); its headings are pinned by test to the box labels, Mike's ruling above.
 
 ⚠ **Differences from the drawing, named as the artefact rule requires:** a shipped concept with no
 drawing yet shows a dash under Teaching sheet; step 1 lists the dropped files with Remove; step 2
