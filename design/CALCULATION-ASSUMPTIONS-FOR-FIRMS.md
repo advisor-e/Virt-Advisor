@@ -12,7 +12,7 @@ it and tells every firm it is new).
 **How to publish it.** Mentor Hub → Compliance → publish an item. Paste the three parts below
 exactly. The Compliance tab shows the body as plain text, which is why it has no tables or bold.
 
-**Status:** first version approved by Mike 2026-09-30 (`1248c251`). **Revised the same day** after item 44.2 was built — the interest and statement-layout paragraphs, and the differences list (six to four) — **awaiting his approval of the revision.** Published to firms: not yet — the mentor publishes it.
+**Status:** first version approved by Mike 2026-09-30 (`1248c251`). **Revised the same day** after item 44.2 was built — the interest and statement-layout paragraphs, and the differences list (six to four) — **and the revision approved by Mike 2026-09-30, as committed in `0a913e11`.** Published to firms: not yet — the mentor publishes it.
 
 ---
 

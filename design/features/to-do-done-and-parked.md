@@ -379,6 +379,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**44.2 · The forecast's cash flow and profit were not laid out the IAS 7 and IFRS 18 way.**
+✅ **Closed 2026-09-30 by Mike ("yes" to marking it done), the day it was filed, drawn and built.**
+
+- **His rulings:** filed under his standing instruction of the same day — *"yes to anything that
+  makes our model best practice"*; the drawing
+  [`three-way-forecast-ifrs-layout.html`](../mockups/three-way-forecast-ifrs-layout.html) approved
+  with its nine labels (`cfab9980`); the firm-facing text revised to match and approved (`0a913e11`).
+- **What was done:** the profit and loss with an operating surplus before any interest, interest
+  earned below it, *Surplus before financing and tax*, and every interest charge under *Financing
+  costs* (IFRS 18.53-54, 60, 61, 69); the cash flow grouped into operating, investing and financing
+  (IAS 7.10, 16-18, 31, 33, 35). Folded in: supplier interest, which had no row of its own; the
+  three-year summary on the same operating surplus; the coach line as one locale string. The model
+  adds the figures and leaves the workbook's own untouched, so the port proof stands.
+- **What proves it:** `threeWayForecastStandards.test.js` — the three activities add to each
+  month's movement and profit before tax is unchanged, for the sample and for an importer paying
+  supplier interest; walked on the running app, figures matching the drawing month by month. One
+  named difference from the drawing: the cash flow keeps "Other income (GST exempt)". Commit:
+  `0a913e11`.
+
 **15.20 · Nobody but a developer could add a concept, and each one cost a day.**
 ✅ **Closed 2026-09-29 by Mike ("yes" to closing it as done), after adding his own Customer Journey
 with it: *"its working - just needs better instructions"* — which were approved and built the same

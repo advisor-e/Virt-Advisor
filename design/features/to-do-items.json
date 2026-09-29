@@ -223,7 +223,7 @@
         "detail": "2026-09-26 - in his words: \"make an additional task - to download all the forecasting and reporting best practices for IFRS and review their best practice standards against the entire 3 way forecast model we have built to check if we are non compliant anywhere and to record our calculation / treatment assumptions as an available disclosure to firm managers\""
       },
       "touches": "server/report/threeWayForecastModel.js and importShipmentModel.js, where every treatment lives; design/CALCULATION-ASSUMPTIONS.md, the record, extended beyond section 1; a disclosure screen for firm managers under the hub-page rule, its tiers stated at scoping; 13.5, which already covers the currency treatments.",
-      "note": "STAGE 1 DONE 2026-09-30 - design/CALCULATION-ASSUMPTIONS.md section 2: 43 treatments recorded (9 before), 9 departures. Fixed the same day: term loans' current portion and gross shareholder accounts, pinned by threeWayForecastStandards.test.js. Depreciation rates re-read as a disclosure. The other six are 44.2 and 44.3. Every cited paragraph read from the published text. STAGE 2 BUILT: design/CALCULATION-ASSUMPTIONS-FOR-FIRMS.md, wording approved by Mike (1248c251). ONLY STEP LEFT, MIKE'S: publish it as the mentor, Mentor Hub -> Compliance -> publish an item. Done once published.",
+      "note": "STAGE 1 DONE 2026-09-30 - design/CALCULATION-ASSUMPTIONS.md section 2: 43 treatments recorded (9 before), 9 departures. Fixed the same day: term loans' current portion and gross shareholder accounts, pinned by threeWayForecastStandards.test.js. Depreciation rates re-read as a disclosure. The other six are 44.2 and 44.3. Every cited paragraph read from the published text. STAGE 2 BUILT: design/CALCULATION-ASSUMPTIONS-FOR-FIRMS.md, wording approved by Mike - the version revised after 44.2, 0a913e11. ONLY STEP LEFT, MIKE'S: publish it as the mentor, Mentor Hub -> Compliance -> publish an item. Done once published.",
       "comment": "2026-09-26 - filed on Mike's instruction during 13.5's drawing questions. Score and scoreReason are ours; he has not ranked it. MIKE'S CALLS 2026-09-30: Stage 1; \"fix every departure with an identified fix\"; Stage 2 by the Compliance tab, no new page; wording approved; PROCEED, waiting on him to publish."
     },
     {
@@ -330,31 +330,6 @@
       "touches": "The per-report rounding helpers - round1, round0 and pct in MarginBreakevenReport.vue, BusinessPerformanceReport.vue and the other report screens; kf in DebtorDragReport.vue for the chart axis; mixins/currencyMixin.js, which already formats money by locale and is the natural home for one number formatter.",
       "note": "FOUND 2026-09-30. Walk every report in German before and after; the 13.6 walk driver pattern is in .claude/skills/run-the-app.",
       "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "44.2",
-      "name": "Lay out the forecast's cash flow and profit the IAS 7 and IFRS 18 way",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The Three-Way Forecast's cash flow lists receipts and payments but never groups them as operating, investing and financing (IAS 7.10), and its interest sits inside operating overheads where IFRS 18.60 puts it in financing for periods from 1 January 2027.",
-      "risk": "A lender or accountant reads the statements against the standards and finds two presentation departures. Neither changes a total: net cash, profit and the balance sheet stay the same; only the grouping and the operating-profit line move.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-30 - from 44.1's review. Mike: \"if our model differs from international best practice standards, and you have identified a fix - then fix it please - yes to anything that makes our model best practice\". Filed rather than built because the statements' layout changes and needs a drawing he approves first."
-      },
-      "touches": "server/report/threeWayForecastModel.js (a financing section and the cash-flow grouping in its output); components/ThreeWayForecastReport.vue's profit and cash-flow rows and their print pages; locales/en.json for the new headings; a drawing in design/mockups/ first.",
-      "note": "BUILT 2026-09-30 to the drawing Mike approved (cfab9980), nine labels included, and walked on the running app - one difference: the cash flow keeps the existing 'Other income (GST exempt)' row the drawing left out. Pinned by threeWayForecastStandards.test.js. Drawing: design/mockups/three-way-forecast-ifrs-layout.html - both tabs, both views, nine new labels. Regrouping proved on the sample: the three cash groups add to the net movement every month; profit before tax unchanged. Basis: design/CALCULATION-ASSUMPTIONS.md §2.4 and §2.8.",
-      "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-09-30: PROCEED - the drawing first, design/mockups/three-way-forecast-ifrs-layout.html. Folds in supplier interest, which sits inside total overheads with no row of its own.",
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-30"
-      }
     },
     {
       "ref": "44.3",
