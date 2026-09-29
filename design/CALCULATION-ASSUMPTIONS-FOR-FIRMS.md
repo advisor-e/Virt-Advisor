@@ -12,7 +12,7 @@ it and tells every firm it is new).
 **How to publish it.** Mentor Hub → Compliance → publish an item. Paste the three parts below
 exactly. The Compliance tab shows the body as plain text, which is why it has no tables or bold.
 
-**Status:** awaiting Mike's approval of the wording. Approved: —
+**Status:** wording approved by Mike 2026-09-30, as committed in `1248c251`. Published to firms: not yet — the mentor publishes it.
 
 ---
 
