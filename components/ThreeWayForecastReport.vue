@@ -1221,6 +1221,8 @@ export default {
         sub('accr', 'accruedExpenses', b.accruedExpenses),
         sub('imp-bal', 'importSupplierBalance', b.importSupplierBalance),
         sub('fac', 'facilities', b.totalFacilities),
+        // Term-loan repayments due within twelve months; the lender rows below carry the rest.
+        sub('tl-cur', 'termLoansCurrent', b.currentPortionTermLoans),
         sub('sh-l', 'shareholderLiabilities', b.shareholderCurrentLiabilities),
         sub('ocl', 'otherCurrentLiability', b.otherCurrentLiability),
         { key: 'tcl', label: L + 'totalCurrentLiabilities', values: b.totalCurrentLiabilities, rule: true },

@@ -78,3 +78,126 @@ converts.
 - [FRS-42 *Prospective Financial Statements*](https://standards.xrb.govt.nz/standards-navigator/frs-42/). It governs
   *general purpose* forecasts; a forecast prepared for one lender is usually special purpose, so it
   is applied here as best practice, not as a legal requirement.
+
+---
+
+## 2. Everything else in the Three-Way Forecast
+
+*Checked 2026-09-30 against the built code (item 44.1, Stage 1). Model:
+[`server/report/threeWayForecastModel.js`](../server/report/threeWayForecastModel.js). No code was
+changed by this review; each ⚠ below is a departure put to Mike one at a time, and ends as a fix or
+a filed item on his word.*
+
+**What the verdicts mean.** ✅ the treatment is what the standard asks for. ⚠ it departs from the
+standard — stated so an accountant reading the forecast knows. ℹ a simplification or an assumption
+the standard leaves to judgement, disclosed rather than wrong.
+
+**Which standard applies is itself an assumption.** Most small New Zealand companies are not
+required to prepare general purpose financial statements and report on a special-purpose, tax basis.
+This section measures the forecast against full IFRS (NZ IFRS) because that is the strictest reading
+a lender or accountant can bring to it; a ⚠ is therefore a *difference to disclose*, and only
+sometimes an error to fix.
+
+**Paragraphs read from the published text on 2026-09-30:** IAS 1.32; IAS 2.9, 21, 22, 34; IAS 7.10,
+18; IAS 12.15, 24, 34; IAS 16.50, 51, 55, 60-62, 68, 71; IFRS 15.31, 38; IFRS 16.5, 6, 22;
+IFRS 18.60. **Cited from the standard but NOT re-read that day**, because the published page was
+cut short before them: IAS 1.69 and 71 (current liabilities) and IFRS 9 5.4.1, 5.5.1 and 5.5.15
+(effective interest; expected credit losses). Confirm those two before this page is shown to an
+accountant.
+
+### 2.1 Revenue and debtors
+
+| Assumption | Default | Treatment | Against the standards |
+|---|---|---|---|
+| Domestic sales | Entered monthly, ex GST | Revenue in the month entered; GST added on top and collected with it. | ✅ IFRS 15.31, 38 — at a point in time, on the assumption goods are delivered in the month sold. |
+| Imported stock sold at home | The sell-down ladder | Revenue in the month each slice sells, at the price its age still commands. | ✅ IFRS 15.31. |
+| **Overseas sales** | Delivered 2 months after invoice | Revenue is booked in the **invoice** month; collection is counted from **delivery**. | ⚠ **IFRS 15.31, 38** — revenue follows the transfer of control, and physical possession is one of its indicators. On the default lag, revenue is recognised two months before the customer has the goods. Correct only where the terms pass control at shipment. |
+| **Debtor collection** | 10 / 55 / 30 / 5% over the month and the next three | Every sale is collected in full on the profile. No bad debts, no allowance. | ⚠ **IFRS 9 5.5.1, 5.5.15** — trade receivables carry a lifetime expected-credit-loss allowance. The forecast assumes none. |
+| Opening debtors | From the opening balance sheet | Collected over the first four months, in the proportions of the profile. | ℹ A timing assumption; no standard governs it. |
+| Other income | Annual figure | Spread evenly over twelve months. | ℹ A timing assumption. |
+
+### 2.2 Inventory and cost of sales
+
+| Assumption | Default | Treatment | Against the standards |
+|---|---|---|---|
+| Local cost of sales | Mark-up 68% | Cost of sales is local sales ÷ (1 + mark-up); closing stock is what remains of opening stock plus purchases. | ✅ IAS 2.21-22 permit a retail-style method **if the result approximates cost**. ℹ Closing stock is a result, not a count; the report names it when it turns negative. |
+| Imported stock | — | Its real cost, freight and duty included, charged as each slice sells. | ✅ IAS 2.10-11, 34 (§1). |
+| Lower of cost and net realisable value | Lowest price on the ladder is a 122% mark-up | No write-down test. | ℹ IAS 2.9. At the default prices stock never sells below cost, so none is needed; a manager who lowers the ladder below cost gets the loss in the month of sale rather than when it became apparent. |
+| Direct costs | Freight 3%, commissions 10%, other 1% and 2% of revenue | Charged in cost of sales in the month of the revenue. | ✅ A presentation choice. |
+
+### 2.3 Fixed assets
+
+| Assumption | Default | Treatment | Against the standards |
+|---|---|---|---|
+| Depreciation rate | 20% to 35% by category | Diminishing value at the rate entered, one-twelfth a month. | ✅ IAS 16.62 permits diminishing balance. ℹ **IAS 16.50, 60** — the rate must reflect each asset's useful life and how it is used up. The rate is the advisor's own; the defaults are tax-style rates, right where they approximate that and a difference to disclose where they do not. |
+| When it starts | — | A full month's charge in the month of purchase, on the month's closing register. | ✅ IAS 16.55, to the month. |
+| Residual value | None | Depreciated towards nil. | ℹ IAS 16.51 — a residual value is an estimate the forecast does not ask for. |
+| Sales | Price = book value unless entered | Book value leaves the register; the price is banked with its GST; the difference is a gain or loss in other income in the month of sale. | ✅ IAS 16.68, 71 — and never shown as revenue. |
+| Revaluations | — | None. The opening "capital gain" line is carried unchanged. | ℹ Cost model throughout. |
+
+### 2.4 Borrowing
+
+| Assumption | Default | Treatment | Against the standards |
+|---|---|---|---|
+| Term loan interest | Rate per loan | On the opening balance each month; the repayment covers interest first, the rest reduces the loan. | ✅ Amortised cost at the loan's own rate (IFRS 9 5.4.1) where there are no fees. ℹ Arrangement fees are not modelled. |
+| Where term loans sit | — | What falls due within twelve months — each loan rolled forward on its own terms, with any lump sum the year names — is a current liability, *Term loans due within 12 months* (wording approved by Mike 2026-09-30); the rest stays non-current under the lender's name. | ✅ IAS 1.69, 71. **Fixed 2026-09-30**; until then the whole loan sat under non-current and working capital was overstated by the next year's repayments. Pinned by `threeWayForecastStandards.test.js`. |
+| Facilities | — | Current liabilities; interest on the balance; no scheduled repayment. | ✅ IAS 1.69 — repayable on demand. |
+| Overdraft and credit interest | 7% and 2% | On the opening bank balance each month. | ✅ |
+| **Interest in the profit and loss** | — | Inside overheads, above operating profit. | ⚠ **IFRS 18.60**, for periods from 1 January 2027: interest on borrowings belongs in the financing category, below operating profit. Permitted until then. |
+| Borrowing costs on assets being built | — | Always expensed. | ℹ IAS 23 capitalises them only for an asset that takes a substantial time to get ready. The forecast does not model one. |
+
+### 2.5 Income tax
+
+| Assumption | Default | Treatment | Against the standards |
+|---|---|---|---|
+| Current tax | 28% | Each month's profit before tax × the rate; a loss joins a pool that relieves later profit. | ℹ Taxable profit is taken to equal accounting profit — no non-deductible expenses, no tax depreciation. |
+| **Deferred tax** | — | None. | ⚠ **IAS 12.15, 24, 34** — temporary differences (for example, accounting depreciation against tax depreciation) and unused losses carry deferred tax. The forecast recognises none, including no asset for its own loss pool. |
+| Payments and refunds | Entered | Settle the tax balance in the months entered. | ✅ |
+
+### 2.6 Shareholder current accounts
+
+| Assumption | Default | Treatment | Against the standards |
+|---|---|---|---|
+| Interest | 5% | Charged only on an overdrawn account, as income to the company. | ✅ |
+| How the balances show | — | Gross: what shareholders owe the company is a current asset, what the company owes them a current liability. | ✅ IAS 1.32. **Fixed 2026-09-30**; until then all four were netted into one figure — on the sample, a 14,000 asset in place of 57,000 owed each way against 43,000. Pinned by `threeWayForecastStandards.test.js`. |
+
+### 2.7 Overheads, accruals and leases
+
+| Assumption | Default | Treatment | Against the standards |
+|---|---|---|---|
+| Overheads | Annual figures | One-twelfth each month, paid the same or the following month by type. | ✅ Accrual basis. |
+| ACC levies and insurance | Paid in the months entered | Expensed evenly; the difference sits in prepayments or accruals. | ✅ |
+| **Rent** | Annual figure | Expensed as paid. | ⚠ **IFRS 16.22** — a lessee recognises a right-of-use asset and a lease liability, unless the lease is short-term or of a low-value asset (IFRS 16.5-6). Most premises leases are neither. |
+| Holiday pay and other employee entitlements | — | Not accrued; wages are expensed as paid. | ℹ Not modelled. |
+| Provisions | — | None. | ℹ IAS 37; the forecast models none. |
+
+### 2.8 Presentation
+
+| Assumption | Treatment | Against the standards |
+|---|---|---|
+| **Cash flow** | Receipts and payments by type, gross (the direct method). | ✅ IAS 7.18. ⚠ **IAS 7.10** — cash flows are classified as operating, investing and financing. The forecast does not group them. |
+| Balance sheet | Current and non-current, with a working-capital line. | ✅ Including term loans (2.4) and shareholder accounts (2.6) since 2026-09-30. |
+| GST | Outputs less inputs, settled on the filing cycle; never revenue or cost. | ✅ Revenue excludes amounts collected for others. Timing and basis: [`TAX-RULES-IMPORT-GST.md`](TAX-RULES-IMPORT-GST.md). |
+
+### 2.9 The count
+
+| | |
+|---|---|
+| Treatments recorded before 44.1 | **9** (§1, currency) |
+| Treatments recorded now | **43** (§1's 9 and §2's 34) |
+| Departures found | **9** |
+| Fixed 2026-09-30 | **2** — term loans' current portion, shareholder accounts gross |
+| Re-read as a disclosure, not a departure | **1** — depreciation rates, which are the advisor's own |
+| Still open | **6**, on the live list: cash-flow classification and interest in financing need a drawing of the statements (44.2); bad debts, deferred tax, leases and overseas shipping terms need facts the forecast does not yet ask for (44.3) |
+
+### 2.10 Sources
+
+- [IAS 2 *Inventories*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ias2.html)
+- [IAS 7 *Statement of Cash Flows*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ias7.html)
+- [IAS 12 *Income Taxes*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ias12.html)
+- [IAS 16 *Property, Plant and Equipment*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ias16.html)
+- [IAS 1 *Presentation of Financial Statements*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2024/issued/ias1.html)
+- [IFRS 9 *Financial Instruments*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2024/issued/ifrs9.html)
+- [IFRS 15 *Revenue from Contracts with Customers*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ifrs15.html)
+- [IFRS 16 *Leases*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ifrs16.html)
+- [IFRS 18 *Presentation and Disclosure in Financial Statements*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ifrs18.html)

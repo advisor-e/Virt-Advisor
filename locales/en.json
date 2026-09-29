@@ -3595,6 +3595,7 @@
           "accruedExpenses": "Accrued expenses",
           "importSupplierBalance": "Owed to overseas suppliers",
           "facilities": "Facilities",
+          "termLoansCurrent": "Term loans due within 12 months",
           "shareholderLiabilities": "Shareholder accounts owed by the company",
           "otherCurrentLiability": "Other current liabilities",
           "totalCurrentLiabilities": "Total current liabilities",

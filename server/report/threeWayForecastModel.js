@@ -1001,6 +1001,36 @@ function loanSchedule (loan) {
 }
 
 /**
+ * What of a term loan's balance falls due within twelve months of a reporting date — the part
+ * IAS 1.69(c) and 71 put among CURRENT liabilities (item 44.1, design/CALCULATION-ASSUMPTIONS.md
+ * §2.4). Until then the whole balance sat under non-current, overstating working capital by the
+ * next year's repayments.
+ *
+ * Rolled forward from the balance on the loan's own terms, exactly as `loanSchedule` repays it:
+ * interest first, the rest off the capital, plus any lump sum this year already names. A new
+ * drawdown is left out — it is not part of the balance being classified.
+ *
+ * @param {object} loan the resolved loan
+ * @param {number} balance the balance at the reporting date
+ * @param {number} fromMonth the reporting month, or -1 for the opening date
+ * @returns {number}
+ */
+function dueWithinTwelveMonths (loan, balance, fromMonth) {
+  let bal = balance
+  let due = 0
+  for (let k = 1; k <= MONTHS && bal > 0; k++) {
+    const t = fromMonth + k
+    const interest = excelRound(bal * loan.interestRate / 12)
+    // A repayment smaller than the interest repays no capital; it is not a negative one.
+    let capital = bal > loan.monthlyRepayment ? Math.max(0, loan.monthlyRepayment - interest) : bal
+    capital = Math.min(bal, capital + (t < MONTHS ? loan.lumpSumRepayments[t] : 0))
+    bal -= capital
+    due += capital
+  }
+  return due
+}
+
+/**
  * One shareholder current account (sheet rows 363-367 and its siblings).
  *
  * Interest is charged only on an OVERDRAWN (negative) balance, and it both reduces the
@@ -1382,6 +1412,16 @@ function computeThreeWayForecast (rawInputs, options) {
 
   /* -- opening balance sheet (the sheet's column C) -------------------------------- */
   const shOpeningTotal = I.shareholders.reduce(function (a, s) { return a + s.opening }, 0)
+  // 🔴 GROSS, NOT NETTED (IAS 1.32; item 44.1, CALCULATION-ASSUMPTIONS §2.6). A shareholder who
+  // owes the company and one the company owes are two balances. The workbook netted all four
+  // into one figure, which source-fidelity mode keeps so the port stays provable.
+  const shOwedToCompany = function (list) {
+    return list.reduce(function (a, v) { return v < 0 ? a - v : a }, 0)
+  }
+  const shOwedByCompany = function (list) {
+    return list.reduce(function (a, v) { return v > 0 ? a + v : a }, 0)
+  }
+  const shOpenings = I.shareholders.map(function (s) { return s.opening })
   const opening = {
     authorisedCapital: ob.authorisedCapital,
     capitalGain: ob.capitalGain,
@@ -1395,14 +1435,14 @@ function computeThreeWayForecast (rawInputs, options) {
     gstRefund: ob.gstRefund,
     prepayments: Math.max(0, ob.prepayments - ob.accruedExpenses),
     stockInTransitDeposits: ob.stockInTransitDeposits,
-    shareholderCurrentAssets: shOpeningTotal > 0 ? 0 : -shOpeningTotal,
+    shareholderCurrentAssets: corrected ? shOwedToCompany(shOpenings) : (shOpeningTotal > 0 ? 0 : -shOpeningTotal),
     otherCurrentAsset: ob.otherCurrentAsset,
     bankOverdraft: ob.bankOverdraft,
     accountsPayable: ob.accountsPayable,
     incomeTaxLiability: Math.max(0, -(ob.incomeTaxRefundDue - ob.incomeTaxPayable)),
     gstPayable: ob.gstPayable,
     accruedExpenses: Math.max(0, -(ob.prepayments - ob.accruedExpenses)),
-    shareholderCurrentLiabilities: shOpeningTotal < 0 ? 0 : shOpeningTotal,
+    shareholderCurrentLiabilities: corrected ? shOwedByCompany(shOpenings) : (shOpeningTotal < 0 ? 0 : shOpeningTotal),
     otherCurrentLiability: ob.otherCurrentLiability,
     otherNonCurrentLiability: ob.otherNonCurrentLiability
   }
@@ -1411,9 +1451,17 @@ function computeThreeWayForecast (rawInputs, options) {
   // funding row must land where the same money lands when the parser cannot name it —
   // otherwise giving a facility its own row would quietly move millions out of working
   // capital, which is the figure the change exists to get right.
+  // A term loan's `balance` here is its NON-CURRENT part; what falls due within twelve months
+  // is `currentPortion`, counted among current liabilities (IAS 1.69, 71; item 44.1). The
+  // workbook kept the whole loan non-current, and source-fidelity mode still does.
   opening.nonCurrentLiabilities = I.loans
     .filter(function (l) { return l.type !== 'facility' })
-    .map(function (l) { return { name: l.name, balance: l.opening } })
+    .map(function (l) {
+      const due = corrected ? dueWithinTwelveMonths(l, l.opening, -1) : 0
+      return { name: l.name, balance: l.opening - due, currentPortion: due }
+    })
+  opening.currentPortionTermLoans = opening.nonCurrentLiabilities
+    .reduce(function (a, l) { return a + l.currentPortion }, 0)
   opening.facilities = I.loans
     .filter(function (l) { return l.type === 'facility' })
     .map(function (l) { return { name: l.name, balance: l.opening } })
@@ -1429,7 +1477,7 @@ function computeThreeWayForecast (rawInputs, options) {
     opening.shareholderCurrentAssets + opening.otherCurrentAsset
   opening.totalCurrentLiabilities = opening.bankOverdraft + opening.accountsPayable +
     opening.incomeTaxLiability + opening.gstPayable + opening.accruedExpenses +
-    opening.totalFacilities +
+    opening.totalFacilities + opening.currentPortionTermLoans +
     opening.shareholderCurrentLiabilities + opening.otherCurrentLiability
   opening.workingCapital = opening.totalCurrentAssets - opening.totalCurrentLiabilities
   opening.nonCurrentAssets = {}
@@ -1857,6 +1905,8 @@ function computeThreeWayForecast (rawInputs, options) {
     // debt beside the overdraft — never with the term loans below (Mike, 2026-09-05).
     facilities: [],
     totalFacilities: zeroes(),
+    // What of the term loans falls due within twelve months (IAS 1.69, 71; item 44.1).
+    currentPortionTermLoans: zeroes(),
     nonCurrentAssets: {},
     totalNonCurrentAssets: zeroes(),
     nonCurrentLiabilities: [],
@@ -1866,9 +1916,20 @@ function computeThreeWayForecast (rawInputs, options) {
     balanceCheck: zeroes()
   }
   for (let k = 0; k < ASSET_KEYS.length; k++) { bs.nonCurrentAssets[ASSET_KEYS[k]] = assets[k].closingValue }
+  // As at the opening: `balance` is the non-current part, `currentPortion` the rest (44.1).
   bs.nonCurrentLiabilities = loans
-    .filter(function (l) { return l.type !== 'facility' })
-    .map(function (l) { return { name: l.name, balance: l.closingBalance } })
+    .map(function (l, k) { return { schedule: l, loan: I.loans[k] } })
+    .filter(function (x) { return x.schedule.type !== 'facility' })
+    .map(function (x) {
+      const due = x.schedule.closingBalance.map(function (bal, m) {
+        return corrected ? dueWithinTwelveMonths(x.loan, bal, m) : 0
+      })
+      return {
+        name: x.schedule.name,
+        balance: x.schedule.closingBalance.map(function (bal, m) { return bal - due[m] }),
+        currentPortion: due
+      }
+    })
   bs.facilities = loans
     .filter(function (l) { return l.type === 'facility' })
     .map(function (l) { return { name: l.name, balance: l.closingBalance } })
@@ -1889,10 +1950,11 @@ function computeThreeWayForecast (rawInputs, options) {
     bs.prepayments[m] = accrualClosing[m] > 0 ? accrualClosing[m] : 0
     bs.accruedExpenses[m] = accrualClosing[m] < 0 ? -accrualClosing[m] : 0
 
-    let shClose = 0
-    for (let k = 0; k < shareholders.length; k++) { shClose += shareholders[k].closingBalance[m] }
-    bs.shareholderCurrentAssets[m] = shClose > 0 ? 0 : -shClose
-    bs.shareholderCurrentLiabilities[m] = shClose < 0 ? 0 : shClose
+    // Gross in the corrected model, netted as the workbook did in source-fidelity mode (44.1).
+    const shCloses = shareholders.map(function (s) { return s.closingBalance[m] })
+    const shClose = shCloses.reduce(function (a, v) { return a + v }, 0)
+    bs.shareholderCurrentAssets[m] = corrected ? shOwedToCompany(shCloses) : (shClose > 0 ? 0 : -shClose)
+    bs.shareholderCurrentLiabilities[m] = corrected ? shOwedByCompany(shCloses) : (shClose < 0 ? 0 : shClose)
 
     bs.otherCurrentAsset[m] = m === 0 ? opening.otherCurrentAsset : bs.otherCurrentAsset[m - 1]
     bs.otherCurrentLiability[m] = m === 0 ? opening.otherCurrentLiability : bs.otherCurrentLiability[m - 1]
@@ -1904,9 +1966,12 @@ function computeThreeWayForecast (rawInputs, options) {
     let fac = 0
     for (let k = 0; k < bs.facilities.length; k++) { fac += bs.facilities[k].balance[m] }
     bs.totalFacilities[m] = fac
+    let due = 0
+    for (let k = 0; k < bs.nonCurrentLiabilities.length; k++) { due += bs.nonCurrentLiabilities[k].currentPortion[m] }
+    bs.currentPortionTermLoans[m] = due
     bs.totalCurrentLiabilities[m] = bs.bankOverdraft[m] + bs.accountsPayable[m] +
       bs.incomeTaxLiability[m] + bs.gstPayable[m] + bs.accruedExpenses[m] +
-      bs.importSupplierBalance[m] + bs.totalFacilities[m] +
+      bs.importSupplierBalance[m] + bs.totalFacilities[m] + bs.currentPortionTermLoans[m] +
       bs.shareholderCurrentLiabilities[m] + bs.otherCurrentLiability[m]
     bs.workingCapital[m] = bs.totalCurrentAssets[m] - bs.totalCurrentLiabilities[m]
 

@@ -223,8 +223,8 @@
         "detail": "2026-09-26 - in his words: \"make an additional task - to download all the forecasting and reporting best practices for IFRS and review their best practice standards against the entire 3 way forecast model we have built to check if we are non compliant anywhere and to record our calculation / treatment assumptions as an available disclosure to firm managers\""
       },
       "touches": "server/report/threeWayForecastModel.js and importShipmentModel.js, where every treatment lives; design/CALCULATION-ASSUMPTIONS.md, the record, extended beyond section 1; a disclosure screen for firm managers under the hub-page rule, its tiers stated at scoping; 13.5, which already covers the currency treatments.",
-      "note": "NOT SCOPED. Standards in view, confirmed at scoping rather than assumed: FRS-42 (prospective statements), IAS 1 and IFRS 18 which replaces it for periods from 1 January 2027, IAS 2, IAS 7, IAS 12, IAS 16, IAS 21, IAS 23, IFRS 9, IFRS 15, IFRS 16, IAS 37. Output: every treatment the forecast makes, each ticked or warned against its standard, in design/CALCULATION-ASSUMPTIONS.md; each warning becomes a fix or a filed item on Mike's word. Impact test run at scoping. Already done: section 1 (currency, 13.5) and section 0 (the FRS-42 caution).",
-      "comment": "2026-09-26 - filed on Mike's instruction during 13.5's drawing questions. Score and scoreReason are ours; he has not ranked it."
+      "note": "STAGE 1 DONE 2026-09-30 - design/CALCULATION-ASSUMPTIONS.md section 2: 43 treatments recorded (9 before), 9 departures. Fixed the same day: term loans' current portion and gross shareholder accounts, pinned by threeWayForecastStandards.test.js. Depreciation rates re-read as a disclosure. The other six are 44.2 and 44.3. IAS 1.69/71 and IFRS 9 5.5 are cited but were not re-read that day - confirm them before an accountant sees the page. REMAINING HERE: Stage 2, the firm managers' disclosure screen, which needs a drawing and Mike's yes.",
+      "comment": "2026-09-26 - filed on Mike's instruction during 13.5's drawing questions. Score and scoreReason are ours; he has not ranked it. MIKE'S CALLS 2026-09-30: PROCEED with Stage 1, the review; then \"fix every departure with an identified fix\"; then PROCEED - only Stage 2 remains, not in hand."
     },
     {
       "ref": "22.2",
@@ -330,6 +330,48 @@
       "touches": "The per-report rounding helpers - round1, round0 and pct in MarginBreakevenReport.vue, BusinessPerformanceReport.vue and the other report screens; kf in DebtorDragReport.vue for the chart axis; mixins/currencyMixin.js, which already formats money by locale and is the natural home for one number formatter.",
       "note": "FOUND 2026-09-30. Walk every report in German before and after; the 13.6 walk driver pattern is in .claude/skills/run-the-app.",
       "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "44.2",
+      "name": "Lay out the forecast's cash flow and profit the IAS 7 and IFRS 18 way",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The Three-Way Forecast's cash flow lists receipts and payments but never groups them as operating, investing and financing (IAS 7.10), and its interest sits inside operating overheads where IFRS 18.60 puts it in financing for periods from 1 January 2027.",
+      "risk": "A lender or accountant reads the statements against the standards and finds two presentation departures. Neither changes a total: net cash, profit and the balance sheet stay the same; only the grouping and the operating-profit line move.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-30 - from 44.1's review. Mike: \"if our model differs from international best practice standards, and you have identified a fix - then fix it please - yes to anything that makes our model best practice\". Filed rather than built because the statements' layout changes and needs a drawing he approves first."
+      },
+      "touches": "server/report/threeWayForecastModel.js (a financing section and the cash-flow grouping in its output); components/ThreeWayForecastReport.vue's profit and cash-flow rows and their print pages; locales/en.json for the new headings; a drawing in design/mockups/ first.",
+      "note": "FILED 2026-09-30. Basis and paragraphs: design/CALCULATION-ASSUMPTIONS.md §2.4 and §2.8. The engine already keeps overdraft, term-loan and facility interest as separate series, so the P&L half is mostly layout.",
+      "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "44.3",
+      "name": "The forecast needs four facts: bad debts, deferred tax, leases, shipping terms",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Four of 44.1's departures need facts the forecast never asks for: every debt is collected, no deferred tax is carried, rent is expensed, and overseas revenue is booked at invoice whatever the shipping terms.",
+      "risk": "Each makes a forecast differ from full IFRS without saying which way or by how much. The right figure depends on the client - expected bad debts, tax against accounting depreciation, lease terms, incoterms - so guessing a default would be worse than asking.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-30 - from 44.1's review, under the same instruction as 44.2. Filed rather than built because each needs a new input on the forecast's screens, and those need wording and a drawing he approves."
+      },
+      "touches": "server/report/threeWayForecastModel.js (an allowance for doubtful debts, a deferred-tax balance, a right-of-use asset and lease liability, revenue at the point control passes); the Three-Way Forecast's intake steps for the four new facts; design/CALCULATION-ASSUMPTIONS.md §2.1, §2.5 and §2.7.",
+      "note": "FILED 2026-09-30. Each is its own slice and can be done in any order; bad debts is the smallest. Every default must leave today's forecast unchanged until an advisor enters the fact.",
+      "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }
