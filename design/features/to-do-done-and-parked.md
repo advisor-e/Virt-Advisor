@@ -379,6 +379,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.30 · Planner Suggest sent a client's saved case summaries marked not personal.**
+✅ **Closed 2026-09-29 by Mike ("yes" — done, on the recommendation to close).**
+
+- **Found:** 2026-09-29, in the same read as 15.29 and 7.14
+  ([`AI-WHOLE-BRAIN-FINDINGS.md`](../AI-WHOLE-BRAIN-FINDINGS.md)).
+- **What was done:** `postSuggest` in `server/routes/strategyPlanner.js` now passes
+  `personal: true`. Each case summary is the first 600 characters of the AI's last reply in an
+  advisor's saved conversation (`VirtualAdvisor.vue` `saveSession`), so it describes a real client
+  — personal under Mike's 2026-09-15 ruling. Its route test was corrected to match.
+- **Filed wrongly, half of it:** the item also said moderation was skipped for person-written
+  text. It is not person-written — it is model output — so `moderate: []` is right under the 8.2
+  rule (only what a person typed, said or uploaded). Nothing was changed there.
+- **What proves it:** the Suggest call is on `aiCallSitesPersonal.test.js`'s register as personal;
+  it and the route test fail with the fix removed. Commit: `git log --grep "(15.30)"`.
+
 **7.14 · The primary-issue tie-break sent the advisor's words about a client marked not personal.**
 ✅ **Closed 2026-09-29 by Mike ("yes" — done).**
 

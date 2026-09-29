@@ -45,6 +45,10 @@ const SITES = [
   // the conversation Mike ruled personal on 2026-09-15. Its client is INJECTED from
   // `advisorEngine.js`, as the anonymiser's is from `cases.js`. Item 7.14: it said false.
   { file: 'server/advisorEngine.js', personal: true, why: 'hands the seam client to the primary-issue tie-break', flagIn: 'server/utils/primaryIssueProposer.js' },
+  // Planner Suggest sends the saved case summaries of a named client — each the AI's last
+  // reply in the advisor's conversation about them. No id, but the same 2026-09-15 ruling.
+  // Item 15.30: it said false.
+  { file: 'server/routes/strategyPlanner.js', personal: true, why: 'saved case summaries describing a real client' },
 
   // Not personal: page figures the mentor is already looking at, the user's own pasted
   // document, and document file names.

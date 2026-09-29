@@ -81,7 +81,7 @@ build has not earned its place.
 |---|---|
 | 15.29 | Wordsmith can write one client's approved wording into another client's plan in the same firm |
 | 7.14 | The primary-issue tie-break sends the advisor's words about a client marked not personal |
-| 15.30 | Planner Suggest sends a client's saved case summaries as not personal, with no moderation |
+| 15.30 | Planner Suggest sends a client's saved case summaries as not personal (they are AI output, so no moderation is right) |
 | 40.1 | Nothing on the AI Prompts tab changes what any AI is sent |
 | 8.6 | After a recorded strategy session, the next meeting's coaching notes check nothing from it |
 | 7.15 | In client mode the engine reads past case studies and never uses them |

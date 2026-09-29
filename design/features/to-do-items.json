@@ -294,27 +294,6 @@
       "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "15.30",
-      "name": "Planner Suggest sends a client's saved case summaries as not personal, unmoderated",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "privacy",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The Suggest button sends the advisor's saved case summaries for a named client to the AI to pre-tick topics. It marks them not personal and passes nothing to moderation, reasoning that nothing was typed on that screen.",
-      "risk": "Case summaries are advisor-written text about a real client, so the same fault as 7.14 applies - a possible fallback to an uncleared provider - and the moderation rule, which covers text a person wrote, is skipped for it.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-29 - found while mapping every AI call for Mike's whole-brain question; filed on his instruction: \"make all the faults you found into to-do list items\"."
-      },
-      "touches": "server/routes/strategyPlanner.js postSuggest (~lines 478-484); server/utils/strategyPretick.js situationFromCases; tests/unit/aiCallSitesPersonal.test.js.",
-      "note": "FOUND 2026-09-29. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
-      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "40.1",
       "name": "Nothing on the AI Prompts tab changes what any AI is sent",
       "rankedByMike": false,

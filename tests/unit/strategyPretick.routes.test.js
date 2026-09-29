@@ -215,13 +215,15 @@ describe('what reaches the model', () => {
   })
 
   // `personal` is required by aiProvider and decides whether a second provider may ever
-  // see this content. It is false because nothing personal is sent — see above.
-  it('declares the call as carrying nothing personal', async () => {
+  // see this content. No id travels (above), but each summary is the AI's last reply in an
+  // advisor's saved conversation about a real client — personal under Mike's ruling of
+  // 2026-09-15 (item 15.30). It is model output, not typed, so moderation stays empty (8.2).
+  it('declares the call as personal, so it never falls back to an uncleared provider', async () => {
     const create = modelReplying(JSON.stringify({ ticks: [] }))
     await routes.postSuggest(req({ body: { clientId: CLIENT } }), makeRes())
 
     // moderate: [] — saved case summaries, nothing typed here (item 8.2, 2026-09-24).
-    expect(create.mock.calls[0][1]).toEqual({ personal: false, moderate: [] })
+    expect(create.mock.calls[0][1]).toEqual({ personal: true, moderate: [] })
   })
 })
 
