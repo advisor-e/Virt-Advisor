@@ -151,7 +151,9 @@ section.scc2
         :key="block.key"
         :style="pinnedColumns ? { gridColumn: block.column + 1 } : null"
       )
-        p.scc2-block-label(v-if="block.label") {{ block.label }}
+        p.scc2-block-label(v-if="block.label")
+          | {{ block.label }}
+          span.scc2-stamp(v-if="stampOf(block)") {{ stampOf(block) }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
           label.scc2-field-label(
             v-if="field.rowLabel"
@@ -360,6 +362,16 @@ export default {
     conceptId: {
       type: String,
       default: ''
+    },
+
+    /**
+     * A stamp to show beside a box's label, by field key — "✓ written with Wordsmith · client
+     * agreed · time" on the Alignment Statements boxes (item 15.14, screen 4). The page decides
+     * whether it still holds; this card only draws it.
+     */
+    fieldStamps: {
+      type: Object,
+      default: () => ({})
     },
 
     /** The advisor firm's name, printed beside the mark on the drawing. */
@@ -704,6 +716,15 @@ export default {
 
   methods: {
     /**
+     * @param {{fields: Array<{key: string}>}} block
+     * @returns {string} the stamp for the first of the block's boxes that has one, or ''
+     */
+    stampOf (block) {
+      const field = (block.fields || []).find(f => this.fieldStamps[f.key])
+      return field ? this.fieldStamps[field.key] : ''
+    },
+
+    /**
      * Fields grouped under their column heading, which is how the template itself
      * bands them.
      * @param {object[]} fields
@@ -1041,6 +1062,13 @@ export default {
   font-weight: 700;
   color: #002b64;
   margin-bottom: 6px;
+}
+
+.scc2-stamp {
+  margin-left: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2e7d32;
 }
 
 .scc2-field + .scc2-field {

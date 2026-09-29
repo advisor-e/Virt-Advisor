@@ -229,6 +229,20 @@
                 b-button(v-else size="is-small" outlined type="is-danger" @click="recordCard(card)")
                   | {{ $t('strategyPlanner.recording.record') }}
 
+              //- Wordsmith (item 15.14, screens 1–5), in a bar above the Alignment Statements card —
+              //- the card's own header belongs to every concept (build detail 14).
+              strategy-wordsmith(
+                v-if="sessionId && card.kind !== 'framework' && card.visit.conceptId === WORDSMITH_CONCEPT"
+                :key="'ws' + card.key"
+                :api-token="apiToken"
+                :meeting-id="recState.meetingId || ''"
+                :session-id="sessionId"
+                :segments="recState.segments.filter(s => s.conceptId === WORDSMITH_CONCEPT)"
+                :capture="card.visit.capture"
+                :entries="entriesFor(WORDSMITH_CONCEPT)"
+                @wording-used="onWordsmithUsed"
+              )
+
               //- 🔴 A CONCEPT WITH AN APPROVED CARD USES IT. Porter's was designed on
               //- 2026-09-16 (strategy-planner.html screen 2c) as five force boxes, each
               //- carrying the deck's own question, with Existing Rivalry as the centre — and
@@ -277,6 +291,7 @@
                 :firm-logo="firmBrand.logo || ''"
                 :text-edits="textEdits"
                 :agenda-items="agendaGroups"
+                :field-stamps="card.visit.conceptId === WORDSMITH_CONCEPT ? wordsmithStamps : {}"
                 editable
                 @text-edited="onTextEdited"
                 @field-opened="onVisitFieldOpened(card.visit, $event)"
@@ -393,6 +408,7 @@ import StrategyStepBuilder from '~/components/strategy/StrategyStepBuilder.vue'
 import StrategySessionRecorder from '~/components/strategy/StrategySessionRecorder.vue'
 import StrategyConceptSummary from '~/components/strategy/StrategyConceptSummary.vue'
 import StrategyRunAgenda from '~/components/strategy/StrategyRunAgenda.vue'
+import StrategyWordsmith from '~/components/strategy/StrategyWordsmith.vue'
 import { isPlaceableConcept } from '~/utils/strategyCards'
 import { isDevHost } from '~/utils/devHost'
 import { rolesFrom, namedRoles } from '~/utils/orgChart'
@@ -401,6 +417,10 @@ import { requestFromSaved, contrastFrom } from '~/utils/ownerExpectationsPrint'
 import { agendaGroups as groupsOfSteps } from '~/utils/agendaLayout'
 import firmBrand from '~/mixins/firmBrand'
 const { REPORT_IMPORT_KEY } = require('~/utils/reportImport')
+const { MARKER_PREFIX, parseMarker, stampHolds } = require('~/utils/wordsmithMarker')
+
+/** The one concept Wordsmith writes for (CLAUDE.md's privacy exception names this segment only). */
+const WORDSMITH_CONCEPT = 'alignment-statements'
 
 /** Where the master app leaves the advisor's token before our pages load. */
 const TOKEN_KEY = 'advisor_e_token'
@@ -451,7 +471,8 @@ export default {
     StrategyPlanMark,
     StrategySessionRecorder,
     StrategyConceptSummary,
-    StrategyRunAgenda
+    StrategyRunAgenda,
+    StrategyWordsmith
   },
 
   /** `firmBrand` and `loadFirmBrand` — the advisor firm's brand for the plan (item 16). */
@@ -532,6 +553,8 @@ export default {
       suggestState: '',
       /** Captured text, keyed `frameworkId::fieldKey`. */
       entries: {},
+      /** The one concept Wordsmith writes for, for the template. */
+      WORDSMITH_CONCEPT,
       /**
        * The advisor's own wording on this session's concept pages — item 15.25.
        * `{ '<conceptId>#<sheet>': { '<block>': 'words' } }`, as the session stores it.
@@ -624,6 +647,25 @@ export default {
   },
 
   computed: {
+    /**
+     * "✓ written with Wordsmith · client agreed · time" beside each Alignment Statements box
+     * whose words are still the ones the client agreed to — an edit takes it off (build detail 2).
+     * @returns {Object.<string, string>} field key → stamp
+     */
+    wordsmithStamps () {
+      const box = this.entriesFor(WORDSMITH_CONCEPT)
+      const out = {}
+      Object.keys(box).forEach((k) => {
+        if (k.indexOf(MARKER_PREFIX) !== 0) { return }
+        const fieldKey = k.slice(MARKER_PREFIX.length)
+        const marker = parseMarker(box[k])
+        if (!stampHolds(marker, box[fieldKey])) { return }
+        const time = new Date(marker.approvedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        out[fieldKey] = this.$t('strategyPlanner.wordsmith.stamp', { time })
+      })
+      return out
+    },
+
     /**
      * The firm's colour, as a custom property the whole planner reads — item 16.2.
      *
@@ -1757,6 +1799,17 @@ export default {
       if (!this.recState.meetingId) { return [] }
       const conceptId = this.recordingTarget(card).conceptId
       return this.recState.segments.filter(s => s.conceptId === conceptId && s.state === 'done')
+    },
+
+    /**
+     * Wordsmith put agreed words in a box. The server has already saved the box and its stamp,
+     * with the record first, so the page takes both as saved and sends nothing again.
+     * @param {{fieldKey: string, value: string, markerKey: string, marker: string}} p
+     */
+    onWordsmithUsed (p) {
+      this.$set(this.entries, WORDSMITH_CONCEPT + '::' + p.fieldKey, p.value)
+      this.$set(this.entries, WORDSMITH_CONCEPT + '::' + p.markerKey, p.marker)
+      this.markSaved()
     },
 
     /**

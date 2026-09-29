@@ -1711,8 +1711,13 @@ instruction. **Built** (`server/utils/wordsmithContent.js`, `growthAspects.js`'s
 decisions are one versioned record, resolved through `resolveInheritedRows` up the tier chain, with
 Use theirs / Keep mine; the hub routes are `server/routes/wordsmithContent.js`. The planner's
 routes (`server/routes/wordsmith.js`) resolve the advisor's firm's content on the server and refuse
-rather than fall back when it cannot be read. **The hub tab and the planner panel are not built**:
-both edit files the desktop's 15.13/10.3 work changed, so they follow its merge to master. **Managers at every level shape it** (Mike, 2026-09-29: *"I want
+rather than fall back when it cannot be read. **The screens are built** (2026-09-29): the hub tab
+(`components/firm/FirmWordsmith.vue` with `FirmWordsmithRow.vue`, all four tiers, at the end of "Your
+AI coach") and the planner panel (`components/strategy/StrategyWordsmith.vue` with
+`StrategyWordsmithDraft.vue`, in a bar above the Alignment Statements card; the stamp beside the box
+label through `StrategyConceptCapture`'s `fieldStamps`). Walked in a built app beside the drawing; the
+differences are on its ARTEFACTS row. **Not proven here:** real database saving, and a live recording
+reaching Wordsmith — the walk seeded a consented recording rather than recording anyone. **Managers at every level shape it** (Mike, 2026-09-29: *"I want
 various level managers to feel as if they have some input into the shaping/improvement of the AI and
 its advice for their firm or group - therefore - appropriate fields must be editable and cascade
 down"*); the split, **approved by him the same day** as the one the hub tab is built to

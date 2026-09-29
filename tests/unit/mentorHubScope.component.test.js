@@ -495,7 +495,10 @@ describe('the hub menu — the sidebar itself', () => {
     // ⚠ AND 24 ON 2026-09-29: Depreciation Rates, Tax Rates and Property Tax Rules left the
     // menu as sections of ONE page, Tax & Forecast Rates, at the top of "Model Inputs" (item
     // 10.3 — Mike's ask, and his name for it). Three out, one in; "Your AI coach" is untouched.
-    expect(tabLabels(wrapper)).toHaveLength(24)
+    //
+    // ⚠ AND 25 LATER ON 2026-09-29: Wordsmith joined the END of "Your AI coach" (item 15.14 — all
+    // four tiers in Mike's own words), at index 10 after Growth Aspect Questions, pinned below.
+    expect(tabLabels(wrapper)).toHaveLength(25)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -504,6 +507,7 @@ describe('the hub menu — the sidebar itself', () => {
     expect(tabLabels(wrapper)[7]).toBe('firmManagerHub.tabs.meetingReview')
     expect(tabLabels(wrapper)[8]).toBe('firmManagerHub.tabs.clientCopyRequest')
     expect(tabLabels(wrapper)[9]).toBe('firmManagerHub.tabs.growthAspectQuestions')
+    expect(tabLabels(wrapper)[10]).toBe('firmManagerHub.tabs.wordsmith')
   })
 
   it('gives the mentor a Model Inputs heading holding only what it is entitled to', async () => {
@@ -627,7 +631,8 @@ describe('the hub menu — the sidebar itself', () => {
     // (item 15.2), on all four tiers in Mike's own words.
     // ⚠ AND 20 ON 2026-09-29: Depreciation Rates, Tax Rates and Property Tax Rules became
     // sections of one page, Tax & Forecast Rates (item 10.3). Three out, one in.
-    expect(tabLabels(wrapper)).toHaveLength(20)
+    // ⚠ AND 21 LATER ON 2026-09-29: Wordsmith, appended to the END of "Your AI coach" (item 15.14).
+    expect(tabLabels(wrapper)).toHaveLength(21)
     expect(tabLabels(wrapper)).not.toContain('firmManagerHub.tabs.teamCaseStudies')
     expect(tabLabels(wrapper)).toContain('firmManagerHub.tabs.caseReviews')
   })
