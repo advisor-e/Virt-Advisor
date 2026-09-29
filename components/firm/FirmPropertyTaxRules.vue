@@ -1,10 +1,10 @@
 <template lang="pug">
 .ptr
   .notification.is-info.is-light.mb-4
-    p.is-size-7
-      | {{ $t('firmPropertyTaxRules.intro.lead') }}
-      b {{ $t('firmPropertyTaxRules.intro.product') }}
-      | {{ $t('firmPropertyTaxRules.intro.rest') }}
+    //- One locale string for the sentence, the product name as a slot (item 13.6).
+    i18n.is-size-7(path="firmPropertyTaxRules.intro.sentence" tag="p")
+      template(#product)
+        b {{ $t('firmPropertyTaxRules.intro.product') }}
 
   .has-text-centered.py-5(v-if="loading")
     b-loading(:is-full-page="false" :active="true")

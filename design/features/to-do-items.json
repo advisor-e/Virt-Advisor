@@ -165,7 +165,7 @@
     },
     {
       "ref": "13.6",
-      "name": "Translations mistake business words and three screens split sentences around bold text",
+      "name": "Translations mistake business words",
       "rankedByMike": false,
       "kind": "defect",
       "score": 4,
@@ -174,15 +174,15 @@
       "blocks": null,
       "waitingOn": "Mike",
       "why": "The backend translator sees each phrase with no context, so it can pick the wrong sense of a business word: 'Imported Stock Prices' became 'Importierte Aktienkurse', share prices, in German.",
-      "risk": "A manager or advisor reading in another language meets wrong financial terms on the screens that set a client's figures. Separately, three screens split a sentence into pieces around a bold phrase, and a join lost its space in German: 'Drei-Wege-Prognosezwei-Jahres-Vergleich'.",
+      "risk": "A manager or advisor reading in another language meets wrong financial terms on the screens that set a client's figures. More seen walking eight screens in German on 2026-09-30: a rate 'schedule' became 'Zeitplan', a timetable, and 'Three-Way Forecast' took the wrong grammatical gender.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-09-25 - found walking the Mentor Hub in German after item 10.1. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
-      "touches": "server/utils/uiTranslation.js systemPrompt, which would carry a glossary; a mentor-tier screen for that glossary under the hub-page rule; a way to translate again strings whose English did not change; and the split intro keys in FirmForecastTrendThresholds.vue, FirmPropertyTaxRules.vue and CountryRateSchedules.vue, which become one key with an i18n slot.",
-      "note": "NEEDS MIKE FIRST: which business words go in the glossary and what each means - stock is inventory, never shares; debtors, drawings and equity are likely next. The split-sentence half is mechanical and needs no decision.",
-      "comment": "2026-09-25 - filed on Mike's yes at shutdown."
+      "touches": "server/utils/uiTranslation.js systemPrompt, which would carry a glossary; a mentor-tier screen for that glossary under the hub-page rule; and a way to translate again strings whose English did not change.",
+      "note": "NEEDS MIKE FIRST: which business words go in the glossary and what each means - stock is inventory, never shares; debtors, drawings and equity are likely next. The split-sentence half is DONE (2026-09-30): eight screens now carry one locale string per sentence, guarded by tests/unit/noSplitSentences.test.js.",
+      "comment": "2026-09-25 - filed on Mike's yes at shutdown. MIKE'S CALL 2026-09-30: PROCEED - the split-sentence half is built and walked in German; only the glossary half remains."
     },
     {
       "ref": "46.1",
@@ -309,6 +309,27 @@
       "touches": "server/advisorEngine.js buildClientContext (~line 570) and its two callers (~3121, ~3737); tests/unit/reportModelSummaries.test.js, the only test that calls it.",
       "note": "FOUND 2026-09-29. No behaviour change intended - the options are off at both call sites. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
       "comment": "2026-09-29 - filed on Mike's yes at the desktop shutdown. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "13.8",
+      "name": "Report figures keep English number formatting in other languages",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Decimals on the report screens keep an English point in every language - German reads '1.0×' and '3.0 Punkte' where a German reader expects '1,0×' - and the Debtor Drag chart's axis reads '134 $k'.",
+      "risk": "A figure a client reads can look wrong, or be misread as a thousands separator, on the screens that exist to be read with them. Money already formats through currencyMixin; the small figures do not, because each report rounds with its own helper (round1, round0, pct, kf).",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-30 - found walking the eight 13.6 screens in German on the running app. Filed on Mike's yes rather than fixed, because it needs one formatting rule chosen for every report."
+      },
+      "touches": "The per-report rounding helpers - round1, round0 and pct in MarginBreakevenReport.vue, BusinessPerformanceReport.vue and the other report screens; kf in DebtorDragReport.vue for the chart axis; mixins/currencyMixin.js, which already formats money by locale and is the natural home for one number formatter.",
+      "note": "FOUND 2026-09-30. Walk every report in German before and after; the 13.6 walk driver pattern is in .claude/skills/run-the-app.",
+      "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

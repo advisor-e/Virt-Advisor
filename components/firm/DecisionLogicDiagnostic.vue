@@ -181,50 +181,50 @@ section.dx
           template(v-else-if="result.gap > 0")
             //- Which sentence applies is decided by what actually reached the
             //- expected template, not by a guess about the usual case.
-            p.gap-body(v-if="gapCase === 'noDistinction'")
-              | {{ $t('firmDecisionLogic.dxGapNoneA') }}
-              strong {{ expected.title }}
-              | {{ $t('firmDecisionLogic.dxGapNoneB') }}
-              strong {{ $t('firmDecisionLogic.dxGapNoneC') }}
-              | {{ $t('firmDecisionLogic.dxGapNoneD') }}
-            p.gap-body(v-else-if="gapCase === 'matched'")
-              | {{ $t('firmDecisionLogic.dxGapMatchedA') }}
-              strong {{ expected.title }}
-              | {{ $t('firmDecisionLogic.dxGapMatchedB') }}
-            p.gap-body(v-else)
-              | {{ $t('firmDecisionLogic.dxGapNoLeverA') }}
-              strong {{ expected.title }}
-              | {{ $t('firmDecisionLogic.dxGapNoLeverB') }}
+            //- One locale string per sentence, bold parts as slots (item 13.6).
+            i18n.gap-body(v-if="gapCase === 'noDistinction'" path="firmDecisionLogic.dxGapNoneText" tag="p")
+              template(#template)
+                strong {{ expected.title }}
+              template(#none)
+                strong {{ $t('firmDecisionLogic.dxGapNoneC') }}
+            i18n.gap-body(v-else-if="gapCase === 'matched'" path="firmDecisionLogic.dxGapMatchedText" tag="p")
+              template(#template)
+                strong {{ expected.title }}
+            i18n.gap-body(v-else path="firmDecisionLogic.dxGapNoLeverText" tag="p")
+              template(#template)
+                strong {{ expected.title }}
 
             //- The instruction splits on whether a distinction of theirs ALREADY
             //- matched this conversation. Telling a manager to write a new one
             //- when the fix is to attach a template to the one they have
             //- contradicted the Ideas section further down the same screen.
             p.gap-do(v-if="gapAction !== 'none'")
-              template(v-if="gapAction === 'attach'")
-                | {{ $t('firmDecisionLogic.dxGapAttachA') }}
-                strong {{ expected.title }}
-                | {{ $t('firmDecisionLogic.dxGapAttachB') }}
-                strong “{{ chosenDistinction.description }}”
-                | {{ $t('firmDecisionLogic.dxGapAttachC') }}
-              template(v-else)
-                | {{ $t('firmDecisionLogic.dxGapDoA') }}
-                strong {{ detectedDomainLabel }}
-                | {{ $t('firmDecisionLogic.dxGapDoB') }}
-                strong {{ expected.title }}
-                | {{ $t('firmDecisionLogic.dxGapDoC') }}
-
+              i18n(v-if="gapAction === 'attach'" path="firmDecisionLogic.dxGapAttachText" tag="span")
+                template(#template)
+                  strong {{ expected.title }}
+                template(#distinction)
+                  strong “{{ chosenDistinction.description }}”
+              i18n(v-else path="firmDecisionLogic.dxGapDoText" tag="span")
+                template(#domain)
+                  strong {{ detectedDomainLabel }}
+                template(#template)
+                  strong {{ expected.title }}
+              //- A bare `|` emits nothing in Pug; this is the space between the two sentences.
+              = ' '
               //- The arithmetic is DERIVED from the scores in the table above, not
               //- asserted. The artefact's fixed sentence ("either alone leaves you
               //- short") was true only for its own 7-point example and contradicted
               //- the table at a gap of 3 (found by Mike, 2026-08-03).
-              | {{ $t('firmDecisionLogic.dxGapMathA') }}
-              strong {{ $t('firmDecisionLogic.dxGapDoD', { distinction: distinctionBoost }) }}
-              | {{ $t('firmDecisionLogic.dxGapMathB', { withDistinction: scoreWithDistinction }) }}
-              strong {{ $t('firmDecisionLogic.dxGapDoF', { tree: treeBoost }) }}
-              | {{ $t('firmDecisionLogic.dxGapMathC', { withTree: scoreWithTree, top: topScore }) }}
-              |
-              strong {{ $t('firmDecisionLogic.' + gapVerdictKey) }}
+              i18n(path="firmDecisionLogic.dxGapMathText" tag="span")
+                template(#distinction)
+                  strong {{ $t('firmDecisionLogic.dxGapDoD', { distinction: distinctionBoost }) }}
+                template(#withDistinction) {{ scoreWithDistinction }}
+                template(#tree)
+                  strong {{ $t('firmDecisionLogic.dxGapDoF', { tree: treeBoost }) }}
+                template(#withTree) {{ scoreWithTree }}
+                template(#top) {{ topScore }}
+                template(#verdict)
+                  strong {{ $t('firmDecisionLogic.' + gapVerdictKey) }}
 
         //- Never collapsible. A limit that can be hidden is a limit that will be
         //- missed, and the third exists because this run had to fill in what a
@@ -291,17 +291,18 @@ section.dx
                 p.i-note {{ $t('firmDecisionLogic.llDeliverNote') }}
               p.i-done(v-if="deliveredLabel") {{ deliveredLabel }}
               p.i-failed(v-if="deliverFailedLabel") {{ deliverFailedLabel }}
-        p.ideas-foot
-          | {{ $t('firmDecisionLogic.ideasFootA') }}
-          strong {{ $t('firmDecisionLogic.ideasFootB', { distinction: distinctionBoost }) }}
-          | {{ $t('firmDecisionLogic.ideasFootC') }}
-          strong {{ $t('firmDecisionLogic.ideasFootD', { tree: treeBoost }) }}
-          | {{ $t('firmDecisionLogic.ideasFootE') }}
-          strong {{ $t('firmDecisionLogic.ideasFootF', { margin: marginLabel }) }}
-          | {{ $t('firmDecisionLogic.ideasFootG') }}
+        i18n.ideas-foot(path="firmDecisionLogic.ideasFootText" tag="p")
+          template(#distinction)
+            strong {{ $t('firmDecisionLogic.ideasFootB', { distinction: distinctionBoost }) }}
+          template(#tree)
+            strong {{ $t('firmDecisionLogic.ideasFootD', { tree: treeBoost }) }}
+          template(#margin)
+            strong {{ $t('firmDecisionLogic.ideasFootF', { margin: marginLabel }) }}
 </template>
 
 <script>
+import { slotMarkers, sentenceParts } from '~/utils/sentenceParts'
+
 /**
  * Sections 4 and 5 of the Decision Logic page — the diagnostic and the ideas.
  *
@@ -565,6 +566,8 @@ export default {
      */
     ideas () {
       const t = k => this.$t('firmDecisionLogic.' + k)
+      // One locale string per sentence, cut at its slots (item 13.6).
+      const said = (k, slots) => sentenceParts(this.$t('firmDecisionLogic.' + k, slotMarkers(Object.keys(slots))), slots)
       const domain = this.detectedDomainLabel
       const expectedName = this.resolvedExpectedTitle() || ''
       const matched = []
@@ -579,11 +582,7 @@ export default {
           items: [{
             lever: t('ideaDomainSupport'),
             worth: t('worthNoSelection'),
-            body: [
-              { text: t('ideaExplainBodyA') },
-              { text: domain, bold: true },
-              { text: t('ideaExplainBodyB') }
-            ],
+            body: said('ideaExplainBodyText', { domain: { text: domain, bold: true } }),
             how: [{ text: this.$t('firmDecisionLogic.ideaExplainHow', { domain }) }],
             cls: 'is-shape'
           }]
@@ -598,17 +597,11 @@ export default {
         lever: t('ideaDistinction'),
         worth: this.$t('firmDecisionLogic.worthPoints', { points: this.distinctionBoost }),
         body: distCount === 0
-          ? [
-              { text: t('ideaDistBodyNoneA') },
-              { text: expectedName, bold: true },
-              { text: t('ideaDistBodyNoneB') }
-            ]
-          : [
-              { text: this.chosenDistinction.description, bold: true },
-              { text: t('ideaDistBodyMatchedA') },
-              { text: expectedName, bold: true },
-              { text: t('ideaDistBodyMatchedB') }
-            ],
+          ? said('ideaDistBodyNoneText', { template: { text: expectedName, bold: true } })
+          : said('ideaDistBodyMatchedText', {
+            distinction: { text: this.chosenDistinction.description, bold: true },
+            template: { text: expectedName, bold: true }
+          }),
         // The quote sits INSIDE the sentence, between "worded cleverly:" and
         // "File it under …", exactly as the approved artefact has it. Rendering
         // it after the paragraph (the first build) ran those two clauses
@@ -616,9 +609,7 @@ export default {
         how: [
           { text: t('ideaDistHowA') },
           { text: this.text.trim(), quote: true },
-          { text: t('ideaDistHowB') },
-          { text: domain, bold: true },
-          { text: t('ideaDistHowC') }
+          ...said('ideaDistHowFileText', { domain: { text: domain, bold: true } })
         ],
         cls: ''
       }, {
@@ -626,21 +617,19 @@ export default {
         worth: this.$t('firmDecisionLogic.worthPoints', { points: this.treeBoost }),
         body: this.probeTables.length === 0
           ? [{ text: t('ideaTriggersBodyNone') }]
-          : [
-              // $tc: at two tables the singular form reads "Only 2 table opened".
-              { text: this.$tc('firmDecisionLogic.ideaTriggersBodySomeA', this.probeTables.length, { count: this.probeTables.length }) },
-              // An EXPLICIT space. vue-i18n trims each side of a `a | b` plural
-              // string, so a trailing space in the locale file is silently eaten
-              // and the sentence renders as "opened on“decision making”".
-              { text: ' ' },
-              {
+          // $tc: at two tables the singular form reads "Only 2 table opened".
+          : sentenceParts(
+            this.$tc('firmDecisionLogic.ideaTriggersBodySomeText', this.probeTables.length,
+              Object.assign({ count: this.probeTables.length }, slotMarkers(['phrases']))),
+            {
+              phrases: {
                 text: matched.length
                   ? '“' + matched.join('”, “') + '”'
                   : t('ideaTriggersBodySomeNoPhrase'),
                 bold: true
-              },
-              { text: t('ideaTriggersBodySomeB') }
-            ],
+              }
+            }
+          ),
         how: [{ text: t('ideaTriggersHow') }],
         cls: ''
       }, {

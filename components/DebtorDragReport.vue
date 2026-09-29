@@ -43,8 +43,14 @@
 
   .ddg-layout
     aside.ddg-card
-      .ddg-instruct
-        | {{ $t('report.debtorDrag.instruct') }} #[b {{ $t('report.debtorDrag.instructBtn') }}]{{ $t('report.debtorDrag.instructAfter') }} #[b.ddg-blue {{ $t('report.debtorDrag.blueLine') }}] {{ $t('report.debtorDrag.instructEnd') }} #[b {{ $t('report.debtorDrag.before') }}].
+      //- One locale string per sentence, bold parts as slots (item 13.6).
+      i18n.ddg-instruct(path="report.debtorDrag.instructText" tag="div")
+        template(#button)
+          b {{ $t('report.debtorDrag.instructBtn') }}
+        template(#blueLine)
+          b.ddg-blue {{ $t('report.debtorDrag.blueLine') }}
+        template(#before)
+          b {{ $t('report.debtorDrag.before') }}
       .ddg-group(v-for="g in groups" :key="g.title")
         .ddg-glabel
           span.ddg-lft
@@ -106,8 +112,17 @@
         .ddg-edu-h
           span.ddg-lead {{ $t('report.debtorDrag.coach.lead') }}
           | {{ $t('report.debtorDrag.coach.title') }}
+        //- Two whole sentences, not one with an optional clause spliced in: "into
+        //- overdraft" moves the commas, and a translation must see both forms entire.
         p.ddg-edu-p(v-if="plan")
-          | {{ $t('report.debtorDrag.coach.body1') }} #[strong {{ money(plan.deepestLow.value) }}] {{ $t('report.debtorDrag.coach.body2') }} #[strong {{ monthName(plan.deepestLow.month) }}]{{ plan.deepestLow.value < 0 ? $t('report.debtorDrag.coach.overdraft') : '' }} {{ $t('report.debtorDrag.coach.body3') }} #[strong {{ plan.monthsInOverdraft }} {{ $t('report.debtorDrag.coach.months') }}]. {{ $t('report.debtorDrag.coach.body4') }}
+          i18n(:path="plan.deepestLow.value < 0 ? 'report.debtorDrag.coach.lowOverdraftText' : 'report.debtorDrag.coach.lowText'" tag="span")
+            template(#low)
+              strong {{ money(plan.deepestLow.value) }}
+            template(#month)
+              strong {{ monthName(plan.deepestLow.month) }}
+            template(#months)
+              strong {{ plan.monthsInOverdraft }} {{ $t('report.debtorDrag.coach.months') }}
+          |  {{ $t('report.debtorDrag.coach.body4') }}
 
       .ddg-actions
         button.ddg-cta(@click="downloadPdf") {{ $t('report.debtorDrag.actions.pdf') }}
@@ -138,7 +153,10 @@ import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import savedReport from '~/mixins/savedReport'
+import { intlLocaleFor } from '~/utils/dateLocale'
 
+// English only: the AI's copy of these figures names months from the same list
+// (reportModelFigures.test.js). Any other language comes from the browser.
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const SHAPE = [100000, 137850, 207563, 215000, 232000, 347000, 356000, 432000, 318000, 323000, 365000, 324000]
 const BASE = SHAPE.reduce(function (a, b) { return a + b }, 0)
@@ -245,7 +263,7 @@ fields: [
       for (let g = 0; g <= 4; g++) { grid.push({ y: pt + ph * g / 4, label: this.kf(hi - (hi - lo) * g / 4) }) }
       const months = []
       for (let m = 0; m < 12; m++) { months.push({ x: x(m) }) }
-      months.forEach(function (mo, idx) { mo.label = MON[idx] })
+      months.forEach((mo, idx) => { mo.label = this.monthName(idx) })
       const lowIdx = plan.indexOf(Math.min.apply(null, plan))
       const z = y(0)
       return {
@@ -273,7 +291,12 @@ lowY: y(plan[lowIdx])
   methods: {
     // money() comes from currencyMixin (firm currency + locale).
     kf (n) { return this.kMoney(n) },
-    monthName (m) { return MON[m] || '' },
+    /** Short month name in the reader's language — a fixed English list read "im May" in German. */
+    monthName (m) {
+      if (!(m >= 0 && m < 12)) { return '' }
+      if (this.$i18n.locale === 'en') { return MON[m] }
+      return new Date(2000, m, 1).toLocaleString(intlLocaleFor(this.$i18n.locale), { month: 'short' })
+    },
     fmtField (fld) {
       const v = this.f[fld.k]
       if (fld.fmt === 'money') { return this.money(v) }

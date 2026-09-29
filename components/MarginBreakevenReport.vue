@@ -100,8 +100,21 @@
         .mbk-edu-h
           span.mbk-lead {{ $t('report.marginBreakeven.coach.lead') }}
           | {{ $t('report.marginBreakeven.coach.title') }}
-        p.mbk-edu-p(v-if="data")
-          | {{ $t('report.marginBreakeven.coach.body1') }} #[strong {{ $t('report.marginBreakeven.coach.marginIs') }} {{ pct(data.marginPct) }}] {{ $t('report.marginBreakeven.coach.ofSale') }} #[strong {{ $t('report.marginBreakeven.coach.markupIs') }} {{ round1(data.markup) }}×] {{ $t('report.marginBreakeven.coach.ofCost') }} #[strong {{ money(f.oh) }}] {{ $t('report.marginBreakeven.coach.overheads') }} #[strong {{ money(f.draw) }}] {{ $t('report.marginBreakeven.coach.drawings') }} #[strong {{ money(data.requiredSales) }}] ({{ round0(data.requiredUnits) }} {{ $t('report.marginBreakeven.whatIf.units') }}) {{ $t('report.marginBreakeven.coach.body4') }}
+        //- One locale string for the whole coaching note, figures as slots (item 13.6). A slot
+        //- holds a figure only: "margin is 67%" as its own string came back from German as a
+        //- whole clause, "Ihre Die Marge beträgt 67%".
+        i18n.mbk-edu-p(v-if="data" path="report.marginBreakeven.coach.text" tag="p")
+          template(#margin)
+            strong {{ pct(data.marginPct) }}
+          template(#markup)
+            strong {{ round1(data.markup) }}×
+          template(#overheads)
+            strong {{ money(f.oh) }}
+          template(#drawings)
+            strong {{ money(f.draw) }}
+          template(#sales)
+            strong {{ money(data.requiredSales) }}
+          template(#units) {{ round0(data.requiredUnits) }} {{ $t('report.marginBreakeven.whatIf.units') }}
 
       .mbk-actions
         button.mbk-cta(@click="downloadPdf") {{ $t('report.marginBreakeven.actions.pdf') }}
