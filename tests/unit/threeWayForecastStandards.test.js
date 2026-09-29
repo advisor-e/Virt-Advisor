@@ -70,6 +70,54 @@ describe('term loans: the part due within twelve months is current (IAS 1.69, 71
   })
 })
 
+describe('the statements laid out as IFRS 18 and IAS 7 set them out (item 44.2)', () => {
+  // An importer whose supplier charges interest for waiting — the one interest charge that
+  // used to ride inside another line, on both statements.
+  const importer = computeThreeWayForecast({
+    overseas: {
+      enabled: true,
+      landings: [{ value: 40000, landsInMonth: 3, depositPct: 0.5, depositMonth: 1, balanceMonth: 5, interest: 600 }]
+    }
+  })
+  const forecasts = { sample: computeThreeWayForecast({}), importer }
+
+  Object.keys(forecasts).forEach((name) => {
+    const f = forecasts[name]
+    const p = f.profitAndLoss
+    const a = f.cashFlow.byActivity
+
+    it(`${name}: operating, investing and financing add to each month's movement`, () => {
+      a.operating.forEach((v, m) => {
+        expect(v + a.investing[m] + a.financing[m]).toBeCloseTo(f.cashFlow.netMovement[m], 6)
+      })
+    })
+
+    it(`${name}: regrouping the profit and loss moves no profit`, () => {
+      p.operatingProfit.forEach((v, m) => {
+        expect(p.profitBeforeFinancingAndTax[m]).toBeCloseTo(v + p.investingIncome[m], 6)
+        expect(p.profitBeforeFinancingAndTax[m] - p.financingCosts[m]).toBeCloseTo(p.netSurplusBeforeTax[m], 6)
+      })
+    })
+  })
+
+  it('every interest charge is a financing cost, and none is left in the overheads', () => {
+    const p = importer.profitAndLoss
+    expect(sum(p.interestSuppliers)).toBe(600)
+    p.financingCosts.forEach((v, m) => {
+      expect(v).toBeCloseTo(p.interestBankOverdraft[m] + p.interestTermLoans[m] + p.interestFacilities[m] +
+        p.interestSuppliers[m] + p.interestOverdueTax[m], 6)
+      expect(p.operatingOverheads[m]).toBeCloseTo(p.totalOverheads[m] - v, 6)
+    })
+  })
+
+  it('the supplier’s interest leaves operating cash and is paid under financing', () => {
+    const a = importer.cashFlow.byActivity
+    const paid = importer.cashFlow.payments
+    expect(sum(a.interestPaid) - sum(paid.interestPaid)).toBeCloseTo(600, 6)
+    expect(sum(paid.overseasSupplierBalance) - sum(a.overseasSupplierBalance)).toBeCloseTo(600, 6)
+  })
+})
+
 describe('shareholder current accounts are shown gross, never netted (IAS 1.32)', () => {
   // The sample: Bob +25,000 and John +18,000 are owed BY the company; Mary −32,000 and
   // Joan −25,000 owe it. Netted, they read as one 14,000 asset.

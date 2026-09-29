@@ -1872,6 +1872,41 @@ function computeThreeWayForecast (rawInputs, options) {
     bankClosing[m] = netMovement[m] + bankOpening[m]
   }
 
+  /* -- the statements as IFRS 18 and IAS 7 set them out (item 44.2) --------------- */
+  // The SAME figures, regrouped; nothing above changes, so the workbook port stays provable.
+  // Layout approved by Mike 2026-09-30: design/mockups/three-way-forecast-ifrs-layout.html.
+  //
+  // Every interest CHARGE is financing (IFRS 18.60-61): on borrowings, on overdue tax, and a
+  // supplier's charge for waiting to be paid. Interest EARNED on cash and on loans to
+  // shareholders is investing (IFRS 18.53-54). What is left is the operating profit.
+  const interestOverdueTax = overhead.interestIrd
+  const financingCosts = addSeries(overdraftInterest, loanInterest, OS.supplierInterest, interestOverdueTax)
+  const operatingOverheads = totalOverheads.map(function (v, m) { return v - financingCosts[m] })
+  const otherOperatingIncome = addSeries(otherIncomeGstInclusive, otherIncomeGstExempt, gainOnAssetSales)
+  const investingIncome = addSeries(inFundsInterest, shareholderInterest)
+  const operatingProfit = grossSurplus.map(function (g, m) { return g - operatingOverheads[m] + otherOperatingIncome[m] })
+  const profitBeforeFinancingAndTax = addSeries(operatingProfit, investingIncome)
+
+  // The cash flow in its three activities (IAS 7.10). Interest paid is financing and interest
+  // received is investing (IAS 7.31-33), matching the profit and loss. A supplier's interest
+  // rides out inside the balance payment, so it is lifted out of operating into financing.
+  const r = receipts
+  const p = payments
+  const supplierBalanceExInterest = p.overseasSupplierBalance
+    .map(function (v, m) { return v - OS.supplierInterest[m] })
+  const interestPaidAll = addSeries(p.interestPaid, OS.supplierInterest)
+  const cashOperating = addSeries(
+    r.fromDebtors, r.gstRefunds, r.taxRefunds, r.otherIncomeGstInclusive, r.otherIncomeGstExempt
+  ).map(function (v, m) {
+    return v - p.accountsPayable[m] - p.currentMonthGstInclusive[m] - p.currentMonthGstFree[m] -
+      p.gstPaid[m] - p.taxPaid[m] - p.overseasDeposits[m] - p.overseasFreight[m] - p.overseasDuty[m] -
+      p.overseasBorderGst[m] - supplierBalanceExInterest[m] - p.stockInTransitBalance[m] - p.stockInTransitGst[m]
+  })
+  const cashInvesting = addSeries(r.interestReceived, r.assetSales)
+    .map(function (v, m) { return v - p.capitalExpenditure[m] })
+  const cashFinancing = addSeries(r.loanDrawdowns, r.shareholderAdvances)
+    .map(function (v, m) { return v - interestPaidAll[m] - p.loanPrincipal[m] - p.shareholderDrawings[m] })
+
   /* -- the monthly balance sheet --------------------------------------------------- */
   const bs = {
     authorisedCapital: zeroes(),
@@ -2062,7 +2097,17 @@ function computeThreeWayForecast (rawInputs, options) {
       netSurplusBeforeTax,
       taxProvision,
       netSurplusAfterTax,
-      netMargin
+      netMargin,
+      // IFRS 18 (item 44.2). `operatingSurplus` and `totalOverheads` above keep the workbook's
+      // meaning — after interest — so the port stays provable; the report reads these.
+      operatingOverheads,
+      otherOperatingIncome,
+      operatingProfit,
+      investingIncome,
+      profitBeforeFinancingAndTax,
+      interestSuppliers: OS.supplierInterest,
+      interestOverdueTax,
+      financingCosts
     },
     balanceSheet: { opening, months: bs },
     cashFlow: {
@@ -2074,7 +2119,16 @@ function computeThreeWayForecast (rawInputs, options) {
       openingBalance: bankOpening,
       closingBalance: bankClosing,
       overdraftInterest,
-      inFundsInterest
+      inFundsInterest,
+      // IAS 7.10 (item 44.2): the three activities add to `netMovement` every month. Interest
+      // paid includes a supplier's, and the supplier balance is shown without it.
+      byActivity: {
+        operating: cashOperating,
+        investing: cashInvesting,
+        financing: cashFinancing,
+        interestPaid: interestPaidAll,
+        overseasSupplierBalance: supplierBalanceExInterest
+      }
     },
     schedules: {
       debtors: {

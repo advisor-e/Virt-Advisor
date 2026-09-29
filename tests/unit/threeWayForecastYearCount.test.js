@@ -316,7 +316,8 @@ describe('step 4 — the forecast across its years', () => {
     const w = await mountReport(one)
     expect(w.vm.isMultiYear).toBe(false)
     expect(w.vm.headline.revenue).toBe(one.summary.revenue)
-    expect(w.vm.summaryRows.map(r => r.values.length)).toEqual(new Array(12).fill(1))
+    // One column per row. Thirteen rows since item 44.2 added "Interest received".
+    expect(w.vm.summaryRows.map(r => r.values.length)).toEqual(new Array(13).fill(1))
     w.destroy()
   })
 
@@ -411,14 +412,17 @@ describe('step 4 — the forecast across its years', () => {
       expect(by.revenue.values[i]).toBeCloseTo(total(y.profitAndLoss.revenue), 6)
       expect(by.netAfterTax.values[i]).toBeCloseTo(total(y.profitAndLoss.netSurplusAfterTax), 6)
       expect(by.closingCash.values[i]).toBe(y.cashFlow.closingBalance[11])
-      // Gross profit less overheads, interest and depreciation must land on the operating
-      // surplus shown — the three deductions are drawn out of one engine total, and
-      // double-counting any of them would still add up down the column.
+      // The operating surplus is the profit tab's own, before any interest (item 44.2) — one
+      // figure under one name across the whole report.
+      expect(by.operatingSurplus.values[i]).toBeCloseTo(total(y.profitAndLoss.operatingProfit), 6)
+      // And the column adds down to it, then on to profit before tax: overheads and
+      // depreciation are drawn out of one engine total, and double-counting either would
+      // still add up down the column.
       expect(by.operatingSurplus.values[i]).toBeCloseTo(
         by.grossSurplus.values[i] - by.overheads.values[i] -
-        by.interest.values[i] - by.depreciation.values[i], 6)
+        by.depreciation.values[i] + by.otherIncome.values[i], 6)
       expect(by.netBeforeTax.values[i]).toBeCloseTo(
-        by.operatingSurplus.values[i] + by.otherIncome.values[i], 6)
+        by.operatingSurplus.values[i] + by.interestReceived.values[i] - by.interest.values[i], 6)
     })
     w.destroy()
   })

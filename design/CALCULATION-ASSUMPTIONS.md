@@ -103,8 +103,9 @@ a lender or accountant can bring to it; a ⚠ is therefore a *difference to disc
 sometimes an error to fix.
 
 **Every paragraph cited in this section was read from the published text on 2026-09-30:** IAS 1.32,
-69, 71; IAS 2.9, 21, 22, 34; IAS 7.10, 18; IAS 12.15, 24, 34; IAS 16.50, 51, 55, 60-62, 68, 71;
-IFRS 9 4.2.1, 5.5.1, 5.5.15; IFRS 15.31, 38; IFRS 16.5, 6, 22; IFRS 18.60.
+69, 71; IAS 2.9, 21, 22, 34; IAS 7.10, 16-18, 31, 33, 35; IAS 12.15, 24, 34; IAS 16.50, 51, 55,
+60-62, 68, 71; IFRS 9 4.2.1, 5.5.1, 5.5.15; IFRS 15.31, 38; IFRS 16.5, 6, 22; IFRS 18.53, 54,
+60, 61, 69.
 
 ### 2.1 Revenue and debtors
 
@@ -144,7 +145,7 @@ IFRS 9 4.2.1, 5.5.1, 5.5.15; IFRS 15.31, 38; IFRS 16.5, 6, 22; IFRS 18.60.
 | Where term loans sit | — | What falls due within twelve months — each loan rolled forward on its own terms, with any lump sum the year names — is a current liability, *Term loans due within 12 months* (wording approved by Mike 2026-09-30); the rest stays non-current under the lender's name. | ✅ IAS 1.69, 71. **Fixed 2026-09-30**; until then the whole loan sat under non-current and working capital was overstated by the next year's repayments. Pinned by `threeWayForecastStandards.test.js`. |
 | Facilities | — | Current liabilities; interest on the balance; no scheduled repayment. | ✅ IAS 1.69 — repayable on demand. |
 | Overdraft and credit interest | 7% and 2% | On the opening bank balance each month. | ✅ |
-| **Interest in the profit and loss** | — | Inside overheads, above operating profit. | ⚠ **IFRS 18.60**, for periods from 1 January 2027: interest on borrowings belongs in the financing category, below operating profit. Permitted until then. |
+| Interest in the profit and loss | — | Every interest charge — overdraft, term loans, facilities, a supplier's charge for waiting, interest on overdue tax — under *Financing costs*, below the operating surplus and *Surplus before financing and tax*. Interest earned sits between the two. | ✅ IFRS 18.53-54, 60, 61, 69. **Fixed 2026-09-30 (item 44.2)**; until then all interest sat inside overheads, and a supplier's interest had no row of its own. Layout approved by Mike: [`three-way-forecast-ifrs-layout.html`](mockups/three-way-forecast-ifrs-layout.html). |
 | Borrowing costs on assets being built | — | Always expensed. | ℹ IAS 23 capitalises them only for an asset that takes a substantial time to get ready. The forecast does not model one. |
 
 ### 2.5 Income tax
@@ -176,7 +177,7 @@ IFRS 9 4.2.1, 5.5.1, 5.5.15; IFRS 15.31, 38; IFRS 16.5, 6, 22; IFRS 18.60.
 
 | Assumption | Treatment | Against the standards |
 |---|---|---|
-| **Cash flow** | Receipts and payments by type, gross (the direct method). | ✅ IAS 7.18. ⚠ **IAS 7.10** — cash flows are classified as operating, investing and financing. The forecast does not group them. |
+| Cash flow | Receipts and payments by type, gross (the direct method), grouped into operating, investing and financing with a subtotal each. Interest paid is financing and interest received investing; tax is operating. | ✅ IAS 7.10, 16, 17, 18, 31-33, 35. **Fixed 2026-09-30 (item 44.2)**; until then it was one list of receipts and payments. |
 | Balance sheet | Current and non-current, with a working-capital line. | ✅ Including term loans (2.4) and shareholder accounts (2.6) since 2026-09-30. |
 | GST | Outputs less inputs, settled on the filing cycle; never revenue or cost. | ✅ Revenue excludes amounts collected for others. Timing and basis: [`TAX-RULES-IMPORT-GST.md`](TAX-RULES-IMPORT-GST.md). |
 
@@ -187,9 +188,9 @@ IFRS 9 4.2.1, 5.5.1, 5.5.15; IFRS 15.31, 38; IFRS 16.5, 6, 22; IFRS 18.60.
 | Treatments recorded before 44.1 | **9** (§1, currency) |
 | Treatments recorded now | **43** (§1's 9 and §2's 34) |
 | Departures found | **9** |
-| Fixed 2026-09-30 | **2** — term loans' current portion, shareholder accounts gross |
+| Fixed 2026-09-30 | **4** — term loans' current portion, shareholder accounts gross (44.1); cash flow by activity and interest in financing (44.2) |
 | Re-read as a disclosure, not a departure | **1** — depreciation rates, which are the advisor's own |
-| Still open | **6**, on the live list: cash-flow classification and interest in financing need a drawing of the statements (44.2); bad debts, deferred tax, leases and overseas shipping terms need facts the forecast does not yet ask for (44.3) |
+| Still open | **4**, on the live list as 44.3: bad debts, deferred tax, leases and overseas shipping terms need facts the forecast does not yet ask for |
 
 ### 2.10 Sources
 

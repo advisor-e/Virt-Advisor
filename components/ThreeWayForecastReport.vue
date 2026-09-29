@@ -264,8 +264,8 @@
                   th
                   th(v-for="(m, i) in monthLabels" :key="i") {{ m }}
               tbody
-                tr(v-for="row in visibleRows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong }")
-                  td {{ row.rawLabel || $t(row.label) }}
+                tr(v-for="row in visibleRows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong, 'is-section': row.section }")
+                  td(:colspan="row.section ? monthLabels.length + 1 : null") {{ row.rawLabel || $t(row.label) }}
                   td(
                     v-for="(v, i) in row.values" :key="i"
                     :class="cellClass(row, v)") {{ money(v) }}
@@ -304,8 +304,8 @@
                     //- mid-year does not repeat year 1's months in year 2.
                     th(v-for="(m, i) in s.months" :key="i") {{ m }}
                 tbody
-                  tr(v-for="row in s.rows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong }")
-                    td {{ row.rawLabel || $t(row.label) }}
+                  tr(v-for="row in s.rows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong, 'is-section': row.section }")
+                    td(:colspan="row.section ? s.months.length + 1 : null") {{ row.rawLabel || $t(row.label) }}
                     td(
                       v-for="(v, i) in row.values" :key="i"
                       :class="cellClass(row, v)") {{ money(v) }}
@@ -459,7 +459,7 @@ export default {
 
     /** How many overhead lines the engine holds, whether or not they carry a figure. */
     overheadCount () {
-      return this.data ? Object.keys(this.data.profitAndLoss.overheads).length : 0
+      return this.data ? this.overheadKeysOf(this.data).length : 0
     },
 
     /**
@@ -474,7 +474,7 @@ export default {
     hiddenOverheadCount () {
       if (!this.data || !this.isEvery || this.tab !== 'profit') { return 0 }
       const oh = this.data.profitAndLoss.overheads
-      return Object.keys(oh).filter(k => !this.hasAFigure(oh[k])).length
+      return this.overheadKeysOf(this.data).filter(k => !this.hasAFigure(oh[k])).length
     },
 
     /** Short month names for the table head, read from the model's own dates. */
@@ -635,14 +635,14 @@ export default {
       const revenue = per(y => total(y.profitAndLoss.revenue))
       const gross = per(y => total(y.profitAndLoss.grossSurplus))
       const dep = per(y => total(y.profitAndLoss.depreciation))
-      const interest = per(y => total(y.profitAndLoss.interestBankOverdraft) +
-        total(y.profitAndLoss.interestTermLoans) + total(y.profitAndLoss.interestFacilities))
-      // `totalOverheads` already carries depreciation and the three interest lines, so
-      // both come out here — otherwise every one of them would be counted twice down the
-      // column, and the column would still add up.
-      const overheads = per((y, i) => total(y.profitAndLoss.totalOverheads) - dep[i] - interest[i])
-      const operating = per((y, i) => gross[i] - overheads[i] - interest[i] - dep[i])
-      const other = per(y => total(y.profitAndLoss.totalOtherIncome))
+      // The same shape as the profit tab (item 44.2): other income above the operating
+      // surplus, interest earned and every interest charge below it, so "Operating surplus"
+      // is one figure on the whole report. The rows still add down to profit before tax.
+      const overheads = per((y, i) => total(y.profitAndLoss.operatingOverheads) - dep[i])
+      const other = per(y => total(y.profitAndLoss.otherOperatingIncome))
+      const operating = per(y => total(y.profitAndLoss.operatingProfit))
+      const earned = per(y => total(y.profitAndLoss.investingIncome))
+      const interest = per(y => total(y.profitAndLoss.financingCosts))
       const beforeTax = per(y => total(y.profitAndLoss.netSurplusBeforeTax))
       const tax = per(y => total(y.profitAndLoss.taxProvision))
       const afterTax = per(y => total(y.profitAndLoss.netSurplusAfterTax))
@@ -658,10 +658,11 @@ export default {
         flow('revenue', revenue),
         flow('grossSurplus', gross),
         flow('overheads', overheads, { dim: true }),
-        flow('interest', interest, { dim: true }),
         flow('depreciation', dep, { dim: true }),
-        flow('operatingSurplus', operating, { rule: true }),
         flow('otherIncome', other, { dim: true }),
+        flow('operatingSurplus', operating, { rule: true }),
+        flow('interestReceived', earned, { dim: true }),
+        flow('interest', interest, { dim: true }),
         flow('netBeforeTax', beforeTax),
         flow('tax', tax, { dim: true }),
         flow('netAfterTax', afterTax, { rule: true, strong: true }),
@@ -884,12 +885,15 @@ export default {
       if (!d) { return [] }
       const lines = []
       const h = this.headline
-      const overheadsPerMonth = d.profitAndLoss.totalOverheads.reduce((a, v) => a + v, 0) / 12
+      // The Overheads the profit tab shows — before interest since item 44.2.
+      const overheadsPerMonth = d.profitAndLoss.operatingOverheads.reduce((a, v) => a + v, 0) / 12
       if (h.closingCash < 0) {
         lines.push(this.$t('report.threeWayForecast.report.closingCashSub'))
       }
-      lines.push(this.$t('report.threeWayForecast.report.grossMarginSub', { amount: this.money(h.grossSurplus) }) +
-        ' — ' + this.pct(h.grossMarginPct) + ', ' + this.money(overheadsPerMonth) + ' of overheads a month.')
+      // One string, so a translation sees the whole sentence (13.6's rule).
+      lines.push(this.$t('report.threeWayForecast.report.coachMarginLine', {
+        amount: this.money(h.grossSurplus), pct: this.pct(h.grossMarginPct), overheads: this.money(overheadsPerMonth)
+      }))
       if (this.stockOutMonths.length) {
         lines.push(this.$t('report.threeWayForecast.report.stockOutBody'))
       }
@@ -1039,13 +1043,24 @@ export default {
     overseasCashRowsFor (d) {
       if (!this.hasOverseasTradeFor(d)) { return [] }
       const p = d.cashFlow.payments
+      const out = this.outgoing
+      // Operating cash going out, so it carries a minus (item 44.2). The supplier balance is
+      // shown without the interest inside it, which the cash flow counts under financing.
       return [
-        { key: 'os-dep', label: 'report.threeWayForecast.report.overseasDeposits', values: p.overseasDeposits, sub: true },
-        { key: 'os-frt', label: 'report.threeWayForecast.report.overseasFreight', values: p.overseasFreight, sub: true },
-        { key: 'os-duty', label: 'report.threeWayForecast.report.overseasDuty', values: p.overseasDuty, sub: true },
-        { key: 'os-gst', label: 'report.threeWayForecast.report.overseasBorderGst', values: p.overseasBorderGst, sub: true },
-        { key: 'os-bal', label: 'report.threeWayForecast.report.overseasSupplierBalance', values: p.overseasSupplierBalance, sub: true }
+        { key: 'os-dep', label: 'report.threeWayForecast.report.overseasDeposits', values: out(p.overseasDeposits), sub: true },
+        { key: 'os-frt', label: 'report.threeWayForecast.report.overseasFreight', values: out(p.overseasFreight), sub: true },
+        { key: 'os-duty', label: 'report.threeWayForecast.report.overseasDuty', values: out(p.overseasDuty), sub: true },
+        { key: 'os-gst', label: 'report.threeWayForecast.report.overseasBorderGst', values: out(p.overseasBorderGst), sub: true },
+        { key: 'os-bal', label: 'report.threeWayForecast.report.overseasSupplierBalance', values: out(d.cashFlow.byActivity.overseasSupplierBalance), sub: true }
       ]
+    },
+
+    /**
+     * Money going out, as the grouped cash flow shows it: with a minus, so each activity adds
+     * down to its own subtotal (item 44.2). @param {Array<number>} values @returns {Array<number>}
+     */
+    outgoing (values) {
+      return values.map(v => (v ? -v : 0))
     },
 
     /** @param {object} d one year's result. @returns {Array<object>} */
@@ -1054,15 +1069,15 @@ export default {
       if (!t || !t.landedValue.some(v => v > 0)) { return [] }
       const p = d.cashFlow.payments
       return [
-        { key: 'tr-bal', label: 'report.threeWayForecast.report.transitBalance', values: p.stockInTransitBalance, sub: true },
-        { key: 'tr-gst', label: 'report.threeWayForecast.report.transitGst', values: p.stockInTransitGst, sub: true }
+        { key: 'tr-bal', label: 'report.threeWayForecast.report.transitBalance', values: this.outgoing(p.stockInTransitBalance), sub: true },
+        { key: 'tr-gst', label: 'report.threeWayForecast.report.transitGst', values: this.outgoing(p.stockInTransitGst), sub: true }
       ]
     },
 
     /** @param {object} d one year's result. @returns {Array<object>} */
     overheadRowsFor (d) {
       const oh = d.profitAndLoss.overheads
-      return Object.keys(oh)
+      return this.overheadKeysOf(d)
         .filter(k => this.hasAFigure(oh[k]))
         .map(k => ({
           key: 'oh-' + k,
@@ -1076,62 +1091,80 @@ export default {
     /** @param {object} d one year's result. @returns {Array<object>} */
     cashRowsFor (d) {
       const c = d.cashFlow
+      const a = c.byActivity
+      const L = 'report.threeWayForecast.report.line.'
+      // IAS 7.10 — operating, investing and financing, each adding down to its own subtotal
+      // and the three adding to the movement (item 44.2; drawing approved by Mike 2026-09-30,
+      // design/mockups/three-way-forecast-ifrs-layout.html). They replace "Money in" and
+      // "Money out". The overseas and stock-in-transit rows keep their own lines, as ruled on
+      // 2026-09-04, now inside operating activities.
+      const net = (key, label, values) => ({ key, label: L + label, values, rule: true, strong: true, signed: true })
       const tail = [
         { key: 'move', label: 'report.threeWayForecast.report.movement', values: c.netMovement, rule: true, signed: true },
         { key: 'close', label: 'report.threeWayForecast.report.cashAtMonthEnd', values: c.closingBalance, rule: true, signed: true }
       ]
+      const imported = this.overseasCashRowsFor(d).concat(this.stockInTransitCashRowsFor(d))
       if (!this.isEvery) {
-        return [
-          { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts },
-          { key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments }
-        ].concat(this.overseasCashRowsFor(d)).concat(this.stockInTransitCashRowsFor(d)).concat(tail)
+        return [net('cf-op', 'netCashOperating', a.operating)]
+          .concat(imported)
+          .concat([
+            net('cf-inv', 'netCashInvesting', a.investing),
+            net('cf-fin', 'netCashFinancing', a.financing)
+          ])
+          .concat(tail)
       }
-      const L = 'report.threeWayForecast.report.line.'
       const r = c.receipts
       const p = c.payments
+      const out = this.outgoing
       const sub = (key, label, values) => ({ key, label: L + label, values, sub: true })
-      // Every row the engine fills, receipts then payments, in its own order. The five
-      // overseas rows and the two for stock in transit are already itemised on the summary
-      // (Mike, 2026-09-04), so they are not repeated by the two helpers here — this list
-      // holds them once, in their place among the rest.
+      const section = (key, label) => ({ key, label: L + label, values: [], section: true })
       return [
+        section('s-op', 'operatingActivities'),
         sub('r-deb', 'fromDebtors', r.fromDebtors),
-        sub('r-int', 'interestReceived', r.interestReceived),
-        sub('r-draw', 'loanDrawdowns', r.loanDrawdowns),
         sub('r-gst', 'gstRefunds', r.gstRefunds),
         sub('r-tax', 'taxRefunds', r.taxRefunds),
         sub('r-oi', 'otherIncome', r.otherIncomeGstInclusive),
         sub('r-oix', 'otherIncomeExempt', r.otherIncomeGstExempt),
-        sub('r-sh', 'shareholderAdvances', r.shareholderAdvances),
-        sub('r-asset', 'assetSales', r.assetSales),
-        { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts, rule: true, strong: true },
-        sub('p-ap', 'accountsPayable', p.accountsPayable),
-        sub('p-cm', 'currentMonthGstInclusive', p.currentMonthGstInclusive),
-        sub('p-cmf', 'currentMonthGstFree', p.currentMonthGstFree),
-        sub('p-int', 'interestPaid', p.interestPaid),
-        sub('p-prin', 'loanPrincipal', p.loanPrincipal),
-        sub('p-gst', 'gstPaid', p.gstPaid),
-        sub('p-tax', 'taxPaid', p.taxPaid),
-        sub('p-sh', 'shareholderDrawings', p.shareholderDrawings),
-        sub('p-capex', 'capitalExpenditure', p.capitalExpenditure)
+        sub('p-ap', 'accountsPayable', out(p.accountsPayable)),
+        sub('p-cm', 'currentMonthGstInclusive', out(p.currentMonthGstInclusive)),
+        sub('p-cmf', 'currentMonthGstFree', out(p.currentMonthGstFree)),
+        sub('p-gst', 'gstPaid', out(p.gstPaid)),
+        sub('p-tax', 'taxPaid', out(p.taxPaid))
       ]
-        .concat(this.overseasCashRowsFor(d))
-        .concat(this.stockInTransitCashRowsFor(d))
-        .concat([{ key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments, rule: true, strong: true }])
+        .concat(imported)
+        .concat([
+          net('cf-op', 'netCashOperating', a.operating),
+          section('s-inv', 'investingActivities'),
+          sub('r-int', 'interestReceived', r.interestReceived),
+          sub('r-asset', 'assetSales', r.assetSales),
+          sub('p-capex', 'capitalExpenditure', out(p.capitalExpenditure)),
+          net('cf-inv', 'netCashInvesting', a.investing),
+          section('s-fin', 'financingActivities'),
+          sub('r-draw', 'loanDrawdowns', r.loanDrawdowns),
+          sub('r-sh', 'shareholderAdvances', r.shareholderAdvances),
+          sub('p-int', 'interestPaid', out(a.interestPaid)),
+          sub('p-prin', 'loanPrincipal', out(p.loanPrincipal)),
+          sub('p-sh', 'shareholderDrawings', out(p.shareholderDrawings)),
+          net('cf-fin', 'netCashFinancing', a.financing)
+        ])
         .concat(tail)
     },
 
     /** @param {object} d one year's result. @returns {Array<object>} */
     profitRowsFor (d) {
       const p = d.profitAndLoss
+      const L = 'report.threeWayForecast.report.line.'
+      // IFRS 18 (item 44.2; drawing approved by Mike 2026-09-30): the operating surplus comes
+      // before any interest, and every interest charge sits under Financing costs.
       const summary = [
         { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue },
         { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, signed: true },
-        { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads },
+        { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.operatingOverheads },
+        { key: 'op', label: L + 'operatingSurplus', values: p.operatingProfit, strong: true, signed: true },
+        { key: 'fin', label: L + 'financingCosts', values: p.financingCosts },
         { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, signed: true }
       ]
       if (!this.isEvery) { return summary }
-      const L = 'report.threeWayForecast.report.line.'
       const sub = (key, label, values) => ({ key, label: L + label, values, sub: true, signed: true })
       // Inside cost of sales, so the lines above the total add up to it (item 13.2's finding).
       const overseasLines = !this.hasOverseasTradeFor(d)
@@ -1166,19 +1199,25 @@ export default {
         .concat(this.overheadRowsFor(d))
         .concat([
           { key: 'dep', label: L + 'depreciation', values: p.depreciation, sub: true, signed: true },
-          { key: 'int-od', label: L + 'interestOverdraft', values: p.interestBankOverdraft, sub: true, signed: true },
-          { key: 'int-loan', label: L + 'interestTermLoans', values: p.interestTermLoans, sub: true, signed: true },
-          // Its own row at last. It was engine-only when the facility was built earlier the
-          // same day, for want of anywhere on this screen to put it.
-          { key: 'int-fac', label: L + 'interestFacilities', values: p.interestFacilities, sub: true, signed: true },
-          { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads, rule: true },
-          { key: 'op', label: L + 'operatingSurplus', values: p.operatingSurplus, strong: true, signed: true },
-          sub('int-in', 'interestReceived', p.interestIncomeBank),
-          sub('int-sh', 'shareholderInterest', p.interestIncomeShareholders),
-          sub('gain', 'gainOnSale', p.gainOnAssetSales),
+          { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.operatingOverheads, rule: true },
           sub('oi-1', 'otherIncome', p.otherIncomeGstInclusive),
           sub('oi-2', 'otherIncomeExempt', p.otherIncomeGstExempt),
-          { key: 'toi', label: L + 'totalOtherIncome', values: p.totalOtherIncome, rule: true, signed: true },
+          sub('gain', 'gainOnSale', p.gainOnAssetSales),
+          { key: 'op', label: L + 'operatingSurplus', values: p.operatingProfit, rule: true, strong: true, signed: true },
+          sub('int-in', 'interestReceived', p.interestIncomeBank),
+          sub('int-sh', 'shareholderInterest', p.interestIncomeShareholders),
+          { key: 'pbf', label: L + 'beforeFinancing', values: p.profitBeforeFinancingAndTax, rule: true, strong: true, signed: true },
+          sub('int-od', 'interestOverdraft', p.interestBankOverdraft),
+          sub('int-loan', 'interestTermLoans', p.interestTermLoans),
+          sub('int-fac', 'interestFacilities', p.interestFacilities)
+        ])
+        // Shown only when they carry a figure: most forecasts have neither.
+        .concat(this.hasAFigure(p.interestSuppliers) ? [sub('int-sup', 'interestSuppliers', p.interestSuppliers)] : [])
+        .concat(this.hasAFigure(p.interestOverdueTax)
+          ? [{ key: 'int-tax', label: 'report.threeWayForecast.assume.overheads.interestIrd', values: p.interestOverdueTax, sub: true, signed: true }]
+          : [])
+        .concat([
+          { key: 'fin', label: L + 'financingCosts', values: p.financingCosts, rule: true },
           { key: 'pbt', label: L + 'beforeTax', values: p.netSurplusBeforeTax, strong: true, signed: true },
           sub('tax', 'tax', p.taxProvision),
           { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, strong: true, signed: true }
@@ -1254,7 +1293,16 @@ export default {
     hiddenOverheadsFor (d) {
       if (!d || !this.isEvery) { return 0 }
       const oh = d.profitAndLoss.overheads
-      return Object.keys(oh).filter(k => !this.hasAFigure(oh[k])).length
+      return this.overheadKeysOf(d).filter(k => !this.hasAFigure(oh[k])).length
+    },
+
+    /**
+     * The overhead lines the profit tab lists. Interest on overdue tax is entered with the
+     * overheads but is a financing cost (IFRS 18.61), so it is shown in that section instead.
+     * @param {object} d one year's result. @returns {Array<string>}
+     */
+    overheadKeysOf (d) {
+      return Object.keys(d.profitAndLoss.overheads).filter(k => k !== 'interestIrd')
     },
 
     /**
@@ -1555,6 +1603,16 @@ tr.rule td { border-top: 2px solid var(--rs-line); font-weight: 600; }
    rather than beside it. Item 4.64. */
 tr.is-sub td { color: var(--rs-muted); }
 tr.is-sub td:first-child { padding-left: 22px; }
+/* An activity heading on the cash flow (item 44.2): a label spanning the row, no figures. */
+tr.is-section td {
+  background: var(--rs-panel-2);
+  border-top: 2px solid var(--rs-line);
+  color: var(--rs-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 td.neg { color: var(--rs-crit); }
 td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-weight: 600; }
 

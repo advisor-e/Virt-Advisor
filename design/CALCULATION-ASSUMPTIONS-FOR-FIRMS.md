@@ -12,7 +12,7 @@ it and tells every firm it is new).
 **How to publish it.** Mentor Hub → Compliance → publish an item. Paste the three parts below
 exactly. The Compliance tab shows the body as plain text, which is why it has no tables or bold.
 
-**Status:** wording approved by Mike 2026-09-30, as committed in `1248c251`. Published to firms: not yet — the mentor publishes it.
+**Status:** first version approved by Mike 2026-09-30 (`1248c251`). **Revised the same day** after item 44.2 was built — the interest and statement-layout paragraphs, and the differences list (six to four) — **awaiting his approval of the revision.** Published to firms: not yet — the mentor publishes it.
 
 ---
 
@@ -22,7 +22,7 @@ Three-Way Forecast — calculation assumptions and accounting standards
 
 ## SUMMARY
 
-How the Three-Way Forecast works out each figure, the accounting standard behind each treatment, and the six places it still differs from full NZ IFRS. For firm managers, and to share with a client's accountant or lender.
+How the Three-Way Forecast works out each figure, the accounting standard behind each treatment, and the four places it still differs from full NZ IFRS. For firm managers, and to share with a client's accountant or lender.
 
 ## BODY (paste everything between the two lines)
 
@@ -41,8 +41,8 @@ Nothing on this page is advice to a client.
 1. REVENUE AND DEBTORS
 - Local sales are recognised in the month entered, excluding GST, on the basis that the goods are delivered that month (IFRS 15.31, 38).
 - Imported stock sold locally is recognised in the month each part sells, at the price its age still commands (IFRS 15.31).
-- Overseas sales are recognised in the month invoiced; the cash is collected on its own profile, counted from delivery. See difference 6 below.
-- Customers pay on the collection profile entered — by default 10% in the month of sale, then 55%, 30% and 5% over the next three months. Every sale is assumed to be collected in full; see difference 3 below.
+- Overseas sales are recognised in the month invoiced; the cash is collected on its own profile, counted from delivery. See difference 4 below.
+- Customers pay on the collection profile entered — by default 10% in the month of sale, then 55%, 30% and 5% over the next three months. Every sale is assumed to be collected in full; see difference 1 below.
 - Debtors owed at the start are collected over the first four months, in the proportions of the same profile.
 - Other income entered as a yearly figure is spread evenly across the year.
 
@@ -58,7 +58,7 @@ Nothing on this page is advice to a client.
 - Every payment to an overseas supplier — deposit, balance and any interest — converts at that rate. Payments made before the goods land are the stock's cost, so no exchange gain or loss arises (IAS 21.21-23; IFRIC 22.8-9).
 - Overseas sales convert at their currency's rate and are collected in full at that rate.
 - A balance still owed on stock at sea when the forecast starts converts when the goods land; deposits already paid stay at what was paid.
-- Interest a supplier charges for waiting to be paid is an interest expense, not part of the stock's cost (IAS 2.18).
+- Interest a supplier charges for waiting to be paid is a financing cost, not part of the stock's cost (IAS 2.18).
 - What a change in exchange rates would do is shown, never charged: the forecast is run again with every rate on one side moved (by 10% by default), and the extra paid or the less received is shown beside it, with the lowest bank balance with and without the move (FRS-42 paras 51, 55, 58).
 
 4. FIXED ASSETS
@@ -73,12 +73,13 @@ Nothing on this page is advice to a client.
 - On the balance sheet, repayments due within the next 12 months show as a current liability, "Term loans due within 12 months", and the rest as non-current under each lender's name (IAS 1.69, 71).
 - Facilities — revolving trade, stock or invoice finance — are current liabilities, with interest on the balance and no scheduled repayment (IAS 1.69).
 - Overdraft interest, and interest earned on a credit balance, are worked on the opening bank balance each month.
+- Every interest charge — overdraft, term loans, facilities, a supplier's charge for waiting to be paid, and interest on overdue tax — is a financing cost, shown below the operating surplus (IFRS 18.60-61). Interest earned is shown between the two (IFRS 18.53-54).
 - Borrowing costs are always expensed. IAS 23 would add them to an asset that takes a substantial time to build; the forecast does not model one.
 
 6. INCOME TAX
 - Each month's profit before tax multiplied by the tax rate, 28% by default. A loss joins a pool that reduces the tax on later profits.
 - Taxable profit is taken to equal accounting profit: no non-deductible expenses and no separate tax depreciation.
-- No deferred tax is recognised; see difference 4 below.
+- No deferred tax is recognised; see difference 2 below.
 - Tax payments and refunds fall in the months entered.
 
 7. SHAREHOLDER CURRENT ACCOUNTS
@@ -95,17 +96,16 @@ Nothing on this page is advice to a client.
 - GST is never revenue or cost. Output tax less input tax is settled on the filing cycle and the invoice or payments basis chosen. GST on imported goods is charged when they land and claimed on the next return.
 
 10. HOW THE STATEMENTS ARE SET OUT
+- Profit and loss, as IFRS 18.69 requires: the operating surplus, before any interest; then the surplus before financing and tax; then the surplus before tax and after tax.
 - Balance sheet: current and non-current, with working capital.
-- Cash flow: receipts and payments shown gross — the direct method (IAS 7.18). See difference 1 below.
+- Cash flow: receipts and payments shown gross — the direct method (IAS 7.18) — grouped into operating, investing and financing activities, each with its own subtotal (IAS 7.10). Interest paid is financing and interest received is investing (IAS 7.31, 33); tax is operating (IAS 7.35).
 
 WHERE THIS FORECAST STILL DIFFERS FROM FULL NZ IFRS
-Six differences remain. Each is on our list to address; until then, bear them in mind when reading a forecast.
-1. Cash flow grouping (IAS 7.10). Cash flows are not grouped into operating, investing and financing activities.
-2. Interest (IFRS 18.60, for periods beginning on or after 1 January 2027). Interest sits inside operating overheads; from 2027 it belongs in a financing section below operating profit. Profit after tax is the same either way.
-3. Bad debts (IFRS 9 5.5.1, 5.5.15). No allowance is made for expected credit losses; every sale is assumed to be collected.
-4. Deferred tax (IAS 12.15, 24, 34). None is recognised, including no asset for tax losses carried forward.
-5. Leases (IFRS 16.22). Rent is expensed as paid. Under IFRS 16 most leases — other than short-term leases and leases of low-value assets (IFRS 16.5-6) — put a right-of-use asset and a lease liability on the balance sheet.
-6. Overseas revenue timing (IFRS 15.31, 38). Overseas sales are recognised in the month invoiced. That is right where control passes at shipment, as under FOB or CIF terms; where goods are sold delivered to the customer, the revenue belongs in the month of delivery.
+Four differences remain. Each is on our list to address; until then, bear them in mind when reading a forecast.
+1. Bad debts (IFRS 9 5.5.1, 5.5.15). No allowance is made for expected credit losses; every sale is assumed to be collected.
+2. Deferred tax (IAS 12.15, 24, 34). None is recognised, including no asset for tax losses carried forward.
+3. Leases (IFRS 16.22). Rent is expensed as paid. Under IFRS 16 most leases — other than short-term leases and leases of low-value assets (IFRS 16.5-6) — put a right-of-use asset and a lease liability on the balance sheet.
+4. Overseas revenue timing (IFRS 15.31, 38). Overseas sales are recognised in the month invoiced. That is right where control passes at shipment, as under FOB or CIF terms; where goods are sold delivered to the customer, the revenue belongs in the month of delivery.
 
 Reviewed September 2026. Every paragraph cited was checked against the published text of the standard.
 
