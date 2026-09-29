@@ -53,6 +53,11 @@ const SITES = [
   // the advisor is describing a real client in their own words. Routed that day (c8b012aa)
   // and registered only on 2026-09-29 (item 7.16), because a stale note here said it was not.
   { file: 'server/advisorEngine.js', personal: true, why: 'the advisor conversation about a real client' },
+  // Spoken words from a consented recording, under Meeting Review's privacy exception
+  // (CLAUDE.md): one concept segment for the topic summaries, the Alignment Statements
+  // segment for Wordsmith. Registered 2026-09-29.
+  { file: 'server/utils/conceptSummary.js', personal: true, why: 'one recorded concept segment of a consented meeting' },
+  { file: 'server/utils/wordsmith.js', personal: true, why: 'the recorded Alignment Statements segment' },
 
   // Not personal: page figures the mentor is already looking at, the user's own pasted
   // document, and document file names.
@@ -61,6 +66,11 @@ const SITES = [
   // A firm's own course profile and quiz answers; no client is involved (ruled 2026-09-15,
   // registered 2026-09-29, item 7.16).
   { file: 'server/courseEngine.js', personal: false, why: "a firm's own course profile and quiz answers" },
+  // The app's own screen labels, sent for translation.
+  { file: 'server/utils/uiTranslation.js', personal: false, why: "the app's own screen labels" },
+  // A marketing brief — topic, audience, objective, tone, call to action — about the firm's
+  // own marketing, not a client. Confirmed not personal by Mike, 2026-09-29.
+  { file: 'server/utils/salesBlogEngine.js', personal: false, why: "a marketing brief about the firm's own topics" },
   { file: 'server/utils/complianceCheck.js', personal: false, why: 'document file names' }
 ]
 
