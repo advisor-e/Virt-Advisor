@@ -9,23 +9,24 @@
 
 ---
 
-## 2026-09-29 · Laptop · branch `feat/advisor-progress`
+## 2026-09-29 (second session) · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed once this note's commit lands; 5 ahead of `master`, 0 behind.** Suite green:
-660 suites / 14,336 tests on Node 14.15, audit PASS.
+**Level with master (`ad9eb628`), nothing uncommitted. Suite green: 666 suites / 14,418 tests on
+Node 14.15, audit PASS.**
 
-**15.14 Wordsmith, proceed, in hand here.** Built today on Mike's rulings (Brief §9b): the
-five-step engine `server/utils/wordsmith.js` (no route, no screen), its definitions
-`data/wordsmith-statements.json` (mentor content, cascading on the standard rules), 69 tests, and
-the Wordsmith Lab (`node -r dotenv/config scripts/wordsmith-lab.js --ai`, report
-`design/WORDSMITH-LAB-REPORT.md`). **Mike stopped the tuning:** he declined hand-marked
-must-keep phrases as rules drawn from one sample, and the next step is HIS decision on what makes
-a good draft and who judges it. Do not tune the instructions against the Lab's style measures
-before then — they are ours and unproven. The drafting rule is the approved one.
+**15.14 Wordsmith: BUILT, MERGED (#142) AND CLOSED on Mike's word.** Everything he ruled is in
+`strategy-planner.md` §9b and on the two approved drawings (`wordsmith-style-settings.html`,
+`wordsmith-screens.html`). Engine, four-tier cascade (`server/utils/wordsmithContent.js`), hub tab
+at the end of "Your AI coach", panel above the Alignment Statements card. Walked in a built app.
+**Left to the desktop or UAT:** real database saving, and a live recording end to end into Wordsmith.
 
-**8.4 next:** screen 4 still needs Decisions D and F from Mike. **15.20:** untouched today, still in
-hand here.
+**Also today:** the server refuses a recording section whose concept label is not a real planner
+concept or framework (`openNextSegment`) — Wordsmith's privacy rule rests on that label. 13.7 filed
+(translation on every hub page, every level).
 
-**FOR THE DESKTOP:** 8.4's first build is on `master` (PR #139), so 15.13's two insertions can go.
-Shared files changed today: `strategy-planner.md` §9b, the to-do files, `CONTENT-ROUTING.md`
-(regenerated for the new data file).
+**FOR THE DESKTOP:** merge master at startup. Shared files changed today: `FirmManagerHub.vue`
+(Wordsmith tab appended to "Your AI coach"; `hubTabTiers`/`mentorHubScope` counts moved),
+`StrategyConceptCapture.vue` (new `fieldStamps` prop), `pages/strategy-planner.vue`,
+`meetingSegments.js`, `meetingAudioStore.js`, `locales/en.json`, `restify-server.js`.
+
+**Still in hand here, untouched today:** 15.20 and 8.4.
