@@ -54,8 +54,10 @@ describe('a country schedule\'s unread pages, worded on the screen', () => {
   })
 
   it('🔴 names one range, and several joined as a person writes them', () => {
+    // Plural by pages, not ranges — Mike, 2026-09-29. A range of eight pages is "pages".
     expect(scheduleUnreadSentence([{ from: 41, to: 48 }], 'IR265', $t, $tc)).toBe(
-      'Some of this schedule could not be read: page 41–48 of IR265 were not read, so a class printed there is missing from this list.')
+      'Some of this schedule could not be read: pages 41–48 of IR265 were not read, so a class printed there is missing from this list.')
+    expect(scheduleUnreadSentence([{ from: 54, to: 54 }], 'IR265', $t, $tc)).toContain('page 54 of IR265')
     expect(scheduleUnreadSentence([{ from: 41, to: 48 }, { from: 50, to: 50 }, { from: 52, to: 53 }], 'IR265', $t, $tc))
       .toContain('pages 41–48, 50 and 52–53 of IR265')
   })
