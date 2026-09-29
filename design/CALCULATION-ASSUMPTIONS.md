@@ -10,6 +10,10 @@ stated here, never hidden, until the code closes it.
 Australian (AASB) equivalents carry the same numbers. Every citation below was read from the
 published text on the date shown. Nothing here is advice to a client.
 
+**Firms read a plain-text version,** [`CALCULATION-ASSUMPTIONS-FOR-FIRMS.md`](CALCULATION-ASSUMPTIONS-FOR-FIRMS.md),
+published by the mentor as a Compliance item (item 44.1 Stage 2). A change to a treatment here
+changes that file in the same commit, and the mentor republishes it.
+
 Tax rules are kept in their own files and linked, not repeated:
 [`TAX-RULES-IMPORT-GST.md`](TAX-RULES-IMPORT-GST.md).
 
@@ -98,12 +102,9 @@ This section measures the forecast against full IFRS (NZ IFRS) because that is t
 a lender or accountant can bring to it; a ⚠ is therefore a *difference to disclose*, and only
 sometimes an error to fix.
 
-**Paragraphs read from the published text on 2026-09-30:** IAS 1.32; IAS 2.9, 21, 22, 34; IAS 7.10,
-18; IAS 12.15, 24, 34; IAS 16.50, 51, 55, 60-62, 68, 71; IFRS 15.31, 38; IFRS 16.5, 6, 22;
-IFRS 18.60. **Cited from the standard but NOT re-read that day**, because the published page was
-cut short before them: IAS 1.69 and 71 (current liabilities) and IFRS 9 5.4.1, 5.5.1 and 5.5.15
-(effective interest; expected credit losses). Confirm those two before this page is shown to an
-accountant.
+**Every paragraph cited in this section was read from the published text on 2026-09-30:** IAS 1.32,
+69, 71; IAS 2.9, 21, 22, 34; IAS 7.10, 18; IAS 12.15, 24, 34; IAS 16.50, 51, 55, 60-62, 68, 71;
+IFRS 9 4.2.1, 5.5.1, 5.5.15; IFRS 15.31, 38; IFRS 16.5, 6, 22; IFRS 18.60.
 
 ### 2.1 Revenue and debtors
 
@@ -139,7 +140,7 @@ accountant.
 
 | Assumption | Default | Treatment | Against the standards |
 |---|---|---|---|
-| Term loan interest | Rate per loan | On the opening balance each month; the repayment covers interest first, the rest reduces the loan. | ✅ Amortised cost at the loan's own rate (IFRS 9 5.4.1) where there are no fees. ℹ Arrangement fees are not modelled. |
+| Term loan interest | Rate per loan | On the opening balance each month; the repayment covers interest first, the rest reduces the loan. | ✅ Amortised cost at the loan's own rate (IFRS 9 4.2.1) where there are no fees. ℹ Arrangement fees are not modelled. |
 | Where term loans sit | — | What falls due within twelve months — each loan rolled forward on its own terms, with any lump sum the year names — is a current liability, *Term loans due within 12 months* (wording approved by Mike 2026-09-30); the rest stays non-current under the lender's name. | ✅ IAS 1.69, 71. **Fixed 2026-09-30**; until then the whole loan sat under non-current and working capital was overstated by the next year's repayments. Pinned by `threeWayForecastStandards.test.js`. |
 | Facilities | — | Current liabilities; interest on the balance; no scheduled repayment. | ✅ IAS 1.69 — repayable on demand. |
 | Overdraft and credit interest | 7% and 2% | On the opening bank balance each month. | ✅ |
@@ -197,7 +198,8 @@ accountant.
 - [IAS 12 *Income Taxes*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ias12.html)
 - [IAS 16 *Property, Plant and Equipment*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ias16.html)
 - [IAS 1 *Presentation of Financial Statements*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2024/issued/ias1.html)
-- [IFRS 9 *Financial Instruments*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2024/issued/ifrs9.html)
+- [NZ IFRS 9 *Financial Instruments*](https://standards.xrb.govt.nz/standards-navigator/nz-ifrs-9/)
+- [NZ IAS 1 *Presentation of Financial Statements*](https://standards.xrb.govt.nz/standards-navigator/nz-ias-1/), for paragraphs 69 and 71
 - [IFRS 15 *Revenue from Contracts with Customers*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ifrs15.html)
 - [IFRS 16 *Leases*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ifrs16.html)
 - [IFRS 18 *Presentation and Disclosure in Financial Statements*](https://www.ifrs.org/content/dam/ifrs/publications/html-standards/english/2025/issued/ifrs18.html)
