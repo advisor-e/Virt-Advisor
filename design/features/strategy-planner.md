@@ -1338,7 +1338,9 @@ each of the five above.
 
 ## 9. Adding a concept — approved to build, and what was measured before design
 
-**Item 15.20, asked for by Mike 2026-09-23 in his own words.** Nothing is built yet.
+**Item 15.20, asked for by Mike 2026-09-23 in his own words.** Built: the converter and the
+backend (storage and routes), described at the end of this section. Not built: the hub screens,
+imported pages in the planner, and answers printed inside their boxes.
 
 ✅ **THE DRAWING IS APPROVED TO BUILD FROM — [`add-concept.html`](../mockups/add-concept.html),
 Mike, 2026-09-23:** *"make a note now that i approve the drawing."* Asked as its own question
@@ -1356,7 +1358,7 @@ and name every difference.** A deliberate deviation is fine; an unrecorded one i
 **Today a concept costs five developer steps**: a row in `data/strategy-frameworks.json`, a
 hand-drawn SVG in `design/mockups/`, an entry in `DRAWINGS`, a generator run, and the count
 guards updated. Step two is drawing one of his deck pages by hand in code — about a day. All
-46 concepts were made that way and **no screen anywhere lets anyone add a 47th.**
+48 concepts were made that way and **no screen anywhere lets anyone add a 49th.**
 
 ### The five requirements, as he gave them
 
@@ -1482,13 +1484,47 @@ three binding:**
 ⚠ **A session proposing to read an uploaded PDF inside the Restify process, or with eval on, is
 re-opening this ruling.**
 
+### 🔴 RULED BY MIKE 2026-09-29 — THE KEPT PDFs LIVE IN THE DATABASE
+
+Question 4 ruled that the original PDF is kept; this rules **where**. **In the app's database, in
+one new table the master team adds with a migration script** — not in a folder on the server's
+disk, which the master team would have to create and back up. It is backed up with everything
+else and stays tied to the concept version it produced.
+
+⚠ **What it asks of the master team:** their MySQL must accept one write of up to 20 MB
+(`max_allowed_packet`), named in the migration's own header. ⚠ **Privacy, stated when ruled:** a
+firm's deck can carry client names and real case studies; it is kept until the concept is
+removed, and never reaches a model.
+
 ✅ **BUILT 2026-09-24 — the converter, slice 1.** `server/utils/pdfConvert.js` starts
 `server/utils/pdfConvertWorker.js` with an empty environment, a 256 MB ceiling, a 20-second kill
 and a 32 MB output cap; checks every reply; and cleans every page with `isomorphic-dompurify`
 plus a pass keeping only embedded pictures and fonts. The worker reads with eval off, drops a
 picture only when it lies wholly under the firm's mark (question 8), rewrites every `ns<N>:href`,
 and reads the page's own title. All 25 pages of Organisational Review convert in about 5 s.
-`tests/unit/pdfConvert.test.js` pins each condition. **No route, store or screen yet.**
+`tests/unit/pdfConvert.test.js` pins each condition.
+
+✅ **BUILT 2026-09-29 — storage and the routes, slice 2. No screen yet.**
+`server/utils/importedConcepts.js` keeps one versioned record per concept at the tier that added
+it (`imported-concept:<id>:record`) and lists, for any scope, every tier's concepts above it then
+its own — at once, no opt-in (question 5). Ids carry the tier (`im-m`, `im-x`, `im-g`, `im-f`) and
+are never reissued. The PDFs go to `strategy_concept_sources` through
+`server/utils/conceptSourceStore.js` (`config/db-migration-strategy-concept-sources.sql`, which
+names the 32M `max_allowed_packet` it needs). Routes, managers only, at all four tiers, in
+`server/routes/importedConcepts.js`:
+
+- `GET /api/firm-manager/strategy-concepts` — the list, each with the tier it came from.
+- `POST …/preview` — one PDF converted for steps 2 and 3; nothing stored.
+- `POST …` — the save: 1–5 teaching PDFs (10 pages at most in all), exactly one single-page
+  Response Form, 1–30 labelled boxes as fractions of that page. **The PDFs are converted again
+  on save — a drawing sent back by the browser is never stored.**
+- `POST …/remove` — a concept this tier added, with every PDF and every version of its record.
+  An inherited concept cannot be removed from below; replacing one has no screen and is not built.
+
+⚠ **One deliberate difference from the depreciation upload:** no mimetype filter. formidable
+drops a filtered part silently, so a save with one mislabelled teaching file would store a concept
+a page short; here any file that is not a PDF refuses the whole save. The caps of 5 files, 10
+pages and 30 boxes are ours, not rulings, and sit in `importedConcepts.js`.
 
 ## 9a. Editing a concept page's text — built 2026-09-25 (item 15.25)
 

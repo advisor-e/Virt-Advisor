@@ -134,6 +134,7 @@ const taxRatesRoute = require('./routes/taxRates')
 const sellDownRoute = require('./routes/forecastSellDown')
 const growthAspectsRoute = require('./routes/growthAspects')
 const wordsmithContentRoute = require('./routes/wordsmithContent')
+const importedConceptsRoute = require('./routes/importedConcepts')
 const benchmarkerRoute = require('./routes/benchmarker')
 const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
@@ -746,6 +747,15 @@ server.post('/api/firm-manager/wordsmith/style/use-inherited', ...fmGuard, words
 server.post('/api/firm-manager/wordsmith/style/keep-mine', ...fmGuard, wordsmithContentRoute.keepMineStyle)
 server.get('/api/firm-manager/wordsmith/history', ...fmGuard, wordsmithContentRoute.history)
 server.post('/api/firm-manager/wordsmith/restore', ...fmGuard, wordsmithContentRoute.restore)
+// Add Concept (item 15.20): a Strategy Planner concept built from a manager's own PDFs, at any
+// of the four manager tiers and inherited at once by every tier beneath. Preview and save parse
+// their own multipart bodies (formidable), so the JSON body limit above does not reach them. No
+// PDF is read in this process — conversion runs in pdfConvert's sealed worker — and none is sent
+// to a model. See server/routes/importedConcepts.js.
+server.get('/api/firm-manager/strategy-concepts', ...fmGuard, importedConceptsRoute.list)
+server.post('/api/firm-manager/strategy-concepts/preview', ...fmGuard, importedConceptsRoute.preview)
+server.post('/api/firm-manager/strategy-concepts', ...fmGuard, importedConceptsRoute.save)
+server.post('/api/firm-manager/strategy-concepts/remove', ...fmGuard, importedConceptsRoute.remove)
 // The instructions the AI is given when it builds a model, and the three settings a
 // manager may change on them (Mike, 2026-08-21). Same shape and same guard as the tax
 // rules above: one set of routes for every tier, scoped to `req.firmId` from the verified
