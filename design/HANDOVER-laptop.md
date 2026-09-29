@@ -9,23 +9,23 @@
 
 ---
 
-## 2026-09-29 · Laptop · branch `feat/advisor-progress`
+## 2026-09-29 (fourth session) · Laptop · branch `feat/advisor-progress`
 
-**Clean and pushed once this note's commit lands; 5 ahead of `master`, 0 behind.** Suite green:
-660 suites / 14,336 tests on Node 14.15, audit PASS.
+**9 ahead of master, 0 behind, nothing uncommitted. Suite green: 672 suites / 14,506 tests on
+Node 14.15, audit PASS.** Pushed to `f3ed4c3b`.
 
-**15.14 Wordsmith, proceed, in hand here.** Built today on Mike's rulings (Brief §9b): the
-five-step engine `server/utils/wordsmith.js` (no route, no screen), its definitions
-`data/wordsmith-statements.json` (mentor content, cascading on the standard rules), 69 tests, and
-the Wordsmith Lab (`node -r dotenv/config scripts/wordsmith-lab.js --ai`, report
-`design/WORDSMITH-LAB-REPORT.md`). **Mike stopped the tuning:** he declined hand-marked
-must-keep phrases as rules drawn from one sample, and the next step is HIS decision on what makes
-a good draft and who judges it. Do not tune the instructions against the Lab's style measures
-before then — they are ours and unproven. The drafting rule is the approved one.
+**15.20 Add Concept is DONE and closed on Mike's word** — see `to-do-done-and-parked.md`. Piece 4
+(the printed plan: imported teaching pages, answers inside the Response Form's boxes) and three
+faults found by Mike using it with his own Customer Journey deck: bold "?" printing as "2"
+(imported pages shared font names — `utils/importedPageFonts.js`), a refusal nobody could see,
+and screens with no instructions (his wording: `design/ADD-CONCEPT-INSTRUCTIONS.md`).
+**Left to the desktop or UAT:** a real database save of a concept (the migration and its 32M
+`max_allowed_packet`) and a recorded summary on an imported concept. 15.21 stays open.
 
-**8.4 next:** screen 4 still needs Decisions D and F from Mike. **15.20:** untouched today, still in
-hand here.
+**FOR THE DESKTOP:** merge master once this reaches it. Shared files changed today:
+`locales/en.json` (`strategyConcepts` wording), `pages/strategy-planner.vue` (plan items carry
+imported pages; a step with an imported concept teaches), `StrategyPlanDocument.vue`,
+`server/utils/importedConcepts.js` (`captureOf` sends the form page and box positions),
+`design/features/README.md` (one link in the Strategy Planner row).
 
-**FOR THE DESKTOP:** 8.4's first build is on `master` (PR #139), so 15.13's two insertions can go.
-Shared files changed today: `strategy-planner.md` §9b, the to-do files, `CONTENT-ROUTING.md`
-(regenerated for the new data file).
+**Still in hand here:** 8.4 (next: screen 4) and 8.6, designed alongside it.

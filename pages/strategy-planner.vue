@@ -431,6 +431,9 @@ const ORG_CHART_FORM = 'parent-child-list'
 /** A concept whose capture is a Report Model run inside the card (item 15.23). */
 const MODEL_FORM = 'report-model'
 
+/** A concept a manager imported from a PDF (item 15.20) — `IMPORTED_FORM` in importedConcepts.js. */
+const IMPORTED_FORM = 'imported'
+
 /**
  * How each hosted model reaches the client's plan: the backend route that computes it, the
  * request built from the client's saved record, and the table printed from the answer.
@@ -928,6 +931,18 @@ export default {
           key: visit.key,
           conceptId: visit.conceptId,
           orgChart: orgRoles,
+          // An imported concept prints its own pages: every teaching page, then its Response
+          // Form with each answer inside the box marked for it (item 15.20, question 7).
+          imported: capture.form === IMPORTED_FORM
+            ? {
+                teachingPages: capture.teachingPages || [],
+                responsePage: capture.responsePage || null,
+                boxes: (capture.fields || []).map(f => Object.assign({
+                  key: visit.conceptId + '::' + f.key,
+                  label: f.columnLabel
+                }, f.box))
+              }
+            : null,
           // A hosted model prints its own page from the client's record (item 15.23).
           model,
           modelPrint: model ? (this.modelPrints[visit.conceptId] || null) : null,
@@ -1144,7 +1159,7 @@ export default {
           // `teaches` says whether the step has anything to present before it is
           // worked. Without it a step of pure tables printed a Discussion divider and
           // then went straight to the tables, which reads as a missing page.
-          teaches: items.some(x => x.summary || x.prompts.length),
+          teaches: items.some(x => x.summary || x.prompts.length || x.imported),
           // And the mirror of it: a step made only of concepts admitted on their
           // drawing has nothing to work, so the Action divider would announce pages
           // that never come. Mike's ruling of 2026-09-20 made that state possible.

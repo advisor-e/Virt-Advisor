@@ -80,7 +80,8 @@
             //- page and must show it — which the deck-level test could not tell apart.
             //- A support-document row's pages count in ANOTHER document, so a number here
             //- would point at the wrong page of this panel's deck — a dash, Mike 2026-09-26.
-            td.ssm-pg {{ ['agenda', 'support-document'].includes(concept.source) ? '—' : (concept.lastPage ? concept.page + '–' + concept.lastPage : concept.page) }}
+            //- An imported concept (item 15.20) has no page in any of Mike's decks — a dash too.
+            td.ssm-pg {{ ['agenda', 'support-document', 'imported'].includes(concept.source) ? '—' : (concept.lastPage ? concept.page + '–' + concept.lastPage : concept.page) }}
 
             //- An agenda row is name-only (Decision B), so the name takes the three columns
             //- rather than leaving two empty cells that read as missing data.

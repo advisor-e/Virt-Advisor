@@ -511,7 +511,10 @@ describe('the hub menu — the sidebar itself', () => {
     //
     // ⚠ AND 25 LATER ON 2026-09-29: Wordsmith joined the END of "Your AI coach" (item 15.14 — all
     // four tiers in Mike's own words), at index 10 after Growth Aspect Questions, pinned below.
-    expect(tabLabels(wrapper)).toHaveLength(25)
+    //
+    // ⚠ AND 26 THAT EVENING: Strategy Concepts joined the END of "Your AI coach" (item 15.20 — the
+    // approved drawing), at index 11 after Wordsmith, pinned below.
+    expect(tabLabels(wrapper)).toHaveLength(26)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -521,6 +524,7 @@ describe('the hub menu — the sidebar itself', () => {
     expect(tabLabels(wrapper)[8]).toBe('firmManagerHub.tabs.clientCopyRequest')
     expect(tabLabels(wrapper)[9]).toBe('firmManagerHub.tabs.growthAspectQuestions')
     expect(tabLabels(wrapper)[10]).toBe('firmManagerHub.tabs.wordsmith')
+    expect(tabLabels(wrapper)[11]).toBe('firmManagerHub.tabs.strategyConcepts')
   })
 
   it('gives the mentor a Model Inputs heading holding only what it is entitled to', async () => {
@@ -645,7 +649,8 @@ describe('the hub menu — the sidebar itself', () => {
     // ⚠ AND 20 ON 2026-09-29: Depreciation Rates, Tax Rates and Property Tax Rules became
     // sections of one page, Tax & Forecast Rates (item 10.3). Three out, one in.
     // ⚠ AND 21 LATER ON 2026-09-29: Wordsmith, appended to the END of "Your AI coach" (item 15.14).
-    expect(tabLabels(wrapper)).toHaveLength(21)
+    // ⚠ AND 22 THAT EVENING: Strategy Concepts, appended after it (item 15.20).
+    expect(tabLabels(wrapper)).toHaveLength(22)
     expect(tabLabels(wrapper)).not.toContain('firmManagerHub.tabs.teamCaseStudies')
     expect(tabLabels(wrapper)).toContain('firmManagerHub.tabs.caseReviews')
   })

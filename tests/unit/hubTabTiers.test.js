@@ -185,8 +185,11 @@ const MENTOR_BEFORE = [
  *   this app, what is loaded into the mentor hub cascades down thru the layers to firm manager with
  *   the same adopt or decline rules", and "I want various level managers to feel as if they have
  *   some input into the shaping/improvement of the AI". ALL FOUR TIERS, on the standard rules.
+ * - `strategyConcepts` — item 15.20, on the approved drawing `design/mockups/add-concept.html`
+ *   (§1, and §8c approved by Mike 2026-09-29): a concept added at one level reaches every level
+ *   beneath at once, and each level may add its own. ALL FOUR TIERS.
  */
-const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates', 'wordsmith']
+const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm', 'meetingObservations', 'depreciationRates', 'taxRates', 'clientCopyRequests', 'compliance', 'outcomeConsent', 'sessionProcess', 'salesTeam', 'salesLists', 'modelChoices', 'currency', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates', 'wordsmith', 'strategyConcepts']
 
 /**
  * The same, for the MENTOR hub — which had nothing added to it between the baseline and
@@ -264,8 +267,10 @@ const FIRM_ADDED_SINCE = ['propertyTaxRules', 'aiPrompts', 'templateLibraryFirm'
 /*
  * - `wordsmith` — the same ruling as the firm's (Mike, 2026-09-29, item 15.14). The mentor is
  *   where the cascade starts: the shipped content is his, and every tier below inherits it.
+ * - `strategyConcepts` — the same drawing as the firm's (item 15.20). The mentor is where the
+ *   cascade starts: the 48 shipped concepts are his, and a concept he adds reaches every tier.
  */
-const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates', 'countrySchedules', 'wordsmith']
+const MENTOR_ADDED_SINCE = ['aiPrompts', 'templateLibrary', 'semanticProfiles', 'meetingObservations', 'trendThresholds', 'sellDownLadder', 'industryBenchmarks', 'depreciationRates', 'taxRates', 'compliance', 'outcomeLearning', 'sessionProcess', 'modelChoices', 'registerRetention', 'ownerFocusTasks', 'growthAspectQuestions', 'taxForecastRates', 'countrySchedules', 'wordsmith', 'strategyConcepts']
 
 describe('hub tab matrix — the live hubs are untouched', () => {
   it('the firm hub shows what it showed before the middle tiers existed, plus only what was ruled onto it', () => {
@@ -403,10 +408,13 @@ describe('hub tab matrix — the two new tiers', () => {
     //
     // ⚠ NINETEEN, 22 AND 18 SINCE 2026-09-29 (later): `wordsmith` (item 15.14) is on all four
     // tiers in Mike's own words. The reasoning is beside FIRM_ADDED_SINCE.
-    expect(conditional).toHaveLength(19)
+    //
+    // ⚠ TWENTY, 23 AND 19 SINCE 2026-09-29 (evening): `strategyConcepts` (item 15.20) is on all
+    // four tiers on the approved drawing. The reasoning is beside FIRM_ADDED_SINCE.
+    expect(conditional).toHaveLength(20)
     expect(unconditional).toHaveLength(6)
-    expect(unconditional.concat(conditional.filter(k => everyMenuKey.includes(k)))).toHaveLength(22)
-    expect(tabsAt('group')).toHaveLength(18)
+    expect(unconditional.concat(conditional.filter(k => everyMenuKey.includes(k)))).toHaveLength(23)
+    expect(tabsAt('group')).toHaveLength(19)
   })
 
   it('Tax & Forecast Rates shows each tier exactly the sections it saw as tabs', () => {

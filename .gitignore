@@ -292,3 +292,9 @@ data/dev-session-processes.json
 # reason as every sibling above. The shipped wording is data/growth-fundamentals.json.
 data/dev-growth-aspect-questions.json
 data/dev-wordsmith-content.json
+
+# Dev-only Add Concept stores (item 15.20): the imported concepts, and the ORIGINAL PDFs they
+# were built from. A firm's own deck can carry client names and case studies, so neither may
+# ever leave a developer's machine.
+data/dev-imported-concepts.json
+data/dev-concept-sources/

@@ -13,7 +13,7 @@ section.scc2
   //- 🔴 THE CONCEPT, SO IT CAN BE TAUGHT WITHOUT LEAVING THE SCREEN. Both lines are
   //- Mike's own, off the deck's Session Scope table. Always shown: a concept appears
   //- once, so there is no later visit for them to be held back from.
-  section.scc2-concept(v-if="conceptSummary || helpsClientTo || pageWords.length")
+  section.scc2-concept(v-if="conceptSummary || helpsClientTo || pageWords.length || importedPages.length")
     //- ⚠ NO HEADINGS. Removed on Mike's instruction, 2026-09-17 — "What this does
     //- in the room" was written by an AI session and he had never seen it.
     //- 🔴 THE DRAWING GOES ABOVE HIS WORDS, so the advisor speaks to it first. It
@@ -33,6 +33,19 @@ section.scc2
       :editable="editable"
       :agenda-items="agendaItems"
       @text-edited="relayTextEdit"
+    )
+    //- A concept a manager imported (item 15.20) teaches from its own converted pages, in the
+    //- app's frame with the advisor's firm mark — the drawing's §9: "an imported concept behaves
+    //- exactly like any other". Its text is not editable: there are no named blocks to edit.
+    imported-concept-page.scc2-imported(
+      v-for="(page, i) in importedPages"
+      :key="'imp' + i"
+      :svg="page.svg"
+      :width="page.width"
+      :height="page.height"
+      :firm-name="firmName"
+      :firm-colour="firmColour || '#0070c0'"
+      :firm-logo="firmLogo"
     )
     p.scc2-concept-text(v-if="conceptSummary") {{ conceptSummary }}
     p.scc2-concept-text(v-if="helpsClientTo") {{ helpsClientTo }}
@@ -231,6 +244,7 @@ section.scc2
  */
 import speechMixin from '~/mixins/speechMixin'
 import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic.vue'
+import ImportedConceptPage from '~/components/strategy/ImportedConceptPage.vue'
 import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import StrategyOrgChartBuilder from '~/components/strategy/StrategyOrgChartBuilder.vue'
 import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
@@ -267,7 +281,10 @@ const MODEL_SCREENS = {
  *   side would put his two tables back beside each other, which is the arrangement
  *   that caused the defect and is unreadable at phone width besides.
  */
-const STACKED_FORMS = ['named-field-stack', 'parallel-prompt-pair']
+// - `imported` — a concept a manager imported (item 15.20): its labelled boxes come down the page
+//   in the order they were drawn, which is the order the advisor is taken through them
+//   (design/mockups/add-concept.html §5b).
+const STACKED_FORMS = ['named-field-stack', 'parallel-prompt-pair', 'imported']
 
 /**
  * The most blocks that sit side by side: `.scc2-grid`'s 260px minimum column in a card
@@ -302,6 +319,7 @@ export default {
 
   components: {
     StrategyConceptGraphic,
+    ImportedConceptPage,
     StrategyCaptureBox,
     StrategyOrgChartBuilder,
     SpeechStatusLine,
@@ -493,7 +511,13 @@ export default {
      * @returns {boolean}
      */
     drawingTitlesItself () {
-      return conceptTitlesItself(this.conceptId)
+      // An imported page carries its own title — the concept's name was read from it.
+      return conceptTitlesItself(this.conceptId) || this.importedPages.length > 0
+    },
+
+    /** An imported concept's teaching pages, in teaching order; empty for every other. */
+    importedPages () {
+      return (this.capture && this.capture.teachingPages) || []
     },
 
     /**
