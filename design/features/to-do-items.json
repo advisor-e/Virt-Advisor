@@ -131,7 +131,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Adding a concept today is five developer steps, one of them hand-drawing a deck page in code - about a day. All 46 concepts were built that way, and no screen anywhere lets anyone add a 47th.",
+      "why": "Adding a concept today is five developer steps, one of them hand-drawing a deck page in code - about a day. All 48 concepts were built that way, and no screen anywhere lets anyone add a 49th.",
       "risk": "The planner can only ever teach what we drew for it: a firm holding its own material has no route in, and that content stays in a PDF the app cannot see. The counter-risk is fidelity - an imported page that does not look like the 35 drawn slides is visibly foreign to a client in session and in the printed plan, which is the one thing Mike ruled out.",
       "askedBy": {
         "who": "Mike",
@@ -202,7 +202,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Seven of the 46 concepts still teach and capture nothing: Sales Process Review, (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
+      "why": "Seven of the 48 concepts still teach and capture nothing: Sales Process Review, (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
       "risk": "An advisor running these topics has nowhere to record what the client said, so it does not reach the plan or the next session. Choosing a form for them is Mike's decision (census section 4), so nothing moves until he rules.",
       "askedBy": {
         "who": "Mike",
