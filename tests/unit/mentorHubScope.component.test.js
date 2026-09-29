@@ -53,6 +53,19 @@ function tabLabels (wrapper) {
 }
 
 /**
+ * Every request answered empty — except the Adviser Network's console, answered empty but
+ * complete, as the real `/api/people/firm` always is. A bare `{}` there made its panel throw on
+ * `c.advisers.length` 66 times a run, burying any real warning in the output.
+ * @returns {Function} a jest fetch stand-in
+ */
+function standInFetch () {
+  return jest.fn(url => Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve(String(url) === '/api/people/firm' ? { advisers: [], approvals: [], activity: [] } : {})
+  }))
+}
+
+/**
  * Mount the hub with every network call stubbed. The tab bodies each load themselves on
  * mount; none of that is what these tests are about, and letting the real loaders run
  * would make them fail for reasons unrelated to the tab list they guard.
@@ -61,7 +74,7 @@ function tabLabels (wrapper) {
  * @returns {object} the test-utils Wrapper.
  */
 async function mountHub (props) {
-  global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
+  global.fetch = standInFetch()
   const wrapper = mountWithBuefy(FirmManagerHub, {
     propsData: Object.assign({ firmId: 'firm-1', apiToken: 'test-token' }, props)
   })
@@ -495,7 +508,10 @@ describe('the hub menu — the sidebar itself', () => {
     // ⚠ AND 24 ON 2026-09-29: Depreciation Rates, Tax Rates and Property Tax Rules left the
     // menu as sections of ONE page, Tax & Forecast Rates, at the top of "Model Inputs" (item
     // 10.3 — Mike's ask, and his name for it). Three out, one in; "Your AI coach" is untouched.
-    expect(tabLabels(wrapper)).toHaveLength(24)
+    //
+    // ⚠ AND 25 LATER ON 2026-09-29: Wordsmith joined the END of "Your AI coach" (item 15.14 — all
+    // four tiers in Mike's own words), at index 10 after Growth Aspect Questions, pinned below.
+    expect(tabLabels(wrapper)).toHaveLength(25)
     // Appended, not inserted: nothing already on a manager's screen moved to make room.
     // Each addition is checked in place, because "appended" is only true of the LAST one
     // added unless every one before it is still where it was.
@@ -504,6 +520,7 @@ describe('the hub menu — the sidebar itself', () => {
     expect(tabLabels(wrapper)[7]).toBe('firmManagerHub.tabs.meetingReview')
     expect(tabLabels(wrapper)[8]).toBe('firmManagerHub.tabs.clientCopyRequest')
     expect(tabLabels(wrapper)[9]).toBe('firmManagerHub.tabs.growthAspectQuestions')
+    expect(tabLabels(wrapper)[10]).toBe('firmManagerHub.tabs.wordsmith')
   })
 
   it('gives the mentor a Model Inputs heading holding only what it is entitled to', async () => {
@@ -627,7 +644,8 @@ describe('the hub menu — the sidebar itself', () => {
     // (item 15.2), on all four tiers in Mike's own words.
     // ⚠ AND 20 ON 2026-09-29: Depreciation Rates, Tax Rates and Property Tax Rules became
     // sections of one page, Tax & Forecast Rates (item 10.3). Three out, one in.
-    expect(tabLabels(wrapper)).toHaveLength(20)
+    // ⚠ AND 21 LATER ON 2026-09-29: Wordsmith, appended to the END of "Your AI coach" (item 15.14).
+    expect(tabLabels(wrapper)).toHaveLength(21)
     expect(tabLabels(wrapper)).not.toContain('firmManagerHub.tabs.teamCaseStudies')
     expect(tabLabels(wrapper)).toContain('firmManagerHub.tabs.caseReviews')
   })
@@ -670,7 +688,7 @@ describe('/mentor page', () => {
   // The page is four lines of wiring, and every one of them is a way to ship a Mentor
   // Hub that silently renders the firm's screen instead.
   async function mountPage () {
-    global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }))
+    global.fetch = standInFetch()
     const wrapper = mountWithBuefy(MentorPage)
     await new Promise(resolve => setTimeout(resolve, 0))
     await wrapper.vm.$nextTick()

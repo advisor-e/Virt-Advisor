@@ -73,6 +73,7 @@ const MAX_LINES = 60
 const MAX_DRAFT_CHARS = 1500
 const MAX_WHY_CHARS = 800
 const MAX_TONE_WORDS = 3
+const MAX_ANSWER_CHARS = 300
 
 /**
  * American spellings a New Zealand reader notices at once. A list, not a dictionary: it names
@@ -127,14 +128,30 @@ const NUMBER_RE = new RegExp('\\d|\\b(' + NUMBER_WORDS + ')\\b|per ?cent|%', 'i'
  */
 function loadStatements (file) {
   const data = JSON.parse(fs.readFileSync(file || DATA_FILE, 'utf8'))
-  const statements = Array.isArray(data.statements) ? data.statements : []
-  const names = statements.map(s => s && s.name)
+  return checkStatements(Array.isArray(data.statements) ? data.statements : [])
+}
+
+/**
+ * The checks every set of statements passes before Wordsmith uses it — the shipped file and a
+ * manager's resolved version alike, so a cascade can never hand the engine what it would refuse.
+ *
+ * @param {Array<object>} statements
+ * @returns {Array<object>} the same array
+ * @throws {Error} naming the first statement that fails
+ */
+function checkStatements (statements) {
+  const list = Array.isArray(statements) ? statements : []
+  const names = list.map(s => s && s.name)
   if (names.join('|') !== STATEMENT_NAMES.join('|')) {
     throw new Error('wordsmith-statements.json must hold ' + STATEMENT_NAMES.join(', ') + ' in that order')
   }
-  statements.forEach((s) => {
+  list.forEach((s) => {
     if (!Array.isArray(s.definition) || !Array.isArray(s.elements) || !(s.maxWords > 0)) {
       throw new Error('Statement ' + s.name + ' needs definition, elements and maxWords')
+    }
+    // Step 1 tells the model what each statement is from its definition; with none, it sorts blind.
+    if (!s.definition.length || !s.definition.every(r => r && String(r.text || '').trim())) {
+      throw new Error('Statement ' + s.name + ' needs at least one definition row, each with text')
     }
     // The domain is how the statement is written (Being: a Vision sounds already achieved).
     // Drafted without it, a statement reads fine and follows the wrong rule.
@@ -142,7 +159,7 @@ function loadStatements (file) {
       throw new Error('Statement ' + s.name + ' needs a domain with its writing rule')
     }
   })
-  return statements
+  return list
 }
 
 /**
@@ -157,7 +174,19 @@ function loadStatements (file) {
  */
 function loadStyleSettings (file) {
   const data = JSON.parse(fs.readFileSync(file || DATA_FILE, 'utf8'))
-  const rows = Array.isArray(data.styleSettings) ? data.styleSettings : []
+  return styleGuideFrom(data.styleSettings)
+}
+
+/**
+ * `styleSettings` rows turned into the guide the draft reads, with `loadStyleSettings`'s checks —
+ * shared so a manager's resolved rows are refused on the same terms as the shipped file.
+ *
+ * @param {Array<{key: string, options: Array<{value: string, instruction: string}>}>} settingRows
+ * @returns {Object.<string, Object.<string, string>>}
+ * @throws {Error} when a setting or choice is missing, unknown, or has no instruction
+ */
+function styleGuideFrom (settingRows) {
+  const rows = Array.isArray(settingRows) ? settingRows : []
   const guide = {}
   rows.forEach((row) => {
     if (!row || !SETTINGS[row.key] || !Array.isArray(row.options)) {
@@ -536,7 +565,99 @@ function invalid (step, errors) {
 }
 
 /**
+ * The room's typed answers to one statement's questions, as quotes (Mike's Decision C,
+ * 2026-09-29: an answer counts as something the client said). An answer to a question the
+ * statement does not ask is dropped; one answer per question; invisible characters stripped.
+ * As quotes, a date answered here clears the date question and is not flagged as invented.
+ *
+ * @param {object} statement
+ * @param {Array<{elementId: string, text: string}>} answers - untrusted
+ * @param {Array<object>} quotes - the statement's sorted quotes, to place the answers after
+ * @returns {Array<object>} answer quotes, marked `room: true`
+ */
+function roomAnswerQuotes (statement, answers, quotes) {
+  const ids = statement.elements.map(e => e.id)
+  const seen = {}
+  const last = (quotes || []).length ? Number(quotes[quotes.length - 1].start) || 0 : 0
+  return (Array.isArray(answers) ? answers : []).filter((a) => {
+    if (!a || !ids.includes(a.elementId) || seen[a.elementId] || typeof a.text !== 'string') { return false }
+    seen[a.elementId] = true
+    return Boolean(stripInvisible(a.text).trim())
+  }).map(a => ({ line: null, text: stripInvisible(a.text).trim().slice(0, MAX_ANSWER_CHARS), start: last, role: 'client', room: true }))
+}
+
+/**
+ * A sort kept from an earlier run, checked before it stands in for step 1. The caller holds it
+ * in server memory; it never comes from a browser, which could otherwise supply "what the client
+ * said".
+ *
+ * @param {*} sorted
+ * @returns {Object.<string, Array<object>>}
+ * @throws {Error} WORDSMITH_INVALID
+ */
+function checkSorted (sorted) {
+  const ok = sorted && typeof sorted === 'object' && STATEMENT_NAMES.every(n => Array.isArray(sorted[n]) &&
+    sorted[n].every(q => q && typeof q.text === 'string' && q.role !== 'advisor' && !q.room))
+  if (!ok) { throw invalid('sort', ['the kept sort is not five lists of the client\'s own quotes']) }
+  return sorted
+}
+
+/**
+ * Step 2 to step 5 for one statement: its questions, its draft, one retry carrying the checks'
+ * failures. An unusable reply costs this statement its attempt, never another statement its
+ * draft; a retry that comes back unusable leaves the first attempt's draft standing.
+ *
+ * @param {object} opts
+ * @param {object} opts.statement
+ * @param {Array<object>} opts.quotes - the client's quotes, room answers included
+ * @param {string} opts.purpose
+ * @param {string} opts.style
+ * @param {object} opts.settings - from `validateStyle`
+ * @param {object} opts.styleSettings - the resolved style guide
+ * @param {object} opts.write - the drafting client
+ * @param {Array<string>} [opts.mustKeep]
+ * @returns {Promise<object>} the statement's entry: quotes, questions, draft, checks, attempts, error
+ */
+async function draftStatement (opts) {
+  const { statement, quotes } = opts
+  const gaps = gapsFor(statement, quotes)
+  const entry = { name: statement.name, quotes, empty: gaps.empty, questions: gaps.empty ? [] : gaps.questions, draft: null, checks: null, attempts: 0, error: null }
+  if (gaps.empty) { return entry }
+
+  const allowed = gaps.modelElements.map(e => e.id)
+  const ctx = { quotes, maxWords: statement.maxWords, mustKeep: opts.mustKeep }
+  const moderated = quotes.map(q => q.text).concat([String(opts.purpose || ''), String(opts.style || '')])
+  let retryIssues = null
+  while (entry.attempts < 2) {
+    entry.attempts += 1
+    const messages = buildDraftMessages({ statement, quotes, purpose: opts.purpose, style: opts.style, settings: opts.settings, styleSettings: opts.styleSettings, modelElements: gaps.modelElements, retryIssues })
+    const checked = validateDraft(await callModel(opts.write, ROLE_WRITE, 'draft', messages, moderated, null), allowed)
+    if (!checked.valid) {
+      if (entry.draft) { break }
+      retryIssues = checked.errors
+      continue
+    }
+    entry.draft = checked.draft
+    entry.checks = checkDraft(checked.draft.text, ctx)
+    if (entry.checks.passed) { break }
+    retryIssues = entry.checks.issues.map(i => i.code + ': ' + i.detail)
+  }
+  if (!entry.draft) {
+    entry.error = invalid('draft', retryIssues).message
+    return entry
+  }
+  gaps.modelElements.filter(e => entry.draft.missing.includes(e.id)).forEach((e) => {
+    entry.questions.push({ elementId: e.id, label: e.label, question: e.question })
+  })
+  return entry
+}
+
+/**
  * Run all five steps for one purpose and style.
+ *
+ * A rewrite skips what it can keep: `settings` (Mike's Decision B, the advisor's corrected
+ * settings) skips step 3, and `sorted` (an earlier run's sort, held by the server) skips step 1.
+ * Both come from the server, never straight from a browser.
  *
  * @param {object} args
  * @param {string} args.conceptId - must be the Alignment Statements concept
@@ -546,11 +667,16 @@ function invalid (step, errors) {
  * @param {string} args.style - how they should sound (untrusted)
  * @param {Array<object>} [args.statements] - the resolved statements; the shipped file if absent
  * @param {object} [args.styleSettings] - the resolved `loadStyleSettings` guide; the shipped file if absent
+ * @param {object} [args.settings] - settings to write with, instead of reading them from the style
+ * @param {Object.<string, Array<object>>} [args.sorted] - an earlier run's sort, instead of step 1
+ * @param {Array<string>} [args.only] - the statements to draft; all five if absent
+ * @param {Object.<string, Array<{elementId: string, text: string}>>} [args.roomAnswers] - per statement (Decision C)
  * @param {Object.<string, Array<string>>} [args.mustKeep] - per statement, phrases a draft must keep (the Lab)
  * @param {{read: object, write: object}} [args.clients] - injected clients (tests)
- * @returns {Promise<object>} settings, and per statement its quotes, questions, draft and checks —
- *   or `error` when both drafting attempts were unusable
- * @throws {Error} WORDSMITH_NOT_ALLOWED, or WORDSMITH_INVALID when the sort or style reply is unusable
+ * @returns {Promise<object>} settings, the sort, and per statement its quotes, questions, draft and
+ *   checks — or `error` when both drafting attempts were unusable
+ * @throws {Error} WORDSMITH_NOT_ALLOWED, or WORDSMITH_INVALID when the sort, the style or the
+ *   given settings are unusable
  */
 async function run (args) {
   assertAllowed(args)
@@ -562,57 +688,49 @@ async function run (args) {
   const spoken = segments.map(s => String((s && s.text) || ''))
   const typed = [String(args.purpose || ''), String(args.style || '')]
 
-  const sort = validateSort(await callModel(read, ROLE_READ, 'sort',
-    buildSortMessages({ segments, statements }), spoken, 0), segments)
-  if (!sort.valid) { throw invalid('sort', sort.errors) }
+  let sorted
+  let rejected = 0
+  if (args.sorted) {
+    sorted = checkSorted(args.sorted)
+  } else {
+    const sort = validateSort(await callModel(read, ROLE_READ, 'sort',
+      buildSortMessages({ segments, statements }), spoken, 0), segments)
+    if (!sort.valid) { throw invalid('sort', sort.errors) }
+    sorted = sort.sorted
+    rejected = sort.rejected
+  }
 
-  const style = validateStyle(await callModel(read, ROLE_READ, 'style',
-    buildStyleMessages({ purpose: args.purpose, style: args.style }), typed, 0))
+  const style = args.settings
+    ? validateStyle(args.settings)
+    : validateStyle(await callModel(read, ROLE_READ, 'style',
+      buildStyleMessages({ purpose: args.purpose, style: args.style }), typed, 0))
   if (!style.valid) { throw invalid('style', style.errors) }
 
+  const only = Array.isArray(args.only) && args.only.length ? args.only : null
   const results = []
   for (const statement of statements) {
-    const quotes = sort.sorted[statement.name]
-    const gaps = gapsFor(statement, quotes)
-    const entry = { name: statement.name, quotes, empty: gaps.empty, questions: gaps.questions, draft: null, checks: null, attempts: 0, error: null }
-    if (gaps.empty) { results.push(entry); continue }
-
-    const allowed = gaps.modelElements.map(e => e.id)
-    const ctx = { quotes, maxWords: statement.maxWords, mustKeep: args.mustKeep && args.mustKeep[statement.name] }
-    // An unusable reply costs this statement its attempt, never the other four their drafts; a
-    // retry that comes back unusable leaves the first attempt's draft standing.
-    let retryIssues = null
-    while (entry.attempts < 2) {
-      entry.attempts += 1
-      const messages = buildDraftMessages({ statement, quotes, purpose: args.purpose, style: args.style, settings: style.settings, styleSettings, modelElements: gaps.modelElements, retryIssues })
-      const checked = validateDraft(await callModel(write, ROLE_WRITE, 'draft', messages, spoken.concat(typed), null), allowed)
-      if (!checked.valid) {
-        if (entry.draft) { break }
-        retryIssues = checked.errors
-        continue
-      }
-      entry.draft = checked.draft
-      entry.checks = checkDraft(checked.draft.text, ctx)
-      if (entry.checks.passed) { break }
-      retryIssues = entry.checks.issues.map(i => i.code + ': ' + i.detail)
-    }
-    if (!entry.draft) {
-      entry.error = invalid('draft', retryIssues).message
-      results.push(entry)
-      continue
-    }
-    gaps.modelElements.filter(e => entry.draft.missing.includes(e.id)).forEach((e) => {
-      entry.questions.push({ elementId: e.id, label: e.label, question: e.question })
-    })
-    results.push(entry)
+    if (only && !only.includes(statement.name)) { continue }
+    const answers = args.roomAnswers && args.roomAnswers[statement.name]
+    const quotes = sorted[statement.name].concat(roomAnswerQuotes(statement, answers, sorted[statement.name]))
+    results.push(await draftStatement({
+      statement,
+      quotes,
+      purpose: args.purpose,
+      style: args.style,
+      settings: style.settings,
+      styleSettings,
+      write,
+      mustKeep: args.mustKeep && args.mustKeep[statement.name]
+    }))
   }
 
   return {
     generatedAt: new Date().toISOString(),
     settings: style.settings,
-    rejectedQuotes: sort.rejected,
+    sorted,
+    rejectedQuotes: rejected,
     // Original | AI Suggestion | Final Approved Value: each draft is the AI's; the edit and the
-    // approval are recorded beside it when the screen is built (CLAUDE.md).
+    // approval are recorded beside it by the route that puts the wording in its box (CLAUDE.md).
     statements: results
   }
 }
@@ -622,7 +740,9 @@ module.exports = {
   ALIGNMENT_CONCEPT_ID,
   SETTINGS,
   loadStatements,
+  checkStatements,
   loadStyleSettings,
+  styleGuideFrom,
   assertAllowed,
   buildSortMessages,
   validateSort,
@@ -632,5 +752,7 @@ module.exports = {
   buildDraftMessages,
   validateDraft,
   checkDraft,
+  roomAnswerQuotes,
+  draftStatement,
   run
 }

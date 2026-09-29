@@ -133,6 +133,7 @@ const countrySchedulesRoute = require('./routes/countrySchedules')
 const taxRatesRoute = require('./routes/taxRates')
 const sellDownRoute = require('./routes/forecastSellDown')
 const growthAspectsRoute = require('./routes/growthAspects')
+const wordsmithContentRoute = require('./routes/wordsmithContent')
 const benchmarkerRoute = require('./routes/benchmarker')
 const aiPromptsRoute = require('./routes/aiPrompts')
 const promptCheckRoute = require('./routes/promptCheck')
@@ -143,6 +144,7 @@ const aiReadinessRoute = require('./routes/aiReadiness')
 const meetingObservationsRoute = require('./routes/meetingObservations')
 const meetingReviewRoute = require('./routes/meetingReview')
 const meetingSegmentsRoute = require('./routes/meetingSegments')
+const wordsmithRoute = require('./routes/wordsmith')
 const registerRetentionRoute = require('./routes/registerRetentionRoutes')
 const clientCopyRequestsRoute = require('./routes/clientCopyRequests')
 const complianceRoute = require('./routes/compliance')
@@ -726,6 +728,24 @@ server.post('/api/firm-manager/growth-aspects/description/use-inherited', ...fmG
 server.post('/api/firm-manager/growth-aspects/description/keep-mine', ...fmGuard, growthAspectsRoute.keepMineDescription)
 server.get('/api/firm-manager/growth-aspects/history', ...fmGuard, growthAspectsRoute.history)
 server.post('/api/firm-manager/growth-aspects/restore', ...fmGuard, growthAspectsRoute.restore)
+// What Wordsmith knows (item 15.14): definitions, writing rules, questions for the room, word
+// limits and style wording, cascading through all four manager tiers on the standard rules.
+// Same guard and shape as the Growth Aspects above; advisors never read these — the planner's
+// Wordsmith route resolves the content for them on the server.
+server.get('/api/firm-manager/wordsmith', ...fmGuard, wordsmithContentRoute.getForManager)
+server.post('/api/firm-manager/wordsmith/rows', ...fmGuard, wordsmithContentRoute.addRow)
+server.put('/api/firm-manager/wordsmith/rows', ...fmGuard, wordsmithContentRoute.editRow)
+server.post('/api/firm-manager/wordsmith/rows/off', ...fmGuard, wordsmithContentRoute.setRowOff)
+server.post('/api/firm-manager/wordsmith/rows/use-inherited', ...fmGuard, wordsmithContentRoute.useInheritedRow)
+server.post('/api/firm-manager/wordsmith/rows/keep-mine', ...fmGuard, wordsmithContentRoute.keepMineRow)
+server.put('/api/firm-manager/wordsmith/value', ...fmGuard, wordsmithContentRoute.editValue)
+server.post('/api/firm-manager/wordsmith/value/use-inherited', ...fmGuard, wordsmithContentRoute.useInheritedValue)
+server.post('/api/firm-manager/wordsmith/value/keep-mine', ...fmGuard, wordsmithContentRoute.keepMineValue)
+server.put('/api/firm-manager/wordsmith/style', ...fmGuard, wordsmithContentRoute.editStyle)
+server.post('/api/firm-manager/wordsmith/style/use-inherited', ...fmGuard, wordsmithContentRoute.useInheritedStyle)
+server.post('/api/firm-manager/wordsmith/style/keep-mine', ...fmGuard, wordsmithContentRoute.keepMineStyle)
+server.get('/api/firm-manager/wordsmith/history', ...fmGuard, wordsmithContentRoute.history)
+server.post('/api/firm-manager/wordsmith/restore', ...fmGuard, wordsmithContentRoute.restore)
 // The instructions the AI is given when it builds a model, and the three settings a
 // manager may change on them (Mike, 2026-08-21). Same shape and same guard as the tax
 // rules above: one set of routes for every tier, scoped to `req.firmId` from the verified
@@ -898,6 +918,13 @@ server.get('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, m
 server.put('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.saveSegmentSummary)
 server.post('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.regenerateSegmentSummary)
 server.post('/api/meeting/recordings/:meetingId/segments/:n/summary/approve', firmAuth, meetingSegmentsRoute.approveSegmentSummary)
+// Wordsmith (item 15.14): the five Alignment Statements written from that section's recorded
+// words, started and polled; "Use this wording" needs the client's agreement and writes the
+// record before the box. Advisor-scoped exactly as the summary routes above.
+server.post('/api/meeting/recordings/:meetingId/wordsmith', firmAuth, wordsmithRoute.startRun)
+server.get('/api/meeting/recordings/:meetingId/wordsmith/:runId', firmAuth, wordsmithRoute.getRun)
+server.post('/api/meeting/recordings/:meetingId/wordsmith/:runId/statements', firmAuth, wordsmithRoute.rewriteStatement)
+server.post('/api/meeting/recordings/:meetingId/wordsmith/:runId/use', firmAuth, wordsmithRoute.useWording)
 
 // Slice 3 — the two reports. `firmAuth` only, like the recording routes above: each of these
 // guards on the ADVISOR as well as the firm inside `ownedMeeting`, because Brief P2 gives a

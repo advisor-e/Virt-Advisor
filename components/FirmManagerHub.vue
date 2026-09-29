@@ -268,6 +268,8 @@ section.firm-manager-hub.section
       //- 2026-09-27 and 2026-09-28. All four tiers, stated in TAB_TIERS.
       div.hub-panel(v-if="showsTab('growthAspectQuestions')" v-show="activeTab === 'growthAspectQuestions'")
         firm-growth-aspect-questions(:api-token="apiToken")
+      div.hub-panel(v-if="showsTab('wordsmith')" v-show="activeTab === 'wordsmith'")
+        firm-wordsmith(:api-token="apiToken")
 
       //- Client Copy Request — a client asks for a copy of what was recorded about them
       //- (Mike, 2026-09-10). IPP6 access and IPP7 correction: finding B of
@@ -1022,6 +1024,7 @@ import FirmForecastTrendThresholds from '~/components/firm/FirmForecastTrendThre
 import FirmBenchmarker from '~/components/firm/FirmBenchmarker.vue'
 import FirmSellDownLadder from '~/components/firm/FirmSellDownLadder.vue'
 import FirmGrowthAspectQuestions from '~/components/firm/FirmGrowthAspectQuestions.vue'
+import FirmWordsmith from '~/components/firm/FirmWordsmith.vue'
 import FirmDepreciationRates from '~/components/firm/FirmDepreciationRates.vue'
 // Item 4.92 — a COUNTRY's whole published schedule, loaded once for a whole group.
 import CountryRateSchedules from '~/components/firm/CountryRateSchedules.vue'
@@ -1482,6 +1485,12 @@ const TAB_TIERS = {
   // levels BELOW them", on the standard cascade rules. Item 15.2, screen 3b.
   growthAspectQuestions: ['mentor', 'global', 'group', 'firm'],
 
+  // ALL FOUR MANAGER TIERS, in Mike's own words (2026-09-29): "as for every other section in this
+  // app, what is loaded into the mentor hub cascades down thru the layers to firm manager with the
+  // same adopt or decline rules", and "I want various level managers to feel as if they have some
+  // input into the shaping/improvement of the AI". Item 15.14, screens 6 and 7.
+  wordsmith: ['mentor', 'global', 'group', 'firm'],
+
   // 🔴 ALL FOUR MANAGER TIERS, NAMED BY MIKE HIMSELF (2026-09-10): "i want these compliance
   // pages to show in the mentor, global manager, group manager and firm manager hubs - again,
   // cascading so that if I as a mentor, gets new information, I can share it downwards but they
@@ -1623,7 +1632,10 @@ const NAV_GROUPS = [
       { key: 'clientCopyRequests', i18n: 'firmManagerHub.tabs.clientCopyRequest' },
       // Item 15.2. The drawing places it beside AI Prompts and Template Library, which is this
       // group; appended at its end, as every line above was. All four tiers; see TAB_TIERS.
-      { key: 'growthAspectQuestions', i18n: 'firmManagerHub.tabs.growthAspectQuestions' }
+      { key: 'growthAspectQuestions', i18n: 'firmManagerHub.tabs.growthAspectQuestions' },
+      // Item 15.14. The approved drawing places it at the end of this group, after Growth Aspect
+      // Questions; appended, as every line above was. All four tiers; see TAB_TIERS.
+      { key: 'wordsmith', i18n: 'firmManagerHub.tabs.wordsmith' }
     ]
   },
   {
@@ -1794,7 +1806,7 @@ export default {
 
   // Both sides of the 2026-09-10 merge: the desktop's FirmBenchmarker and this machine's
   // FirmCompliance. Neither replaces the other.
-  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmGrowthAspectQuestions, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmOwnerFocusTasks, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmRegisterRetention, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
+  components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmGrowthAspectQuestions, FirmWordsmith, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmOwnerFocusTasks, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmRegisterRetention, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
 
   mixins: [traceReasonMixin, moderationMessage],
 
