@@ -580,17 +580,22 @@ describe('Three-Way Forecast screen — the levers', () => {
     w.destroy()
   })
 
-  test('the debtor profile still totals 100% after the lever moves', async () => {
-    const w = await mountWithResult(SAMPLE, { seed: { debtorCollection: [0.1, 0.55, 0.3, 0.05, 0] } })
-    for (const after of [0, 25, 55, 90, 100]) {
-      w.vm.setField('debtorMonthAfter', after)
-      const buckets = w.vm.payload().years[0].debtorCollection
-      const total = buckets.reduce((a, v) => a + v, 0)
-      expect(total).toBeCloseTo(1, 9)
-      expect(buckets[1]).toBeCloseTo(after / 100, 9)
-      buckets.forEach(v => expect(v).toBeGreaterThanOrEqual(0))
+  test('🔴 the debtor profile keeps its own total after the lever moves — a short one keeps its bad debt (44.3)', async () => {
+    // Found walking the screen 2026-10-01: the lever stretched a 95% profile back to 100%, so
+    // the bad debt step 3 had just promised never reached the forecast.
+    const profiles = [[0.1, 0.55, 0.3, 0.05, 0], [0.1, 0.55, 0.25, 0.05, 0]]
+    for (const profile of profiles) {
+      const own = profile.reduce((a, v) => a + v, 0)
+      const w = await mountWithResult(SAMPLE, { seed: { debtorCollection: profile } })
+      for (const after of [0, 25, 55, 90]) {
+        w.vm.setField('debtorMonthAfter', after)
+        const buckets = w.vm.payload().years[0].debtorCollection
+        expect(buckets.reduce((a, v) => a + v, 0)).toBeCloseTo(own, 9)
+        expect(buckets[1]).toBeCloseTo(after / 100, 9)
+        buckets.forEach(v => expect(v).toBeGreaterThanOrEqual(0))
+      }
+      w.destroy()
     }
-    w.destroy()
   })
 
   test('it posts to the calculation route', async () => {

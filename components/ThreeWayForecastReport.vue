@@ -1574,12 +1574,14 @@ export default {
         base.overheads = scaled
       }
       base.markup = this.f.markup / 100
-      // The remaining buckets keep their share, so the profile still totals 100%.
+      // The remaining buckets keep their share, and the profile keeps its OWN total: a profile
+      // the advisor left short is a bad debt (item 44.3). Stretching it back to 100% here would
+      // quietly erase the charge step 3 had just promised — found walking the screen 2026-10-01.
       const after = this.f.debtorMonthAfter / 100
       const current = Array.isArray(base.debtorCollection) ? base.debtorCollection.slice() : [0.1, 0.55, 0.3, 0.05, 0]
       const others = [current[0], current[2], current[3], current[4]]
       const othersTotal = others.reduce((a, v) => a + v, 0)
-      const room = Math.max(0, 1 - after)
+      const room = Math.max(0, othersTotal + current[1] - after)
       base.debtorCollection = othersTotal === 0
         ? [room, after, 0, 0, 0]
         : [current[0], after, current[2], current[3], current[4]].map((v, i) => (i === 1 ? after : v * (room / othersTotal)))
