@@ -329,7 +329,7 @@
       },
       "touches": "server/report/threeWayForecastModel.js (bad debt from the collection shortfall, a deferred-tax balance, a right-of-use asset and lease liability, revenue when control passes); ThreeWayForecastIntake.vue's collection blocks and build check; the Notes page; design/CALCULATION-ASSUMPTIONS.md §2.1, §2.5 and §2.7; debtorDragModel.js as the precedent.",
       "note": "BAD DEBTS, AS MIKE RULED 2026-09-30: the shortfall in a collection profile IS the bad debt, domestic and overseas alike - charged as an expense, taken off debtors, explained in the notes - as Debtor Drag's 'Written off (never paid)' works. Step 3 explains a short profile rather than refusing it. TODAY: domestic profiles must total 100% or the build is refused; overseas ones only warn, and their shortfall sits in debtors for ever with no expense. The other three facts are their own slices. Every default leaves today's forecast unchanged.",
-      "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it. MIKE'S RULINGS 2026-09-30: NO to making the overseas profiles total 100% - \"that doesnt reflect trading reality\"; YES to the shortfall-is-the-bad-debt design above."
+      "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it. MIKE'S RULINGS 2026-09-30: NO to making the overseas profiles total 100% - \"that doesnt reflect trading reality\"; YES to the shortfall-is-the-bad-debt design above. MIKE'S CALL 2026-09-30: PROCEED - next forecast work, the bad-debt slice first as designed."
     },
     {
       "ref": "15.31",
