@@ -266,7 +266,11 @@
       },
       "touches": "server/utils/conceptSummary.js composeMeetingSummary (actions always empty, ~line 302); server/utils/meetingFollowThrough.js findPrevious (~lines 98-109); server/routes/meetingReview.js runReports. These sit beside 8.4's files, which are the laptop's.",
       "note": "FOUND 2026-09-29. Not a regression - so since the segmented recording was built. FOR THE LAPTOP, ruled by Mike 2026-09-29: design it there alongside 8.4, whose files it shares; the desktop leaves its code untouched. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
-      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+      "comment": "2026-09-29 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-30"
+      }
     },
     {
       "ref": "7.17",
@@ -312,7 +316,7 @@
     },
     {
       "ref": "44.3",
-      "name": "The forecast needs four facts: bad debts, deferred tax, leases, shipping terms",
+      "name": "The forecast needs three facts: deferred tax, leases, shipping terms",
       "rankedByMike": false,
       "kind": "defect",
       "score": 3,
@@ -320,16 +324,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Four of 44.1's departures need facts the forecast never asks for: every debt is collected, no deferred tax is carried, rent is expensed, and overseas revenue is booked at invoice whatever the shipping terms.",
-      "risk": "Each makes a forecast differ from full IFRS without saying which way or by how much. The right figure depends on the client - expected bad debts, tax against accounting depreciation, lease terms, incoterms - so guessing a default would be worse than asking.",
+      "why": "Three of 44.1's departures need facts the forecast never asks for: no deferred tax is carried, rent is expensed, and overseas revenue is booked at invoice whatever the shipping terms.",
+      "risk": "Each makes a forecast differ from full IFRS without saying which way or by how much. The right figure depends on the client - tax against accounting depreciation, lease terms, incoterms - so guessing a default would be worse than asking.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-30 - from 44.1's review, under the same instruction as 44.2. Filed rather than built because each needs a new input on the forecast's screens, and those need wording and a drawing he approves."
       },
-      "touches": "server/report/threeWayForecastModel.js (bad debt from the collection shortfall, a deferred-tax balance, a right-of-use asset and lease liability, revenue when control passes); ThreeWayForecastIntake.vue's collection blocks and build check; the Notes page; design/CALCULATION-ASSUMPTIONS.md §2.1, §2.5 and §2.7; debtorDragModel.js as the precedent.",
-      "note": "BAD DEBTS, AS MIKE RULED 2026-09-30: the shortfall in a collection profile IS the bad debt, domestic and overseas alike - charged as an expense, taken off debtors, explained in the notes - as Debtor Drag's 'Written off (never paid)' works. Step 3 explains a short profile rather than refusing it. TODAY: domestic profiles must total 100% or the build is refused; overseas ones only warn, and their shortfall sits in debtors for ever with no expense. The other three facts are their own slices. Every default leaves today's forecast unchanged.",
-      "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it. MIKE'S RULINGS 2026-09-30: NO to making the overseas profiles total 100% - \"that doesnt reflect trading reality\"; YES to the shortfall-is-the-bad-debt design above. MIKE'S CALL 2026-09-30: PROCEED - next forecast work, the bad-debt slice first as designed."
+      "touches": "server/report/threeWayForecastModel.js (a deferred-tax balance, a right-of-use asset and lease liability, revenue when control passes); ThreeWayForecastIntake.vue; the Notes page; design/CALCULATION-ASSUMPTIONS.md §2.1, §2.5 and §2.7.",
+      "note": "BAD DEBTS BUILT 2026-10-01 (9efbf064, 1b8d26d2): a collection profile's shortfall is charged as a bad debt, local and overseas, with the P&L line, step 3 and the Notes in Mike's approved wording (design/THREE-WAY-FORECAST-BAD-DEBT-WORDING.md); overseas profiles over 100% now refused. Not yet seen in a running browser. REMAINING, each its own slice needing a new input, so a drawing and wording Mike approves first: deferred tax (§2.5), leases (§2.7), overseas shipping terms (§2.1). Every default leaves today's forecast unchanged.",
+      "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it. MIKE'S RULING 2026-09-30: NO to making the overseas profiles total 100% - \"that doesnt reflect trading reality\". MIKE'S CALL 2026-10-01: PROCEED - bad debts done; deferred tax, leases and shipping terms remain."
     },
     {
       "ref": "15.31",

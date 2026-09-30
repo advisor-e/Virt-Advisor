@@ -43,10 +43,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 6 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 7 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 8 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 9 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 9 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-30 |
 | 10 | **7.17** Remove the three never-used options from the engine's briefing builder ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 11 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 12 | **44.3** The forecast needs four facts: bad debts, deferred tax, leases, shipping terms ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 12 | **44.3** The forecast needs three facts: deferred tax, leases, shipping terms ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 13 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
 | 14 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
