@@ -258,11 +258,22 @@
               type="button"
               @click="detail = d") {{ $t('report.threeWayForecast.report.detail.' + d) }}
         .tw-group.tw-tabbody(v-if="tab === 'notes'")
+          //- The advisor's own words for the notes. On screen only: this whole card is
+          //- hidden in print, where the notes carry what was typed here.
+          .tw-notesfields
+            p.tw-notesfields-h {{ $t(NF + 'heading') }}
+            b-field(
+              v-for="k in noteFieldKeys" :key="k"
+              :label="$t(NF + k)"
+              :message="$t(NF + k + 'Hint')")
+              b-input(v-model="notesFields[k]" :maxlength="200" :has-counter="false")
           three-way-forecast-notes(
             v-if="notesData"
             :notes="notesData"
             :year-count="yearCount"
-            :currency="firmCurrency")
+            :currency="firmCurrency"
+            :client-name="clientName"
+            :fields="notesFields")
         .tw-group.tw-tabbody(v-else)
           .tw-tblwrap
             table
@@ -329,7 +340,9 @@
             three-way-forecast-notes(
               :notes="notesData"
               :year-count="yearCount"
-              :currency="firmCurrency")
+              :currency="firmCurrency"
+              :client-name="clientName"
+              :fields="notesFields")
             p.tw-note.tw-printcaution {{ $t('report.threeWayForecast.report.caution') }}
 
       .tw-card
@@ -410,10 +423,14 @@ export default {
   props: {
     /** The confirmed inputs from the intake, or null to compute on the sample. */
     seed: { type: Object, default: null },
-    // No `client` prop: the only thing that read it was the duplicate header removed on
-    // 2026-09-05. The page holds the client's name and puts it on the header it owns.
     /**
-     * What a saved report puts back on this screen — `{ levers, detail }` (item 4.62,
+     * The client's name, for the Notes alone — their general assumptions and compilation
+     * report name the business. The page still owns the header, which is where the name
+     * is shown; the duplicate header this screen once drew stays gone (2026-09-05).
+     */
+    clientName: { type: String, default: '' },
+    /**
+     * What a saved report puts back on this screen — `{ levers, detail, notesFields }` (item 4.62,
      * Brief §5). The page saves, because the header is the page's; this screen reports
      * its own settings upward and takes a loaded pair back.
      */
@@ -455,7 +472,14 @@ export default {
       // report's levers take the place of the ones worked out from the seed.
       f: this.restore && this.restore.levers
         ? Object.assign(this.leversFor(this.seed), this.restore.levers)
-        : this.leversFor(this.seed)
+        : this.leversFor(this.seed),
+      /**
+       * The Notes' three advisor fields (item 44.1, revised drawing approved 2026-09-30).
+       * The purpose starts as the workbook's own; a saved report's fields replace all three.
+       */
+      notesFields: this.notesFieldsFrom(this.restore && this.restore.notesFields),
+      NF: 'report.threeWayForecast.notes.fields.',
+      noteFieldKeys: ['purpose', 'salesBasis', 'preparedBy']
     }
   },
 
@@ -477,7 +501,7 @@ export default {
      */
     notesData () {
       const y = this.result && Array.isArray(this.result.years) ? this.result.years[0] : null
-      return y && y.notes ? y.notes : null
+      return y && y.notes ? Object.assign({}, y.notes, { laterYears: this.result.laterYears || [] }) : null
     },
 
     /** The two settings, in the order they are drawn. */
@@ -939,6 +963,7 @@ export default {
       }
     },
     detail () { this.emitState() },
+    notesFields: { deep: true, handler () { this.emitState() } },
     /**
      * A new intake replaces the levers as well as the figures. Without this the two
      * absolute levers — mark-up and the month-after collection — would keep their opening
@@ -962,6 +987,7 @@ export default {
       if (!next) { return }
       if (next.levers) { this.f = Object.assign({}, this.f, next.levers) }
       if (next.detail) { this.detail = next.detail }
+      if (next.notesFields) { this.notesFields = this.notesFieldsFrom(next.notesFields) }
     }
   },
 
@@ -977,8 +1003,29 @@ export default {
      * @returns {void}
      */
     emitState () {
-      // state-change: { levers: {salesShift, markup, debtorMonthAfter, overheadShift}, detail }
-      this.$emit('state-change', { levers: Object.assign({}, this.f), detail: this.detail })
+      // state-change: { levers: {salesShift, markup, debtorMonthAfter, overheadShift}, detail,
+      //   notesFields: {purpose, salesBasis, preparedBy} }
+      this.$emit('state-change', {
+        levers: Object.assign({}, this.f),
+        detail: this.detail,
+        notesFields: Object.assign({}, this.notesFields)
+      })
+    },
+
+    /**
+     * The Notes' three fields from a saved set, or the defaults: the workbook's purpose and
+     * two blanks. A saved purpose left empty stays empty — the advisor chose to leave it out.
+     * @param {object|null} saved
+     * @returns {{purpose: string, salesBasis: string, preparedBy: string}}
+     */
+    notesFieldsFrom (saved) {
+      const s = saved || {}
+      const str = v => (typeof v === 'string' ? v : null)
+      return {
+        purpose: str(s.purpose) !== null ? s.purpose : this.$t('report.threeWayForecast.notes.fields.purposeDefault'),
+        salesBasis: str(s.salesBasis) || '',
+        preparedBy: str(s.preparedBy) || ''
+      }
     },
 
     /**
@@ -1618,6 +1665,14 @@ export default {
 }
 .tw-tabs button.on { background: var(--rs-card-bg); color: var(--rs-ink); }
 .tw-tabbody { border-top: 1px solid var(--rs-line); }
+.tw-notesfields {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--rs-line);
+  border-radius: 6px;
+  background: var(--rs-panel-2);
+}
+.tw-notesfields-h { margin: 0 0 8px; font-weight: 600; }
 
 /* Twelve months never fit a narrow screen: the table scrolls inside its own box so the
    page body never scrolls sideways. */

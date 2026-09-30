@@ -36,12 +36,13 @@ report-shell
     @step="step = $event"
     @state="onIntakeState"
     @confirmed="onConfirmed")
-  //- No `client` here: the header above is the only place the name is shown, and it is
-  //- this page's. The report component stopped rendering a second header on 2026-09-05.
+  //- The header above is the only place the name is SHOWN, and it is this page's. The
+  //- report takes it for the Notes alone, which name the business in their assumptions.
   three-way-forecast-report(
     v-else-if="step === 4"
     :seed="liveInputs"
     :restore="loadedReport"
+    :client-name="companyName || savedReport.clientName"
     :client-changes="clientChanges"
     @state-change="onReportState"
     @change-assumptions="goTo(3)"
@@ -145,7 +146,9 @@ export default {
       liveInputs: null,
       levers: null,
       detail: 'summary',
-      /** `{ levers, detail }` handed to the report after a saved row loads. */
+      /** The Notes' three advisor fields, as the report last reported them. */
+      notesFields: null,
+      /** `{ levers, detail, notesFields }` handed to the report after a saved row loads. */
       loadedReport: null,
       /**
        * Bumped when a saved row loads, so the intake is rebuilt and re-reads `restore`.
@@ -299,12 +302,13 @@ export default {
     },
 
     /**
-     * The report reported its two settings (on show, and on every change).
-     * @param {{levers: object, detail: string}} state
+     * The report reported its settings (on show, and on every change).
+     * @param {{levers: object, detail: string, notesFields: object}} state
      */
     onReportState (state) {
       this.levers = state.levers
       this.detail = state.detail
+      this.notesFields = state.notesFields || null
     },
 
     /**
@@ -314,7 +318,7 @@ export default {
      */
     reportInputs () {
       const state = this.liveState || (this.confirmed && this.confirmed.state)
-      return flattenForecast(state || {}, this.levers, this.detail)
+      return flattenForecast(state || {}, this.levers, this.detail, this.notesFields)
     },
 
     /**
@@ -331,7 +335,9 @@ export default {
       this.liveState = next.form
       this.levers = next.levers
       this.detail = next.detail
-      this.loadedReport = { levers: next.levers, detail: next.detail }
+      // A row saved before the Notes' fields existed carries none; the report keeps its own.
+      if (next.notesFields) { this.notesFields = next.notesFields }
+      this.loadedReport = { levers: next.levers, detail: next.detail, notesFields: next.notesFields }
       // Rebuilding the intake is what makes the loaded form reach the screen, and its
       // first report back is what re-seeds the forecast — so nothing here computes a
       // payload the intake is the only thing that knows how to build.
@@ -343,6 +349,7 @@ export default {
       this.confirmed = null
       this.liveState = null
       this.loadedReport = null
+      this.notesFields = null
       this.intakeKey += 1
       // A client has no upload step to go back to.
       this.step = this.savedReport.mode === 'client' ? 2 : 1

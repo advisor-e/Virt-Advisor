@@ -108,4 +108,34 @@ function forecastNotes (I, startIso) {
   return { facts, assumptions }
 }
 
-module.exports = { forecastNotes, sellsBelowCost }
+/**
+ * Note 2's "Later years" (drawing revised and approved 2026-09-30): each later year's change
+ * on the year before, read from the figures each year actually ran on. Quick-fire's "Sales
+ * growth" and "Overheads increase" are the model's inflation-like inputs; the step 4 sliders
+ * scale a year too; a year left alone repeats the one before. Reading the result covers all
+ * three, so the note can never say "no inflation" of a forecast that grows.
+ *
+ * @param {Array<object>} years each year's model result, in order
+ * @returns {Array<{year: number, salesChange: number|null, overheadsChange: number|null, markup: number, same: boolean}>}
+ *   a change is null where the year before had nothing to grow from
+ */
+function laterYearChanges (years) {
+  const out = []
+  for (let i = 1; i < years.length; i++) {
+    const a = years[i].notes.assumptions
+    const b = years[i - 1].notes.assumptions
+    const change = function (now, before) { return before ? Math.round((now / before - 1) * 10000) / 10000 : null }
+    const salesChange = change(a.salesTotal, b.salesTotal)
+    const overheadsChange = change(a.overheadsTotal, b.overheadsTotal)
+    out.push({
+      year: i + 1,
+      salesChange,
+      overheadsChange,
+      markup: a.markup,
+      same: !salesChange && !overheadsChange && a.markup === b.markup
+    })
+  }
+  return out
+}
+
+module.exports = { forecastNotes, sellsBelowCost, laterYearChanges }

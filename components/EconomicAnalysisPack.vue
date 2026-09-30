@@ -29,17 +29,24 @@ section.eap(v-if="show")
         :entered-label="badgeLabel"
         :ai-label="badgeLabel"
         size="sm")
-    p.eap-p(
-      v-for="(para, pi) in paragraphsOf(s.body)"
-      :key="pi"
-      :class="{ 'is-heading': para.heading }")
-      //- No anchor and no `v-html`: a printed citation cannot be clicked, so the source
-      //- name is what a reader needs beside the figure. That leaves nothing on this
-      //- component carrying a URL the model wrote.
-      template(v-for="(tok, ti) in para.tokens")
-        b(v-if="tok.t === 'bold'" :key="ti") {{ tok.s }}
-        span.eap-cite(v-else-if="tok.t === 'link'" :key="ti") {{ tok.s }}
-        span(v-else :key="ti") {{ tok.s }}
+    //- No anchor and no `v-html`: a printed citation cannot be clicked, so the source name
+    //- is what a reader needs beside the figure (`print` below). That leaves nothing on
+    //- this component carrying a URL the model wrote.
+    template(v-for="(para, pi) in paragraphsOf(s.body)")
+      table.eap-table(v-if="para.table" :key="pi")
+        thead
+          tr
+            th(v-for="(cell, ci) in para.table.head" :key="ci")
+              research-tokens(:tokens="cell" :print="true")
+        tbody
+          tr(v-for="(row, ri) in para.table.rows" :key="ri")
+            td(v-for="(cell, ci) in row" :key="ci")
+              research-tokens(:tokens="cell" :print="true")
+      component.eap-list(v-else-if="para.list" :is="para.ordered ? 'ol' : 'ul'" :key="pi")
+        li(v-for="(item, li) in para.list" :key="li")
+          research-tokens(:tokens="item" :print="true")
+      p.eap-p(v-else :key="pi" :class="{ 'is-heading': para.heading }")
+        research-tokens(:tokens="para.tokens" :print="true")
 
   //- ── Every source, in full, as text a reader can type back in ──────────────
   .eap-sources(v-if="sources.length")
@@ -59,6 +66,7 @@ section.eap(v-if="show")
 
 <script>
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import ResearchTokens from '~/components/base/ResearchTokens.vue'
 const { paragraphsOf } = require('~/utils/researchText')
 const { intlLocaleFor } = require('~/utils/dateLocale')
 
@@ -99,7 +107,7 @@ const { intlLocaleFor } = require('~/utils/dateLocale')
 export default {
   name: 'EconomicAnalysisPack',
 
-  components: { ProvenanceBadge },
+  components: { ProvenanceBadge, ResearchTokens },
 
   props: {
     /**
@@ -246,8 +254,14 @@ export default {
 
   .eap-p { font-size: 12px; line-height: 1.55; margin: 0 0 9px; }
   .eap-p.is-heading { font-size: 14px; font-weight: 700; margin: 14px 0 7px; }
-  /* A citation is the source's NAME on paper — there is nothing to click. */
-  .eap-cite { font-size: 11px; }
+  .eap-list { font-size: 12px; line-height: 1.5; margin: 0 0 9px; padding-left: 20px; }
+  ul.eap-list { list-style: disc; }
+  ol.eap-list { list-style: decimal; }
+  .eap-list li { margin-bottom: 4px; }
+  .eap-table { width: 100%; border-collapse: collapse; font-size: 10.5px; line-height: 1.45; margin: 0 0 10px; }
+  .eap-table th, .eap-table td { padding: 4px 6px; border-bottom: 1px solid #999; text-align: left; vertical-align: top; }
+  .eap-table th { font-weight: 700; border-bottom: 1.5px solid #000; }
+  .eap-table tr { break-inside: avoid; }
 
   /* §5 keeps its warning ground. A lender who reads what could not be found believes
      what was. `print-color-adjust` so the border survives a browser's ink-saving. */

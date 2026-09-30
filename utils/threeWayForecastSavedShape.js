@@ -67,6 +67,8 @@ const CURRENCY_ROWS = 3
 const MAX_FORECAST_YEARS = 3
 /** The quick-fire grid's three percentages, each saved as one list of three years. */
 const QUICK_FIRE_FIELDS = ['salesGrowth', 'grossMargin', 'overheadsIncrease']
+/** The Notes' three advisor fields (item 44.1), each free text of at most MAX_NAME. */
+const NOTES_FIELDS = ['purpose', 'salesBasis', 'preparedBy']
 /** A currency choice: an ISO code, or empty for the firm's own. */
 const isCurrencyCode = v => typeof v === 'string' && (v === '' || /^[A-Z]{3}$/.test(v))
 
@@ -137,9 +139,10 @@ function flattenTagged (block) {
  * @param {object} form - the intake's confirmed state (`confirmed.state`)
  * @param {object} levers - the report's four levers `{ salesShift, markup, debtorMonthAfter, overheadShift }`
  * @param {string} detail - 'summary' or 'every'
- * @returns {object} the flat row — 97 named values, no nesting
+ * @param {object} [notesFields] - the Notes' three advisor fields `{ purpose, salesBasis, preparedBy }`
+ * @returns {object} the flat row — 97 named values plus the levers and the Notes' three, no nesting
  */
-function flattenForecast (form, levers, detail) {
+function flattenForecast (form, levers, detail, notesFields) {
   const f = form || {}
   const o = f.overseas || {}
   const sd = o.sellDown || {}
@@ -294,6 +297,12 @@ function flattenForecast (form, levers, detail) {
     row['lever.markup'] = num(lv.markup)
     row['lever.debtorMonthAfter'] = num(lv.debtorMonthAfter)
     row['lever.overheadShift'] = num(lv.overheadShift)
+  }
+  // The Notes' words (item 44.1). Omitted when the report has not reported them, for the
+  // levers' reason: absent means "the defaults", and an empty purpose written for a report
+  // never opened would reload as a purpose the advisor deleted.
+  if (notesFields) {
+    NOTES_FIELDS.forEach((k) => { row['notes.' + k] = String(notesFields[k] || '').slice(0, MAX_NAME) })
   }
   return row
 }
@@ -459,7 +468,16 @@ function applySavedForecast (form, levers, inputs) {
   const detail = oneOf(row.detail, DETAIL_MODES, null)
   if (detail) { take('detail', true) }
 
-  return { form: f, levers: lv, detail: detail || 'summary', applied }
+  // All three or none, like every other block: a row saved before the fields existed has
+  // none, and the report keeps its defaults.
+  let notesFields = null
+  if (NOTES_FIELDS.every(k => isShortString(row['notes.' + k]))) {
+    notesFields = {}
+    NOTES_FIELDS.forEach((k) => { notesFields[k] = row['notes.' + k] })
+    take('notesFields', true)
+  }
+
+  return { form: f, levers: lv, detail: detail || 'summary', notesFields, applied }
 }
 
 /**

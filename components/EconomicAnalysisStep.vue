@@ -97,16 +97,22 @@
           //- document and the easiest to skim past. A lender who reads what could not be
           //- found believes what was.
           .doc-section(v-for="s in research.sections" :key="s.n" :class="{ 'is-gaps': s.n === 5 }")
-            p.doc-p(v-for="(para, pi) in paragraphsOf(s.body)" :key="pi" :class="{ 'is-heading': para.heading }")
-              template(v-for="(tok, ti) in para.tokens")
-                b(v-if="tok.t === 'bold'" :key="ti") {{ tok.s }}
-                a.cite(
-                  v-else-if="tok.t === 'link'"
-                  :key="ti"
-                  :href="tok.url"
-                  target="_blank"
-                  rel="noopener noreferrer") {{ tok.s }}
-                span(v-else :key="ti") {{ tok.s }}
+            template(v-for="(para, pi) in paragraphsOf(s.body)")
+              .doc-tablewrap(v-if="para.table" :key="pi")
+                table.doc-table
+                  thead
+                    tr
+                      th(v-for="(cell, ci) in para.table.head" :key="ci")
+                        research-tokens(:tokens="cell")
+                  tbody
+                    tr(v-for="(row, ri) in para.table.rows" :key="ri")
+                      td(v-for="(cell, ci) in row" :key="ci")
+                        research-tokens(:tokens="cell")
+              component.doc-list(v-else-if="para.list" :is="para.ordered ? 'ol' : 'ul'" :key="pi")
+                li(v-for="(item, li) in para.list" :key="li")
+                  research-tokens(:tokens="item")
+              p.doc-p(v-else :key="pi" :class="{ 'is-heading': para.heading }")
+                research-tokens(:tokens="para.tokens")
 
         .srcs(v-if="research.sources.length")
           .sh {{ $tc('report.threeWayForecast.economicAnalysis.sourceCount', research.sources.length, { count: research.sources.length }) }}
@@ -142,6 +148,7 @@
 
 <script>
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import ResearchTokens from '~/components/base/ResearchTokens.vue'
 import moderationMessage from '~/mixins/moderationMessage'
 const { paragraphsOf, tokensOf, hostOf } = require('~/utils/researchText')
 const { intlLocaleFor } = require('~/utils/dateLocale')
@@ -200,7 +207,7 @@ function localDateValue (d) {
 export default {
   name: 'EconomicAnalysisStep',
 
-  components: { ProvenanceBadge },
+  components: { ProvenanceBadge, ResearchTokens },
 
   mixins: [moderationMessage],
 
@@ -647,7 +654,14 @@ export default {
 }
 .doc-p { font-size: 13.5px; line-height: 1.68; color: var(--rs-ink); margin: 0 0 11px; max-width: 78ch; }
 .doc-p.is-heading { font-size: 15px; font-weight: 700; margin: 18px 0 8px; }
-.cite { color: var(--rs-accent); font-size: 12px; text-underline-offset: 2px; }
+.doc-list { font-size: 13.5px; line-height: 1.6; color: var(--rs-ink); margin: 0 0 11px; padding-left: 22px; max-width: 78ch; }
+ul.doc-list { list-style: disc; }
+ol.doc-list { list-style: decimal; }
+.doc-list li { margin-bottom: 5px; }
+.doc-tablewrap { overflow-x: auto; margin: 0 0 12px; }
+.doc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 1.5; color: var(--rs-ink); }
+.doc-table th, .doc-table td { padding: 6px 8px; border-bottom: 1px solid var(--rs-line); text-align: left; vertical-align: top; }
+.doc-table th { font-weight: 700; border-bottom-width: 2px; }
 
 .srcs { padding: 0 18px 16px; }
 .sh {

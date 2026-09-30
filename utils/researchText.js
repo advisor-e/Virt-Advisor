@@ -16,7 +16,8 @@
  * printed one.
  *
  * ⚠ DELIBERATELY NOT A MARKDOWN RENDERER. It understands `**bold**` and `[text](url)`,
- * treats a `#`-prefixed line as a heading, and passes everything else through as text.
+ * treats a `#`-prefixed line as a heading, groups bullet, numbered and `|` table lines into
+ * lists and tables, and passes everything else through as text.
  * Anything it does not recognise appears literally, which is the safe direction to fail
  * for text a model wrote. Nothing here emits HTML, so neither caller needs `v-html` and
  * there is nothing to sanitise — a `[label](javascript:…)` in model output is a label and
@@ -66,21 +67,80 @@ function tokensOf (text) {
   return tokens
 }
 
+/** A bullet line (`- ` or `* `), and a numbered one (`1. `). */
+const BULLET = /^[-*]\s+/
+const NUMBERED = /^\d+[.)]\s+/
+/** A table row: starts with a pipe. Its divider row is pipes, dashes, colons and spaces only. */
+const TABLE_ROW = /^\|/
+const TABLE_DIVIDER = /^\|[\s:|-]+\|?$/
+
+/** What one line of a block is, so a block that mixes them is split where they change. */
+function kindOf (line) {
+  if (HEADING.test(line)) { return 'heading' }
+  if (TABLE_ROW.test(line)) { return 'table' }
+  if (BULLET.test(line)) { return 'bullet' }
+  if (NUMBERED.test(line)) { return 'numbered' }
+  return 'text'
+}
+
+/** One table row's cells, each as tokens. @param {string} line @returns {Array<Array<object>>} */
+function cellsOf (line) {
+  return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => tokensOf(c.trim()))
+}
+
 /**
- * Splits one section's body into paragraphs of plain tokens.
+ * A run of table lines into a head row and body rows. The divider row is dropped; a table
+ * the model wrote without one has its first row as the head all the same.
+ * @param {Array<string>} lines @returns {{head: Array, rows: Array}}
+ */
+function tableOf (lines) {
+  const rows = lines.filter(l => !TABLE_DIVIDER.test(l.trim())).map(cellsOf)
+  return { head: rows[0] || [], rows: rows.slice(1) }
+}
+
+/**
+ * Splits one section's body into blocks of plain tokens: a paragraph or heading
+ * (`{ heading, tokens }`), a list (`list` — one token run per item, `ordered` for a
+ * numbered one), or a table (`table` — `{ head, rows }`, each cell a token run). A
+ * paragraph keeps exactly the shape it always had; lists and tables were printed as one
+ * run-on paragraph of pipes and dashes before 2026-09-30.
  *
  * @param {string} body - one section of the validated research
- * @returns {Array<{heading: boolean, tokens: Array<{t: string, s: string, url: string}>}>}
+ * @returns {Array<{heading: boolean, tokens: Array<{t: string, s: string, url: string}>, list?: Array, ordered?: boolean, table?: object}>}
  */
 function paragraphsOf (body) {
   const blocks = String(body || '').split(/\n{2,}/)
   const out = []
   for (const block of blocks) {
-    const raw = block.trim()
-    if (!raw) { continue }
-    const heading = HEADING.test(raw)
-    const text = heading ? raw.replace(/^#{1,6}\s*/, '') : raw
-    out.push({ heading, tokens: tokensOf(text.split('\n').join(' ')) })
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean)
+    let i = 0
+    while (i < lines.length) {
+      const kind = kindOf(lines[i])
+      if (kind === 'heading') {
+        out.push({ heading: true, tokens: tokensOf(lines[i].replace(/^#{1,6}\s*/, '')) })
+        i++
+        continue
+      }
+      // Consecutive lines of the same kind form one block. A list item's own wrapped
+      // continuation line (plain text) stays with its item.
+      const run = [lines[i]]
+      i++
+      while (i < lines.length) {
+        const next = kindOf(lines[i])
+        if (next === kind) { run.push(lines[i]) } else if (next === 'text' && (kind === 'bullet' || kind === 'numbered')) {
+          run[run.length - 1] += ' ' + lines[i]
+        } else { break }
+        i++
+      }
+      if (kind === 'table') {
+        out.push({ heading: false, tokens: [], table: tableOf(run) })
+      } else if (kind === 'bullet' || kind === 'numbered') {
+        const marker = kind === 'bullet' ? BULLET : NUMBERED
+        out.push({ heading: false, tokens: [], ordered: kind === 'numbered', list: run.map(l => tokensOf(l.replace(marker, ''))) })
+      } else {
+        out.push({ heading: false, tokens: tokensOf(run.join(' ')) })
+      }
+    }
   }
   return out
 }

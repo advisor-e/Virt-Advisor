@@ -5,6 +5,15 @@
 
   h3.twn-note {{ $t(N + 'note1') }}
   p {{ $t(N + 'basis.intro') }}
+  template(v-if="purpose")
+    h4 {{ $t(W + 'purposeHeading') }}
+    p {{ $t(W + 'purpose', { purpose }) }}
+  h4 {{ $t(W + 'assumptionsHeading') }}
+  p {{ $t(W + 'assumptions') }}
+  h4 {{ $t(W + 'policiesHeading') }}
+  p {{ $t(W + 'policies') }}
+  p {{ $t(W + 'measurement') }}
+  p {{ $t(W + 'noPolicyChange') }}
   h4 {{ $t(N + 'basis.forecastHeading') }}
   p {{ $t(N + 'basis.forecastBody') }}
   h4 {{ $t(N + 'basis.standardsHeading') }}
@@ -14,6 +23,7 @@
 
   h3.twn-note {{ $t(N + 'note2') }}
   p {{ $t(N + 'assumptions.intro') }}
+  p(v-if="salesBasis") {{ $t(W + 'salesBasis', { basis: salesBasis }) }}
   table.twn-table
     tbody
       template(v-for="g in assumptionGroups")
@@ -24,16 +34,30 @@
           td {{ r.value }}
 
   h3.twn-note {{ $t(N + 'note3') }}
+  p(v-for="g in generalAssumptions" :key="'ga-' + g.key")
+    b {{ $t(G + g.key + 'Heading') }}
+    | {{ ' ' + g.text }}
+
+  h3.twn-note {{ $t(N + 'note4') }}
   template(v-for="(s, n) in methodSections")
     h4(:key="'h-' + s.key") {{ (n + 1) + '. ' + $t(M + s.key) }}
     ul(:key="'l-' + s.key")
       li(v-for="(line, i) in s.lines" :key="s.key + '-' + i") {{ line }}
 
-  h3.twn-note {{ $t(N + 'note4') }}
+  h3.twn-note {{ $t(N + 'note5') }}
   p {{ $t(N + (differences.length === 4 ? 'differs.leadFour' : 'differs.leadThree')) }}
   ol
     li(v-for="(d, i) in differences" :key="'d-' + i") {{ d }}
   p {{ $t(N + 'differs.reviewed') }}
+
+  //- Issued in the firm's name, so it appears only once the advisor has named the firm.
+  template(v-if="preparedBy")
+    h3.twn-note {{ $t(C + 'heading') }}
+    p(v-for="k in compilationKeys" :key="'c-' + k") {{ $t(C + k, { client: client, firm: preparedBy }) }}
+    i18n(:path="C + 'signature'" tag="p")
+      template(#firm)
+        b {{ preparedBy }}
+      template(#date) {{ printedDate }}
 </template>
 
 <script>
@@ -42,6 +66,11 @@ import { intlLocaleFor } from '~/utils/dateLocale'
 
 const N = 'report.threeWayForecast.notes.'
 const M = N + 'method.'
+const W = N + 'workbook.'
+const G = N + 'general.'
+const C = N + 'compilation.'
+/** The compilation report's paragraphs, in the workbook's order. */
+const COMPILATION = ['information', 'request', 'diligence', 'assurance', 'update', 'consent']
 const A = 'report.threeWayForecast.assume.'
 const MONTH_LABELS = ['sameMonth', 'monthAfter', 'twoMonths', 'threeMonths', 'fourMonths']
 
@@ -49,8 +78,12 @@ const MONTH_LABELS = ['sameMonth', 'monthAfter', 'twoMonths', 'threeMonths', 'fo
  * ThreeWayForecastNotes — "Notes to the forecast", each forecast's OWN support notes (item
  * 44.1; drawing approved by Mike 2026-09-30: design/mockups/three-way-forecast-notes.html).
  *
- * Four notes, as in a set of accounts: basis of preparation, this forecast's assumptions,
- * how the figures are worked out, and where it differs from full NZ IFRS. A sentence that
+ * Five notes, as in a set of accounts: basis of preparation, this forecast's assumptions,
+ * general assumptions, how the figures are worked out, and where it differs from full NZ
+ * IFRS — then a compilation report in the firm's name. The workbook's own notes (purpose,
+ * policies, general assumptions, compilation report) came in with the revised drawing
+ * approved 2026-09-30 (1814a520); "Later years" and the inflation sentence read each year's
+ * change from the model, so they stay true whatever quick-fire did. A sentence that
  * does not apply is left out; a sentence that depends on what was entered reads it — so the
  * notes can never contradict the forecast they sit in. WHICH sentences apply is decided on
  * the backend (`server/report/threeWayForecastNotes.js`, the `facts`); this renders them.
@@ -68,17 +101,48 @@ export default {
     /** How many years the forecast runs. */
     yearCount: { type: Number, default: 1 },
     /** The firm's (or client's) currency code, for Note 2's amounts. */
-    currency: { type: String, default: 'NZD' }
+    currency: { type: String, default: 'NZD' },
+    /** The client's name, for Note 3 and the compilation report. Empty reads "the business". */
+    clientName: { type: String, default: '' },
+    /** The advisor's three fields: `{ purpose, salesBasis, preparedBy }`, each a string. */
+    fields: { type: Object, default: () => ({}) }
   },
 
   data () {
-    return { N, M }
+    return { N, M, W, G, C, compilationKeys: COMPILATION }
   },
 
   computed: {
     facts () { return this.notes.facts || {} },
     a () { return this.notes.assumptions || {} },
     intlLocale () { return intlLocaleFor(this.$i18n.locale) },
+    client () { return this.clientName.trim() || this.$t(G + 'theBusiness') },
+    purpose () { return String(this.fields.purpose || '').trim() },
+    salesBasis () { return String(this.fields.salesBasis || '').trim() },
+    preparedBy () { return String(this.fields.preparedBy || '').trim() },
+    laterYears () { return Array.isArray(this.notes.laterYears) ? this.notes.laterYears : [] },
+
+    /** The compilation report's date: the day it is read or printed. */
+    printedDate () {
+      return new Date().toLocaleDateString(this.intlLocale, { day: 'numeric', month: 'long', year: 'numeric' })
+    },
+
+    /**
+     * Note 3. The inflation sentence reads the forecast: within a year the model applies
+     * none, but quick-fire and the sliders can move a later year — so a second sentence says
+     * whether any did.
+     * @returns {Array<{key: string, text: string}>}
+     */
+    generalAssumptions () {
+      const t = k => this.$t(G + k, { client: this.client })
+      let inflation = t('inflation')
+      if (this.laterYears.length) {
+        inflation += ' ' + t(this.laterYears.every(y => y.same) ? 'inflationRepeats' : 'inflationChanges')
+      }
+      return ['economic', 'legislative', 'tax', 'competitive', 'industry']
+        .map(key => ({ key, text: t(key) }))
+        .concat([{ key: 'inflation', text: inflation }])
+    },
 
     /** The forecast's first day, written out in the reader's language. */
     startDate () {
@@ -89,7 +153,7 @@ export default {
     },
 
     /**
-     * Note 3, section by section — only the sentences that apply to this forecast. The
+     * Note 4, section by section — only the sentences that apply to this forecast. The
      * sections number themselves, so "Foreign currency" leaving renumbers the rest.
      * @returns {Array<{key: string, lines: Array<string>}>}
      */
@@ -160,7 +224,7 @@ export default {
       return sections.filter(Boolean).map(s => ({ key: s.key, lines: s.lines.filter(Boolean) }))
     },
 
-    /** Note 4 — difference 4 is about overseas sales, so a forecast with none has three. */
+    /** Note 5 — difference 4 is about overseas sales, so a forecast with none has three. */
     differences () {
       const f = this.facts
       const d = k => this.$t(N + 'differs.' + k)
@@ -281,6 +345,22 @@ export default {
           rows: pays.map((k, i) => row(O + k, this.pct(o.overseasCollection[i] || 0)))
         })
       }
+      const L = N + 'laterYears.'
+      groups.push({
+        key: 'later',
+        heading: L + 'heading',
+        rows: this.laterYears.map(y => ({
+          rawLabel: this.$t(L + 'year', { n: y.year }),
+          value: y.same
+            ? this.$t(L + 'same', { prev: y.year - 1, markup: this.pct(y.markup) })
+            : this.$t(L + 'changed', {
+              sales: this.change(y.salesChange),
+              overheads: this.change(y.overheadsChange),
+              prev: y.year - 1,
+              markup: this.pct(y.markup)
+            })
+        }))
+      })
       return groups.filter(g => g.rows.length)
     }
   },
@@ -290,6 +370,15 @@ export default {
     pct (v) {
       const n = typeof v === 'number' && isFinite(v) ? v : 0
       return new Intl.NumberFormat(this.intlLocale, { style: 'percent', maximumFractionDigits: 1 }).format(n)
+    },
+    /**
+     * A year-on-year change, signed: "+5%", "-3%", "0%". Null means the year before had
+     * nothing to grow from, so there is no percentage to give.
+     * @param {number|null} v @returns {string}
+     */
+    change (v) {
+      if (typeof v !== 'number' || !isFinite(v)) { return '—' }
+      return new Intl.NumberFormat(this.intlLocale, { style: 'percent', maximumFractionDigits: 1, signDisplay: 'exceptZero' }).format(v)
     },
     /** @param {number} v @returns {string} whole-currency amount in the forecast's currency. */
     cash (v) { return money(v, this.currency, this.$i18n.locale) },

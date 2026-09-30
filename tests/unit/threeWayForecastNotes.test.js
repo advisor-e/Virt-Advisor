@@ -16,9 +16,27 @@
 const fs = require('fs')
 const path = require('path')
 const { mountWithBuefy, englishMocks } = require('../helpers/mountComponent')
-const { computeThreeWayForecast } = require('../../server/report/threeWayForecastModel')
+const { computeThreeWayForecast, computeThreeYearForecast, DEFAULTS } = require('../../server/report/threeWayForecastModel')
+const { flattenForecast, applySavedForecast } = require('../../utils/threeWayForecastSavedShape')
 const en = require('../../locales/en.json')
 const ThreeWayForecastNotes = require('~/components/ThreeWayForecastNotes.vue').default
+
+/** Year 2 at quick-fire's "Sales growth" 5% and "Overheads increase" 3%; year 3 left alone. */
+function grownYears () {
+  const overheads = {}
+  Object.keys(DEFAULTS.overheads).forEach((k) => { overheads[k] = DEFAULTS.overheads[k] * 1.03 })
+  return { yearCount: 3, years: [{}, { sales: DEFAULTS.sales.map(v => v * 1.05), overheads }, {}] }
+}
+
+/** Year 1's notes with the forecast's later years beside them, as the report hands them over. */
+function notesOf (result) { return Object.assign({}, result.years[0].notes, { laterYears: result.laterYears }) }
+
+function mountWith (notes, props) {
+  return mountWithBuefy(ThreeWayForecastNotes, {
+    propsData: Object.assign({ notes, currency: 'NZD' }, props),
+    mocks: englishMocks()
+  })
+}
 
 const EXPORTER = {
   overseas: { enabled: true, overseasSales: [0, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], overseasCollection: [0, 0.4, 0.4, 0, 0] }
@@ -89,6 +107,96 @@ describe('the wording a lender reads is the wording Mike approved', () => {
       const found = approved.includes(text) || approved.includes(text.toUpperCase())
       expect(found).toBe(true)
     })
+  })
+
+  // The workbook's notes as reworded — liability wording issued in the firm's name — pinned
+  // to the revised drawing Mike approved (1814a520), filled in as the drawing fills them.
+  const drawing = fs.readFileSync(path.join(__dirname, '../../design/mockups/three-way-forecast-notes.html'), 'utf8')
+    .replace(/<span class="(was|new)">[\s\S]*?<\/span>/g, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+  const fill = {
+    client: 'Big Bird Grass Seed',
+    firm: '[Your firm\'s name]',
+    purpose: notes.fields.purposeDefault,
+    basis: 'last year\'s monthly sales, increased by 5%',
+    sales: '+5%',
+    overheads: '+3%',
+    prev: '1',
+    markup: '68%'
+  }
+  const NOT_DRAWN = ['general.theBusiness', 'compilation.signature', 'fields.purposeDefault', 'laterYears.year', 'laterYears.same']
+  ;['fields', 'workbook', 'general', 'laterYears', 'compilation'].forEach((block) => {
+    Object.keys(notes[block]).filter(k => !NOT_DRAWN.includes(block + '.' + k)).forEach((k) => {
+      it(`"${block}.${k}" is word for word the approved drawing`, () => {
+        const text = notes[block][k].replace(/\{(\w+)\}/g, (m, name) => fill[name])
+        expect(drawing).toContain(text)
+      })
+    })
+  })
+})
+
+describe('Note 3 and "Later years" read the forecast\'s own years', () => {
+  it('a year that grows is measured; a year left alone repeats the one before', () => {
+    expect(computeThreeYearForecast(grownYears()).laterYears).toEqual([
+      { year: 2, salesChange: 0.05, overheadsChange: 0.03, markup: 0.68, same: false },
+      { year: 3, salesChange: 0, overheadsChange: 0, markup: 0.68, same: true }
+    ])
+    expect(computeThreeYearForecast({ yearCount: 1 }).laterYears).toEqual([])
+  })
+
+  it('one year: no inflation, and nothing about later years', () => {
+    const text = mountWith(notesOf(computeThreeYearForecast({ yearCount: 1 }))).text()
+    expect(text).toContain('No inflation is applied')
+    expect(text).not.toContain('Later years')
+    expect(text).not.toContain('Each later year repeats')
+  })
+
+  it('three years with growth: Note 2 shows it, and Note 3 says it is the only change', () => {
+    const text = mountWith(notesOf(computeThreeYearForecast(grownYears())), { yearCount: 3 }).text()
+    expect(text).toContain('Sales +5% and overheads +3% on year 1')
+    expect(text).toContain('Sales and overheads as year 2')
+    expect(text).toContain('Later years change sales and overheads only as shown in Note 2.')
+  })
+
+  it('three flat years: every later year repeats the year before', () => {
+    const text = mountWith(notesOf(computeThreeYearForecast({ yearCount: 3 })), { yearCount: 3 }).text()
+    expect(text).toContain('Each later year repeats the year before.')
+    expect(text).not.toContain('Later years change')
+  })
+})
+
+describe('the advisor\'s three fields', () => {
+  const notes = computeThreeWayForecast({}).notes
+
+  it('left empty: no purpose, no sales basis, no compilation report, and "the business"', () => {
+    const text = mountWith(notes, { fields: {} }).text()
+    expect(text).not.toContain('PURPOSE OF THE FORECAST')
+    expect(text).not.toContain('Sales have been projected')
+    expect(text).not.toContain('Compilation report')
+    expect(text).toContain('the economic environment in which the business operates')
+  })
+
+  it('filled in: each lands where the drawing puts it, naming the client and the firm', () => {
+    const text = mountWith(notes, {
+      clientName: 'Acme Ltd',
+      fields: { purpose: 'to support a loan application', salesBasis: 'signed contracts', preparedBy: 'Smith & Co' }
+    }).text()
+    expect(text).toContain('This forecast has been prepared to support a loan application.')
+    expect(text).toContain('Sales have been projected on the basis of signed contracts.')
+    expect(text).toContain('the directors of Acme Ltd. Smith & Co disclaims liability')
+    expect(text).toContain('in which Acme Ltd operates')
+  })
+
+  it('survive a save and a reload; a row saved before they existed loads none', () => {
+    const fields = { purpose: 'p', salesBasis: 's', preparedBy: 'f' }
+    expect(applySavedForecast({}, {}, flattenForecast({}, null, 'summary', fields)).notesFields).toEqual(fields)
+    expect(applySavedForecast({}, {}, flattenForecast({}, null, 'summary')).notesFields).toBeNull()
+    // Hostile: one field too long refuses all three, like every other block.
+    const row = flattenForecast({}, null, 'summary', fields)
+    row['notes.preparedBy'] = 'x'.repeat(201)
+    expect(applySavedForecast({}, {}, row).notesFields).toBeNull()
   })
 })
 

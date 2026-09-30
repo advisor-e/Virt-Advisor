@@ -265,7 +265,7 @@ function landingsOf (O) {
  */
 const SELL_DOWN = require('../../data/forecast-sell-down.json')
 const { resolveCurrencies, currencyOf, toHome, movedRates } = require('./fxConversion')
-const { forecastNotes } = require('./threeWayForecastNotes')
+const { forecastNotes, laterYearChanges } = require('./threeWayForecastNotes')
 
 /** A demand pattern's four 30-day bands. @param {string} name @returns {Array<number>|null} */
 function curveOfPattern (name) {
@@ -2482,7 +2482,6 @@ function computeThreeYearForecast (rawInputs, options) {
     }))
     previousResolved = resolved
   }
-
   const sumOf = path => years.reduce(function (a, yr) {
     const series = path.split('.').reduce(function (n, k) { return n ? n[k] : undefined }, yr)
     return a + (Array.isArray(series) ? series.reduce(function (x, v) { return x + v }, 0) : 0)
@@ -2492,6 +2491,9 @@ function computeThreeYearForecast (rawInputs, options) {
 
   return {
     years,
+    // The notes' "Later years": each later year's change, from the figures it ran on (44.1).
+    // Beside the years, not inside year 1, so year 1 is the same whatever the year count.
+    laterYears: laterYearChanges(years),
     summary: {
       revenue: sumOf('profitAndLoss.revenue'),
       grossSurplus: sumOf('profitAndLoss.grossSurplus'),
