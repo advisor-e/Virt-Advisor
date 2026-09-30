@@ -24,6 +24,9 @@ IAS 7 layout), 44.4 (the printed forecast as a board paper, negatives in bracket
 headline and key-figure tiles — the research-prompt paragraph approved word for word). The
 economic research's tables and lists now print as tables and lists. **Filed:** 13.8, 44.3.
 
+**Next here: 44.3** — Mike's call proceed; the bad-debt slice first, as designed (the collection
+shortfall charged as a bad debt, domestic and overseas).
+
 ### FOR THE LAPTOP
 
 - **Merge `master` at startup** — nothing to resolve. Both machines then match `v0.14.0`.
