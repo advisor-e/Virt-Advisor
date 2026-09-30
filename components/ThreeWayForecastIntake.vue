@@ -555,7 +555,7 @@
             .fieldlab
               span {{ $t(bucketLabel) }}
             b-input(v-model.number="form.debtor[i]" type="number" step="any" size="is-small")
-          .tw-foot(:class="debtorTotal === 100 ? 'is-good' : 'is-crit'") {{ debtorMessage }}
+          .tw-foot(:class="collectionClass(debtorTotal)") {{ debtorMessage }}
 
         .tw-group
           .tw-glabel
@@ -1149,7 +1149,7 @@
                       .fieldlab
                         span {{ $t(bucketLabel) }}
                       b-input(v-model.number="form.overseas.overseasCollection[i]" type="number" step="any" size="is-small")
-                    .tw-foot(:class="overseasCollectionTotal === 100 ? 'is-good' : 'is-crit'") {{ overseasCollectionMessage }}
+                    .tw-foot(:class="collectionClass(overseasCollectionTotal)") {{ overseasCollectionMessage }}
                     .field
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.overseas.overseasMarkup') }}
@@ -3583,6 +3583,16 @@ export default {
     },
 
     /**
+     * A customers' profile: green at 100%, amber when short — it builds, as a bad debt (44.3),
+     * so red would read as refused — and red over 100%, which is.
+     * @param {number} total whole percent @returns {string}
+     */
+    collectionClass (total) {
+      if (total === 100) { return 'is-good' }
+      return total < 100 ? 'is-warn' : 'is-crit'
+    },
+
+    /**
      * One collection profile's line, in plain English. See `debtorMessage`.
      *
      * @param {number} total the profile's five buckets, summed, as whole percent.
@@ -4759,6 +4769,7 @@ export default {
 .tw-foot { font-size: 12px; color: var(--rs-muted); }
 .tw-foot.is-good { color: var(--rs-good); font-weight: 600; }
 .tw-foot.is-crit { color: var(--rs-crit); font-weight: 600; }
+.tw-foot.is-warn { color: #b36b00; font-weight: 600; }
 
 /* Step 1 — the drop zone. */
 .drop { border: 2px dashed #7fd3f1; border-radius: var(--rs-card-radius); background: var(--rs-panel-2); padding: 26px 20px; text-align: center; }

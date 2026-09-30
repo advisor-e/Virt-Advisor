@@ -46,7 +46,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 9 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-30 |
 | 10 | **7.17** Remove the three never-used options from the engine's briefing builder ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 11 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 12 | **44.3** The forecast needs three facts: deferred tax, leases, shipping terms ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 12 | **44.3** The forecast needs three facts: deferred tax, leases, shipping terms ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-10-01 |
 | 13 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
 | 14 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
