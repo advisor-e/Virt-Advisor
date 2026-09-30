@@ -118,6 +118,37 @@ describe('the statements laid out as IFRS 18 and IAS 7 set them out (item 44.2)'
   })
 })
 
+describe('opening debtors and creditors are settled whatever the profile (2026-09-30)', () => {
+  // A cash business — paid, and paying, in the month of the sale. The workbook split the
+  // opening balances across the LATER months, found none, and settled nothing: 52,000 of
+  // debtors and 58,000 of creditors sat unchanged through all three years.
+  const sameMonth = [1, 0, 0, 0, 0]
+  const cash = computeThreeWayForecast({ debtorCollection: sameMonth, creditorPayment: sameMonth })
+
+  it('collects the opening debtors, and pays the opening creditors, in month 1', () => {
+    const s = cash.schedules
+    expect(s.debtors.openingBalanceRunOff[0]).toBe(cash.balanceSheet.opening.accountsReceivable)
+    expect(s.creditors.openingBalanceRunOff[0]).toBe(cash.balanceSheet.opening.accountsPayable)
+    expect(sum(s.debtors.openingBalanceRunOff)).toBe(52000)
+    expect(sum(s.creditors.openingBalanceRunOff)).toBe(58000)
+  })
+
+  it('every profile settles exactly the opening balance, no more and no less', () => {
+    const profiles = [sameMonth, [0.1, 0.55, 0.3, 0.05, 0], [0, 0, 0, 0, 1], [0.5, 0.5, 0, 0, 0]]
+    profiles.forEach((p) => {
+      const s = computeThreeWayForecast({ debtorCollection: p, creditorPayment: p }).schedules
+      expect(sum(s.debtors.openingBalanceRunOff)).toBeCloseTo(52000, 6)
+      expect(sum(s.creditors.openingBalanceRunOff)).toBeCloseTo(58000, 6)
+    })
+  })
+
+  it('the balance check stays flat, and source-fidelity mode keeps the workbook’s gap', () => {
+    cash.balanceSheet.months.balanceCheck.forEach(v => expect(v).toBe(cash.balanceSheet.opening.balanceCheck))
+    const asWritten = computeThreeWayForecast({ debtorCollection: sameMonth, creditorPayment: sameMonth }, { sourceFidelity: true })
+    expect(sum(asWritten.schedules.debtors.openingBalanceRunOff)).toBe(0)
+  })
+})
+
 describe('shareholder current accounts are shown gross, never netted (IAS 1.32)', () => {
   // The sample: Bob +25,000 and John +18,000 are owed BY the company; Mary −32,000 and
   // Joan −25,000 owe it. Netted, they read as one 14,000 asset.

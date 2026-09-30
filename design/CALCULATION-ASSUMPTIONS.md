@@ -114,8 +114,8 @@ sometimes an error to fix.
 | Domestic sales | Entered monthly, ex GST | Revenue in the month entered; GST added on top and collected with it. | ✅ IFRS 15.31, 38 — at a point in time, on the assumption goods are delivered in the month sold. |
 | Imported stock sold at home | The sell-down ladder | Revenue in the month each slice sells, at the price its age still commands. | ✅ IFRS 15.31. |
 | **Overseas sales** | Delivered 2 months after invoice | Revenue is booked in the **invoice** month; collection is counted from **delivery**. | ⚠ **IFRS 15.31, 38** — revenue follows the transfer of control, and physical possession is one of its indicators. On the default lag, revenue is recognised two months before the customer has the goods. Correct only where the terms pass control at shipment. |
-| **Debtor collection** | 10 / 55 / 30 / 5% over the month and the next three | Every sale is collected in full on the profile. No bad debts, no allowance. | ⚠ **IFRS 9 5.5.1, 5.5.15** — trade receivables carry a lifetime expected-credit-loss allowance. The forecast assumes none. |
-| Opening debtors | From the opening balance sheet | Collected over the first four months, in the proportions of the profile. | ℹ A timing assumption; no standard governs it. |
+| **Debtor collection** | 10 / 55 / 30 / 5% over the month and the next three | A domestic profile must total 100% or the forecast will not build, so every local sale is collected in full. An **overseas** profile may total less: the shortfall stays in debtors for ever — never collected, never charged as an expense. No bad debts, no allowance. | ⚠ **IFRS 9 5.5.1, 5.5.15** — trade receivables carry a lifetime expected-credit-loss allowance. The forecast assumes none, and an overseas shortfall overstates debtors. Mike's design, 44.3: the shortfall is the bad debt, domestic and overseas. |
+| Opening debtors | From the opening balance sheet | Collected over the first four months, in the proportions of the profile; all in month 1 when customers pay in the month of sale. | ℹ A timing assumption; no standard governs it. **Fixed 2026-09-30**: a same-month profile collected none of them, for all three years. |
 | Other income | Annual figure | Spread evenly over twelve months. | ℹ A timing assumption. |
 
 ### 2.2 Inventory and cost of sales
@@ -168,6 +168,7 @@ sometimes an error to fix.
 | Assumption | Default | Treatment | Against the standards |
 |---|---|---|---|
 | Overheads | Annual figures | One-twelfth each month, paid the same or the following month by type. | ✅ Accrual basis. |
+| Paying suppliers | 0 / 90 / 10% over the month and the next two | Stock bought is paid on the profile, which must total 100%; the opening balance owed is paid over the first four months, or all in month 1 when suppliers are paid in the month they bill. | ℹ A timing assumption. **Fixed 2026-09-30**: a same-month profile paid none of the opening balance. |
 | ACC levies and insurance | Paid in the months entered | Expensed evenly; the difference sits in prepayments or accruals. | ✅ |
 | **Rent** | Annual figure | Expensed as paid. | ⚠ **IFRS 16.22** — a lessee recognises a right-of-use asset and a lease liability, unless the lease is short-term or of a low-value asset (IFRS 16.5-6). Most premises leases are neither. |
 | Holiday pay and other employee entitlements | — | Not accrued; wages are expensed as paid. | ℹ Not modelled. |
@@ -186,7 +187,7 @@ sometimes an error to fix.
 | | |
 |---|---|
 | Treatments recorded before 44.1 | **9** (§1, currency) |
-| Treatments recorded now | **43** (§1's 9 and §2's 34) |
+| Treatments recorded now | **44** (§1's 9 and §2's 35) |
 | Departures found | **9** |
 | Fixed 2026-09-30 | **4** — term loans' current portion, shareholder accounts gross (44.1); cash flow by activity and interest in financing (44.2) |
 | Re-read as a disclosure, not a departure | **1** — depreciation rates, which are the advisor's own |

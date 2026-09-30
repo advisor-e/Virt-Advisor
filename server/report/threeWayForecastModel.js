@@ -1361,12 +1361,23 @@ function overseasSchedule (O, gst, T, openingDeposits, rates) {
  * The run-off of an OPENING receivable or payable balance across the first four months,
  * split in proportion to the lag buckets that follow the current month.
  *
- * @param {number} openingBalance @param {Array<number>} buckets @returns {Array<number>}
+ * 🔴 A SAME-MONTH PROFILE HAS NO LATER BUCKETS TO SPLIT ACROSS, and the workbook then collected
+ * NOTHING: a cash business's opening debtors sat on the balance sheet for all three years, and
+ * the bank was short by all of them. Found 2026-09-30 reading the model for item 44.1; Mike's
+ * ruling the same day: the corrected model collects the whole opening balance in month 1 — it
+ * is already owed, and nothing in the profile says to wait. Source-fidelity mode keeps the gap.
+ *
+ * @param {number} openingBalance @param {Array<number>} buckets
+ * @param {boolean} corrected false only in source-fidelity mode
+ * @returns {Array<number>}
  */
-function openingRunOff (openingBalance, buckets) {
+function openingRunOff (openingBalance, buckets, corrected) {
   const out = zeroes()
   const tail = buckets[1] + buckets[2] + buckets[3] + buckets[4]
-  if (buckets[0] === 1 || tail === 0) { return out }
+  if (buckets[0] === 1 || tail === 0) {
+    if (corrected) { out[0] = openingBalance }
+    return out
+  }
   for (let m = 0; m < 4; m++) { out[m] = (buckets[m + 1] / tail) * openingBalance }
   return out
 }
@@ -1619,7 +1630,7 @@ function computeThreeWayForecast (rawInputs, options) {
   const domesticInclusive = addSeries(domesticRevenue, domesticGst)
   const salesInclusive = addSeries(domesticInclusive, overseasGross)
   const collection = lagSchedule(domesticInclusive, I.debtorCollection)
-  const openingDebtorRunOff = openingRunOff(opening.accountsReceivable, I.debtorCollection)
+  const openingDebtorRunOff = openingRunOff(opening.accountsReceivable, I.debtorCollection, corrected)
   const domesticCash = addSeries(collection.total, openingDebtorRunOff)
   const cashFromDebtors = addSeries(domesticCash, OS.overseasCollections)
   const debtorOpening = zeroes(); const debtorSubtotal = zeroes(); const debtorClosing = zeroes()
@@ -1697,6 +1708,10 @@ function computeThreeWayForecast (rawInputs, options) {
       openingPayableRunOff[1] = (opening.accountsPayable - blockOneGross[0]) * (b[2] / tail)
       openingPayableRunOff[2] = (opening.accountsPayable - blockOneGross[0]) * (b[3] / tail)
       openingPayableRunOff[3] = opening.accountsPayable - openingPayableRunOff[0] - openingPayableRunOff[1] - openingPayableRunOff[2]
+    } else if (corrected) {
+      // Suppliers paid in the month they bill: the opening balance is paid in month 1, not
+      // never — the same gap, and the same ruling, as `openingRunOff` (2026-09-30).
+      openingPayableRunOff[0] = opening.accountsPayable
     }
   }
   for (let m = 0; m < MONTHS; m++) {
