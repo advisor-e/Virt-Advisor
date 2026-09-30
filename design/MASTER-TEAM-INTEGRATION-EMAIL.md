@@ -48,7 +48,7 @@
 
 Hi,
 
-The AI Coach module is tagged at `v0.13.0` and ready to load. Everything below is already built
+The AI Coach module is tagged at `v0.14.0` and ready to load. Everything below is already built
 and waiting — seven of the eleven answers are values we type into one config file, with no code
 change on either side (1–4, 6, 8 and 9); the other two are one call and one lookup from your side.
 

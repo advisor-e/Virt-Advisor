@@ -22,19 +22,21 @@ section.decision-logic
           span.lname {{ $t('firmDecisionLogic.dsName') }}
           span.ljob {{ $t('firmDecisionLogic.dsJob') }}
           p.lcount {{ $t('firmDecisionLogic.dsCount', { count: levers.domainSupport.documents }) }}
-          p.lbody
-            | {{ $t('firmDecisionLogic.dsBodyA') }}
-            b {{ $t('firmDecisionLogic.dsBodyB') }}
-            | {{ $t('firmDecisionLogic.dsBodyC') }}
-            b {{ $t('firmDecisionLogic.dsBodyD') }}
-            | {{ $t('firmDecisionLogic.dsBodyE') }}
-          p.lmeasure
-            | {{ $t('firmDecisionLogic.dsMeasureA') }}
-            b {{ $t('firmDecisionLogic.dsMeasureB') }}
-            | {{ $t('firmDecisionLogic.dsMeasureC') }}
-            b {{ $t('firmDecisionLogic.dsMeasureD') }}
-            | {{ $t('firmDecisionLogic.dsMeasureE') }}
-            b {{ $t('firmDecisionLogic.dsMeasureF') }}
+          //- Each sentence is ONE locale string with its bold parts as slots, so a
+          //- translation can reorder them. Item 13.6 — fragments either side of a bold
+          //- phrase were translated alone and joined wrongly.
+          i18n.lbody(path="firmDecisionLogic.dsBodyText" tag="p")
+            template(#suits)
+              b {{ $t('firmDecisionLogic.dsBodyB') }}
+            template(#steps)
+              b {{ $t('firmDecisionLogic.dsBodyD') }}
+          i18n.lmeasure(path="firmDecisionLogic.dsMeasureText" tag="p")
+            template(#learn)
+              b {{ $t('firmDecisionLogic.dsMeasureB') }}
+            template(#course)
+              b {{ $t('firmDecisionLogic.dsMeasureD') }}
+            template(#never)
+              b {{ $t('firmDecisionLogic.dsMeasureF') }}
           p.laction {{ $t('firmDecisionLogic.dsAction') }}
 
         .lever.selects
@@ -42,42 +44,47 @@ section.decision-logic
           span.ljob {{ $t('firmDecisionLogic.ltJob') }}
           p.lcount
             | {{ $t('firmDecisionLogic.ltCount', { tables: levers.logicTables.tables, hints: levers.logicTables.withTemplateHints }) }}
-          p.lbody
-            | {{ $t('firmDecisionLogic.ltBodyA') }}
-            b {{ $t('firmDecisionLogic.ltBodyB', { boost: treeBoost }) }}
-            | {{ $t('firmDecisionLogic.ltBodyC') }}
-          //- Inline interpolation, not stacked `|` lines: Pug emits NO whitespace
-          //- between a bare `|` and a following tag, which ran the tag into the
-          //- number as "measured3 cases" (found 2026-08-03).
-          p.lmeasure
-            | {{ $t('firmDecisionLogic.ltMeasureA') }}
-            b {{ $t('firmDecisionLogic.ltMeasureB', { boost: treeBoost }) }}
-            | {{ $t('firmDecisionLogic.ltMeasureC') }} #[span.tag-il {{ $t('firmDecisionLogic.tagMeasured') }}] #[b {{ $t('firmDecisionLogic.ltMeasureD', { count: measured.turnedOnTablesAlone }) }}]{{ $t('firmDecisionLogic.ltMeasureE', { total: measured.caseCount }) }}
+          i18n.lbody(path="firmDecisionLogic.ltBodyText" tag="p")
+            template(#boost)
+              b {{ $t('firmDecisionLogic.ltBodyB', { boost: treeBoost }) }}
+          i18n.lmeasure(path="firmDecisionLogic.ltMeasureText" tag="p")
+            template(#boost)
+              b {{ $t('firmDecisionLogic.ltMeasureB', { boost: treeBoost }) }}
+            template(#tag)
+              span.tag-il {{ $t('firmDecisionLogic.tagMeasured') }}
+            template(#cases)
+              b {{ $t('firmDecisionLogic.ltMeasureD', { count: measured.turnedOnTablesAlone }) }}
+            template(#total) {{ measured.caseCount }}
           p.laction {{ $t('firmDecisionLogic.ltAction') }}
 
         .lever.selects
           span.lname {{ $t('firmDecisionLogic.adName') }}
           span.ljob {{ $t('firmDecisionLogic.adJob') }}
           p.lcount {{ $t('firmDecisionLogic.adCount', { count: levers.distinctions.count }) }}
-          p.lbody
-            | {{ $t('firmDecisionLogic.adBodyA') }}
-            b {{ $t('firmDecisionLogic.adBodyB') }}
-            | {{ $t('firmDecisionLogic.adBodyC') }}
-            b {{ $t('firmDecisionLogic.adBodyD', { boost: distinctionBoost }) }}
-            | {{ $t('firmDecisionLogic.adBodyE') }}
-          p.lmeasure
-            | {{ $t('firmDecisionLogic.adMeasureA') }} #[span.tag-il {{ $t('firmDecisionLogic.tagMeasured') }}]{{ $t('firmDecisionLogic.adMeasureB') }}
-            b {{ $t('firmDecisionLogic.adMeasureC', { margin: marginLabel }) }}
-            | {{ $t('firmDecisionLogic.adMeasureD') }}
-            b {{ $t('firmDecisionLogic.adMeasureE', { boost: distinctionBoost }) }}
-            | {{ $t('firmDecisionLogic.adMeasureF') }} #[b {{ $t('firmDecisionLogic.adMeasureG', { count: measured.turnedOnDistinctionsAlone }) }}]{{ $t('firmDecisionLogic.adMeasureH', { total: measured.caseCount }) }}
+          i18n.lbody(path="firmDecisionLogic.adBodyText" tag="p")
+            template(#meaning)
+              b {{ $t('firmDecisionLogic.adBodyB') }}
+            template(#boost)
+              b {{ $t('firmDecisionLogic.adBodyD', { boost: distinctionBoost }) }}
+          i18n.lmeasure(path="firmDecisionLogic.adMeasureText" tag="p")
+            template(#tag)
+              span.tag-il {{ $t('firmDecisionLogic.tagMeasured') }}
+            template(#margin)
+              b {{ $t('firmDecisionLogic.adMeasureC', { margin: marginLabel }) }}
+            template(#boost)
+              b {{ $t('firmDecisionLogic.adMeasureE', { boost: distinctionBoost }) }}
+            template(#cases)
+              b {{ $t('firmDecisionLogic.adMeasureG', { count: measured.turnedOnDistinctionsAlone }) }}
+            template(#total) {{ measured.caseCount }}
           p.laction {{ $t('firmDecisionLogic.adAction') }}
 
       //- Said out loud rather than left to be assumed: quiz banks are absent
       //- from the row above because they change nothing about a recommendation.
-      p.footnote
-        b {{ $t('firmDecisionLogic.quizFootA') }}
-        | {{ $t('firmDecisionLogic.quizFootB', { banks: levers.quizBanks.banks, questions: levers.quizBanks.questions }) }}
+      i18n.footnote(path="firmDecisionLogic.quizFootText" tag="p")
+        template(#quizBanks)
+          b {{ $t('firmDecisionLogic.quizFootA') }}
+        template(#banks) {{ levers.quizBanks.banks }}
+        template(#questions) {{ levers.quizBanks.questions }}
 
     //- ═══ 2. THE ROUTER ══════════════════════════════════════════════════
     section.band
@@ -92,10 +99,9 @@ section.decision-logic
           .rgo
             button.rlever(type="button" @click="$emit('go-to', 'distinctions')")
               | {{ $t('firmDecisionLogic.r1Lever') }}
-            p.rnote
-              | {{ $t('firmDecisionLogic.r1NoteA') }}
-              b {{ $t('firmDecisionLogic.r1NoteB', { count: measured.turnedOnDistinctionsAlone }) }}
-              | {{ $t('firmDecisionLogic.r1NoteC') }}
+            i18n.rnote(path="firmDecisionLogic.r1NoteText" tag="p")
+              template(#alone)
+                b {{ $t('firmDecisionLogic.r1NoteB', { count: measured.turnedOnDistinctionsAlone }) }}
 
         .rrow
           div
@@ -104,10 +110,9 @@ section.decision-logic
           .rgo
             button.rlever.is-shape(type="button" @click="$emit('go-to', 'domain-support')")
               | {{ $t('firmDecisionLogic.r2Lever') }}
-            p.rnote
-              | {{ $t('firmDecisionLogic.r2NoteA') }}
-              em {{ $t('firmDecisionLogic.r2NoteB') }}
-              | {{ $t('firmDecisionLogic.r2NoteC') }}
+            i18n.rnote(path="firmDecisionLogic.r2NoteText" tag="p")
+              template(#which)
+                em {{ $t('firmDecisionLogic.r2NoteB') }}
 
         .rrow
           div
@@ -125,10 +130,9 @@ section.decision-logic
           .rgo
             button.rlever(type="button" @click="$emit('go-to', 'logic-tables')")
               | {{ $t('firmDecisionLogic.r4Lever') }}
-            p.rnote
-              | {{ $t('firmDecisionLogic.r4NoteA') }}
-              b {{ $t('firmDecisionLogic.r4NoteB') }}
-              | {{ $t('firmDecisionLogic.r4NoteC') }}
+            i18n.rnote(path="firmDecisionLogic.r4NoteText" tag="p")
+              template(#lab)
+                b {{ $t('firmDecisionLogic.r4NoteB') }}
 
         .rrow
           div
@@ -153,17 +157,17 @@ section.decision-logic
 
             .nearmiss(v-if="showNearMiss && nearMissRows.length")
               .nm-row(v-for="row in nearMissRows" :key="rowKey(row)" :class="{ 'is-done': !!settled[rowKey(row)] }")
-                p.nm-what
-                  b “{{ row.description }}”
-                  | {{ $t('firmDecisionLogic.nmRowA') }}
-                  i {{ domainLabel(row.filedDomain) }}
-                  | {{ $t('firmDecisionLogic.nmRowB') }}
-                  b {{ row.count }}
-                  | {{ $t('firmDecisionLogic.nmRowC') }}
-                  i {{ domainLabel(row.matchedDomain) }}
-                  | {{ $t('firmDecisionLogic.nmRowD') }}
-                  b {{ $t('firmDecisionLogic.nmRowE') }}
-                  | {{ $t('firmDecisionLogic.nmRowF') }}
+                i18n.nm-what(path="firmDecisionLogic.nmRowText" tag="p")
+                  template(#description)
+                    b “{{ row.description }}”
+                  template(#filed)
+                    i {{ domainLabel(row.filedDomain) }}
+                  template(#count)
+                    b {{ row.count }}
+                  template(#matched)
+                    i {{ domainLabel(row.matchedDomain) }}
+                  template(#never)
+                    b {{ $t('firmDecisionLogic.nmRowE') }}
 
                 .nm-acts(v-if="!settled[rowKey(row)]")
                   button.nm-btn.is-do(

@@ -197,18 +197,20 @@ describe('Three-Way Forecast screen — the exchange-rate what-if (13.5)', () =>
 })
 
 describe('Three-Way Forecast screen — the five overseas cash rows (4.64)', () => {
-  test('a domestic forecast keeps the compact four-row cash tab', async () => {
+  // Since item 44.2 the summary cash tab is the three IAS 7 activities, and the overseas
+  // rows sit inside operating activities as money going out — with a minus.
+  test('a domestic forecast keeps the compact cash tab: three activities, movement, cash', async () => {
     const w = await mountWithResult(SAMPLE)
     expect(w.vm.hasOverseasTrade).toBe(false)
     expect(w.vm.overseasCashRows).toEqual([])
-    expect(w.vm.cashRows.map(r => r.key)).toEqual(['in', 'out', 'move', 'close'])
+    expect(w.vm.cashRows.map(r => r.key)).toEqual(['cf-op', 'cf-inv', 'cf-fin', 'move', 'close'])
   })
 
-  test('an importing forecast shows all five, under Money out', async () => {
+  test('an importing forecast shows all five, inside operating activities', async () => {
     const w = await mountWithResult(IMPORTING)
     expect(w.vm.hasOverseasTrade).toBe(true)
     expect(w.vm.cashRows.map(r => r.key)).toEqual([
-      'in', 'out', 'os-dep', 'os-frt', 'os-duty', 'os-gst', 'os-bal', 'move', 'close'
+      'cf-op', 'os-dep', 'os-frt', 'os-duty', 'os-gst', 'os-bal', 'cf-inv', 'cf-fin', 'move', 'close'
     ])
   })
 
@@ -217,18 +219,21 @@ describe('Three-Way Forecast screen — the five overseas cash rows (4.64)', () 
     const by = {}
     w.vm.cashRows.forEach((r) => { by[r.key] = r.values })
     const p = IMPORTING.cashFlow.payments
-    expect(by['os-dep']).toBe(p.overseasDeposits)
-    expect(by['os-frt']).toBe(p.overseasFreight)
-    expect(by['os-duty']).toBe(p.overseasDuty)
-    expect(by['os-gst']).toBe(p.overseasBorderGst)
-    expect(by['os-bal']).toBe(p.overseasSupplierBalance)
+    const out = s => s.map(v => (v ? -v : 0))
+    expect(by['os-dep']).toEqual(out(p.overseasDeposits))
+    expect(by['os-frt']).toEqual(out(p.overseasFreight))
+    expect(by['os-duty']).toEqual(out(p.overseasDuty))
+    expect(by['os-gst']).toEqual(out(p.overseasBorderGst))
+    // Without the supplier's interest, which the cash flow pays under financing.
+    expect(by['os-bal']).toEqual(out(IMPORTING.cashFlow.byActivity.overseasSupplierBalance))
+    expect(by['cf-op']).toBe(IMPORTING.cashFlow.byActivity.operating)
   })
 
   test('the deposit is visible in MAY, four months before the stock lands', async () => {
-    // The whole reason the rows exist. Inside Money out this figure is invisible.
+    // The whole reason the rows exist. Inside one activity total this figure is invisible.
     const w = await mountWithResult(IMPORTING)
     const deposits = w.vm.cashRows.find(r => r.key === 'os-dep').values
-    expect(deposits[1]).toBeCloseTo(54000, 6) // 90,000 x 60%
+    expect(deposits[1]).toBeCloseTo(-54000, 6) // 90,000 x 60%, going out
     expect(IMPORTING.schedules.overseas.importedRevenue[1]).toBe(0)
   })
 
@@ -242,7 +247,7 @@ describe('Three-Way Forecast screen — the five overseas cash rows (4.64)', () 
     })
     const w = await mountWithResult(unticked)
     expect(w.vm.hasOverseasTrade).toBe(false)
-    expect(w.vm.cashRows.map(r => r.key)).toEqual(['in', 'out', 'move', 'close'])
+    expect(w.vm.cashRows.map(r => r.key)).toEqual(['cf-op', 'cf-inv', 'cf-fin', 'move', 'close'])
   })
 })
 
@@ -673,9 +678,10 @@ describe('Three-Way Forecast screen — stock in transit lands in the cash tab',
     const rows = w.vm.stockInTransitCashRows
     expect(rows.map(r => r.key)).toEqual(['tr-bal', 'tr-gst'])
     // Each reads the series the engine actually filled, in the month it filled it.
-    expect(rows[0].values[1]).toBeCloseTo(550419, 6)
-    expect(rows[1].values[1]).toBeCloseTo((825629 + 550419) * 0.15, 6)
-    // And both are inside the Money out total rather than beside it — they are part of it.
+    // Money going out, so with a minus (item 44.2).
+    expect(rows[0].values[1]).toBeCloseTo(-550419, 6)
+    expect(rows[1].values[1]).toBeCloseTo(-(825629 + 550419) * 0.15, 6)
+    // And both sit inside operating activities rather than beside them — they are part of it.
     expect(w.vm.cashRows.map(r => r.key)).toContain('tr-bal')
     w.destroy()
   })
@@ -696,11 +702,13 @@ describe('Three-Way Forecast screen — stock in transit lands in the cash tab',
  * the count of hidden overheads matches what was actually hidden.
  */
 describe('Summary / Every line', () => {
-  test('🔴 the screen opens on Summary, and Summary is unchanged', async () => {
+  test('🔴 the screen opens on Summary, and Summary is the approved one', async () => {
     const w = await mountWithResult(SAMPLE)
     expect(w.vm.detail).toBe('summary')
     w.vm.tab = 'profit'
-    expect(w.vm.visibleRows.map(r => r.key)).toEqual(['rev', 'gross', 'oh', 'net'])
+    // Operating surplus and Financing costs joined the four rows in Mike's approved 44.2
+    // drawing (2026-09-30, design/mockups/three-way-forecast-ifrs-layout.html).
+    expect(w.vm.visibleRows.map(r => r.key)).toEqual(['rev', 'gross', 'oh', 'op', 'fin', 'net'])
     w.vm.tab = 'balance'
     expect(w.vm.visibleRows.map(r => r.key)).toEqual(['ar', 'stock', 'ap', 'na'])
     w.destroy()
@@ -725,7 +733,10 @@ describe('Summary / Every line', () => {
     const byKey = {}
     w.vm.visibleRows.forEach((r) => { byKey[r.key] = r })
     expect(byKey.cos.values).toBe(SAMPLE.profitAndLoss.costOfSales)
-    expect(byKey.op.values).toBe(SAMPLE.profitAndLoss.operatingSurplus)
+    // IFRS 18's operating profit, before any interest (item 44.2).
+    expect(byKey.op.values).toBe(SAMPLE.profitAndLoss.operatingProfit)
+    expect(byKey.pbf.values).toBe(SAMPLE.profitAndLoss.profitBeforeFinancingAndTax)
+    expect(byKey.fin.values).toBe(SAMPLE.profitAndLoss.financingCosts)
     expect(byKey.pbt.values).toBe(SAMPLE.profitAndLoss.netSurplusBeforeTax)
     // Facility interest has a row at last. It was engine-only when the facility was built
     // earlier the same day, for want of anywhere on this screen to put it.
@@ -750,12 +761,15 @@ describe('Summary / Every line', () => {
     w.vm.detail = 'every'
     w.vm.tab = 'profit'
     const oh = SAMPLE.profitAndLoss.overheads
-    const withFigures = Object.keys(oh).filter(k => oh[k].some(v => Math.abs(v) >= 0.005))
+    // Interest on overdue tax is entered with the overheads but shown under Financing costs
+    // (item 44.2), so it is neither an overhead row nor counted as a hidden one.
+    const keys = Object.keys(oh).filter(k => k !== 'interestIrd')
+    const withFigures = keys.filter(k => oh[k].some(v => Math.abs(v) >= 0.005))
     const shown = w.vm.visibleRows.filter(r => r.key.indexOf('oh-') === 0)
     expect(shown).toHaveLength(withFigures.length)
     // The count in the note is the rest of them — not a number typed into the sentence.
-    expect(w.vm.hiddenOverheadCount).toBe(Object.keys(oh).length - withFigures.length)
-    expect(w.vm.overheadCount).toBe(Object.keys(oh).length)
+    expect(w.vm.hiddenOverheadCount).toBe(keys.length - withFigures.length)
+    expect(w.vm.overheadCount).toBe(keys.length)
     w.destroy()
   })
 
@@ -785,7 +799,8 @@ describe('Summary / Every line', () => {
     expect(w.vm.printStatements.map(s => s.key)).toEqual(['cash-0', 'profit-0', 'balance-0'])
     // Each carries its own figures, not the open tab's repeated three times.
     expect(w.vm.printStatements[0].rows).toEqual(w.vm.cashRows)
-    expect(w.vm.printStatements[1].rows).toEqual(w.vm.profitRows)
+    // The printed profit and loss shows its costs as deductions (item 44.4) — the same lines.
+    expect(w.vm.printStatements[1].rows).toEqual(w.vm.asDeductions(w.vm.profitRows))
     expect(w.vm.printStatements[2].rows).toEqual(w.vm.balanceRows)
 
     // And it does not follow the tab — the trap a later "simplification" would fall into.

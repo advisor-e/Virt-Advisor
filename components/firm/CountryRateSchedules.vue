@@ -1,13 +1,21 @@
 <template lang="pug">
 .crs
   .notification.is-info.is-light.mb-4
+    //- One locale string per sentence, bold parts as slots (item 13.6).
     p.is-size-7
-      | {{ $t('countryRateSchedules.intro.lead') }} #[b {{ $t('countryRateSchedules.intro.leadBold') }}]{{ $t('countryRateSchedules.intro.body') }}
-      | #[b {{ $t('countryRateSchedules.intro.noChangeBold') }}] {{ $t('countryRateSchedules.intro.noChange') }}
+      i18n(path="countryRateSchedules.intro.sentence" tag="span")
+        template(#schedule)
+          b {{ $t('countryRateSchedules.intro.leadBold') }}
+      //- A bare `|` emits nothing in Pug; this is the space between the two sentences.
+      = ' '
+      i18n(path="countryRateSchedules.intro.noChangeSentence" tag="span")
+        template(#noChange)
+          b {{ $t('countryRateSchedules.intro.noChangeBold') }}
 
   .notification.is-warning.is-light.mb-4(v-if="!mayLoad")
-    p.is-size-7
-      | {{ $t('countryRateSchedules.notLoader.lead') }} #[b {{ $t('countryRateSchedules.notLoader.bold') }}]{{ $t('countryRateSchedules.notLoader.tail') }}
+    i18n.is-size-7(path="countryRateSchedules.notLoader.sentence" tag="p")
+      template(#manager)
+        b {{ $t('countryRateSchedules.notLoader.bold') }}
 
   .has-text-centered.py-5(v-if="loading")
     b-loading(:is-full-page="false" :active="true")
@@ -82,8 +90,12 @@
 
       //- Read, and waiting for a decision
       template(v-else-if="r.status === 'pending'")
-        p.is-size-7.mb-2
-          | {{ $t('countryRateSchedules.reads.pendingLead') }} #[b {{ $t('countryRateSchedules.reads.pendingClasses', { count: r.classesSoFar }) }}] {{ $t('countryRateSchedules.reads.pendingTail', { document: r.documentName, published: r.published, pages: r.totalPages }) }}
+        i18n.is-size-7.mb-2(path="countryRateSchedules.reads.pendingSentence" tag="p")
+          template(#classes)
+            b {{ $t('countryRateSchedules.reads.pendingClasses', { count: r.classesSoFar }) }}
+          template(#document) {{ r.documentName }}
+          template(#published) {{ r.published }}
+          template(#pages) {{ r.totalPages }}
         p.is-size-7.has-text-danger.mb-2(v-if="detail(r).unreadNote") {{ detail(r).unreadNote }}
         details.mb-2(v-if="detail(r).unresolved && detail(r).unresolved.length")
           summary.is-size-7

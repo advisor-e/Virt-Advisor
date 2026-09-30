@@ -282,6 +282,112 @@ function hostOf (url) {
   return match[1].replace(/^www\./i, '')
 }
 
+/**
+ * The KEY FIGURES block the prompt's §6 asks for after section 5 (item 44.4, Mike's ruling
+ * 2026-09-30): a heading on its own line, bold or hashed or neither.
+ */
+const KEY_BLOCK = /^[ \t]*(?:#{1,6}[ \t]*)?(?:\*\*)?[ \t]*KEY FIGURES[ \t]*(?:\*\*)?[ \t]*:?[ \t]*(?:\*\*)?[ \t]*$/im
+const MAX_KEY_FIGURES = 6
+const MAX_HEADLINE = 300
+const MAX_LABEL = 60
+const MAX_FIGURE = 20
+const MAX_DATE = 40
+
+/** Markdown emphasis and links out, whitespace collapsed — a tile carries plain words. */
+function plainOf (s) {
+  return String(s || '').replace(MARKDOWN_LINK, '$1').replace(/[*_`#]/g, '').replace(/\s+/g, ' ').trim()
+}
+
+/**
+ * Splits the KEY FIGURES block off the end of the text, so it never prints as part of §5.
+ * @param {string} text @returns {{body: string, block: string}}
+ */
+function splitKeyFigures (text) {
+  // The LAST such heading: the block is asked for at the end, after everything else.
+  const all = new RegExp(KEY_BLOCK.source, 'gim')
+  let m = null
+  let next
+  while ((next = all.exec(text)) !== null) { m = next }
+  if (!m) { return { body: text, block: '' } }
+  return { body: text.slice(0, m.index).replace(/\s+$/, '\n'), block: text.slice(m.index + m[0].length) }
+}
+
+/**
+ * The block's headline and figures, kept only where the evidence sections carry them.
+ *
+ * 🔴 NOTHING ON A TILE IS THE MODEL'S OWN CLAIM. The figure must appear in §§1–3 exactly
+ * as written; the SOURCE is the citation attached after it in that same paragraph — never
+ * a name the model wrote here, because a source restated away from its figure is the one
+ * fault runs 1–3 proved this model makes; the date is kept only if §§1–3 say it too. A
+ * headline carrying any figure §§1–3 do not is dropped. A line that fails is left out
+ * silently: the tiles are a summary of the sections, never the reason a run is refused.
+ *
+ * @param {string} block the text after the KEY FIGURES heading
+ * @param {string} text the research, block removed
+ * @param {{start: number, end: number}} evidence the span of §§1–3 in `text`
+ * @param {Array<object>} citations with `start` offsets into `text`
+ * @returns {{headline: (string|null), keyFigures: Array<{what: string, figure: string, date: string, url: string, host: string}>}}
+ */
+function keyFiguresOf (block, text, evidence, citations) {
+  const out = { headline: null, keyFigures: [] }
+  if (!block) { return out }
+  const span = text.slice(evidence.start, evidence.end)
+  const lowerSpan = span.toLowerCase()
+  const evidenceFigures = figuresIn(span)
+
+  for (const raw of block.split('\n')) {
+    const line = raw.replace(/^[\s*-]+/, '').trim()
+    const head = /^HEADLINE\s*:\s*(.+)$/i.exec(line)
+    if (head && out.headline === null) {
+      const h = plainOf(head[1])
+      if (h && h.length <= MAX_HEADLINE && figuresIn(h).every(f => evidenceFigures.includes(f))) { out.headline = h }
+      continue
+    }
+    const fig = /^FIGURE\s*:\s*(.+)$/i.exec(line)
+    if (!fig || out.keyFigures.length >= MAX_KEY_FIGURES) { continue }
+    const [what, figure, date] = fig[1].split('|').map(plainOf)
+    if (!what || what.length > MAX_LABEL || !figure || figure.length > MAX_FIGURE || !/\d/.test(figure)) { continue }
+    const at = figureIndex(span, figure)
+    if (at < 0) { continue }
+    // The citation attached after the figure, before its paragraph ends.
+    const from = evidence.start + at
+    const paraEnd = (() => { const i = text.indexOf('\n\n', from); return i < 0 || i > evidence.end ? evidence.end : i })()
+    // The NEAREST one: a paragraph citing two figures carries two citations, and the second
+    // belongs to the second figure, whatever order the annotations arrived in.
+    const cite = citations
+      .filter(c => c.start >= from && c.start < paraEnd)
+      .reduce((near, c) => (!near || c.start < near.start ? c : near), null)
+    if (!cite) { continue }
+    out.keyFigures.push({
+      what,
+      figure,
+      date: date && date.length <= MAX_DATE && lowerSpan.includes(date.toLowerCase()) ? date : '',
+      url: cite.url,
+      host: hostOf(cite.url)
+    })
+  }
+  return out
+}
+
+/**
+ * Where a figure first appears as a figure — not inside a web address — or -1. A leading
+ * "+" the model added for a tile is not required in the text.
+ * @param {string} span @param {string} figure @returns {number}
+ */
+function figureIndex (span, figure) {
+  const forms = figure.startsWith('+') ? [figure, figure.slice(1)] : [figure]
+  for (const f of forms) {
+    let i = span.indexOf(f)
+    while (i >= 0) {
+      const inUrl = span.lastIndexOf('](', i) > span.lastIndexOf(')', i)
+      const partOfLonger = /[\d.,]/.test(span.charAt(i - 1)) || /\d/.test(span.charAt(i + f.length))
+      if (!inUrl && !partOfLonger) { return i }
+      i = span.indexOf(f, i + 1)
+    }
+  }
+  return -1
+}
+
 /** A refusal, in the shape every caller here expects. */
 function reject (code, message, detail) {
   return { ok: false, error: { code, message, detail: detail || null }, data: null }
@@ -318,12 +424,16 @@ function isBannedHost (host, banned) {
  *   rather than read here, so this stays a pure validator and the list keeps ONE home in
  *   `data/ai-prompts.json`, where a hub page can edit it.
  * @returns {{ok: boolean, error: (object|null), data: (object|null)}} On success `data` is
- *   `{ text, wordCount, sections: [{n, body, wordCount, citations}], sources: [{url, host, title}],
- *     citationCount }`.
+ *   `{ text, headline, keyFigures: [{what, figure, date, url, host}], wordCount,
+ *     sections: [{n, body, wordCount, citations}], sources: [{url, host, title}], citationCount }`.
  */
 function validateResearch (response, opts) {
   const bannedHosts = (opts && Array.isArray(opts.bannedHosts)) ? opts.bannedHosts : []
-  const { text, citations } = extractText(response)
+  const extracted = extractText(response)
+  // The KEY FIGURES block is not research: it is cut off before anything else reads the
+  // text, so it can never pass for part of §5, and a citation inside it counts for nothing.
+  const { body: text, block } = splitKeyFigures(extracted.text)
+  const citations = extracted.citations.filter(c => c.start < text.length)
 
   if (!text.trim()) {
     return reject('RESEARCH_EMPTY',
@@ -407,11 +517,17 @@ function validateResearch (response, opts) {
       { found: uniqueHosts.length, needed: MIN_UNIQUE_SOURCES })
   }
 
+  const lead = keyFiguresOf(block, text, { start: byNumber[1].start, end: byNumber[SYNTHESIS_SECTION].start }, citations)
+
   return {
     ok: true,
     error: null,
     data: {
       text,
+      // The pack's opening headline and key-indicator tiles (item 44.4); null and [] when
+      // the run gave none that its own evidence carries.
+      headline: lead.headline,
+      keyFigures: lead.keyFigures,
       wordCount: countWords(text),
       sections: sections.map(s => ({
         n: s.n,
@@ -427,6 +543,8 @@ function validateResearch (response, opts) {
 
 module.exports = {
   validateResearch,
+  splitKeyFigures,
+  keyFiguresOf,
   isBannedHost,
   extractText,
   findSections,

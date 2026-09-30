@@ -76,8 +76,9 @@ const NuxtLinkStub = {
  * vue-i18n's `<i18n path tag>` component, which the app registers and a bare test mount does
  * not. It renders the sentence through the test's own `$t`, filling `{name}` from the named
  * slots — so under `englishMocks()` a test reads the real English sentence with its bold parts
- * in place, and under the key stub it reads the key. Without it those sentences were invisible
- * to every test (2026-09-25).
+ * in place, and under the key stub it reads the key followed by every slot's content — so the
+ * numbers inside a sentence stay assertable either way. Without it those sentences were
+ * invisible to every test (2026-09-25).
  */
 const I18nStub = {
   name: 'I18n',
@@ -87,10 +88,16 @@ const I18nStub = {
     const text = String(ctx.parent.$t(ctx.props.path))
     const slots = ctx.slots()
     const children = []
+    const used = new Set()
     text.split(/(\{[A-Za-z0-9_]+\})/).forEach((piece) => {
       const name = (piece.match(/^\{([A-Za-z0-9_]+)\}$/) || [])[1]
-      if (name && slots[name]) { children.push(...slots[name]) } else if (piece) { children.push(piece) }
+      if (name && slots[name]) {
+        children.push(...slots[name])
+        used.add(name)
+      } else if (piece) { children.push(piece) }
     })
+    // The key stub returns a key with no {placeholders}: the slots follow it, in template order.
+    Object.keys(slots).filter(name => !used.has(name)).forEach(name => children.push(...slots[name]))
     return h(ctx.props.tag || 'span', ctx.data, children)
   }
 }

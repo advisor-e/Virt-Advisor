@@ -3,7 +3,7 @@
  */
 'use strict'
 
-const { mountWithBuefy } = require('../helpers/mountComponent')
+const { mountWithBuefy, englishMocks } = require('../helpers/mountComponent')
 const FirmDecisionLogic = require('~/components/firm/FirmDecisionLogic.vue').default
 
 /**
@@ -90,7 +90,9 @@ describe('FirmDecisionLogic — the three levers', () => {
     expect(text).toContain('firmDecisionLogic.dsCount {"count":29}')
     expect(text).toContain('firmDecisionLogic.ltCount {"tables":42,"hints":37}')
     expect(text).toContain('firmDecisionLogic.adCount {"count":67}')
-    expect(text).toContain('firmDecisionLogic.quizFootB {"banks":62,"questions":652}')
+    const foot = wrapper.find('.footnote').text()
+    expect(foot).toContain('62')
+    expect(foot).toContain('652')
   })
 
   it('reads +3 and +5 from the payload rather than a copy of its own', async () => {
@@ -121,15 +123,14 @@ describe('FirmDecisionLogic — the three levers', () => {
   })
 
   it('keeps a space between the "measured" tag and the number after it', async () => {
-    // Pug emits NO whitespace between a bare `|` and a following tag, which
-    // rendered "measured3 cases in 51" (found by Mike, 2026-08-03).
-    const wrapper = mountPage()
+    // Pug emitted NO whitespace between a bare `|` and a following tag, which
+    // rendered "measured3 cases in 51" (found by Mike, 2026-08-03). Since item 13.6
+    // the space lives in the sentence's own locale string, between two slots.
+    const wrapper = mountPage(SUMMARY, { mocks: englishMocks() })
     await wrapper.vm.load()
     await wrapper.vm.$nextTick()
 
-    const html = wrapper.html()
-    expect(html).not.toMatch(/<\/span><b>firmDecisionLogic\.ltMeasureD/)
-    expect(html).toMatch(/<\/span>\s+<b>firmDecisionLogic\.ltMeasureD/)
+    expect(wrapper.html()).toMatch(/<\/span>\s+<b>3 cases<\/b>/)
   })
 
   it('shows nothing at all — and says why — when the configuration cannot be read', async () => {

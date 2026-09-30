@@ -1,6 +1,7 @@
 <template lang="pug">
 report-shell
   report-header(
+    class="tw-screenhead"
     :back-label="$t('modelLibrary.backToLibrary')"
     :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.threeWayForecast.eyebrowClass')"
     :title="$t('report.threeWayForecast.title')"
@@ -36,12 +37,14 @@ report-shell
     @step="step = $event"
     @state="onIntakeState"
     @confirmed="onConfirmed")
-  //- No `client` here: the header above is the only place the name is shown, and it is
-  //- this page's. The report component stopped rendering a second header on 2026-09-05.
+  //- The header above is the only place the name is SHOWN, and it is this page's. The
+  //- report takes it for the Notes alone, which name the business in their assumptions.
   three-way-forecast-report(
     v-else-if="step === 4"
     :seed="liveInputs"
     :restore="loadedReport"
+    :client-name="companyName || savedReport.clientName"
+    :economic-in-pack="economicInPack"
     :client-changes="clientChanges"
     @state-change="onReportState"
     @change-assumptions="goTo(3)"
@@ -145,7 +148,9 @@ export default {
       liveInputs: null,
       levers: null,
       detail: 'summary',
-      /** `{ levers, detail }` handed to the report after a saved row loads. */
+      /** The Notes' three advisor fields, as the report last reported them. */
+      notesFields: null,
+      /** `{ levers, detail, notesFields }` handed to the report after a saved row loads. */
       loadedReport: null,
       /**
        * Bumped when a saved row loads, so the intake is rebuilt and re-reads `restore`.
@@ -189,6 +194,17 @@ export default {
         { n: 5, label: 'report.threeWayForecast.step5' }
       ]
       return this.savedReport.mode === 'client' ? chips.slice(1) : chips
+    },
+
+    /**
+     * Whether the economic analysis prints after the notes — the same three conditions
+     * EconomicAnalysisPack prints on, so the contents never lists a section that is absent.
+     * @returns {boolean}
+     */
+    economicInPack () {
+      const e = this.economic
+      return Boolean(e.included && e.approval && e.approval.isApproved === true &&
+        e.research && Array.isArray(e.research.sections) && e.research.sections.length)
     },
 
     /** The client's name from a dropped file — displayed locally, never sent anywhere. */
@@ -299,12 +315,13 @@ export default {
     },
 
     /**
-     * The report reported its two settings (on show, and on every change).
-     * @param {{levers: object, detail: string}} state
+     * The report reported its settings (on show, and on every change).
+     * @param {{levers: object, detail: string, notesFields: object}} state
      */
     onReportState (state) {
       this.levers = state.levers
       this.detail = state.detail
+      this.notesFields = state.notesFields || null
     },
 
     /**
@@ -314,7 +331,7 @@ export default {
      */
     reportInputs () {
       const state = this.liveState || (this.confirmed && this.confirmed.state)
-      return flattenForecast(state || {}, this.levers, this.detail)
+      return flattenForecast(state || {}, this.levers, this.detail, this.notesFields)
     },
 
     /**
@@ -331,7 +348,9 @@ export default {
       this.liveState = next.form
       this.levers = next.levers
       this.detail = next.detail
-      this.loadedReport = { levers: next.levers, detail: next.detail }
+      // A row saved before the Notes' fields existed carries none; the report keeps its own.
+      if (next.notesFields) { this.notesFields = next.notesFields }
+      this.loadedReport = { levers: next.levers, detail: next.detail, notesFields: next.notesFields }
       // Rebuilding the intake is what makes the loaded form reach the screen, and its
       // first report back is what re-seeds the forecast — so nothing here computes a
       // payload the intake is the only thing that knows how to build.
@@ -343,6 +362,7 @@ export default {
       this.confirmed = null
       this.liveState = null
       this.loadedReport = null
+      this.notesFields = null
       this.intakeKey += 1
       // A client has no upload step to go back to.
       this.step = this.savedReport.mode === 'client' ? 2 : 1
@@ -373,5 +393,8 @@ export default {
 .step.active .n { background: #ffffff30; color: var(--rs-accent-contrast); }
 .step.done { color: var(--rs-good); }
 .step.done .n { background: var(--rs-good-soft); color: var(--rs-good); }
-@media print { .steps { display: none !important; } }
+/* On paper the pack opens on its own cover (item 44.4), so the screen's title banner goes
+   with the step chips. `tw-screenhead` rides on ReportHeader's root, which carries this
+   page's scope. */
+@media print { .steps, .tw-screenhead { display: none !important; } }
 </style>

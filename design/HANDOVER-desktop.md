@@ -9,30 +9,28 @@
 
 ---
 
-## 2026-09-29 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-30 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed; 6 ahead of `master`, 0 behind.** Green: 659 suites / 14,241 tests on Node
-14.15. Run tests, commits and pushes with the 14.15 folder first on PATH (item 22.2).
+**Released: `v0.14.0`** — on Mike's instruction, *"complete alignment with the laptop and then …
+cut a new release, inclusive of all handover notes for the master coding team"*. The laptop's
+branch reached `master` through PR #146, this branch through PR #145, and the tag sits on that
+merge. Notes: [`RELEASE-NOTES-v0.14.0.md`](RELEASE-NOTES-v0.14.0.md); the load pack
+[`UAT-LOAD-PACK.md`](UAT-LOAD-PACK.md) and [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md) updated
+with it. Run tests, commits and pushes with the 14.15 folder first on PATH (item 22.2).
 
-**Closed on Mike's word:** 15.13 (the report brought into Assess current position, printed on
-one framed plan sheet) and 10.3 (Tax & Forecast Rates: one hub page, four former tabs as
-sections). **Parked:** 15.15, for his re-think.
-
-**Also built today, on his rulings:** the mentor loads and approves country schedules and they
-cascade — a global group manager sees them as "Advisor-e" and may load their own. The real
-IR265 is loaded at mentor level in this computer's test database. **Fixed:** the plan's Print
-button (blank since 22 Sep), the schedules list drawing blank when pages were unread, and the
-Depreciation Rates upload wording.
-
-**Local test database only:** the Strategy Planner's three tables now exist here, with practice
-session 1 and a completed practice report for Dev Client Ltd.
+**Done today, all closed on Mike's word:** 13.6 (whole sentences, part one), 44.1 (the forecast
+reviewed against NZ IFRS / FRS-42, and Notes to the forecast in every forecast), 44.2 (IFRS 18 /
+IAS 7 layout), 44.4 (the printed forecast as a board paper, negatives in brackets, the research
+headline and key-figure tiles — the research-prompt paragraph approved word for word). The
+economic research's tables and lists now print as tables and lists. **Filed:** 13.8, 44.3.
 
 ### FOR THE LAPTOP
 
-- Merge `master` once this branch reaches it; nothing of yours was touched.
-- Shared files changed: `components/FirmManagerHub.vue` (NAV_GROUPS, TAB_TIERS:
-  `taxForecastRates`, and `countrySchedules` now mentor too), `locales/en.json`,
-  `pages/strategy-planner.vue` (print rules, 15.13), `StrategyConceptCapture.vue` and
-  `StrategyPlanDocument.vue` (15.13 insertions; 8.4 is yours), `hubTabTiers.test.js`,
-  `mentorHubScope.component.test.js`.
-- 15.14, 15.20 and 8.4 remain yours.
+- **Merge `master` at startup** — nothing to resolve. Both machines then match `v0.14.0`.
+- Shared files changed here today: `locales/en.json` (`report.threeWayForecast.pack`, `.notes`,
+  `economicAnalysis.inShort`/`keyIndicators`), `mixins/currencyMixin.js` (`figure`, and
+  `bracketNegatives`), `utils/currencyFormat.js` (`accountingMoney`/`accountingNum`),
+  `utils/researchText.js` (lists and tables), `data/ai-prompts.json` (economic analysis §6).
+- **8.4's note contradicts its own commit.** The item says it was "never yet run against real
+  OpenAI or a microphone"; `b10854c5`'s body says it was walked "with Chrome's test-tone
+  microphone and real OpenAI calls". The item is yours — put it right on Mike's word.

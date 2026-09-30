@@ -1,8 +1,11 @@
 <template lang="pug">
 .ftt
   .notification.is-info.is-light.mb-4
+    //- One locale string for the sentence, the product name as a slot (item 13.6).
     p.is-size-7
-      | {{ $t('firmForecastTrendThresholds.intro.lead') }}#[b {{ $t('firmForecastTrendThresholds.intro.forecastName') }}]{{ $t('firmForecastTrendThresholds.intro.afterName') }}
+      i18n(path="firmForecastTrendThresholds.intro.sentence" tag="span")
+        template(#forecast)
+          b {{ $t('firmForecastTrendThresholds.intro.forecastName') }}
       |  #[b {{ $t('firmForecastTrendThresholds.intro.blankNote') }}]
       |  {{ $t('firmForecastTrendThresholds.intro.reportNote') }}
 

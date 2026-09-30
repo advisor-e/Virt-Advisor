@@ -207,6 +207,25 @@ three existing prompts, so this becomes the fourth and is editable there without
 >
 > Aim for 1,200–1,600 words across sections 1 to 4. Section 5 is as long as it needs to be.
 > Citations appear inline, in the section where the figure is used.
+>
+> After section 5, end with a block headed KEY FIGURES on its own line. It goes on the front
+> page of the report and must add nothing new:
+>
+> HEADLINE: one sentence summing up what sections 1 to 3 established for a business of this kind.
+> FIGURE: what it measures | the figure exactly as written in sections 1 to 3 | the period or day it refers to, as written there — such as June 2026 quarter
+>
+> Give up to six FIGURE lines, choosing the figures that matter most to this business. Use only
+> figures that sections 1 to 3 already state with their citation — never a new one, and never a
+> figure of the business's own. Do not cite anything in this block.
+
+✅ **THE KEY FIGURES PARAGRAPH ABOVE IS APPROVED BY MIKE, 2026-09-30 ("yes"), word for word as committed in `c9ecbf33` (item 44.4).** He
+ruled the substance the same day — *a one-sentence headline and up to six key figures, a tile
+drawn only for a figure found in the research's cited text*. The words were written at build
+time. Two things are deliberately NOT asked of the model, and are enforced in
+`server/report/economicAnalysis/researchResult.js` (`keyFiguresOf`): a tile's **source** is the
+citation attached after its figure in §§1–3, never a name the model writes here — a source
+restated away from its figure is the fault runs 1–3 proved; and a figure or date §§1–3 do not
+carry is left off. The block is cut away before validation, so it can never pass for part of §5.
 
 ✅ **THE NUMBERING SENTENCE IS APPROVED BY MIKE, 2026-09-06 ("yes").** It was added at build
 time and was not in the text he approved earlier that day, so it was recorded as an unruled

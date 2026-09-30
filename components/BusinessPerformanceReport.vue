@@ -88,7 +88,14 @@
       .bpr-card.bpr-wheelcard
         .bpr-wheelhead
           h2.bpr-h2 {{ $t('report.workingCapital.wheel.title') }}
-          .bpr-cycsum {{ $t('report.workingCapital.wheel.sumTurns') }} #[b {{ round1(out.cycleFactorMonthly) }}×] {{ $t('report.workingCapital.wheel.sumAMonth') }} #[b {{ round0(out.cycleDays) }} {{ $t('report.workingCapital.coach.days') }}] {{ $t('report.workingCapital.wheel.sumPerTurn') }} #[b {{ inputs.daysPayable }}d] {{ $t('report.workingCapital.wheel.sumToPay') }}
+          //- One locale string per sentence, figures as slots (item 13.6).
+          i18n.bpr-cycsum(path="report.workingCapital.wheel.sumText" tag="div")
+            template(#factor)
+              b {{ round1(out.cycleFactorMonthly) }}×
+            template(#days)
+              b {{ round0(out.cycleDays) }} {{ $t('report.workingCapital.coach.days') }}
+            template(#payable)
+              b {{ inputs.daysPayable }} {{ $t('report.workingCapital.coach.days') }}
         svg.bpr-wheel(viewBox="0 0 500 360" role="img" :aria-label="$t('report.workingCapital.wheel.aria')")
           defs
             marker#bprAh(viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse")
@@ -131,10 +138,22 @@
         .bpr-edu-h
           span.bpr-lead {{ $t('report.workingCapital.coach.lead') }}
           | {{ $t('report.workingCapital.coach.title') }}
-        p.bpr-edu-p
-          | {{ $t('report.workingCapital.coach.body1') }} #[strong {{ money(out.workingCapital) }}] {{ $t('report.workingCapital.coach.body2') }} #[strong {{ round0(out.cycleDays) }} {{ $t('report.workingCapital.coach.days') }}], {{ $t('report.workingCapital.coach.body3') }} #[strong {{ round1(out.cycleFactorMonthly) }}×] {{ $t('report.workingCapital.coach.body4') }} #[em {{ $t('report.workingCapital.coach.outside') }}] {{ $t('report.workingCapital.coach.body5') }}
-        p.bpr-edu-p(v-if="fasterHint")
-          | {{ $t('report.workingCapital.coach.faster1') }} #[strong {{ fasterHint.days }} {{ $t('report.workingCapital.coach.days') }}], {{ $t('report.workingCapital.coach.faster2') }} #[strong {{ fasterHint.factor }}×] {{ $t('report.workingCapital.coach.faster3') }} #[strong {{ fasterHint.extra }}] {{ $t('report.workingCapital.coach.faster4') }}
+        i18n.bpr-edu-p(path="report.workingCapital.coach.text" tag="p")
+          template(#capital)
+            strong {{ money(out.workingCapital) }}
+          template(#days)
+            strong {{ round0(out.cycleDays) }} {{ $t('report.workingCapital.coach.days') }}
+          template(#factor)
+            strong {{ round1(out.cycleFactorMonthly) }}×
+          template(#outside)
+            em {{ $t('report.workingCapital.coach.outside') }}
+        i18n.bpr-edu-p(v-if="fasterHint" path="report.workingCapital.coach.fasterText" tag="p")
+          template(#days)
+            strong {{ fasterHint.days }} {{ $t('report.workingCapital.coach.days') }}
+          template(#factor)
+            strong {{ fasterHint.factor }}×
+          template(#extra)
+            strong {{ fasterHint.extra }}
 
       .bpr-actions
         button.bpr-cta(@click="downloadPdf") {{ $t('report.workingCapital.actions.pdf') }}

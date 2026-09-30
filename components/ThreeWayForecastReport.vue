@@ -13,6 +13,26 @@
   //- Position's page header is where its save / restore / client-access handlers hang.
   //- The forecast is the last screen item 4.62 has to wire, so its per-client controls
   //- will need exactly that seam.
+  //- [A2] 🔴 THE PRINTED PACK'S FRONT — cover, contents, the forecast at a glance. Print
+  //- only, and first on paper: the page's own header and step chips are hidden there, so
+  //- the cover is page one (item 44.4; drawing and wording approved by Mike 2026-09-30,
+  //- design/mockups/three-way-forecast-board-pack.html).
+  .tw-printfront(v-if="packStart")
+    three-way-forecast-cover(
+      :client-name="clientName"
+      :prepared-by="notesFields.preparedBy"
+      :start-iso="packStart"
+      :year-count="yearCount"
+      :economic-in-pack="economicInPack")
+    .tw-printglance
+      three-way-forecast-glance(
+        :result="result"
+        :year-count="yearCount"
+        :client-name="clientName"
+        :currency="firmCurrency")
+      p.tw-note.tw-printcaution
+        span.tw-printfirm(v-if="notesFields.preparedBy.trim()") {{ notesFields.preparedBy.trim() }}
+        | {{ $t('report.threeWayForecast.report.caution') }}
   template(v-if="data")
     //- A failed recompute must never sit silently behind live-looking figures.
     stale-banner(
@@ -28,7 +48,8 @@
     //- multi-year subs below only appear once there is more than one year to span. The
     //- third label is the one that changes, because "Result for the year" is not true of
     //- three of them — it is the wording of the approved drawing.
-    hero-strip(:columns="4" :stale="!!error")
+    //- `tw-hero`: hidden on paper, where the forecast at a glance says it (item 44.4).
+    hero-strip.tw-hero(:columns="4" :stale="!!error")
       hero-figure(
         :label="$t('report.threeWayForecast.report.closingCash')"
         :value="money(headline.closingCash)"
@@ -250,13 +271,31 @@
               :class="{ on: tab === t.key }"
               type="button"
               @click="tab = t.key") {{ $t(t.label) }}
-          .seg-small
+          //- Summary / Every line means nothing to the notes, so it is not offered there.
+          .seg-small(v-if="tab !== 'notes'")
             button(
               v-for="d in detailOptions" :key="d"
               :class="{ on: detail === d }"
               type="button"
               @click="detail = d") {{ $t('report.threeWayForecast.report.detail.' + d) }}
-        .tw-group.tw-tabbody
+        .tw-group.tw-tabbody(v-if="tab === 'notes'")
+          //- The advisor's own words for the notes. On screen only: this whole card is
+          //- hidden in print, where the notes carry what was typed here.
+          .tw-notesfields
+            p.tw-notesfields-h {{ $t(NF + 'heading') }}
+            b-field(
+              v-for="k in noteFieldKeys" :key="k"
+              :label="$t(NF + k)"
+              :message="$t(NF + k + 'Hint')")
+              b-input(v-model="notesFields[k]" :maxlength="200" :has-counter="false")
+          three-way-forecast-notes(
+            v-if="notesData"
+            :notes="notesData"
+            :year-count="yearCount"
+            :currency="firmCurrency"
+            :client-name="clientName"
+            :fields="notesFields")
+        .tw-group.tw-tabbody(v-else)
           .tw-tblwrap
             table
               thead
@@ -264,8 +303,8 @@
                   th
                   th(v-for="(m, i) in monthLabels" :key="i") {{ m }}
               tbody
-                tr(v-for="row in visibleRows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong }")
-                  td {{ row.rawLabel || $t(row.label) }}
+                tr(v-for="row in visibleRows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong, 'is-section': row.section }")
+                  td(:colspan="row.section ? monthLabels.length + 1 : null") {{ row.rawLabel || $t(row.label) }}
                   td(
                     v-for="(v, i) in row.values" :key="i"
                     :class="cellClass(row, v)") {{ money(v) }}
@@ -295,26 +334,48 @@
             .tw-glabel
               span.tw-dot
               h2.tw-h2 {{ s.heading }}
+            //- The board-pack restyle (item 44.4): the period and currency once under the
+            //- heading, figures without a symbol and negatives in brackets, a Year column on
+            //- the two statements that add across months. Lines and order are unchanged.
+            p.tw-printsub(v-if="s.sub") {{ s.sub }}
             .tw-tblwrap
-              table
+              table.tw-printtable
                 thead
                   tr
                     th
                     //- Each year carries its OWN month labels: a forecast starting
                     //- mid-year does not repeat year 1's months in year 2.
                     th(v-for="(m, i) in s.months" :key="i") {{ m }}
+                    th.tw-yr(v-if="s.kind !== 'balance'") {{ $t('report.threeWayForecast.pack.statements.year') }}
                 tbody
-                  tr(v-for="row in s.rows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong }")
-                    td {{ row.rawLabel || $t(row.label) }}
+                  tr(v-for="row in s.rows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong, 'is-section': row.section, 'is-total': TOTAL_ROWS.includes(row.key) }")
+                    td(:colspan="row.section ? s.months.length + (s.kind === 'balance' ? 1 : 2) : null") {{ row.rawLabel || $t(row.label) }}
                     td(
                       v-for="(v, i) in row.values" :key="i"
-                      :class="cellClass(row, v)") {{ money(v) }}
+                      :class="cellClass(row, v)") {{ figure(v) }}
+                    td.tw-yr(v-if="s.kind !== 'balance' && !row.section") {{ figure(yearOf(row)) }}
             //- The screen's own copy of this note is keyed to the profit TAB being open,
             //- which is never true here, so the print reads its own count — per year.
             p.tw-note(v-if="s.hidden")
               | {{ $t('report.threeWayForecast.report.detail.hiddenOverheads', { hidden: s.hidden, total: overheadCount }) }}
-            //- Every printed page carries the FRS-42 caution, since a page can be handed on alone.
-            p.tw-note.tw-printcaution {{ $t('report.threeWayForecast.report.caution') }}
+            //- Every printed page carries the FRS-42 caution, since a page can be handed on
+            //- alone — and the firm's name where the drawing marked its logo.
+            p.tw-note.tw-printcaution
+              span.tw-printfirm(v-if="notesFields.preparedBy.trim()") {{ notesFields.preparedBy.trim() }}
+              | {{ $t('report.threeWayForecast.report.caution') }}
+        //- The notes follow the statements they explain, as in any set of accounts, and come
+        //- before the economic analysis (item 44.1). Their own page, with the caution under it.
+        .tw-card.tw-printstmt(v-if="notesData")
+          .tw-group
+            three-way-forecast-notes(
+              :notes="notesData"
+              :year-count="yearCount"
+              :currency="firmCurrency"
+              :client-name="clientName"
+              :fields="notesFields")
+            p.tw-note.tw-printcaution
+              span.tw-printfirm(v-if="notesFields.preparedBy.trim()") {{ notesFields.preparedBy.trim() }}
+              | {{ $t('report.threeWayForecast.report.caution') }}
 
       .tw-card
         .tw-group
@@ -375,6 +436,10 @@
 import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
+import ThreeWayForecastNotes from '~/components/ThreeWayForecastNotes.vue'
+import ThreeWayForecastCover from '~/components/ThreeWayForecastCover.vue'
+import ThreeWayForecastGlance from '~/components/ThreeWayForecastGlance.vue'
+import { intlLocaleFor } from '~/utils/dateLocale'
 import SliderField from '~/components/base/SliderField.vue'
 import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
@@ -386,23 +451,29 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export default {
   name: 'ThreeWayForecastReport',
 
-  components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge },
+  components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge, ThreeWayForecastNotes, ThreeWayForecastCover, ThreeWayForecastGlance },
 
   mixins: [currencyMixin, reportRecompute],
 
   props: {
     /** The confirmed inputs from the intake, or null to compute on the sample. */
     seed: { type: Object, default: null },
-    // No `client` prop: the only thing that read it was the duplicate header removed on
-    // 2026-09-05. The page holds the client's name and puts it on the header it owns.
     /**
-     * What a saved report puts back on this screen — `{ levers, detail }` (item 4.62,
+     * The client's name, for the Notes alone — their general assumptions and compilation
+     * report name the business. The page still owns the header, which is where the name
+     * is shown; the duplicate header this screen once drew stays gone (2026-09-05).
+     */
+    clientName: { type: String, default: '' },
+    /**
+     * What a saved report puts back on this screen — `{ levers, detail, notesFields }` (item 4.62,
      * Brief §5). The page saves, because the header is the page's; this screen reports
      * its own settings upward and takes a loaded pair back.
      */
     restore: { type: Object, default: null },
     /** Saved-row names the client changed since the advisor's version (§5, D4). */
-    clientChanges: { type: Array, default: () => [] }
+    clientChanges: { type: Array, default: () => [] },
+    /** True when the approved economic analysis prints after the notes — the contents lists it. */
+    economicInPack: { type: Boolean, default: false }
   },
 
   data () {
@@ -438,7 +509,21 @@ export default {
       // report's levers take the place of the ones worked out from the seed.
       f: this.restore && this.restore.levers
         ? Object.assign(this.leversFor(this.seed), this.restore.levers)
-        : this.leversFor(this.seed)
+        : this.leversFor(this.seed),
+      /**
+       * The Notes' three advisor fields (item 44.1, revised drawing approved 2026-09-30).
+       * The purpose starts as the workbook's own; a saved report's fields replace all three.
+       */
+      notesFields: this.notesFieldsFrom(this.restore && this.restore.notesFields),
+      /**
+       * Every amount a negative in brackets — "($400,760)" — on screen and in print (Mike's
+       * ruling 2026-09-30, item 44.4). Read by currencyMixin's `money`.
+       */
+      bracketNegatives: true,
+      NF: 'report.threeWayForecast.notes.fields.',
+      /** The printed statements' totals, double-ruled (item 44.4): each statement's last word. */
+      TOTAL_ROWS: ['pbt', 'net', 'close', 'net-a', 'teq'],
+      noteFieldKeys: ['purpose', 'salesBasis', 'preparedBy']
     }
   },
 
@@ -447,8 +532,30 @@ export default {
       return [
         { key: 'cash', label: 'report.threeWayForecast.report.tabCash' },
         { key: 'profit', label: 'report.threeWayForecast.report.tabProfit' },
-        { key: 'balance', label: 'report.threeWayForecast.report.tabBalance' }
+        { key: 'balance', label: 'report.threeWayForecast.report.tabBalance' },
+        // Each forecast's own support notes (item 44.1; drawing approved 2026-09-30).
+        { key: 'notes', label: 'report.threeWayForecast.notes.tab' }
       ]
+    },
+
+    /**
+     * The notes' facts and Note 2's figures, from the model. Year 1's: a later year trades on
+     * what quick-fire changed, and the notes describe the forecast as it was built.
+     * @returns {object|null}
+     */
+    notesData () {
+      const y = this.result && Array.isArray(this.result.years) ? this.result.years[0] : null
+      return y && y.notes ? Object.assign({}, y.notes, { laterYears: this.result.laterYears || [] }) : null
+    },
+
+    /**
+     * The forecast's first month, when every year carries its dates — the printed front
+     * (cover, contents, at a glance) needs them to state the period. @returns {string}
+     */
+    packStart () {
+      const years = (this.result && this.result.years) || []
+      const dated = years.length && years.every(y => y.months && Array.isArray(y.months.isoDates))
+      return dated ? years[0].months.isoDates[0] : ''
     },
 
     /** The two settings, in the order they are drawn. */
@@ -459,7 +566,7 @@ export default {
 
     /** How many overhead lines the engine holds, whether or not they carry a figure. */
     overheadCount () {
-      return this.data ? Object.keys(this.data.profitAndLoss.overheads).length : 0
+      return this.data ? this.overheadKeysOf(this.data).length : 0
     },
 
     /**
@@ -474,7 +581,7 @@ export default {
     hiddenOverheadCount () {
       if (!this.data || !this.isEvery || this.tab !== 'profit') { return 0 }
       const oh = this.data.profitAndLoss.overheads
-      return Object.keys(oh).filter(k => !this.hasAFigure(oh[k])).length
+      return this.overheadKeysOf(this.data).filter(k => !this.hasAFigure(oh[k])).length
     },
 
     /** Short month names for the table head, read from the model's own dates. */
@@ -635,14 +742,14 @@ export default {
       const revenue = per(y => total(y.profitAndLoss.revenue))
       const gross = per(y => total(y.profitAndLoss.grossSurplus))
       const dep = per(y => total(y.profitAndLoss.depreciation))
-      const interest = per(y => total(y.profitAndLoss.interestBankOverdraft) +
-        total(y.profitAndLoss.interestTermLoans) + total(y.profitAndLoss.interestFacilities))
-      // `totalOverheads` already carries depreciation and the three interest lines, so
-      // both come out here — otherwise every one of them would be counted twice down the
-      // column, and the column would still add up.
-      const overheads = per((y, i) => total(y.profitAndLoss.totalOverheads) - dep[i] - interest[i])
-      const operating = per((y, i) => gross[i] - overheads[i] - interest[i] - dep[i])
-      const other = per(y => total(y.profitAndLoss.totalOtherIncome))
+      // The same shape as the profit tab (item 44.2): other income above the operating
+      // surplus, interest earned and every interest charge below it, so "Operating surplus"
+      // is one figure on the whole report. The rows still add down to profit before tax.
+      const overheads = per((y, i) => total(y.profitAndLoss.operatingOverheads) - dep[i])
+      const other = per(y => total(y.profitAndLoss.otherOperatingIncome))
+      const operating = per(y => total(y.profitAndLoss.operatingProfit))
+      const earned = per(y => total(y.profitAndLoss.investingIncome))
+      const interest = per(y => total(y.profitAndLoss.financingCosts))
       const beforeTax = per(y => total(y.profitAndLoss.netSurplusBeforeTax))
       const tax = per(y => total(y.profitAndLoss.taxProvision))
       const afterTax = per(y => total(y.profitAndLoss.netSurplusAfterTax))
@@ -658,10 +765,11 @@ export default {
         flow('revenue', revenue),
         flow('grossSurplus', gross),
         flow('overheads', overheads, { dim: true }),
-        flow('interest', interest, { dim: true }),
         flow('depreciation', dep, { dim: true }),
-        flow('operatingSurplus', operating, { rule: true }),
         flow('otherIncome', other, { dim: true }),
+        flow('operatingSurplus', operating, { rule: true }),
+        flow('interestReceived', earned, { dim: true }),
+        flow('interest', interest, { dim: true }),
         flow('netBeforeTax', beforeTax),
         flow('tax', tax, { dim: true }),
         flow('netAfterTax', afterTax, { rule: true, strong: true }),
@@ -845,10 +953,19 @@ export default {
         // pages the print has produced since 2026-09-06. The year prefix appears only
         // when there is more than one year for it to tell apart.
         const head = label => (multi ? `${year} · ${this.$t(label)}` : this.$t(label))
+        // The board-pack subtitle under each heading (item 44.4, wording approved 2026-09-30).
+        const S = 'report.threeWayForecast.pack.statements.'
+        const iso = d.months && d.months.isoDates ? d.months.isoDates[11] : ''
+        const end = iso
+          ? new Date(Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)), 0))
+            .toLocaleDateString(intlLocaleFor(this.$i18n.locale), { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+          : ''
+        // A year with no dates has no period to state, so it carries no subtitle.
+        const sub = key => (end ? this.$t(S + key, { end, currency: this.firmCurrency }) : '')
         out.push(
-          { key: `cash-${i}`, heading: head('report.threeWayForecast.report.tabCash'), months, rows: this.cashRowsFor(d), hidden: 0 },
-          { key: `profit-${i}`, heading: head('report.threeWayForecast.report.tabProfit'), months, rows: this.profitRowsFor(d), hidden: this.hiddenOverheadsFor(d) },
-          { key: `balance-${i}`, heading: head('report.threeWayForecast.report.tabBalance'), months, rows: this.balanceRowsFor(d), hidden: 0 }
+          { key: `cash-${i}`, kind: 'cash', sub: sub('subFlow'), heading: head('report.threeWayForecast.report.tabCash'), months, rows: this.cashRowsFor(d), hidden: 0 },
+          { key: `profit-${i}`, kind: 'profit', sub: sub('subFlow'), heading: head('report.threeWayForecast.report.tabProfit'), months, rows: this.asDeductions(this.profitRowsFor(d)), hidden: this.hiddenOverheadsFor(d) },
+          { key: `balance-${i}`, kind: 'balance', sub: sub('subBalance'), heading: head('report.threeWayForecast.report.tabBalance'), months, rows: this.balanceRowsFor(d), hidden: 0 }
         )
       })
       return out
@@ -884,12 +1001,15 @@ export default {
       if (!d) { return [] }
       const lines = []
       const h = this.headline
-      const overheadsPerMonth = d.profitAndLoss.totalOverheads.reduce((a, v) => a + v, 0) / 12
+      // The Overheads the profit tab shows — before interest since item 44.2.
+      const overheadsPerMonth = d.profitAndLoss.operatingOverheads.reduce((a, v) => a + v, 0) / 12
       if (h.closingCash < 0) {
         lines.push(this.$t('report.threeWayForecast.report.closingCashSub'))
       }
-      lines.push(this.$t('report.threeWayForecast.report.grossMarginSub', { amount: this.money(h.grossSurplus) }) +
-        ' — ' + this.pct(h.grossMarginPct) + ', ' + this.money(overheadsPerMonth) + ' of overheads a month.')
+      // One string, so a translation sees the whole sentence (13.6's rule).
+      lines.push(this.$t('report.threeWayForecast.report.coachMarginLine', {
+        amount: this.money(h.grossSurplus), pct: this.pct(h.grossMarginPct), overheads: this.money(overheadsPerMonth)
+      }))
       if (this.stockOutMonths.length) {
         lines.push(this.$t('report.threeWayForecast.report.stockOutBody'))
       }
@@ -906,6 +1026,7 @@ export default {
       }
     },
     detail () { this.emitState() },
+    notesFields: { deep: true, handler () { this.emitState() } },
     /**
      * A new intake replaces the levers as well as the figures. Without this the two
      * absolute levers — mark-up and the month-after collection — would keep their opening
@@ -929,6 +1050,7 @@ export default {
       if (!next) { return }
       if (next.levers) { this.f = Object.assign({}, this.f, next.levers) }
       if (next.detail) { this.detail = next.detail }
+      if (next.notesFields) { this.notesFields = this.notesFieldsFrom(next.notesFields) }
     }
   },
 
@@ -944,8 +1066,29 @@ export default {
      * @returns {void}
      */
     emitState () {
-      // state-change: { levers: {salesShift, markup, debtorMonthAfter, overheadShift}, detail }
-      this.$emit('state-change', { levers: Object.assign({}, this.f), detail: this.detail })
+      // state-change: { levers: {salesShift, markup, debtorMonthAfter, overheadShift}, detail,
+      //   notesFields: {purpose, salesBasis, preparedBy} }
+      this.$emit('state-change', {
+        levers: Object.assign({}, this.f),
+        detail: this.detail,
+        notesFields: Object.assign({}, this.notesFields)
+      })
+    },
+
+    /**
+     * The Notes' three fields from a saved set, or the defaults: the workbook's purpose and
+     * two blanks. A saved purpose left empty stays empty — the advisor chose to leave it out.
+     * @param {object|null} saved
+     * @returns {{purpose: string, salesBasis: string, preparedBy: string}}
+     */
+    notesFieldsFrom (saved) {
+      const s = saved || {}
+      const str = v => (typeof v === 'string' ? v : null)
+      return {
+        purpose: str(s.purpose) !== null ? s.purpose : this.$t('report.threeWayForecast.notes.fields.purposeDefault'),
+        salesBasis: str(s.salesBasis) || '',
+        preparedBy: str(s.preparedBy) || ''
+      }
     },
 
     /**
@@ -973,6 +1116,32 @@ export default {
         debtorMonthAfter: Math.round(monthAfter),
         overheadShift: 0
       }
+    },
+
+    /**
+     * The printed profit and loss shows every deduction in brackets, as the approved drawing
+     * and the IFRS illustrative statements do (item 44.4): the costs inside cost of sales,
+     * overheads, financing costs and tax turn negative, so each group still adds down to its
+     * total. Closing stock stays positive — it reduces cost. A cost is not a bad result, so
+     * these lines lose the red a negative result carries. The screen is unchanged.
+     * @param {Array<object>} rows @returns {Array<object>}
+     */
+    asDeductions (rows) {
+      const DEDUCT = ['cos', 'oh', 'fin', 'tax', 'dep', 'open-stock', 'purch', 'frt', 'comm', 'dir2', 'dirx',
+        'pl-os-stock', 'pl-os-frt', 'pl-os-duty', 'pl-os-fx', 'int-od', 'int-loan', 'int-fac', 'int-sup', 'int-tax']
+      return rows.map(r => (DEDUCT.includes(r.key) || r.key.startsWith('oh-')
+        ? Object.assign({}, r, { values: r.values.map(v => (v ? -v : 0)), signed: false })
+        : r))
+    },
+
+    /**
+     * A printed row's Year figure: the twelve months added, except cash at month end, which
+     * is a balance — its year figure is where the year closes, never twelve balances summed.
+     * @param {object} row @returns {number}
+     */
+    yearOf (row) {
+      const v = row.values || []
+      return row.key === 'close' ? v[v.length - 1] : v.reduce((a, x) => a + (Number(x) || 0), 0)
     },
 
     /** A whole-number percentage, in the reader's language. */
@@ -1039,13 +1208,24 @@ export default {
     overseasCashRowsFor (d) {
       if (!this.hasOverseasTradeFor(d)) { return [] }
       const p = d.cashFlow.payments
+      const out = this.outgoing
+      // Operating cash going out, so it carries a minus (item 44.2). The supplier balance is
+      // shown without the interest inside it, which the cash flow counts under financing.
       return [
-        { key: 'os-dep', label: 'report.threeWayForecast.report.overseasDeposits', values: p.overseasDeposits, sub: true },
-        { key: 'os-frt', label: 'report.threeWayForecast.report.overseasFreight', values: p.overseasFreight, sub: true },
-        { key: 'os-duty', label: 'report.threeWayForecast.report.overseasDuty', values: p.overseasDuty, sub: true },
-        { key: 'os-gst', label: 'report.threeWayForecast.report.overseasBorderGst', values: p.overseasBorderGst, sub: true },
-        { key: 'os-bal', label: 'report.threeWayForecast.report.overseasSupplierBalance', values: p.overseasSupplierBalance, sub: true }
+        { key: 'os-dep', label: 'report.threeWayForecast.report.overseasDeposits', values: out(p.overseasDeposits), sub: true },
+        { key: 'os-frt', label: 'report.threeWayForecast.report.overseasFreight', values: out(p.overseasFreight), sub: true },
+        { key: 'os-duty', label: 'report.threeWayForecast.report.overseasDuty', values: out(p.overseasDuty), sub: true },
+        { key: 'os-gst', label: 'report.threeWayForecast.report.overseasBorderGst', values: out(p.overseasBorderGst), sub: true },
+        { key: 'os-bal', label: 'report.threeWayForecast.report.overseasSupplierBalance', values: out(d.cashFlow.byActivity.overseasSupplierBalance), sub: true }
       ]
+    },
+
+    /**
+     * Money going out, as the grouped cash flow shows it: with a minus, so each activity adds
+     * down to its own subtotal (item 44.2). @param {Array<number>} values @returns {Array<number>}
+     */
+    outgoing (values) {
+      return values.map(v => (v ? -v : 0))
     },
 
     /** @param {object} d one year's result. @returns {Array<object>} */
@@ -1054,15 +1234,15 @@ export default {
       if (!t || !t.landedValue.some(v => v > 0)) { return [] }
       const p = d.cashFlow.payments
       return [
-        { key: 'tr-bal', label: 'report.threeWayForecast.report.transitBalance', values: p.stockInTransitBalance, sub: true },
-        { key: 'tr-gst', label: 'report.threeWayForecast.report.transitGst', values: p.stockInTransitGst, sub: true }
+        { key: 'tr-bal', label: 'report.threeWayForecast.report.transitBalance', values: this.outgoing(p.stockInTransitBalance), sub: true },
+        { key: 'tr-gst', label: 'report.threeWayForecast.report.transitGst', values: this.outgoing(p.stockInTransitGst), sub: true }
       ]
     },
 
     /** @param {object} d one year's result. @returns {Array<object>} */
     overheadRowsFor (d) {
       const oh = d.profitAndLoss.overheads
-      return Object.keys(oh)
+      return this.overheadKeysOf(d)
         .filter(k => this.hasAFigure(oh[k]))
         .map(k => ({
           key: 'oh-' + k,
@@ -1076,62 +1256,80 @@ export default {
     /** @param {object} d one year's result. @returns {Array<object>} */
     cashRowsFor (d) {
       const c = d.cashFlow
+      const a = c.byActivity
+      const L = 'report.threeWayForecast.report.line.'
+      // IAS 7.10 — operating, investing and financing, each adding down to its own subtotal
+      // and the three adding to the movement (item 44.2; drawing approved by Mike 2026-09-30,
+      // design/mockups/three-way-forecast-ifrs-layout.html). They replace "Money in" and
+      // "Money out". The overseas and stock-in-transit rows keep their own lines, as ruled on
+      // 2026-09-04, now inside operating activities.
+      const net = (key, label, values) => ({ key, label: L + label, values, rule: true, strong: true, signed: true })
       const tail = [
         { key: 'move', label: 'report.threeWayForecast.report.movement', values: c.netMovement, rule: true, signed: true },
         { key: 'close', label: 'report.threeWayForecast.report.cashAtMonthEnd', values: c.closingBalance, rule: true, signed: true }
       ]
+      const imported = this.overseasCashRowsFor(d).concat(this.stockInTransitCashRowsFor(d))
       if (!this.isEvery) {
-        return [
-          { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts },
-          { key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments }
-        ].concat(this.overseasCashRowsFor(d)).concat(this.stockInTransitCashRowsFor(d)).concat(tail)
+        return [net('cf-op', 'netCashOperating', a.operating)]
+          .concat(imported)
+          .concat([
+            net('cf-inv', 'netCashInvesting', a.investing),
+            net('cf-fin', 'netCashFinancing', a.financing)
+          ])
+          .concat(tail)
       }
-      const L = 'report.threeWayForecast.report.line.'
       const r = c.receipts
       const p = c.payments
+      const out = this.outgoing
       const sub = (key, label, values) => ({ key, label: L + label, values, sub: true })
-      // Every row the engine fills, receipts then payments, in its own order. The five
-      // overseas rows and the two for stock in transit are already itemised on the summary
-      // (Mike, 2026-09-04), so they are not repeated by the two helpers here — this list
-      // holds them once, in their place among the rest.
+      const section = (key, label) => ({ key, label: L + label, values: [], section: true })
       return [
+        section('s-op', 'operatingActivities'),
         sub('r-deb', 'fromDebtors', r.fromDebtors),
-        sub('r-int', 'interestReceived', r.interestReceived),
-        sub('r-draw', 'loanDrawdowns', r.loanDrawdowns),
         sub('r-gst', 'gstRefunds', r.gstRefunds),
         sub('r-tax', 'taxRefunds', r.taxRefunds),
         sub('r-oi', 'otherIncome', r.otherIncomeGstInclusive),
         sub('r-oix', 'otherIncomeExempt', r.otherIncomeGstExempt),
-        sub('r-sh', 'shareholderAdvances', r.shareholderAdvances),
-        sub('r-asset', 'assetSales', r.assetSales),
-        { key: 'in', label: 'report.threeWayForecast.report.moneyIn', values: c.totalReceipts, rule: true, strong: true },
-        sub('p-ap', 'accountsPayable', p.accountsPayable),
-        sub('p-cm', 'currentMonthGstInclusive', p.currentMonthGstInclusive),
-        sub('p-cmf', 'currentMonthGstFree', p.currentMonthGstFree),
-        sub('p-int', 'interestPaid', p.interestPaid),
-        sub('p-prin', 'loanPrincipal', p.loanPrincipal),
-        sub('p-gst', 'gstPaid', p.gstPaid),
-        sub('p-tax', 'taxPaid', p.taxPaid),
-        sub('p-sh', 'shareholderDrawings', p.shareholderDrawings),
-        sub('p-capex', 'capitalExpenditure', p.capitalExpenditure)
+        sub('p-ap', 'accountsPayable', out(p.accountsPayable)),
+        sub('p-cm', 'currentMonthGstInclusive', out(p.currentMonthGstInclusive)),
+        sub('p-cmf', 'currentMonthGstFree', out(p.currentMonthGstFree)),
+        sub('p-gst', 'gstPaid', out(p.gstPaid)),
+        sub('p-tax', 'taxPaid', out(p.taxPaid))
       ]
-        .concat(this.overseasCashRowsFor(d))
-        .concat(this.stockInTransitCashRowsFor(d))
-        .concat([{ key: 'out', label: 'report.threeWayForecast.report.moneyOut', values: c.totalPayments, rule: true, strong: true }])
+        .concat(imported)
+        .concat([
+          net('cf-op', 'netCashOperating', a.operating),
+          section('s-inv', 'investingActivities'),
+          sub('r-int', 'interestReceived', r.interestReceived),
+          sub('r-asset', 'assetSales', r.assetSales),
+          sub('p-capex', 'capitalExpenditure', out(p.capitalExpenditure)),
+          net('cf-inv', 'netCashInvesting', a.investing),
+          section('s-fin', 'financingActivities'),
+          sub('r-draw', 'loanDrawdowns', r.loanDrawdowns),
+          sub('r-sh', 'shareholderAdvances', r.shareholderAdvances),
+          sub('p-int', 'interestPaid', out(a.interestPaid)),
+          sub('p-prin', 'loanPrincipal', out(p.loanPrincipal)),
+          sub('p-sh', 'shareholderDrawings', out(p.shareholderDrawings)),
+          net('cf-fin', 'netCashFinancing', a.financing)
+        ])
         .concat(tail)
     },
 
     /** @param {object} d one year's result. @returns {Array<object>} */
     profitRowsFor (d) {
       const p = d.profitAndLoss
+      const L = 'report.threeWayForecast.report.line.'
+      // IFRS 18 (item 44.2; drawing approved by Mike 2026-09-30): the operating surplus comes
+      // before any interest, and every interest charge sits under Financing costs.
       const summary = [
         { key: 'rev', label: 'report.threeWayForecast.report.revenue', values: p.revenue },
         { key: 'gross', label: 'report.threeWayForecast.report.grossSurplus', values: p.grossSurplus, signed: true },
-        { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads },
+        { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.operatingOverheads },
+        { key: 'op', label: L + 'operatingSurplus', values: p.operatingProfit, strong: true, signed: true },
+        { key: 'fin', label: L + 'financingCosts', values: p.financingCosts },
         { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, signed: true }
       ]
       if (!this.isEvery) { return summary }
-      const L = 'report.threeWayForecast.report.line.'
       const sub = (key, label, values) => ({ key, label: L + label, values, sub: true, signed: true })
       // Inside cost of sales, so the lines above the total add up to it (item 13.2's finding).
       const overseasLines = !this.hasOverseasTradeFor(d)
@@ -1166,19 +1364,25 @@ export default {
         .concat(this.overheadRowsFor(d))
         .concat([
           { key: 'dep', label: L + 'depreciation', values: p.depreciation, sub: true, signed: true },
-          { key: 'int-od', label: L + 'interestOverdraft', values: p.interestBankOverdraft, sub: true, signed: true },
-          { key: 'int-loan', label: L + 'interestTermLoans', values: p.interestTermLoans, sub: true, signed: true },
-          // Its own row at last. It was engine-only when the facility was built earlier the
-          // same day, for want of anywhere on this screen to put it.
-          { key: 'int-fac', label: L + 'interestFacilities', values: p.interestFacilities, sub: true, signed: true },
-          { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.totalOverheads, rule: true },
-          { key: 'op', label: L + 'operatingSurplus', values: p.operatingSurplus, strong: true, signed: true },
-          sub('int-in', 'interestReceived', p.interestIncomeBank),
-          sub('int-sh', 'shareholderInterest', p.interestIncomeShareholders),
-          sub('gain', 'gainOnSale', p.gainOnAssetSales),
+          { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.operatingOverheads, rule: true },
           sub('oi-1', 'otherIncome', p.otherIncomeGstInclusive),
           sub('oi-2', 'otherIncomeExempt', p.otherIncomeGstExempt),
-          { key: 'toi', label: L + 'totalOtherIncome', values: p.totalOtherIncome, rule: true, signed: true },
+          sub('gain', 'gainOnSale', p.gainOnAssetSales),
+          { key: 'op', label: L + 'operatingSurplus', values: p.operatingProfit, rule: true, strong: true, signed: true },
+          sub('int-in', 'interestReceived', p.interestIncomeBank),
+          sub('int-sh', 'shareholderInterest', p.interestIncomeShareholders),
+          { key: 'pbf', label: L + 'beforeFinancing', values: p.profitBeforeFinancingAndTax, rule: true, strong: true, signed: true },
+          sub('int-od', 'interestOverdraft', p.interestBankOverdraft),
+          sub('int-loan', 'interestTermLoans', p.interestTermLoans),
+          sub('int-fac', 'interestFacilities', p.interestFacilities)
+        ])
+        // Shown only when they carry a figure: most forecasts have neither.
+        .concat(this.hasAFigure(p.interestSuppliers) ? [sub('int-sup', 'interestSuppliers', p.interestSuppliers)] : [])
+        .concat(this.hasAFigure(p.interestOverdueTax)
+          ? [{ key: 'int-tax', label: 'report.threeWayForecast.assume.overheads.interestIrd', values: p.interestOverdueTax, sub: true, signed: true }]
+          : [])
+        .concat([
+          { key: 'fin', label: L + 'financingCosts', values: p.financingCosts, rule: true },
           { key: 'pbt', label: L + 'beforeTax', values: p.netSurplusBeforeTax, strong: true, signed: true },
           sub('tax', 'tax', p.taxProvision),
           { key: 'net', label: 'report.threeWayForecast.report.afterTax', values: p.netSurplusAfterTax, rule: true, strong: true, signed: true }
@@ -1221,6 +1425,8 @@ export default {
         sub('accr', 'accruedExpenses', b.accruedExpenses),
         sub('imp-bal', 'importSupplierBalance', b.importSupplierBalance),
         sub('fac', 'facilities', b.totalFacilities),
+        // Term-loan repayments due within twelve months; the lender rows below carry the rest.
+        sub('tl-cur', 'termLoansCurrent', b.currentPortionTermLoans),
         sub('sh-l', 'shareholderLiabilities', b.shareholderCurrentLiabilities),
         sub('ocl', 'otherCurrentLiability', b.otherCurrentLiability),
         { key: 'tcl', label: L + 'totalCurrentLiabilities', values: b.totalCurrentLiabilities, rule: true },
@@ -1252,7 +1458,16 @@ export default {
     hiddenOverheadsFor (d) {
       if (!d || !this.isEvery) { return 0 }
       const oh = d.profitAndLoss.overheads
-      return Object.keys(oh).filter(k => !this.hasAFigure(oh[k])).length
+      return this.overheadKeysOf(d).filter(k => !this.hasAFigure(oh[k])).length
+    },
+
+    /**
+     * The overhead lines the profit tab lists. Interest on overdue tax is entered with the
+     * overheads but is a financing cost (IFRS 18.61), so it is shown in that section instead.
+     * @param {object} d one year's result. @returns {Array<string>}
+     */
+    overheadKeysOf (d) {
+      return Object.keys(d.profitAndLoss.overheads).filter(k => k !== 'interestIrd')
     },
 
     /**
@@ -1539,6 +1754,14 @@ export default {
 }
 .tw-tabs button.on { background: var(--rs-card-bg); color: var(--rs-ink); }
 .tw-tabbody { border-top: 1px solid var(--rs-line); }
+.tw-notesfields {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--rs-line);
+  border-radius: 6px;
+  background: var(--rs-panel-2);
+}
+.tw-notesfields-h { margin: 0 0 8px; font-weight: 600; }
 
 /* Twelve months never fit a narrow screen: the table scrolls inside its own box so the
    page body never scrolls sideways. */
@@ -1553,6 +1776,16 @@ tr.rule td { border-top: 2px solid var(--rs-line); font-weight: 600; }
    rather than beside it. Item 4.64. */
 tr.is-sub td { color: var(--rs-muted); }
 tr.is-sub td:first-child { padding-left: 22px; }
+/* An activity heading on the cash flow (item 44.2): a label spanning the row, no figures. */
+tr.is-section td {
+  background: var(--rs-panel-2);
+  border-top: 2px solid var(--rs-line);
+  color: var(--rs-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 td.neg { color: var(--rs-crit); }
 td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-weight: 600; }
 
@@ -1590,6 +1823,20 @@ td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-wei
 
 /* The print's three statements are built on every render and shown only on paper. */
 .tw-printall { display: none; }
+/* The pack's front — cover, contents, at a glance — likewise (item 44.4). */
+.tw-printfront { display: none; }
+.tw-printfirm { font-style: normal; font-weight: 700; margin-right: 10px; }
+.tw-printsub { margin: -4px 0 10px; font-size: 12px; color: var(--rs-muted); }
+/* The board-pack statement (item 44.4, drawing approved 2026-09-30): a navy heading row,
+   subtotals ruled, each statement's total double-ruled, the Year column tinted. */
+.tw-printtable th { background: #002b64; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.tw-printtable tr.is-strong td { color: #002b64; font-weight: 700; border-top: 1px solid #9fb3c8; }
+.tw-printtable tr.is-total td {
+  color: #002b64; font-weight: 700; background: #ebf4fa;
+  border-top: 1.5px solid #002b64; border-bottom: 3px double #002b64;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.tw-printtable td.tw-yr { font-weight: 700; background: #f5fbfe; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
 @media print {
   .tw-actions, .tw-levers, .tw-caution { display: none !important; }
@@ -1599,6 +1846,9 @@ td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-wei
      Hiding the buttons alone would have left an empty white card on the page. */
   .tw-screenstmt { display: none !important; }
   .tw-printall { display: block; }
+  .tw-printfront { display: block; }
+  .tw-printglance { break-after: page; page-break-after: always; }
+  .tw-hero { display: none !important; }
   .tw-printstmt + .tw-printstmt { break-before: page; page-break-before: always; }
   /* The statements take the whole page; the balance check follows them rather than
      leading the document with a one-line assurance about figures nobody has seen yet. */

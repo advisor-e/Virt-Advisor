@@ -3,7 +3,7 @@
  */
 'use strict'
 
-const { mountWithBuefy } = require('../helpers/mountComponent')
+const { mountWithBuefy, englishMocks } = require('../helpers/mountComponent')
 const DecisionLogicDiagnostic = require('~/components/firm/DecisionLogicDiagnostic.vue').default
 
 /**
@@ -164,13 +164,13 @@ describe('DecisionLogicDiagnostic — the score sheet', () => {
   // the top score of 9. The verdict is now derived from those numbers.
   describe('the closing verdict follows the real numbers', () => {
     /** @param {number} expectedScore @param {number} topScore */
-    function withScores (expectedScore, topScore) {
+    function withScores (expectedScore, topScore, mocks) {
       const r = JSON.parse(JSON.stringify(RESULT))
       r.sheet[0].score = topScore
       r.expected.score = expectedScore
       r.sheet[1].score = expectedScore
       r.gap = topScore - expectedScore
-      return runWith(mountDx(), r)
+      return runWith(mountDx({ mocks }), r)
     }
 
     it('a 3-point gap: the distinction alone is enough (6 + 5 = 11 beats 9)', async () => {
@@ -207,10 +207,10 @@ describe('DecisionLogicDiagnostic — the score sheet', () => {
     })
 
     it('shows both resulting scores, so the verdict can be checked against them', async () => {
-      const wrapper = await withScores(6, 9)
-      const text = wrapper.text()
-      expect(text).toContain('firmDecisionLogic.dxGapMathB {"withDistinction":11}')
-      expect(text).toContain('firmDecisionLogic.dxGapMathC {"withTree":9,"top":9}')
+      // Real English: since item 13.6 the scores are slots inside one sentence.
+      const text = (await withScores(6, 9, englishMocks())).find('.gap-do').text()
+      expect(text).toContain('take it to 11.')
+      expect(text).toContain('take it to 9. The template at the top scored 9.')
     })
   })
 
@@ -221,9 +221,9 @@ describe('DecisionLogicDiagnostic — the score sheet', () => {
       // section on the same screen.
       const wrapper = await runWith(mountDx(), RESULT)
       expect(wrapper.vm.gapAction).toBe('attach')
-      expect(wrapper.text()).toContain('firmDecisionLogic.dxGapAttachB')
+      expect(wrapper.text()).toContain('firmDecisionLogic.dxGapAttachText')
       expect(wrapper.text()).toContain('Poor decision quality')
-      expect(wrapper.text()).not.toContain('firmDecisionLogic.dxGapDoA')
+      expect(wrapper.text()).not.toContain('firmDecisionLogic.dxGapDoText')
     })
 
     it('says WRITE when nothing of theirs matched at all', async () => {
@@ -232,8 +232,8 @@ describe('DecisionLogicDiagnostic — the score sheet', () => {
       const wrapper = await runWith(mountDx(), none)
 
       expect(wrapper.vm.gapAction).toBe('write')
-      expect(wrapper.text()).toContain('firmDecisionLogic.dxGapDoA')
-      expect(wrapper.text()).not.toContain('firmDecisionLogic.dxGapAttachB')
+      expect(wrapper.text()).toContain('firmDecisionLogic.dxGapDoText')
+      expect(wrapper.text()).not.toContain('firmDecisionLogic.dxGapAttachText')
     })
 
     it('gives no instruction when a distinction already reached the template', async () => {
@@ -253,8 +253,8 @@ describe('DecisionLogicDiagnostic — the score sheet', () => {
     const wrapper = await runWith(mountDx(), matched)
 
     expect(wrapper.vm.gapCase).toBe('matched')
-    expect(wrapper.text()).toContain('firmDecisionLogic.dxGapMatchedA')
-    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxGapNoneA')
+    expect(wrapper.text()).toContain('firmDecisionLogic.dxGapMatchedText')
+    expect(wrapper.text()).not.toContain('firmDecisionLogic.dxGapNoneText')
   })
 
   it('says so when no lever of the firm’s reached the expected template at all', async () => {
@@ -264,7 +264,7 @@ describe('DecisionLogicDiagnostic — the score sheet', () => {
     const wrapper = await runWith(mountDx(), bare)
 
     expect(wrapper.vm.gapCase).toBe('noLever')
-    expect(wrapper.text()).toContain('firmDecisionLogic.dxGapNoLeverA')
+    expect(wrapper.text()).toContain('firmDecisionLogic.dxGapNoLeverText')
   })
 
   // ── The 2026-08-03 defect, found by Mike on the running app ────────────────
@@ -450,8 +450,9 @@ describe('DecisionLogicDiagnostic — the ideas', () => {
   it('places the quote INSIDE the sentence, where the artefact puts it', async () => {
     // Rendering it after the paragraph ran "worded cleverly:" straight into
     // "File it under …" and orphaned the advisor's words below (found by Mike,
-    // 2026-08-03). The quote belongs between those two clauses.
-    const wrapper = await runWith(mountDx(), RESULT)
+    // 2026-08-03). The quote belongs between those two clauses. Real English: the key
+    // stub prints its params as JSON, which hides the slot the area name sits in.
+    const wrapper = await runWith(mountDx({ mocks: englishMocks() }), RESULT)
     wrapper.setData({ showIdeas: true })
     await wrapper.vm.$nextTick()
 
@@ -460,9 +461,9 @@ describe('DecisionLogicDiagnostic — the ideas', () => {
 
     const parts = wrapper.vm.ideas.items[0].how
     const quoteAt = parts.findIndex(p => p.quote)
-    const fileAt = parts.findIndex(p => p.text === 'firmDecisionLogic.ideaDistHowB')
+    const domainAt = parts.findIndex(p => p.bold)
     expect(quoteAt).toBeGreaterThan(-1)
-    expect(quoteAt).toBeLessThan(fileAt)
+    expect(quoteAt).toBeLessThan(domainAt)
   })
 
   it('leads with the distinction when none of the firm’s matched', async () => {
@@ -489,12 +490,13 @@ describe('DecisionLogicDiagnostic — the ideas', () => {
   it('pluralises the opened-table count', async () => {
     const two = JSON.parse(JSON.stringify(RESULT))
     two.probe.tables.push({ id: 'strategy_logic', name: 'Strategy Logic', matched: ['direction'] })
-    const wrapper = await runWith(mountDx(), two)
+    const wrapper = await runWith(mountDx({ mocks: englishMocks() }), two)
     wrapper.setData({ showIdeas: true })
     await wrapper.vm.$nextTick()
 
     // $tc, so two tables never read "Only 2 table opened".
-    expect(wrapper.vm.ideas.items[1].body[0].text).toBe('firmDecisionLogic.ideaTriggersBodySomeA 2')
+    const body = wrapper.vm.ideas.items[1].body.map(p => p.text).join('')
+    expect(body).toContain('Only 2 tables opened')
   })
 
   it('lists domain support last, explicitly so it can be ruled out', async () => {
@@ -593,14 +595,16 @@ describe('DecisionLogicDiagnostic — finding the expected template', () => {
 
   it('keeps the space before the matched phrase', async () => {
     // vue-i18n TRIMS each side of a "a | b" plural string, so a trailing space
-    // in the locale file is eaten and it renders "opened on“decision making”".
-    const wrapper = await runWith(mountDx(), RESULT)
+    // in the locale file was eaten and it rendered "opened on“decision making”".
+    // Since item 13.6 the phrase is a slot inside the sentence, so no edge is trimmed.
+    const wrapper = await runWith(mountDx({ mocks: englishMocks() }), RESULT)
     wrapper.setData({ showIdeas: true })
     await wrapper.vm.$nextTick()
 
     const parts = wrapper.vm.ideas.items[1].body
-    expect(parts[1].text).toBe(' ')
-    expect(parts[2].bold).toBe(true)
+    const phraseAt = parts.findIndex(p => p.bold)
+    expect(parts[phraseAt].text).toBe('“decision making”')
+    expect(parts[phraseAt - 1].text).toMatch(/ $/)
   })
 })
 

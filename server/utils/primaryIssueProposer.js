@@ -27,6 +27,7 @@
 const PRIMARY_ISSUES = require('../../data/primary-issues.json')
 const DOMAINS_FILE = require('../../data/domains.json')
 const { STOP_WORDS } = require('./stop-words')
+const { fenceUntrusted } = require('./promptSafety')
 
 const DOMAIN_RECORDS = Array.isArray(DOMAINS_FILE) ? DOMAINS_FILE : (DOMAINS_FILE.domains || [])
 
@@ -331,7 +332,8 @@ function parseReply (reply, proposed, domainId) {
  *
  * @param {Object} client - an aiProvider client for the 'classify' role
  * @param {string[]} candidates - the tied authored labels
- * @param {string} causeText - the advisor's own words, fenced by the caller
+ * @param {string} causeText - the advisor's own words, raw; fenced here with the shared
+ *   `fenceUntrusted`, which strips any typed markers so the text cannot close the fence
  * @returns {Promise<string|null>} one of `candidates`, or null
  */
 async function tiebreakWithModel (client, candidates, causeText) {
@@ -347,7 +349,7 @@ async function tiebreakWithModel (client, candidates, causeText) {
           'advisor described. Answer with the number alone, or the word none if neither fits. ' +
           'Never write a problem of your own.'
       },
-      { role: 'user', content: 'Problems:\n' + numbered + '\n\nWhat the advisor said:\n<<<\n' + causeText + '\n>>>' }
+      { role: 'user', content: 'Problems:\n' + numbered + '\n\nWhat the advisor said:\n' + fenceUntrusted(causeText) }
     ],
     temperature: 0,
     max_tokens: 5
