@@ -904,6 +904,7 @@ import traceReasonMixin from '~/mixins/traceReasonMixin'
 import moderationMessage from '~/mixins/moderationMessage'
 import growthFundamentals from '~/data/growth-fundamentals.json'
 import finMgtTable from '~/data/fin-mgt-table.json'
+import { SESSION_LENGTH_OPTIONS } from '~/utils/sessionLengths'
 
 const _md = new MarkdownIt({ html: false, linkify: false, typographer: false, breaks: true })
 _md.disable(['image', 'html_inline', 'html_block'])
@@ -1013,7 +1014,8 @@ export default {
       selectedFinMgtTheme: null,
       showSessionLengthSelector: false,
       selectedSessionLength: null,
-      sessionLengthOptions: ['30 mins', '60 mins', '90 mins', '120 mins', 'Other'],
+      // Shared with the Strategy Planner's guided questions (item 15.31).
+      sessionLengthOptions: SESSION_LENGTH_OPTIONS,
       showDomainSelector: false,
       selectedDomainId: null,
       suggestedDomainId: null,

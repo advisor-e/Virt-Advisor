@@ -330,6 +330,52 @@
       "touches": "server/report/threeWayForecastModel.js (bad debt from the collection shortfall, a deferred-tax balance, a right-of-use asset and lease liability, revenue when control passes); ThreeWayForecastIntake.vue's collection blocks and build check; the Notes page; design/CALCULATION-ASSUMPTIONS.md §2.1, §2.5 and §2.7; debtorDragModel.js as the precedent.",
       "note": "BAD DEBTS, AS MIKE RULED 2026-09-30: the shortfall in a collection profile IS the bad debt, domestic and overseas alike - charged as an expense, taken off debtors, explained in the notes - as Debtor Drag's 'Written off (never paid)' works. Step 3 explains a short profile rather than refusing it. TODAY: domestic profiles must total 100% or the build is refused; overseas ones only warn, and their shortfall sits in debtors for ever with no expense. The other three facts are their own slices. Every default leaves today's forecast unchanged.",
       "comment": "2026-09-30 - filed under Mike's standing yes to best-practice fixes. Score and scoreReason are ours; he has not ranked it. MIKE'S RULINGS 2026-09-30: NO to making the overseas profiles total 100% - \"that doesnt reflect trading reality\"; YES to the shortfall-is-the-bad-debt design above."
+    },
+    {
+      "ref": "15.31",
+      "name": "Suggest for this client gives a new client nothing, and ignores the intake questions",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The Strategy Planner's Suggest button reads only the client's last two saved conversation summaries. A client with none gets no suggestion, and the Virtual Advisor's intake answers and the client_planning logic tree never reach it.",
+      "risk": "The first strategy meeting with a new client, when guidance matters most, gets none: the advisor reads all 48 rows and ticks by hand. Linking the logic tree needs a map from its branches to Mike's deck concepts, which is his content to author.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-09-30 - \"we need to focus on building the logic similar to the 'I've got a client who's got a problem with' section\", then yes to the planner asking the intake questions itself."
+      },
+      "touches": "server/utils/strategyPretick.js; server/routes/strategyPlanner.js postSuggest; components/strategy/StrategyScopeMenu.vue; the QUESTIONS array in server/advisorEngine.js (the source, not a copy); data/logic_trees.json client_planning; locales/en.json; design/features/strategy-planner.md.",
+      "note": "PROCEED. BUILT from design/mockups/strategy-suggest-intake.html: a client with no saved conversation is asked the Virtual Advisor's own questions, one at a time, and the count comes from session length. Every ruling and the measurement are in strategy-planner.md, stage 6. Walked in a browser: 90 minutes pre-ticked exactly 4. Three of the four measures are met; left is Mike's own try-out of the screen.",
+      "comment": "2026-09-30 - filed on Mike's request and ruling. Built the same day; MIKE'S CALL: PROCEED - next is his own try-out. Score and scoreReason are ours; he has not ranked it.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-09-30"
+      }
+    },
+    {
+      "ref": "15.32",
+      "name": "Changing client in the Strategy Planner keeps the previous client's ticks and suggestion",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Picking a different client on Scope session leaves the previous client's ticks, and any AI suggestion with reason lines about that client, on screen for the new one.",
+      "risk": "A session can be built for one client from another client's scope and reasons. Possibly worse and not yet proved: an open session is never detached on a client change, so its record may be edited under the other client's name.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-09-30 - found walking item 15.31 in a browser; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "pages/strategy-planner.vue - the clientId watcher, which resets only modelPrints and the guided answers; sessionId, chosen and suggested are never cleared on a client change.",
+      "note": "PROVED: 2 concepts ticked for Harbour Joinery stayed ticked after switching to Kinetic Planning. NOT PROVED: that an open session is written to under the new client - trace a save end to end first. Needs Mike's call on whether ticks should ever carry over, e.g. correcting a wrongly picked client.",
+      "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

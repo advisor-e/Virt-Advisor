@@ -47,8 +47,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 10 | **7.17** Remove the three never-used options from the engine's briefing builder ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 11 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 12 | **44.3** The forecast needs four facts: bad debts, deferred tax, leases, shipping terms ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 13 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
+| 14 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**Twelve live items. Five need Mike.** If this list passes about twenty, something is wrong.
+**Fourteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

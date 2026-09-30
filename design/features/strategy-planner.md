@@ -118,9 +118,8 @@ accuracy or user experience, then DONT put it in the build design."*
 Four things that would otherwise have been built failed that test and are listed at the end
 rather than quietly dropped.**
 
-**Where the build actually stands:** the spine is built. The concept index holds 52 records and
-the session menu puts all 52 on a screen; 16 of them reach the real capture table read from
-Mike's own workbook, and what an advisor types there is saved box by box against the client's
+**Where the build actually stands:** the spine is built. The concept index holds 48 records and
+the session menu puts all 48 on a screen; 36 of them reach a capture form, and what an advisor types there is saved box by box against the client's
 session (§4) and carries into the assembled document.
 🔴 **STAGE 6 — THE AI PRE-TICK — WAS BUILT ON 2026-09-22, AND NOTHING WAS DRAWN FOR IT BECAUSE
 THE DRAWING ALREADY EXISTED.** `design/mockups/strategy-session-menu.html` carries the *"Suggest
@@ -181,9 +180,62 @@ without one. A person reads that as *"the AI found nothing"*, which is the one t
 apart from a broken button. It now greys out exactly as *Build the session* does beside it, pinned by
 `tests/unit/strategyCapture.component.test.js`.
 
-⚠ **THE SUGGESTION IS ONLY AS GOOD AS THE CLIENT'S RECORDED CONVERSATIONS**, which is the drawing's
-own input. A client with none gets an honest empty and the model is never called. A client with thin
-summaries gets a thin suggestion. Stated before the build rather than discovered after it.
+⚠ **A CLIENT WITH SAVED CONVERSATIONS IS SUGGESTED FOR FROM THEIR SUMMARIES**, which is the drawing's
+own input, so thin summaries give a thin suggestion. A client with none is asked the guided questions
+instead (item 15.31, below).
+
+☑ **RULED BY MIKE 2026-09-30 — A CLIENT WITH NO CONVERSATION IS ASKED, NOT SENT AWAY (item 15.31).**
+When the client has no saved conversation, the planner puts **the Virtual Advisor's own intake
+questions** on screen — Growth Curve stage, Advisory Staircase step, did the client raise it, client
+personality, advisor experience and confidence — and suggests from the answers, instead of
+*"nothing to suggest from"*. Read from the `QUESTIONS` array in `server/advisorEngine.js`, never copied.
+☑ **AND IT IS GUIDED, NOT A FORM — Mike, 2026-09-30:** *"the process should feel like 'guided
+assistance' - not a survey or a check list… I prefer 1 question to reveal at a time, as it is added,
+the previous remains visible for context."* One question shows; answering it reveals the next; every
+earlier question and answer stays on screen above it.
+☑ **HOW MANY IT SUGGESTS IS SET BY THE SESSION'S LENGTH — Mike, 2026-09-30:** *"it simply comes
+down to how long the advisor wants the planning session to be. allow 6mins for the frame (welcome,
+this is your session etc) and 3 mins to discuss agenda, then each concept can have 20 mins - this
+includes BOTH discuss concept and record responses."* So the Virtual Advisor's own session-length
+question (30 / 60 / 90 / 120 mins / Other) joins the sequence, and the most it may pre-tick is
+**(length − 6 − 3) ÷ 20, rounded down**: 30 → 1, 60 → 2, 90 → 4, 120 → 5. Enforced in code, never
+left to the model. It replaces the drawing's Staircase-based cap (Decision C).
+☑ **THE QUESTION THAT MATTERS MOST — Mike, 2026-09-30, in his words:** *"Does a current plan exist
+for this client, are they familiar with planning or is this topic new to them?"* It joins the
+sequence, asked first because he named it the more important. Its wording lives in `data/domains.json`
+`strategyPlanExists` — the Virtual Advisor's switched-off plan question, replaced on his yes — and the
+planner reads it from there. ⚠ **For the build:** `server/utils/signals.js` ~339 reads that field as a
+yes/no; the question now has three answers (a plan exists / familiar with planning / new to it), so the
+planner must read them itself rather than reuse that parse. ☑ **The logic tree's opening question
+is NOT in the first build** (his yes, same day): it can steer nothing until he has mapped each
+branch of `client_planning` to his deck concepts, and it is added then.
+☑ **The six pieces of new wording are approved exactly as written** (Mike, 2026-09-30) — listed at the
+foot of `design/mockups/strategy-suggest-intake.html`, where the build takes them from.
+☑ **That drawing, with every ruling above, is APPROVED TO BUILD FROM** (Mike, 2026-09-30).
+✅ **BUILT 2026-09-30.** `server/utils/strategyIntake.js` (the questions, the ceiling, the checks),
+`server/utils/intakeQuestions.js` (the wording the Virtual Advisor and the planner now both read),
+`GET /api/strategy/suggest/questions`, `answers` on `POST /api/strategy/suggest`, and
+`components/strategy/StrategySuggestIntake.vue`. **Walked in a browser with one real model call:**
+a 90-minute session pre-ticked exactly 4, each with its reason. **Differences from the drawing,
+named:** Screen 1 is one question at a time (his ruling); the answer buttons are the Virtual
+Advisor's own — *Save & Continue* for typed answers, *Confirm selection* for pickers; a typed
+"Other" length accepts 29–480 minutes, the least that holds one concept; and two lines derived from
+his approved wording — the bar's singular form, and *"Nothing in the menu matched your answers.
+Tick the concepts yourself."* — both approved by him exactly as written the same day.
+☑ **THE MEASUREMENT, AS MIKE SET IT (2026-09-30):** the five-situation bench is dropped — it would
+need answers nobody should invent. Three checks stand met: a new client gets a suggestion (never,
+before); the count fits the session (enforced and tested); a client with history is unchanged (the
+measured prompt, so Pivot's 4 of 9 stands). The fourth is his own try-out of the screen.
+☑ **THE FRAME NEVER TAKES A SLOT — Mike, 2026-09-30.** The first real run spent one of its four
+slots on *Our Session Objective*, which **is** the frame his 6 minutes already cover. The guided
+suggestion now never offers it (`FRAME_CONCEPT_ID` in `strategyIntake.js`); the advisor can still
+tick it by hand.
+**Impact test, stated before design:** *problem* — a new client's first strategy meeting gets no
+guidance, and every client's suggestion ignores the four lenses; *measurement* — new-client cases
+that get a suggestion (0 today), recall on Pivot's 9 (4 today), overlap across the five situations
+(1 concept common today), and Mike's judgement of whether count and difficulty fit the answers;
+*what already does it* — the intake's four lenses and the `client_planning` logic tree, reused.
+The tree needs a map from its branches to the deck concepts, which is Mike's content to author.
 
 ⚠ **NOT PROVED AGAINST A REAL DATABASE** — the laptop has none. Desktop or UAT work.
 
@@ -1050,8 +1102,8 @@ drifted four concepts and a page offset out of step with the decks it indexes.
 off.** A concept is a record naming the form it uses; one component draws them all.
 
 🔴 **If a concept will not fit a form, add a FORM — never a component for that concept.** A
-form is a grid rule plus an entry in `STRATEGY_SHAPES`; it serves all 52. A component serves
-one, and 52 components is the build that never ends.
+form is a grid rule plus an entry in `STRATEGY_SHAPES`; it serves all 48. A component serves
+one, and 48 components is the build that never ends.
 
 **A table is expanded into ordinary fields** (`row-3-whom` is just a field key), so the store,
 the navigation timeline and the audit trail need no special case for it.
