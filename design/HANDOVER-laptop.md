@@ -9,25 +9,25 @@
 
 ---
 
-## 2026-09-30 · Laptop · branch `feat/advisor-progress`
+## 2026-10-01 · Laptop · branch `feat/advisor-progress`
 
-**6 ahead of master, 0 behind; pushed; suite green: 675 suites / 14,575 tests on Node 14.15,
-audit PASS.** (This shutdown's commit makes it 7.)
+**Caught up with master (v0.14.0) at startup; 3 ahead, 0 behind after this commit; suite green:
+686 suites / 14,825 tests on Node 14.15.**
 
-**15.31 BUILT, Mike's call PROCEED.** "Suggest for this client" now asks a client with no saved
-conversation the Virtual Advisor's own questions, one at a time, and pre-ticks at most
-(session minutes − 9) ÷ 20 concepts, never the frame concept. Rulings and measurement:
-`strategy-planner.md` stage 6. Left: Mike's own try-out of the screen.
-**15.32 filed:** changing client keeps the previous client's ticks (proved); an open session
-possibly stays attached (not proved).
-Also fixed: the Brief's concept count (48, 36 with a capture form); the registry's file path
-and its missing question 8. `data/domains.json` `strategyPlanExists` now carries Mike's wording.
+**8.4 screen 4 BUILT and walked, Mike's call PROCEED.** Each recorded section's words now appear
+under the box open when they were said (clock only, `server/utils/boxPlacement.js`), with
+suggested wording (`passageTidy.js`, prompt `passage-tidy` on the Mentor AI Prompts tab); Keep
+adds below what is typed. Walked with a computer-voiced script and real OpenAI: 3/3 under the
+right box, 1/1 to the tray, typed text untouched. Never yet run with a real person or two voices.
+Rulings and differences: `strategy-planner.md` §9b.
+Also fixed on Mike's word: the box timeline read its times in the server's zone (13 h out on an
+NZ server); the AI Prompts tab's cash-flow line showed above every document.
 
-**FOR THE DESKTOP:** merge master once this reaches it. Shared files changed today:
-`server/advisorEngine.js` (six question texts now read from `server/utils/intakeQuestions.js`,
-wording unchanged), `components/VirtualAdvisor.vue` (session lengths from
-`utils/sessionLengths.js`), `locales/en.json` (`strategyPlanner.menu.intake*`),
-`pages/strategy-planner.vue`, `components/strategy/StrategyScopeMenu.vue`,
-`server/routes/strategyPlanner.js`, `server/utils/strategySessionStore.js`.
+**FOR THE DESKTOP:** merge master once this reaches it. Shared files changed: `locales/en.json`
+(`strategyPlanner.heard.*`, `recording.finishedWords`), `data/ai-prompts.json` (new
+`passage-tidy`), `components/firm/FirmAiPrompts.vue`, `pages/strategy-planner.vue`,
+`components/strategy/StrategyCaptureCard.vue`, `StrategyConceptCapture.vue`,
+`StrategyCaptureBox.vue` (a slot), `server/routes/strategyPlanner.js` (exports `unknownBoxes`),
+`server/routes/meetingReview.js`, `server/utils/strategySessionStore.js`.
 
-**Still in hand here:** 15.31 (Mike's try-out), 8.4 (next: screen 4) and 8.6.
+**Still in hand here:** 8.4 (proceed), 15.31 (Mike's try-out), 8.6.
