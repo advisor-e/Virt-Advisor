@@ -103,6 +103,11 @@ svg{display:block;max-width:100%;height:auto}
 .ind .v{font:700 32px/1.1 var(--serif);color:var(--navy);margin:8px 0 6px}
 .ind .s{font-size:11.5px;color:var(--muted)}
 .prov{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:2px 8px;border:1px solid #7a6ba8;color:#4b3a8a;background:#fff;vertical-align:middle;margin-left:8px}
+.wl{width:100%;border-collapse:collapse;font-size:13px}
+.wl th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:2px solid var(--line)}
+.wl td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.wl td:first-child{color:var(--muted);width:16%} .wl td:last-child{color:var(--muted);width:30%}
+.wl tr.g td{background:var(--tint-blue);color:var(--navy);font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:11px}
 .why{font-size:12px;color:#614700;background:#fffbe6;border:1px solid #ffd666;border-radius:8px;padding:8px 12px;margin-top:14px}
 @media (max-width:900px){
   .page{aspect-ratio:auto;padding:24px 16px 56px}
@@ -136,16 +141,14 @@ svg{display:block;max-width:100%;height:auto}
     <li>Statement content, order and labels unchanged; the at-a-glance page only repeats figures from them, with the period and currency stated.</li>
     <li>Bad news is shown as it is: this sample loses money and is overdrawn all year, and the page says so in red — colour means a state here, never decoration.</li>
   </ul>
-  <h2>For you to rule — two things that change how the app behaves</h2>
+  <h2>Ruled by Mike, 2026-09-30</h2>
   <ul>
-    <li><b>Negatives in brackets</b> — (400,760) instead of −400,760, as in published accounts. On screen and in print.</li>
-    <li><b>The research's headline and indicator tiles need a change to the research prompt</b> — the research would also return a one-sentence headline and its key figures as a list (figure, date, source), which the app checks against the cited text before drawing a tile. The headline below is quoted from your run's own section 3; the five tiles are figures from your run. Without that change the page opens straight onto section 1, as now.</li>
+    <li><b>The layout</b> — approved as drawn (<code>eb94372a</code>).</li>
+    <li><b>Negatives in brackets</b> — (400,760) instead of −400,760, as in published accounts, on screen and in print: <b>yes</b>.</li>
+    <li><b>The research prompt</b> also asks for a one-sentence headline and up to six key figures (value, what it measures, date, source); a tile is drawn only for a figure found in the cited text: <b>yes</b>. The headline below is quoted from your run's own section 3; the five tiles are figures from your run.</li>
   </ul>
-  <h2>New words on the pages, for approval</h2>
-  <p>Three-Way Forecast · Confidential · Prepared for the directors of {client} · Prepared by {firm} · Issued {date} ·
-  Forecast for the 12 months from {start} to {end} · Contents · The forecast at a glance · Sales for the year ·
-  Gross surplus · Surplus before tax · Bank at {date} · Bank balance, month by month · Surplus before tax, month by month ·
-  Where the cash went · Net movement in cash · Working capital at year end · In short · Key indicators · and each contents line's description as drawn.</p>
+  <h2>Still for approval</h2>
+  <p>The wording — every new word, with each version that follows the figures, is listed in section 9 at the foot of this page.</p>
   <h2>How we will know it worked</h2>
   <p>Your motocross example printed before and after, compared on two counts: key figures visible in the first
   two pages (0 today) and pages of unbroken text (about 5 today) — then your read of the two side by side.</p>
@@ -251,6 +254,54 @@ svg{display:block;max-width:100%;height:auto}
   <div class="inds"><div class="ind"><div class="k">GDP, June 2026 quarter</div><div class="v">+0.2%</div><div class="s">Stats NZ · published 24 Sep 2026</div></div><div class="ind"><div class="k">Consumer prices, annual</div><div class="v">4.1%</div><div class="s">Stats NZ · June 2026 quarter</div></div><div class="ind"><div class="k">Official Cash Rate</div><div class="v">2.75%</div><div class="s">Reserve Bank · 2 Sep 2026</div></div><div class="ind"><div class="k">Unemployment</div><div class="v">5.6%</div><div class="s">Stats NZ · June 2026 quarter</div></div><div class="ind"><div class="k">World growth, 2026</div><div class="v">3.0%</div><div class="s">IMF · July 2026 forecast</div></div></div>
   <div class="why">Needs the prompt change above. Every tile's figure must appear in the research's cited text, or the tile is not drawn — the same rule as today's citation guard. The five sections follow on the next pages, with their tables and lists as they now print.</div>
   <div class="foot"><span class="logo">Firm logo</span><span class="caution">This is a forecast. Actual results are likely to differ from it, and the differences may be material.</span><span class="pno">8</span></div>
+</section>
+
+<div class="stepmark">9 · Every new word, for approval — including the versions that follow the figures</div>
+<section class="memo wording">
+  <h1>The wording</h1>
+  <p>Words in braces are filled in from the forecast. Where a line has more than one version, the forecast's
+  own figures choose it. Labels that already exist in the app — the statement lines, the three cash
+  activities, "Notes to the forecast", the caution, the research's run line — are unchanged and not listed.</p>
+  <table class="wl">
+    <thead><tr><th>Where</th><th>Words</th><th>When</th></tr></thead>
+    <tbody>
+      <tr class="g"><td colspan="3">Cover</td></tr>
+      <tr><td>Title</td><td>Three-Way Forecast</td><td>Always</td></tr>
+      <tr><td>Above the title</td><td>Prepared for the directors of {client} &nbsp;|&nbsp; Confidential</td><td>Always; "the business" when the client is not named</td></tr>
+      <tr><td rowspan="2">Period</td><td>Forecast for the 12 months from {start} to {end}</td><td>One year</td></tr>
+      <tr><td>Forecast for the {n} years from {start} to {end}</td><td>Two or three years</td></tr>
+      <tr><td rowspan="2">Foot</td><td>Prepared by {firm} &nbsp;·&nbsp; Issued {date}</td><td>The Notes' "Prepared by" is filled in</td></tr>
+      <tr><td>Issued {date}</td><td>It is not</td></tr>
+      <tr class="g"><td colspan="3">Contents</td></tr>
+      <tr><td>Heading</td><td>Contents</td><td>Always</td></tr>
+      <tr><td>Under it</td><td>What this forecast covers and how to read it</td><td>Always</td></tr>
+      <tr><td>Entries</td><td>The forecast at a glance — The year's headline figures, the bank balance month by month, and where the cash went<br>Cash flow — Money in and out each month — operating, investing and financing<br>Profit and loss — Revenue, costs and surplus each month<br>Balance sheet — What the business owns and owes at the end of each month<br>Notes to the forecast — How it was prepared, the assumptions it rests on, and the compilation report<br>Economic analysis — The economy and the sector around the business, from public sources</td><td>Economic analysis only when the research was approved for the pack</td></tr>
+      <tr class="g"><td colspan="3">The forecast at a glance</td></tr>
+      <tr><td>Heading</td><td>The forecast at a glance</td><td>Always</td></tr>
+      <tr><td rowspan="2">Under it</td><td>{client} · 12 months to {end} · {currency}</td><td>One year</td></tr>
+      <tr><td>{client} · {n} years to {end} · {currency}</td><td>Two or three years — every figure on the page then covers the whole forecast</td></tr>
+      <tr><td rowspan="2">Tile 1</td><td>Sales for the year · excluding GST</td><td>One year</td></tr>
+      <tr><td>Sales over {n} years · excluding GST</td><td>Two or three years</td></tr>
+      <tr><td>Tile 2</td><td>Gross surplus · {pct} of sales</td><td>Always</td></tr>
+      <tr><td rowspan="3">Tile 3</td><td>Surplus before tax · a loss in every month</td><td>Every month loses money (red)</td></tr>
+      <tr><td>Surplus before tax · a surplus in every month</td><td>No month loses money</td></tr>
+      <tr><td>Surplus before tax · a loss in {n} of {total} months</td><td>Some months do (red when the total is a loss)</td></tr>
+      <tr><td rowspan="3">Tile 4</td><td>Bank at {date} · overdrawn; lowest in {month}</td><td>Overdrawn at the end (red)</td></tr>
+      <tr><td>Bank at {date} · in funds; overdrawn at its lowest, {amount} in {month}</td><td>In funds at the end, overdrawn on the way (amber)</td></tr>
+      <tr><td>Bank at {date} · in funds throughout; lowest {amount} in {month}</td><td>Never overdrawn</td></tr>
+      <tr><td>Charts</td><td>Bank balance, month by month · Surplus before tax, month by month · Lowest {amount} · Open</td><td>Always; "Open" marks the balance the forecast starts from</td></tr>
+      <tr><td>Panel</td><td>Where the cash went · Net movement in cash</td><td>Always</td></tr>
+      <tr><td rowspan="2">Panel</td><td>Working capital at year end</td><td>One year</td></tr>
+      <tr><td>Working capital at {date}</td><td>Two or three years — the last month</td></tr>
+      <tr class="g"><td colspan="3">The three statements</td></tr>
+      <tr><td rowspan="2">Under each heading</td><td>Forecast for the 12 months to {end} · {currency} · figures in brackets are negative</td><td>Profit and loss and cash flow</td></tr>
+      <tr><td>At the end of each month to {end} · {currency} · figures in brackets are negative</td><td>Balance sheet</td></tr>
+      <tr><td>Last column</td><td>Year</td><td>Profit and loss and cash flow; the balance sheet has none, as a balance is not added across months</td></tr>
+      <tr class="g"><td colspan="3">Economic analysis</td></tr>
+      <tr><td>Headline box</td><td>In short</td><td>The research returned a headline</td></tr>
+      <tr><td>Tiles</td><td>Key indicators · each tile: {what it measures} · {figure} · {source} · {date}</td><td>At least one figure found in the cited text; otherwise neither line shows</td></tr>
+    </tbody>
+  </table>
 </section>
 
 </div>
