@@ -218,8 +218,8 @@ three existing prompts, so this becomes the fourth and is editable there without
 > figures that sections 1 to 3 already state with their citation — never a new one, and never a
 > figure of the business's own. Do not cite anything in this block.
 
-⏳ **THE KEY FIGURES PARAGRAPH ABOVE AWAITS MIKE'S APPROVAL OF ITS WORDING (item 44.4).** He
-ruled the substance on 2026-09-30 — *a one-sentence headline and up to six key figures, a tile
+✅ **THE KEY FIGURES PARAGRAPH ABOVE IS APPROVED BY MIKE, 2026-09-30 ("yes"), word for word as committed in `c9ecbf33` (item 44.4).** He
+ruled the substance the same day — *a one-sentence headline and up to six key figures, a tile
 drawn only for a figure found in the research's cited text*. The words were written at build
 time. Two things are deliberately NOT asked of the model, and are enforced in
 `server/report/economicAnalysis/researchResult.js` (`keyFiguresOf`): a tile's **source** is the

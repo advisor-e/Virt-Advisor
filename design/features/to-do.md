@@ -47,9 +47,8 @@ repository sees; the two never both appear, and the build stops if they would.
 | 10 | **7.17** Remove the three never-used options from the engine's briefing builder ⚠ *not yet ranked by Mike* | 1 | — | Us | — |
 | 11 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 12 | **44.3** The forecast needs four facts: bad debts, deferred tax, leases, shipping terms ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 13 | **44.4** The printed forecast as a board paper: cover, contents, the forecast at a glance ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **desktop**, since 2026-09-30 |
 
-**Thirteen live items. Six need Mike.** If this list passes about twenty, something is wrong.
+**Twelve live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

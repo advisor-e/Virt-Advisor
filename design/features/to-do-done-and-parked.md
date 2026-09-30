@@ -379,6 +379,28 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**44.4 · The printed forecast read as a spreadsheet: no cover, no contents, no summary, and the research was pages of plain text.**
+✅ **Closed 2026-09-30 by Mike ("yes" to marking it done), the day he asked for it.**
+
+- **His rulings:** asked for in his words — *"we need a cover page for the 3 way forecast report"*;
+  *"a more 'board to shareholder' feel about it - but still meet reporting best stds"*. The drawing
+  [`three-way-forecast-board-pack.html`](../mockups/three-way-forecast-board-pack.html) approved in
+  four steps: the layout (`eb94372a`); negatives in brackets, screen and print, after asking what
+  best practice requires; the research headline and tiles; every word with each version
+  (`342dd1f8`). The research-prompt KEY FIGURES paragraph approved word for word (`c9ecbf33`).
+- **What was done:** a cover, contents and "forecast at a glance" (four tiles, two charts, where
+  the cash went) at the front of the print; the statements restyled with a Year column and costs
+  as deductions, lines and order unchanged; the Notes in two columns; the research opening on a
+  headline and up to six tiles, each figure found in the cited text and sourced from the citation
+  beside it. Named differences: the firm's name where the logo was drawn; no page numbers; a
+  tile's source is its citation's web host.
+- **The measure named at scoping:** key figures in the first two pages stay 0 as worded — those are
+  now the approved cover and contents — and page 3 carries four figures and two charts; the
+  research opens on a headline and six sourced figures (none before), while its five sections
+  remain prose. **What proves it:** `threeWayForecastPack.test.js`,
+  `economicAnalysisKeyFigures.test.js`; printed at A4 landscape from the running app; one live
+  research run, six tiles all sourced. Commit: `c9ecbf33`.
+
 **44.1 · Nobody had checked the Three-Way Forecast against IFRS and FRS-42, and its assumptions were not disclosed.**
 ✅ **Closed 2026-09-30 by Mike ("yes" to marking it done): the standards review and the Notes page are built.**
 
