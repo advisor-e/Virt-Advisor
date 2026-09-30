@@ -13,7 +13,7 @@
 const { mountWithBuefy } = require('../helpers/mountComponent')
 const FirmBenchmarker = require('~/components/firm/FirmBenchmarker.vue').default
 
-const SUMMARY = { dataset: { source: 'Stats NZ Business Performance Benchmarker', year: 2025, provisional: true, counts: { industries: 483, withBenchmarks: 228, ratioRows: 6111 } }, uploaded: false }
+const SUMMARY = { dataset: { source: 'Stats NZ Business Performance Benchmarker', year: 2025, provisional: true, finalYear: 2023, provisionalYears: [2024, 2025], counts: { industries: 483, withBenchmarks: 228, ratioRows: 6111 } }, uploaded: false }
 
 function fetchMock (answers) {
   return jest.fn((url, opts) => {

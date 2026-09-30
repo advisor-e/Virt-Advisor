@@ -185,27 +185,6 @@
       "comment": "2026-09-25 - filed on Mike's yes at shutdown. MIKE'S CALL 2026-09-30: PROCEED - the split-sentence half is built and walked in German; only the glossary half remains."
     },
     {
-      "ref": "46.1",
-      "name": "Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Which years of a Stats NZ release are provisional is fixed in code - PROVISIONAL_FROM = 2024 in statsNzBenchmarker.js - and repeated as a sentence on the hub's benchmarks screen.",
-      "risk": "When a manager uploads next year's release, the Business Performance Report's benchmark page will call a final year provisional or the reverse, on a document a client reads, and the hub will describe a release that is no longer in force.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-25 - found converting FirmBenchmarker.vue for translation. Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "server/report/benchmarks/statsNzBenchmarker.js PROVISIONAL_FROM and the provisional flag it sets; firmBenchmarker.inForce.provisional in locales/en.json, which names the years; the upload on the hub's benchmarks tab, if the manager is to state it; the benchmark page of the Business Performance Report.",
-      "note": "NEEDS MIKE'S RULE FIRST: either the manager states which years are provisional when uploading a release, or a fixed rule such as the latest two years being provisional. Stats NZ publishes it with each release.",
-      "comment": "2026-09-25 - filed on Mike's yes at shutdown."
-    },
-    {
       "ref": "22.2",
       "name": "The desktop's default Node is version 20, not the locked 14.15",
       "rankedByMike": false,

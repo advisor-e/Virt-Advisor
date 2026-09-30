@@ -24,7 +24,7 @@
           b {{ summary.year }}
           |
           b-tag(:type="uploaded ? 'is-info is-light' : 'is-light'" size="is-small") {{ uploaded ? $t('firmBenchmarker.inForce.uploadedHere') : $t('firmBenchmarker.inForce.shippedWithApp') }}
-        span.is-size-7.has-text-grey {{ summary.provisional ? $t('firmBenchmarker.inForce.provisional') : $t('firmBenchmarker.inForce.final') }}
+        span.is-size-7.has-text-grey {{ summary.provisional ? $t('firmBenchmarker.inForce.provisional', { finalYear: summary.finalYear, firstProvisional: summary.provisionalYears[0], lastProvisional: summary.provisionalYears[1] }) : $t('firmBenchmarker.inForce.final') }}
         span.has-text-right {{ summary.counts.industries }}
         span.has-text-right {{ summary.counts.withBenchmarks }}
         span.has-text-right {{ summary.counts.ratioRows.toLocaleString() }}

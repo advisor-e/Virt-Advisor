@@ -16,7 +16,7 @@
  * file, because a benchmark read must not cost a client their report.
  */
 
-const { isBenchmarkerDataset } = require('../report/benchmarks/statsNzBenchmarker')
+const { isBenchmarkerDataset, provisionalYearsOf } = require('../report/benchmarks/statsNzBenchmarker')
 const BASE_FILE = require('../../data/statsnz-benchmarker-2025.json')
 const { PLATFORM_SCOPE } = require('./platformScope')
 
@@ -45,9 +45,14 @@ async function loadBenchmarker (loadConfig) {
   return isBenchmarkerDataset(stored) ? stored : BASE_BENCHMARKER
 }
 
-/** The one-line summary a manager's screen shows. @param {object} dataset */
+/**
+ * The one-line summary a manager's screen shows. The years are worked out from `year` here,
+ * not read from the stored dataset, so a release uploaded before item 46.1 gets them too.
+ * @param {object} dataset
+ */
 function summaryOf (dataset) {
-  return { source: dataset.source, year: dataset.year, provisional: dataset.provisional, counts: dataset.counts }
+  const { finalYear, provisionalYears } = provisionalYearsOf(dataset.year)
+  return { source: dataset.source, year: dataset.year, provisional: dataset.provisional, finalYear, provisionalYears, counts: dataset.counts }
 }
 
 module.exports = { BASE_BENCHMARKER, CONFIG_KEY, PLATFORM_SCOPE, loadBenchmarker, summaryOf }

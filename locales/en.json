@@ -8210,7 +8210,7 @@
       },
       "uploadedHere": "uploaded here",
       "shippedWithApp": "shipped with the app",
-      "provisional": "provisional — Stats NZ: 2023 final, 2024 and 2025 provisional",
+      "provisional": "provisional — Stats NZ: {finalYear} final, {firstProvisional} and {lastProvisional} provisional",
       "final": "final"
     },
     "replace": {
