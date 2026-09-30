@@ -149,8 +149,14 @@
         :suggesting="suggesting"
         :suggest-state="suggestState"
         :client-chosen="Boolean(clientId)"
+        :intake-questions="intakeQuestions"
+        :intake-minutes="intakeMinutes"
+        :intake-answers="intakeAnswers"
         @scope-changed="onScopeChanged"
-        @suggest-requested="requestSuggestion"
+        @suggest-requested="requestSuggestion()"
+        @intake-submitted="requestSuggestion"
+        @intake-dismissed="suggestState = ''"
+        @intake-reopen="suggestState = 'no-history'"
       )
 
     template(v-if="!loading && step === 'steps'")
@@ -554,6 +560,14 @@ export default {
       suggesting: false,
       /** '' | 'ok' | 'no-history' | 'nothing-matched' | 'failed' — what the bar says. */
       suggestState: '',
+      /**
+       * Item 15.31 — the guided questions for a client with no saved conversation, loaded
+       * the first time the backend answers 'no-history'; `intakeMinutes` bounds a typed length.
+       */
+      intakeQuestions: [],
+      intakeMinutes: { min: 29, max: 480 },
+      /** The answers that produced the current suggestion; null when it came from history. */
+      intakeAnswers: null,
       /** Captured text, keyed `frameworkId::fieldKey`. */
       entries: {},
       /** The one concept Wordsmith writes for, for the template. */
@@ -1226,6 +1240,9 @@ export default {
      */
     clientId () {
       this.modelPrints = {}
+      // Guided answers describe ONE client (item 15.31); they never carry to the next.
+      this.intakeAnswers = null
+      if (this.suggestState === 'no-history') { this.suggestState = '' }
       this.loadClientSessions()
     },
 
@@ -1850,12 +1867,18 @@ export default {
      * ⚠ IT NEVER UNTICKS. Concepts already chosen stay chosen even if the AI did not
      * propose them — the union, never the reply.
      *
+     * Item 15.31: pressed for a client with no saved conversation, the backend answers
+     * 'no-history' and the menu asks the guided questions; their answers come back here.
+     *
+     * @param {Object<string, string>} [answers] - the guided answers, when there are any
      * @returns {Promise<void>}
      */
-    async requestSuggestion () {
+    async requestSuggestion (answers) {
       if (this.suggesting || !this.clientId) { return }
       this.suggesting = true
       this.suggestState = ''
+      // Kept before the call, so a failed request does not lose what the advisor typed.
+      if (answers) { this.intakeAnswers = answers }
       try {
         const res = await fetch('/api/strategy/suggest', {
           method: 'POST',
@@ -1863,13 +1886,19 @@ export default {
           headers: this.headers(true),
           body: JSON.stringify({
             clientId: this.clientId,
-            sessionId: this.sessionId || undefined
+            sessionId: this.sessionId || undefined,
+            answers: answers || undefined
           })
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
         const body = await res.json()
         const concepts = (body.suggestion && body.suggestion.concepts) || []
 
+        if (body.reason === 'no-history' && !this.intakeQuestions.length) {
+          await this.loadIntakeQuestions()
+        }
+        // A suggestion read from the client's conversations carries no answers.
+        if (!answers && body.reason !== 'no-history') { this.intakeAnswers = null }
         this.suggested = concepts
         this.suggestState = body.reason === 'ok' ? 'ok' : body.reason
 
@@ -1882,6 +1911,29 @@ export default {
         this.suggestState = 'failed'
       } finally {
         this.suggesting = false
+      }
+    },
+
+    /**
+     * The guided questions (item 15.31). A failure leaves the list empty, and the menu then
+     * falls back to saying the client has no conversations — the screen before this item,
+     * never a dead end.
+     * @returns {Promise<void>}
+     */
+    async loadIntakeQuestions () {
+      try {
+        const res = await fetch('/api/strategy/suggest/questions', {
+          credentials: 'same-origin',
+          headers: this.headers()
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        const body = await res.json()
+        this.intakeQuestions = Array.isArray(body.questions) ? body.questions : []
+        if (body.minutes) {
+          this.intakeMinutes = { min: body.minutes.min, max: body.minutes.max }
+        }
+      } catch (e) {
+        this.intakeQuestions = []
       }
     },
 
@@ -1901,7 +1953,11 @@ export default {
               domains: [],
               frameworks: this.chosen,
               suggestion: this.suggested.length
-                ? { at: new Date().toISOString(), concepts: this.suggested }
+                ? Object.assign(
+                  { at: new Date().toISOString(), concepts: this.suggested },
+                  // Decision D: the guided answers stay with what they produced.
+                  this.intakeAnswers ? { answers: this.intakeAnswers } : {}
+                )
                 : undefined
             }
           })
@@ -2106,6 +2162,7 @@ export default {
         this.suggested = (scope.suggestion && Array.isArray(scope.suggestion.concepts))
           ? scope.suggestion.concepts.slice()
           : []
+        this.intakeAnswers = (scope.suggestion && scope.suggestion.answers) || null
         this.textEdits = (scope.edits && typeof scope.edits === 'object') ? scope.edits : {}
         // The run sheet as saved, or an empty one for a session nobody has timed yet.
         this.planTiming = scope.timing

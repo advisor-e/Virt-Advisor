@@ -9,23 +9,25 @@
 
 ---
 
-## 2026-09-29 (fourth session) · Laptop · branch `feat/advisor-progress`
+## 2026-09-30 · Laptop · branch `feat/advisor-progress`
 
-**9 ahead of master, 0 behind, nothing uncommitted. Suite green: 672 suites / 14,506 tests on
-Node 14.15, audit PASS.** Pushed to `f3ed4c3b`.
+**6 ahead of master, 0 behind; pushed; suite green: 675 suites / 14,575 tests on Node 14.15,
+audit PASS.** (This shutdown's commit makes it 7.)
 
-**15.20 Add Concept is DONE and closed on Mike's word** — see `to-do-done-and-parked.md`. Piece 4
-(the printed plan: imported teaching pages, answers inside the Response Form's boxes) and three
-faults found by Mike using it with his own Customer Journey deck: bold "?" printing as "2"
-(imported pages shared font names — `utils/importedPageFonts.js`), a refusal nobody could see,
-and screens with no instructions (his wording: `design/ADD-CONCEPT-INSTRUCTIONS.md`).
-**Left to the desktop or UAT:** a real database save of a concept (the migration and its 32M
-`max_allowed_packet`) and a recorded summary on an imported concept. 15.21 stays open.
+**15.31 BUILT, Mike's call PROCEED.** "Suggest for this client" now asks a client with no saved
+conversation the Virtual Advisor's own questions, one at a time, and pre-ticks at most
+(session minutes − 9) ÷ 20 concepts, never the frame concept. Rulings and measurement:
+`strategy-planner.md` stage 6. Left: Mike's own try-out of the screen.
+**15.32 filed:** changing client keeps the previous client's ticks (proved); an open session
+possibly stays attached (not proved).
+Also fixed: the Brief's concept count (48, 36 with a capture form); the registry's file path
+and its missing question 8. `data/domains.json` `strategyPlanExists` now carries Mike's wording.
 
 **FOR THE DESKTOP:** merge master once this reaches it. Shared files changed today:
-`locales/en.json` (`strategyConcepts` wording), `pages/strategy-planner.vue` (plan items carry
-imported pages; a step with an imported concept teaches), `StrategyPlanDocument.vue`,
-`server/utils/importedConcepts.js` (`captureOf` sends the form page and box positions),
-`design/features/README.md` (one link in the Strategy Planner row).
+`server/advisorEngine.js` (six question texts now read from `server/utils/intakeQuestions.js`,
+wording unchanged), `components/VirtualAdvisor.vue` (session lengths from
+`utils/sessionLengths.js`), `locales/en.json` (`strategyPlanner.menu.intake*`),
+`pages/strategy-planner.vue`, `components/strategy/StrategyScopeMenu.vue`,
+`server/routes/strategyPlanner.js`, `server/utils/strategySessionStore.js`.
 
-**Still in hand here:** 8.4 (next: screen 4) and 8.6, designed alongside it.
+**Still in hand here:** 15.31 (Mike's try-out), 8.4 (next: screen 4) and 8.6.

@@ -360,6 +360,18 @@ describe('the scope screen 1 records', () => {
       expect(session.scope.frameworks).toEqual(['strategy-porters-pine'])
     })
 
+    // Item 15.31, Decision D: the guided answers are the reason those rows were proposed, so
+    // the record keeps them — and keeps only strings, so nothing else rides in with them.
+    it('keeps the guided answers with the suggestion, and only as strings', async () => {
+      const id = await openSession()
+      await store.saveSuggestion(id, FIRM, Object.assign({}, SUGGESTION, {
+        answers: { growthStage: 'Lifestyle', advisorSessionLength: '90 mins', injected: { a: 1 } }
+      }))
+
+      const session = await store.getSession(id, FIRM)
+      expect(session.scope.suggestion.answers).toEqual({ growthStage: 'Lifestyle', advisorSessionLength: '90 mins' })
+    })
+
     it('is replaced, not appended to, when the advisor asks a second time', async () => {
       const id = await openSession()
       await store.saveSuggestion(id, FIRM, SUGGESTION)

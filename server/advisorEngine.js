@@ -62,6 +62,7 @@ const { listForClient, listForAdvisor } = require('../server/utils/caseStore')
 const { buildPriorEngagementSummary, formatPriorEngagementText, deriveHistoryScoringInputs } = require('../server/utils/priorEngagement')
 
 const { loadBlendedStaircase, resolveStaircaseStep, BASE_STAIRCASE } = require('../server/utils/staircaseConfig')
+const { QUESTION_TEXT } = require('../server/utils/intakeQuestions')
 
 // Reference data
 const DOMAINS = require('../data/domains.json')
@@ -2553,7 +2554,8 @@ async function handleQuery (rawBody, res, identity) {
     const QUESTIONS = [
       {
         field: 'clientRaisedIssue',
-        text: 'Has the client specifically requested help with this issue, or is it something you\'ve noticed?'
+        // The wording is shared with the Strategy Planner (item 15.31) — see intakeQuestions.js.
+        text: QUESTION_TEXT.clientRaisedIssue
       },
       {
         field: 'situationDiagnostic',
@@ -2787,7 +2789,7 @@ async function handleQuery (rawBody, res, identity) {
       },
       {
         field: 'growthStage',
-        text: 'Where would you place them on the Growth Curve?\n[GROWTH_CURVE_SELECTOR]',
+        text: QUESTION_TEXT.growthStage + '\n[GROWTH_CURVE_SELECTOR]',
         skip: s => isNFPorPublic(s)
       },
       {
@@ -2826,17 +2828,17 @@ async function handleQuery (rawBody, res, identity) {
       },
       {
         field: 'clientPersonality',
-        text: 'Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice?',
+        text: QUESTION_TEXT.clientPersonality,
         skip: () => true // asked at start of approach phase instead, where it is actually needed
       },
       {
         field: 'advisorExperience',
-        text: 'How long have you been delivering advisory work, and are you comfortable using tools and frameworks with clients?',
+        text: QUESTION_TEXT.advisorExperience,
         skip: () => !!advisorProfile
       },
       {
         field: 'advisorConfidence',
-        text: 'How confident do you feel about delivering services in this type of situation — is this familiar territory, or more of a stretch for you personally?'
+        text: QUESTION_TEXT.advisorConfidence
       },
       {
         field: 'advisorEnjoyment',
@@ -2849,7 +2851,7 @@ async function handleQuery (rawBody, res, identity) {
       },
       {
         field: 'advisorSessionLength',
-        text: 'How long can you allow per meeting?\n[SESSION_LENGTH_SELECTOR]'
+        text: QUESTION_TEXT.advisorSessionLength + '\n[SESSION_LENGTH_SELECTOR]'
       }
     ]
 

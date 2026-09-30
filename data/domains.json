@@ -80,7 +80,7 @@
       },
       {
         "field": "strategyPlanExists",
-        "text": "Does the business currently have a documented strategic plan they actively work from?"
+        "text": "Does a current plan exist for this client, are they familiar with planning or is this topic new to them?"
       },
       {
         "field": "strategyHorizon",

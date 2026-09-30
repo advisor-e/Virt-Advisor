@@ -22,16 +22,37 @@
       @click="$emit('suggest-requested')"
     ) {{ $t('strategyPlanner.menu.suggestButton') }}
     span.ssm-hint(v-if="suggesting") {{ $t('strategyPlanner.menu.suggestRunning') }}
+    //- The answers, folded to one line once they have produced a suggestion — Decision D's
+    //- record made visible, and the way back into them.
+    span.ssm-hint(v-else-if="intakeAnswers && suggestState !== 'no-history'")
+      | {{ answersInBrief }} —
+      //- intake-reopen: no payload — open the guided answers again to change them.
+      a.ssm-change(href="#" @click.prevent="$emit('intake-reopen')") {{ $t('strategyPlanner.menu.intakeChange') }}
     span.ssm-hint(v-else) {{ $t('strategyPlanner.menu.hint') }}
 
   //- 🔴 THE BAR SAYS WHAT WAS PROPOSED, NEVER WHAT IS INCLUDED. Decision C(a): the count
   //- in the chrome above follows the ticks. This line follows the suggestion, and the two
   //- are allowed to disagree — that disagreement is the advisor's judgement, shown.
+  //- Item 15.31: a client with no saved conversation is asked the guided questions instead
+  //- of being told there is nothing to suggest from. The plain message stays as the fallback
+  //- for when the questions could not be loaded.
+  strategy-suggest-intake(
+    v-if="suggestState === 'no-history' && intakeQuestions.length"
+    :questions="intakeQuestions"
+    :minutes="intakeMinutes"
+    :initial-answers="intakeAnswers || {}"
+    @submit="onIntakeSubmit"
+    @dismiss="onIntakeDismiss"
+  )
   .ssm-sugg(v-if="suggestState === 'ok'")
-    | {{ $tc('strategyPlanner.menu.suggestBar', suggested.length, { count: suggested.length }) }}
+    template(v-if="intakeAnswers")
+      | {{ $tc('strategyPlanner.menu.suggestBarAnswers', suggested.length, { count: suggested.length }) }}
+    template(v-else)
+      | {{ $tc('strategyPlanner.menu.suggestBar', suggested.length, { count: suggested.length }) }}
     span.ssm-sugg-off(v-if="untickedCount")
       |  {{ $tc('strategyPlanner.menu.suggestUnticked', untickedCount, { count: untickedCount }) }}
-  .ssm-sugg.is-quiet(v-else-if="suggestState === 'no-history'") {{ $t('strategyPlanner.menu.suggestNoHistory') }}
+  .ssm-sugg.is-quiet(v-else-if="suggestState === 'no-history' && !intakeQuestions.length") {{ $t('strategyPlanner.menu.suggestNoHistory') }}
+  .ssm-sugg.is-quiet(v-else-if="suggestState === 'nothing-matched' && intakeAnswers") {{ $t('strategyPlanner.menu.suggestNothingAnswers') }}
   .ssm-sugg.is-quiet(v-else-if="suggestState === 'nothing-matched'") {{ $t('strategyPlanner.menu.suggestNothing') }}
   .ssm-sugg.is-bad(v-else-if="suggestState === 'failed'") {{ $t('strategyPlanner.menu.suggestFailed') }}
 
@@ -130,6 +151,8 @@
 </template>
 
 <script>
+import StrategySuggestIntake from '~/components/strategy/StrategySuggestIntake.vue'
+
 /**
  * StrategyScopeMenu — the INPUT screen of the Strategy Planner: which of the 52 concepts
  * this session covers.
@@ -168,6 +191,8 @@
  */
 export default {
   name: 'StrategyScopeMenu',
+
+  components: { StrategySuggestIntake },
 
   props: {
     /**
@@ -208,7 +233,20 @@ export default {
       type: String,
       default: '',
       validator: v => ['', 'ok', 'no-history', 'nothing-matched', 'failed'].includes(v)
-    }
+    },
+
+    /**
+     * The guided questions for a client with no saved conversation, from
+     * `GET /api/strategy/suggest/questions` — `[{ field, kind, text }]`. Empty until
+     * `no-history` has been answered, and empty if they could not be loaded (item 15.31).
+     */
+    intakeQuestions: { type: Array, default: () => [] },
+
+    /** `{ min, max }` — the typed session length the backend accepts. */
+    intakeMinutes: { type: Object, default: () => ({ min: 29, max: 480 }) },
+
+    /** The answers that produced the current suggestion, or null when it came from history. */
+    intakeAnswers: { type: Object, default: null }
   },
 
   computed: {
@@ -241,10 +279,38 @@ export default {
      */
     untickedCount () {
       return this.suggested.filter(s => s && s.id && !this.chosen.includes(s.id)).length
+    },
+
+    /**
+     * The answers on one line, in the order asked — the drawing's folded state. A long typed
+     * answer is cut, since the full text is one press away.
+     * @returns {string}
+     */
+    answersInBrief () {
+      const answers = this.intakeAnswers || {}
+      const order = this.intakeQuestions.length
+        ? this.intakeQuestions.map(q => q.field)
+        : Object.keys(answers)
+      return order
+        .map(f => String(answers[f] || '').trim())
+        .filter(Boolean)
+        .map(a => (a.length > 40 ? a.slice(0, 39) + '…' : a))
+        .join(' · ')
     }
   },
 
   methods: {
+    /** @param {Object<string, string>} answers - one answer per guided question */
+    onIntakeSubmit (answers) {
+      // Payload: `{ [field]: string }` — the guided answers, to suggest from.
+      this.$emit('intake-submitted', answers)
+    },
+
+    onIntakeDismiss () {
+      // No payload: the advisor will tick the concepts themselves.
+      this.$emit('intake-dismissed')
+    },
+
     /**
      * @param {string} id a concept id
      * @returns {boolean}
