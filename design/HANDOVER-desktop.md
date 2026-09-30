@@ -31,6 +31,7 @@ economic research's tables and lists now print as tables and lists. **Filed:** 1
   `economicAnalysis.inShort`/`keyIndicators`), `mixins/currencyMixin.js` (`figure`, and
   `bracketNegatives`), `utils/currencyFormat.js` (`accountingMoney`/`accountingNum`),
   `utils/researchText.js` (lists and tables), `data/ai-prompts.json` (economic analysis §6).
-- **8.4's note contradicts its own commit.** The item says it was "never yet run against real
-  OpenAI or a microphone"; `b10854c5`'s body says it was walked "with Chrome's test-tone
-  microphone and real OpenAI calls". The item is yours — put it right on Mike's word.
+- **8.4's note corrected here on Mike's word (the list entry only, none of your files).** It said
+  the first build was "never yet run against real OpenAI or a microphone"; `b10854c5` records the
+  walk with Chrome's test-tone microphone and real OpenAI calls. It now says so, and that it has
+  never been run with a real person speaking.
