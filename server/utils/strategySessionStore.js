@@ -960,13 +960,34 @@ function shapeEntry (row) {
   }
 }
 
+/**
+ * A timeline stamp as `now()` wrote it: UTC, zone-less, `YYYY-MM-DD HH:MM:SS.mmm`.
+ *
+ * ⚠ mysql2 hands a DATETIME back as a Date built in the SERVER's local zone (db.js sets no
+ * `timezone`), so the UTC digits `now()` stored arrive shifted by the server's offset — 13
+ * hours on a New Zealand server. Reading the Date's local fields back as UTC undoes exactly
+ * that, whatever the zone. It matters because a transcript is placed into boxes by
+ * comparing these times with the recording's own clock (8.4, screen 4). The fallback
+ * already returns the string as written.
+ *
+ * @param {Date|string|null} value
+ * @returns {string|null}
+ */
+function storedUtc (value) {
+  if (!(value instanceof Date)) { return value || null }
+  if (isNaN(value.getTime())) { return null }
+  return new Date(Date.UTC(value.getFullYear(), value.getMonth(), value.getDate(),
+    value.getHours(), value.getMinutes(), value.getSeconds(), value.getMilliseconds()))
+    .toISOString().replace('T', ' ').replace('Z', '')
+}
+
 /** @param {object} row @returns {object} */
 function shapeTimeline (row) {
   return {
     frameworkId: row.framework_id,
     fieldKey: row.field_key,
-    openedAt: row.opened_at,
-    closedAt: row.closed_at || null
+    openedAt: storedUtc(row.opened_at),
+    closedAt: storedUtc(row.closed_at)
   }
 }
 

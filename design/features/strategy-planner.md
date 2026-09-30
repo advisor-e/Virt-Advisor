@@ -1704,8 +1704,11 @@ Items **8.4** (recording, built) and **15.14** (Wordsmith, built second, after t
 **approved for build by Mike on 2026-09-28** — *"i approve the drawing to build"* — as committed in
 `976533c2`; every decision and label on it ruled one question at a time. Screen 11 was added and
 built the same day on his rulings without a separate approval, on his word. Screen 4 — words placed
-into the boxes, the AI's tidied wording (Decisions D and F, unruled) — is the **second build**, not
-built. How the old version of this block read is on the history page.
+into the boxes, the AI's tidied wording — is the **second build**, not built. **Decision D RULED
+(his yes, 2026-10-01):** each finished section's words show up under their boxes during the session,
+as soon as that section is turned into text, not held until the recording ends. **Decision F RULED
+(his yes, 2026-10-01):** a kept suggestion is added below whatever is already typed in the box, never
+replacing it. How the old version of this block read is on the history page.
 
 **How it works.** A strategy session is a Meeting Review meeting of type **"Strategy Session"**,
 recorded **one concept at a time**:

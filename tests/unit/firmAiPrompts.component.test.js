@@ -35,6 +35,7 @@ const COMPLIANCE = 'compliance-check' // item 4.83 slice 4 — all four tiers, l
 // the document runs, and a pass reading one page range. Shown at all four tiers.
 const SURVEY = 'country-schedule-survey'
 const PASS = 'country-schedule-pass'
+const TIDY = 'passage-tidy' // item 8.4 screen 4 — the mentor alone
 
 /**
  * Mount the tab with the backend answering exactly as the real route does — the payload
@@ -154,7 +155,7 @@ describe('what the mentor additionally sees', () => {
   it('gets every mentor document and therefore a picker', async () => {
     const wrapper = await mountTab('mentor')
 
-    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(wrapper.vm.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE, TIDY])
     expect(wrapper.vm.hasPicker).toBe(true)
     // One card per document. The count follows the list rather than being pinned to a
     // number, so adding a fourth document is a data change and not a test change.

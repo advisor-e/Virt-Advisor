@@ -73,6 +73,7 @@ const { generateSummary, generateCoachingNotes } = require('../utils/meetingRepo
 // with, so March's agreed actions can be checked against April's transcript — and `getById`
 // is scoped to the firm, so an id from a body can never reach another firm's client.
 const clientStore = require('../utils/clientStore')
+const strategyStore = require('../utils/strategySessionStore')
 const followThrough = require('../utils/meetingFollowThrough')
 
 // formidable v2's parse() is callback-style, matching the wrapper in firmManager.js. The
@@ -295,6 +296,22 @@ async function startRecording (req, res) {
       clientId = client.id
     }
 
+    // 🔴 THE PLANNING SESSION IS CHECKED THE SAME WAY (item 8.4, screen 4). Its box timeline
+    // decides which box this recording's words are offered under, so it must be this firm's,
+    // this client's and this advisor's — the pairing Wordsmith refuses to guess (item 15.29).
+    let strategySessionId = null
+    if (body.segmented === true && body.strategySessionId !== undefined && body.strategySessionId !== null) {
+      // A malformed id is refused as not found, never as a server fault.
+      const session = await strategyStore.getSession(body.strategySessionId, req.firmId)
+        .catch((err) => { if (err.code === 'BAD_INPUT') { return null } throw err })
+      if (!session || !clientId || String(session.clientId) !== String(clientId) ||
+          String(session.advisorId) !== String(req.advisorId)) {
+        sendError(res, 404, 'NO_SUCH_SESSION', 'That planning session is not yours to record.')
+        return
+      }
+      strategySessionId = session.id
+    }
+
     const { meetingId, meta } = store.createMeeting({
       firmId: req.firmId,
       advisor: req.advisorId,
@@ -305,7 +322,8 @@ async function startRecording (req, res) {
       clientId,
       retentionMonths: resolved.months,
       // A strategy session records one concept at a time (item 8.4) — see meetingSegments.js.
-      segmented: body.segmented === true
+      segmented: body.segmented === true,
+      strategySessionId
     })
     res.send(201, {
       meetingId,
