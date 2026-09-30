@@ -449,6 +449,31 @@ describe('the forecast is not built on a broken assumption', () => {
     w.destroy()
   })
 
+  test('🔴 overseas customers cannot pay more than 100% of what they were billed', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.overseas.enabled = true
+    w.vm.form.overseas.overseasCollection = [0, 60, 50, 0, 0] // 110%: cash nobody was billed for
+    w.vm.buildForecast()
+    expect(w.emitted().confirmed).toBeUndefined()
+    // Short is a bad debt (item 44.3), so it builds.
+    w.vm.form.overseas.overseasCollection = [0, 50, 40, 0, 0]
+    w.vm.buildForecast()
+    expect(w.emitted().confirmed).toHaveLength(1)
+    w.destroy()
+  })
+
+  test('🔴 the overseas supplier is paid exactly what is owed, never more or less', () => {
+    const w = mountIntake({ step: 3 })
+    w.vm.form.overseas.enabled = true
+    const wrong = [[0, 90, 0, 0, 0], [0, 100, 10, 0, 0]]
+    wrong.forEach((profile) => {
+      w.vm.form.overseas.balancePayment = profile
+      w.vm.buildForecast()
+      expect(w.emitted().confirmed).toBeUndefined()
+    })
+    w.destroy()
+  })
+
   test('a complete set of assumptions hands over the inputs and the working state', () => {
     const w = mountIntake({ step: 3 })
     w.vm.buildForecast()

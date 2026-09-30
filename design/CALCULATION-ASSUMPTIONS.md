@@ -114,8 +114,8 @@ sometimes an error to fix.
 | Domestic sales | Entered monthly, ex GST | Revenue in the month entered; GST added on top and collected with it. | ✅ IFRS 15.31, 38 — at a point in time, on the assumption goods are delivered in the month sold. |
 | Imported stock sold at home | The sell-down ladder | Revenue in the month each slice sells, at the price its age still commands. | ✅ IFRS 15.31. |
 | **Overseas sales** | Delivered 2 months after invoice | Revenue is booked in the **invoice** month; collection is counted from **delivery**. | ⚠ **IFRS 15.31, 38** — revenue follows the transfer of control, and physical possession is one of its indicators. On the default lag, revenue is recognised two months before the customer has the goods. Correct only where the terms pass control at shipment. |
-| **Debtor collection** | 10 / 55 / 30 / 5% over the month and the next three | A domestic profile must total 100% or the forecast will not build, so every local sale is collected in full. An **overseas** profile may total less: the shortfall stays in debtors for ever — never collected, never charged as an expense. No bad debts, no allowance. | ⚠ **IFRS 9 5.5.1, 5.5.15** — trade receivables carry a lifetime expected-credit-loss allowance. The forecast assumes none, and an overseas shortfall overstates debtors. Mike's design, 44.3: the shortfall is the bad debt, domestic and overseas. |
-| Opening debtors | From the opening balance sheet | Collected over the first four months, in the proportions of the profile; all in month 1 when customers pay in the month of sale. | ℹ A timing assumption; no standard governs it. **Fixed 2026-09-30**: a same-month profile collected none of them, for all three years. |
+| **Debtor collection** | 10 / 55 / 30 / 5% over the month and the next three | Sales are collected on the profile. Whatever a profile, domestic or overseas, leaves uncollected is the **bad debt**: charged as an expense before GST in the month of the sale, taken off debtors with its GST, and its GST taken off the GST owed. A profile totalling 100% charges nothing. | ✅ **IFRS 9 5.5.1, 5.5.15** — the expected loss is recognised when the receivable is. **Fixed 2026-10-01 (item 44.3, Mike's design of 2026-09-30)**; until then an overseas shortfall sat in debtors for ever. ℹ GST bad-debt relief is taken in the month of sale, not when the debt is formally written off — a timing simplification. ⚠ The screen still refuses a domestic profile under 100%, until its wording is approved. Pinned by `threeWayForecastStandards.test.js`. |
+| Opening debtors | From the opening balance sheet | Collected in full over the first four months, in the proportions of the profile; all in month 1 when customers pay in the month of sale. No bad debt is charged on them. | ℹ A timing assumption; no standard governs it. **Fixed 2026-09-30**: a same-month profile collected none of them, for all three years. |
 | Other income | Annual figure | Spread evenly over twelve months. | ℹ A timing assumption. |
 
 ### 2.2 Inventory and cost of sales
@@ -189,9 +189,9 @@ sometimes an error to fix.
 | Treatments recorded before 44.1 | **9** (§1, currency) |
 | Treatments recorded now | **44** (§1's 9 and §2's 35) |
 | Departures found | **9** |
-| Fixed 2026-09-30 | **4** — term loans' current portion, shareholder accounts gross (44.1); cash flow by activity and interest in financing (44.2) |
+| Fixed | **5** — term loans' current portion, shareholder accounts gross (44.1); cash flow by activity and interest in financing (44.2), all 2026-09-30; bad debts (44.3), 2026-10-01 |
 | Re-read as a disclosure, not a departure | **1** — depreciation rates, which are the advisor's own |
-| Still open | **4**, on the live list as 44.3: bad debts, deferred tax, leases and overseas shipping terms need facts the forecast does not yet ask for |
+| Still open | **3**, on the live list as 44.3: deferred tax, leases and overseas shipping terms need facts the forecast does not yet ask for |
 
 ### 2.10 Sources
 

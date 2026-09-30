@@ -2423,7 +2423,7 @@ export default {
 
     /* -- buying and selling overseas (4.64) ---------------------------------------- */
 
-    /** The two profiles the overseas section adds, each validated to 100% like the rest. */
+    /** The two profiles the overseas section adds. `buildForecast` says which totals it refuses. */
     balanceTotal () { return this.sumOf(this.form.overseas.balancePayment) },
     overseasCollectionTotal () { return this.sumOf(this.form.overseas.overseasCollection) },
 
@@ -4689,6 +4689,24 @@ export default {
       if (this.creditorTotal !== 100) {
         this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
           block: this.$t('report.threeWayForecast.assume.creditorsHeading'), reason: this.creditorMessage
+        })
+        return
+      }
+      // The two overseas profiles are used exactly as typed. Over 100%, "Then they pay" banks
+      // cash nobody was billed for; a supplier balance that is not 100% pays more or less than
+      // is owed. A shortfall on "Then they pay" builds: it is a bad debt (item 44.3). Found
+      // 2026-10-01; until then both only turned red.
+      if (this.form.overseas.enabled && this.overseasCollectionTotal > 100) {
+        this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
+          block: this.$t('report.threeWayForecast.assume.overseas.thenTheyPayHeading'),
+          reason: this.profileMessage(this.overseasCollectionTotal, 'debtor')
+        })
+        return
+      }
+      if (this.form.overseas.enabled && this.balanceTotal !== 100) {
+        this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
+          block: this.$t('report.threeWayForecast.assume.overseas.balanceHeading'),
+          reason: this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(this.balanceTotal) })
         })
         return
       }
