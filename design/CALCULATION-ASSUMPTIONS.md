@@ -10,9 +10,9 @@ stated here, never hidden, until the code closes it.
 Australian (AASB) equivalents carry the same numbers. Every citation below was read from the
 published text on the date shown. Nothing here is advice to a client.
 
-**Firms read a plain-text version,** [`CALCULATION-ASSUMPTIONS-FOR-FIRMS.md`](CALCULATION-ASSUMPTIONS-FOR-FIRMS.md),
-published by the mentor as a Compliance item (item 44.1 Stage 2). A change to a treatment here
-changes that file in the same commit, and the mentor republishes it.
+**Lenders read a plain version,** [`CALCULATION-ASSUMPTIONS-FOR-FIRMS.md`](CALCULATION-ASSUMPTIONS-FOR-FIRMS.md),
+as the *Notes* page of every Three-Way Forecast (item 44.1 Stage 2). A change to a treatment here
+changes that file and the notes' wording in `locales/en.json` in the same commit.
 
 Tax rules are kept in their own files and linked, not repeated:
 [`TAX-RULES-IMPORT-GST.md`](TAX-RULES-IMPORT-GST.md).

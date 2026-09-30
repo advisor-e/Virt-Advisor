@@ -250,13 +250,20 @@
               :class="{ on: tab === t.key }"
               type="button"
               @click="tab = t.key") {{ $t(t.label) }}
-          .seg-small
+          //- Summary / Every line means nothing to the notes, so it is not offered there.
+          .seg-small(v-if="tab !== 'notes'")
             button(
               v-for="d in detailOptions" :key="d"
               :class="{ on: detail === d }"
               type="button"
               @click="detail = d") {{ $t('report.threeWayForecast.report.detail.' + d) }}
-        .tw-group.tw-tabbody
+        .tw-group.tw-tabbody(v-if="tab === 'notes'")
+          three-way-forecast-notes(
+            v-if="notesData"
+            :notes="notesData"
+            :year-count="yearCount"
+            :currency="firmCurrency")
+        .tw-group.tw-tabbody(v-else)
           .tw-tblwrap
             table
               thead
@@ -314,6 +321,15 @@
             p.tw-note(v-if="s.hidden")
               | {{ $t('report.threeWayForecast.report.detail.hiddenOverheads', { hidden: s.hidden, total: overheadCount }) }}
             //- Every printed page carries the FRS-42 caution, since a page can be handed on alone.
+            p.tw-note.tw-printcaution {{ $t('report.threeWayForecast.report.caution') }}
+        //- The notes follow the statements they explain, as in any set of accounts, and come
+        //- before the economic analysis (item 44.1). Their own page, with the caution under it.
+        .tw-card.tw-printstmt(v-if="notesData")
+          .tw-group
+            three-way-forecast-notes(
+              :notes="notesData"
+              :year-count="yearCount"
+              :currency="firmCurrency")
             p.tw-note.tw-printcaution {{ $t('report.threeWayForecast.report.caution') }}
 
       .tw-card
@@ -375,6 +391,7 @@
 import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
+import ThreeWayForecastNotes from '~/components/ThreeWayForecastNotes.vue'
 import SliderField from '~/components/base/SliderField.vue'
 import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
@@ -386,7 +403,7 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export default {
   name: 'ThreeWayForecastReport',
 
-  components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge },
+  components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge, ThreeWayForecastNotes },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -447,8 +464,20 @@ export default {
       return [
         { key: 'cash', label: 'report.threeWayForecast.report.tabCash' },
         { key: 'profit', label: 'report.threeWayForecast.report.tabProfit' },
-        { key: 'balance', label: 'report.threeWayForecast.report.tabBalance' }
+        { key: 'balance', label: 'report.threeWayForecast.report.tabBalance' },
+        // Each forecast's own support notes (item 44.1; drawing approved 2026-09-30).
+        { key: 'notes', label: 'report.threeWayForecast.notes.tab' }
       ]
+    },
+
+    /**
+     * The notes' facts and Note 2's figures, from the model. Year 1's: a later year trades on
+     * what quick-fire changed, and the notes describe the forecast as it was built.
+     * @returns {object|null}
+     */
+    notesData () {
+      const y = this.result && Array.isArray(this.result.years) ? this.result.years[0] : null
+      return y && y.notes ? y.notes : null
     },
 
     /** The two settings, in the order they are drawn. */

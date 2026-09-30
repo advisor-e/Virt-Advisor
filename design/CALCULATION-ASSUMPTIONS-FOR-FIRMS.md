@@ -2,17 +2,22 @@
 
 **What this file is.** The firm-facing version of
 [`CALCULATION-ASSUMPTIONS.md`](CALCULATION-ASSUMPTIONS.md) §0-§2, written for firm managers and a
-client's accountant or lender rather than for developers. Item 44.1 Stage 2 (Mike's ruling
-2026-09-30): it reaches firms as a **Compliance item the mentor publishes** — no page of its own.
+client's accountant or lender rather than for developers. Item 44.1 Stage 2.
+
+**How it reaches a lender: as the Notes page of every forecast** — not a Compliance item (Mike,
+2026-09-30). The Three-Way Forecast's *Notes* tab and printed notes carry this text as that
+forecast's own notes: a sentence that does not apply is left out, one that depends on what was
+entered reads it. The rules and every variant wording are in the approved drawing,
+[`three-way-forecast-notes.html`](mockups/three-way-forecast-notes.html) (`fb5d76ee`); the wording
+lives in `locales/en.json` under `report.threeWayForecast.notes`, and
+`tests/unit/threeWayForecastNotes.test.js` pins each unchanged sentence to the body below.
 
 **It is a second copy, so it is kept in step by hand.** When a treatment in the record changes, this
-file changes in the same commit, and the mentor republishes the item (the Compliance tab versions
-it and tells every firm it is new).
+file and the locale wording change in the same commit; the test fails if they drift.
 
-**How to publish it.** Mentor Hub → Compliance → publish an item. Paste the three parts below
-exactly. The Compliance tab shows the body as plain text, which is why it has no tables or bold.
-
-**Status:** first version approved by Mike 2026-09-30 (`1248c251`). **Revised the same day** after item 44.2 was built — the interest and statement-layout paragraphs, and the differences list (six to four) — **and the revision approved by Mike 2026-09-30, as committed in `0a913e11`.** Published to firms: not yet — the mentor publishes it.
+**Status:** first version approved by Mike 2026-09-30 (`1248c251`); revised after item 44.2 and the
+revision approved (`0a913e11`); the Notes page that carries it approved (`fb5d76ee`). The TITLE and
+SUMMARY below were for the Compliance item and are kept as the approval record.
 
 ---
 

@@ -265,6 +265,7 @@ function landingsOf (O) {
  */
 const SELL_DOWN = require('../../data/forecast-sell-down.json')
 const { resolveCurrencies, currencyOf, toHome, movedRates } = require('./fxConversion')
+const { forecastNotes } = require('./threeWayForecastNotes')
 
 /** A demand pattern's four 30-day bands. @param {string} name @returns {Array<number>|null} */
 function curveOfPattern (name) {
@@ -2057,6 +2058,8 @@ function computeThreeWayForecast (rawInputs, options) {
 
   return {
     monthCount: MONTHS,
+    // "Notes to the forecast" (item 44.1): which notes apply, and Note 2's figures as entered.
+    notes: forecastNotes(I, headers.isoDates[0]),
     months: {
       serials: headers.serials,
       isoDates: headers.isoDates,
