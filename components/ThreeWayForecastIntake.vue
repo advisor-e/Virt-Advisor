@@ -1149,8 +1149,7 @@
                       .fieldlab
                         span {{ $t(bucketLabel) }}
                       b-input(v-model.number="form.overseas.overseasCollection[i]" type="number" step="any" size="is-small")
-                    .tw-foot(:class="overseasCollectionTotal === 100 ? 'is-good' : 'is-crit'")
-                      | {{ overseasCollectionTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct(overseasCollectionTotal) }) }}
+                    .tw-foot(:class="overseasCollectionTotal === 100 ? 'is-good' : 'is-crit'") {{ overseasCollectionMessage }}
                     .field
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.overseas.overseasMarkup') }}
@@ -2271,12 +2270,11 @@ export default {
      * What a collection profile that does not total 100% actually MEANS, rather than that
      * the sum is wrong.
      *
-     * The block itself is right and stays: a profile summing to 87 quietly means a
-     * thirteenth of the sales are never collected, and the cash flow is then wrong in a way
-     * that looks entirely plausible. What it did not say is WHICH WAY it is wrong or what to
-     * do about it — obvious to somebody who has built a cash flow before, and a dead end to
-     * somebody who has not. The two profiles need different sentences because a shortfall
-     * means opposite things: money you never collect, against money you never pay.
+     * A customers' profile summing to 87 means 13% of sales are never collected, which the
+     * forecast charges as a bad debt (item 44.3) — so the sentence says that, and how to
+     * collect it instead. A suppliers' shortfall is money never paid, which is never right,
+     * and still blocks. The two need different sentences because a shortfall means opposite
+     * things on each.
      *
      * @returns {string}
      */
@@ -2426,6 +2424,13 @@ export default {
     /** The two profiles the overseas section adds. `buildForecast` says which totals it refuses. */
     balanceTotal () { return this.sumOf(this.form.overseas.balancePayment) },
     overseasCollectionTotal () { return this.sumOf(this.form.overseas.overseasCollection) },
+    /** Short is a bad debt and says so, as the local profile does (item 44.3); over is refused. */
+    overseasCollectionMessage () {
+      const total = this.overseasCollectionTotal
+      return total > 100
+        ? this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(total) })
+        : this.profileMessage(total, 'debtor')
+    },
 
     /** The demand patterns the mentor holds, for the chooser. */
     sellDownPatterns () { return SELL_DOWN.patterns },
@@ -4670,17 +4675,16 @@ export default {
     },
 
     /**
-     * Hand the confirmed inputs to the report screen. Both collection profiles must total
-     * 100% first: the model does not normalise them, so a profile summing to 80 quietly
-     * means a fifth of the sales are never collected and the cash flow is wrong in a way
-     * that looks entirely plausible.
+     * Hand the confirmed inputs to the report screen. A customers' profile under 100% builds:
+     * the shortfall is charged as a bad debt (item 44.3), and the block says so. Over 100% it
+     * would collect money never billed, and the suppliers' profile must be exactly 100%.
      */
     buildForecast () {
       this.buildError = null
       // The refusal names WHICH block is wrong and repeats what the block itself says. The
       // button sits at the foot of a long screen and the two profiles are far up it, so
       // "these must add to 100%" left the advisor hunting for which "these".
-      if (this.debtorTotal !== 100) {
+      if (this.debtorTotal > 100) {
         this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
           block: this.$t('report.threeWayForecast.assume.debtorsHeading'), reason: this.debtorMessage
         })

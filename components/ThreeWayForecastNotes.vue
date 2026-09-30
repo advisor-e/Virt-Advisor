@@ -160,7 +160,6 @@ export default {
     methodSections () {
       const f = this.facts
       const t = k => this.$t(M + k)
-      const gap = f.overseasGap ? this.pct(f.overseasGap) : null
       const sections = [
         {
           key: 'revenue',
@@ -168,7 +167,7 @@ export default {
             t('localSales'),
             f.imports && t('importedSales'),
             f.exports && t('overseasSales'),
-            t('collection') + ' ' + (gap ? this.$t(M + 'collectedOverseasGap', { gap }) : t('collectedAll')),
+            t('collection') + ' ' + this.collectedLine,
             f.sameMonthDebtors ? t('openingDebtorsFirstMonth') : t('openingDebtors'),
             t('otherIncome')
           ]
@@ -224,12 +223,26 @@ export default {
       return sections.filter(Boolean).map(s => ({ key: s.key, lines: s.lines.filter(Boolean) }))
     },
 
+    /**
+     * Whether every sale is collected, or which share of which sales is charged as a bad debt
+     * (item 44.3; wording approved by Mike 2026-10-01, design/THREE-WAY-FORECAST-BAD-DEBT-WORDING.md).
+     * @returns {string}
+     */
+    collectedLine () {
+      const f = this.facts
+      const local = f.localGap ? this.pct(f.localGap) : null
+      const overseas = f.overseasGap ? this.pct(f.overseasGap) : null
+      if (!local && !overseas) { return this.$t(M + 'collectedAll') }
+      const which = local && overseas ? 'badDebtBoth' : (local ? 'badDebtLocal' : 'badDebtOverseas')
+      return this.$t(M + which, { local, overseas }) + ' ' + this.$t(M + 'badDebtCharged')
+    },
+
     /** Note 5 — difference 4 is about overseas sales, so a forecast with none has three. */
     differences () {
       const f = this.facts
       const d = k => this.$t(N + 'differs.' + k)
       return [
-        f.overseasGap ? this.$t(N + 'differs.badDebtsOverseasGap', { gap: this.pct(f.overseasGap) }) : d('badDebts'),
+        f.localGap || f.overseasGap ? d('badDebtsShort') : d('badDebts'),
         d('deferredTax'),
         d('leases'),
         f.exports && d('overseasTiming')

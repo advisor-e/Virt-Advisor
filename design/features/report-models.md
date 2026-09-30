@@ -807,12 +807,13 @@ a test, which is the point of the test. *Tier judgement, stated not assumed: thi
 content in `data/` with no hub screen, because the rule requiring a screen covers content that
 reaches an AI prompt and none of this does.*
 
-**A collection profile that does not total 100% now says what it MEANS.** It still blocks —
-a profile summing to 87 quietly means a seventh of the sales are never collected — but it now
-says which way it is wrong and what to do: *"The missing 13% is money you invoice and never
-collect — put it in one of the months above."* The two profiles get **different sentences**,
-because a shortfall means opposite things on each. The refusal at the button also names which
-block is at fault; it sits at the foot of a long screen and the profiles are far up it.
+**A collection profile that does not total 100% says what it MEANS.** A customers' profile
+under 100% — local or overseas — builds, and the shortfall is **charged as a bad debt** in the
+month of the sale (item 44.3); the block says so and how to collect it instead. Over 100% is
+refused, and so is a suppliers' profile or an overseas supplier balance that is not exactly
+100%. A shortfall means opposite things on each side, so they get **different sentences**. The
+refusal at the button names which block is at fault; it sits at the foot of a long screen and
+the profiles are far up it. Wording: [`THREE-WAY-FORECAST-BAD-DEBT-WORDING.md`](../THREE-WAY-FORECAST-BAD-DEBT-WORDING.md).
 
 **Step 2 says how many figures are the file's and how many are yours.** One line above the
 opening table, counted off the same `source` the badges read so the two cannot disagree.

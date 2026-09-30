@@ -45,4 +45,6 @@ as an expense. It stays on screen only until this is approved and built.
 sentences (lines 50 and 110). It takes sentences 4 and 5 where a shortfall is described, and keeps
 today's sentences for the default profile.
 
-**Status:** ⏳ awaiting Mike's approval.
+**Status:** ✅ **approved by Mike 2026-10-01 ("yes"), all five exactly as written, and built.**
+Section 4 needed no edit: the firm-facing copy describes only the default profiles, which
+total 100%, so its sentences are still true.

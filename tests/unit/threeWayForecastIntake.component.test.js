@@ -432,12 +432,16 @@ describe('a figure summed from several accounts can be corrected', () => {
 })
 
 describe('the forecast is not built on a broken assumption', () => {
-  test('🔴 a collection profile that does not total 100% blocks the build', () => {
+  test('🔴 a customers’ profile over 100% blocks the build; under 100% builds, as a bad debt (44.3)', () => {
     const w = mountIntake({ step: 3 })
-    w.vm.form.debtor = [10, 40, 30, 0, 0] // 80%
+    w.vm.form.debtor = [10, 60, 40, 0, 0] // 110%
     w.vm.buildForecast()
     expect(w.emitted().confirmed).toBeUndefined()
     expect(w.vm.buildError).toBeTruthy()
+    w.vm.form.debtor = [10, 40, 30, 0, 0] // 80%
+    w.vm.buildForecast()
+    expect(w.emitted().confirmed).toHaveLength(1)
+    expect(w.emitted().confirmed[0][0].inputs.debtorCollection).toEqual([0.1, 0.4, 0.3, 0, 0])
     w.destroy()
   })
 

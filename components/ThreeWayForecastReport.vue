@@ -1362,6 +1362,8 @@ export default {
         // engine holds 23 and a typical forecast uses about eight; fifteen rows of zeroes
         // would bury the eight that matter. What is hidden is counted under the table.
         .concat(this.overheadRowsFor(d))
+        // Inside Overheads since item 44.3; its own line so the lines add up to that total.
+        .concat(this.hasAFigure(p.badDebts) ? [sub('bad-debts', 'badDebts', p.badDebts)] : [])
         .concat([
           { key: 'dep', label: L + 'depreciation', values: p.depreciation, sub: true, signed: true },
           { key: 'oh', label: 'report.threeWayForecast.report.overheadsRow', values: p.operatingOverheads, rule: true },
