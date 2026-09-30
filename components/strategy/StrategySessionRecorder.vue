@@ -64,6 +64,9 @@
       //- "1 section", "1 minute" in the singular (Mike, 2026-09-28).
       b {{ $t('strategyPlanner.recording.finishedLead', { sections: $tc('strategyPlanner.recording.sectionsCount', segments.length, { count: segments.length }), minutes: $tc('strategyPlanner.recording.minutesCount', totalMinutes, { count: totalMinutes }) }) }}
       |  {{ $t('strategyPlanner.recording.finishedWaiting', { count: waitingForApproval }) }}
+      //- Screen 4: what the advisor can still sort after the client has left.
+      template(v-if="wordsWaiting")
+        |  {{ $t('strategyPlanner.recording.finishedWords', { count: wordsWaiting }) }}
     b-button.ml-2(size="is-small" type="is-primary" tag="a" :href="'/meeting-review?meeting=' + meetingId")
       | {{ $t('strategyPlanner.recording.reports') }}
 </template>
@@ -134,7 +137,11 @@ export default {
     /** The caller's bearer token; the backend re-checks ownership on every call. */
     apiToken: { type: String, required: true },
     /** The client this session is with, from the firm's register; empty is allowed. */
-    clientId: { type: String, default: '' }
+    clientId: { type: String, default: '' },
+    /** The planning session whose box timeline places the words (screen 4); checked by the server. */
+    strategySessionId: { type: Number, default: null },
+    /** Screen 4: passages still waiting under boxes across this recording, from the page. */
+    wordsWaiting: { type: Number, default: 0 }
   },
 
   data () {
@@ -281,7 +288,8 @@ export default {
         const started = await this.call('POST', '/api/meeting/recordings', {
           scenarioId: 'strategy_session',
           clientId: this.clientId || null,
-          segmented: true
+          segmented: true,
+          strategySessionId: this.strategySessionId
         })
         this.meetingId = started.meetingId
         await this.openSegment(this.pendingCard, 1)
@@ -623,7 +631,8 @@ export default {
         }
       } catch (err) { /* a failed poll is not a failed recording; keep asking */ }
       const busy = this.stage === 'finishing' ||
-        this.segments.some(s => ['closed', 'transcribing'].includes(s.state) || s.summaryState === 'writing')
+        this.segments.some(s => ['closed', 'transcribing'].includes(s.state) || s.summaryState === 'writing' ||
+          s.wordsState === 'placing')
       // While recording, the clock asks every few seconds; afterwards this keeps asking until
       // every segment and summary has settled.
       if (this.meetingId && busy && this.stage !== 'recording') {

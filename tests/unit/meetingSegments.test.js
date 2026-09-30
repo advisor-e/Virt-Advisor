@@ -97,7 +97,8 @@ describe('what the screen may see', () => {
       audioDeleted: true,
       attributionConfident: true,
       summaryState: null,
-      summaryApproved: false
+      summaryApproved: false,
+      wordsState: null
     })
   })
 })

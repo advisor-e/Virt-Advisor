@@ -6310,6 +6310,7 @@
       "sectionsCount": "{count} section | {count} sections",
       "minutesCount": "{count} minute | {count} minutes",
       "finishedWaiting": "Summaries still waiting for approval: {count}.",
+      "finishedWords": "Words still waiting in boxes: {count}.",
       "interruptedLead": "Recording stopped unexpectedly at {time}",
       "interruptedRest": "Your screen locked or the browser tab was suspended. {minutes} were saved and can still be transcribed.",
       "interruptedNothing": "Nothing after {time} was captured.",
@@ -6328,6 +6329,25 @@
       "cancel": "Cancel",
       "failed": "This summary couldn't be written.",
       "retry": "Write it again"
+    },
+    "heard": {
+      "goesHere": "What's said now goes here",
+      "heard": "Heard, {from}–{to}",
+      "heardAt": "Heard, {time}",
+      "suggested": "Suggested wording",
+      "keep": "Keep",
+      "edit": "Edit",
+      "reject": "Reject",
+      "move": "Move to another box",
+      "nothingSaid": "Nothing was said while this box was open.",
+      "trayHeading": "Said while no box was open ({count})",
+      "moveToBox": "Move to a box",
+      "transcriptOnly": "Leave it in the transcript only",
+      "speaker": {
+        "client": "Client:",
+        "advisor": "Advisor:",
+        "unknown": "Speaker not identified:"
+      }
     },
     "wordsmith": {
       "button": "Wordsmith",

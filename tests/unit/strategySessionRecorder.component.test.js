@@ -64,7 +64,7 @@ function reply (url, opts) {
 }
 
 function mount () {
-  return mountWithBuefy(StrategySessionRecorder, { propsData: { apiToken: 'tok', clientId: 'c1' } })
+  return mountWithBuefy(StrategySessionRecorder, { propsData: { apiToken: 'tok', clientId: 'c1', strategySessionId: 41 } })
 }
 
 beforeEach(() => {
@@ -101,7 +101,8 @@ test('"Start recording" opens a segmented Strategy Session and starts recording 
   w.vm.recordCard(PORTER)
   await w.vm.startFirst()
   const start = calls.find(c => c.url === '/api/meeting/recordings')
-  expect(start.body).toEqual({ scenarioId: 'strategy_session', clientId: 'c1', segmented: true })
+  // The planning session rides along so the server can place the words by its box timeline (screen 4).
+  expect(start.body).toEqual({ scenarioId: 'strategy_session', clientId: 'c1', segmented: true, strategySessionId: 41 })
   const open = calls.find(c => /\/segments$/.test(c.url))
   expect(open.body).toEqual({ conceptId: 'porters-5-forces', label: "Porter's 5 Forces" })
   expect(w.vm.stage).toBe('consent2')

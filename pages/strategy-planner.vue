@@ -217,6 +217,8 @@
         ref="recorder"
         :api-token="apiToken"
         :client-id="clientId || ''"
+        :strategy-session-id="sessionId"
+        :words-waiting="wordsWaiting"
         @state-changed="onRecorderState"
       )
 
@@ -305,6 +307,9 @@
                 @fields-changed="onVisitFieldsChanged(card.visit, $event)"
                 @field-typing="onVisitFieldTyping(card.visit, $event)"
               )
+
+              //- Screen 4: what was said while none of this card's boxes was open.
+              strategy-heard-tray(:key="'tray' + card.key" :concept-id="recordingTarget(card).conceptId")
 
               //- Screen 10: each of this concept's transcribed segments, summarised under its
               //- own headings, for the advisor and client to edit and approve (slice 2).
@@ -415,6 +420,7 @@ import StrategySessionRecorder from '~/components/strategy/StrategySessionRecord
 import StrategyConceptSummary from '~/components/strategy/StrategyConceptSummary.vue'
 import StrategyRunAgenda from '~/components/strategy/StrategyRunAgenda.vue'
 import StrategyWordsmith from '~/components/strategy/StrategyWordsmith.vue'
+import StrategyHeardTray from '~/components/strategy/StrategyHeardTray.vue'
 import { isPlaceableConcept } from '~/utils/strategyCards'
 import { isDevHost } from '~/utils/devHost'
 import { rolesFrom, namedRoles } from '~/utils/orgChart'
@@ -481,11 +487,30 @@ export default {
     StrategySessionRecorder,
     StrategyConceptSummary,
     StrategyRunAgenda,
-    StrategyWordsmith
+    StrategyWordsmith,
+    StrategyHeardTray
   },
 
   /** `firmBrand` and `loadFirmBrand` — the advisor firm's brand for the plan (item 16). */
   mixins: [firmBrand],
+
+  /**
+   * Screen 4 of the recorded session: the words placed under each box, read by the boxes
+   * themselves (`StrategyHeardPassages`, `StrategyHeardTray`) three components down. Methods
+   * rather than data, so each read is tracked against this page's own reactive state.
+   */
+  provide () {
+    return {
+      heard: {
+        passagesFor: this.heardPassagesFor,
+        trayFor: this.heardTrayFor,
+        isLiveBox: this.heardIsLiveBox,
+        quietBox: this.heardQuietBox,
+        boxOptions: this.heardBoxOptions,
+        decide: this.decidePassage
+      }
+    }
+  },
 
   data () {
     return {
@@ -588,6 +613,16 @@ export default {
        * concept being recorded now; `segments` is the server's own view of every segment.
        */
       recState: { meetingId: '', segments: [], live: null, paused: false },
+      /**
+       * Screen 4: each section's passages as `GET .../words` placed them —
+       * `[{ n, conceptId, passages }]` — and how many still wait across the recording.
+       */
+      heardSegments: [],
+      wordsWaiting: 0,
+      /** Which sections' words `heardSegments` holds, so a new one triggers one fetch. */
+      heardLoadedFor: '',
+      /** The box the advisor last moved into — the one that claims what is said now. */
+      openBox: null,
       /**
        * Each ticked concept's real fill-in table, keyed by concept id, as
        * `GET /api/strategy/concepts/:id/capture` returns it. Loaded when the
@@ -1816,9 +1851,140 @@ export default {
       return Boolean(this.recState.live && this.recState.live.key === card.key)
     },
 
-    /** The recorder's report: which concept is live, and every segment's state. */
+    /**
+     * The recorder's report: which concept is live, and every segment's state. A section whose
+     * words have just been placed (screen 4, Decision D: during the session) fetches them.
+     */
     onRecorderState (state) {
       this.recState = state
+      const ready = (state.segments || []).filter(s => s.wordsState === 'ready').map(s => s.n).join(',')
+      if (state.meetingId && ready && ready !== this.heardLoadedFor) {
+        this.heardLoadedFor = ready
+        this.loadHeard()
+      }
+    },
+
+    /**
+     * Every placed section's passages, from the server. A failure keeps what is on screen and
+     * lets the next section's arrival ask again: the words are safe on the server either way.
+     * @returns {Promise<void>}
+     */
+    async loadHeard () {
+      try {
+        const res = await fetch('/api/meeting/recordings/' + this.recState.meetingId + '/words', {
+          credentials: 'same-origin',
+          headers: this.headers(false)
+        })
+        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+        const body = await res.json()
+        this.heardSegments = (body.segments || []).map(s => ({ n: s.n, conceptId: s.conceptId, passages: s.passages || [] }))
+        this.wordsWaiting = body.waiting || 0
+      } catch (e) {
+        this.heardLoadedFor = ''
+      }
+    },
+
+    /**
+     * Is this concept captured through the org chart? Its boxes are a role's title and a
+     * person's name — one line each — so a sentence of conversation never goes into one:
+     * its passages all wait in the tray, where they can be left in the transcript.
+     * @param {string} conceptId
+     * @returns {boolean}
+     */
+    heardIsOrgChart (conceptId) {
+      const visit = this.conceptVisits.find(v => v.conceptId === conceptId)
+      return Boolean(visit && visit.capture && visit.capture.form === ORG_CHART_FORM)
+    },
+
+    /** @returns {Array<object>} this concept's waiting passages, each carrying its section's number */
+    heardWaiting (conceptId) {
+      const out = []
+      this.heardSegments.forEach((s) => {
+        if (s.conceptId !== conceptId) { return }
+        s.passages.forEach((p) => { if (p.state === 'waiting') { out.push(Object.assign({ n: s.n }, p)) } })
+      })
+      return out
+    },
+
+    /** Screen 4: the passages waiting under one box. */
+    heardPassagesFor (conceptId, fieldKey) {
+      if (this.heardIsOrgChart(conceptId)) { return [] }
+      return this.heardWaiting(conceptId).filter(p => p.box && p.box.fieldKey === fieldKey)
+    },
+
+    /** Screen 4: the passages said while none of this card's boxes was open. */
+    heardTrayFor (conceptId) {
+      const orgChart = this.heardIsOrgChart(conceptId)
+      return this.heardWaiting(conceptId).filter(p => orgChart || !p.box)
+    },
+
+    /** Screen 3's "What's said now goes here": this card records, and this box is the open one. */
+    heardIsLiveBox (conceptId, fieldKey) {
+      const live = this.recState.live
+      return Boolean(live && live.conceptId === conceptId && this.openBox &&
+        this.openBox.frameworkId === conceptId && this.openBox.fieldKey === fieldKey)
+    },
+
+    /**
+     * "Nothing was said while this box was open." — this concept's words have been placed, and
+     * none of them, decided or not, went to this box.
+     */
+    heardQuietBox (conceptId, fieldKey) {
+      const mine = this.heardSegments.filter(s => s.conceptId === conceptId)
+      if (!mine.length || this.heardIsOrgChart(conceptId)) { return false }
+      return !mine.some(s => s.passages.some(p => p.box && p.box.fieldKey === fieldKey))
+    },
+
+    /**
+     * The boxes a passage can be moved to: this card's own, by their own headings. None for the
+     * org chart, whose boxes are titles and names (see `heardIsOrgChart`).
+     * @param {string} conceptId
+     * @returns {Array<{key: string, label: string}>}
+     */
+    heardBoxOptions (conceptId) {
+      if (this.heardIsOrgChart(conceptId)) { return [] }
+      const framework = this.chosenFrameworks.find(f => (f.conceptId || f.id) === conceptId)
+      if (framework) { return framework.fields.map(f => ({ key: f.key, label: f.label || f.key })) }
+      const visit = this.conceptVisits.find(v => v.conceptId === conceptId)
+      return ((visit && visit.capture && visit.capture.fields) || []).map(f => ({
+        key: f.key,
+        label: [f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.label || f.key
+      }))
+    },
+
+    /**
+     * One decision on one passage — Keep, Reject, Move, or Leave it in the transcript only.
+     *
+     * 🔴 ANY UNSAVED TYPING GOES FIRST. Keep adds below what the box holds on the server
+     * (Decision F); a box the advisor is mid-way through would otherwise be written after it and
+     * put their words back over the kept sentence. The server saves the box itself, with the
+     * record first, so the page takes the returned value as saved and sends nothing again.
+     *
+     * @param {object} p - the passage, carrying its section's `n`
+     * @param {string} action - keep · reject · move · transcript-only
+     * @param {object} [extra] - `{ text }` for an edited keep, `{ fieldKey }` for a move
+     * @returns {Promise<void>} rejects when it was not saved, so the panel can say so
+     */
+    async decidePassage (p, action, extra) {
+      if (action === 'keep') { await this.flushPending() }
+      const res = await fetch('/api/meeting/recordings/' + this.recState.meetingId + '/segments/' + p.n +
+        '/words/' + encodeURIComponent(p.id), {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: this.headers(true),
+        body: JSON.stringify(Object.assign({ action }, extra || {}))
+      })
+      if (!res.ok) { throw new Error('HTTP ' + res.status) }
+      const body = await res.json()
+      const seg = this.heardSegments.find(s => s.n === p.n)
+      if (seg) {
+        seg.passages = seg.passages.map(x => (x.id === body.passage.id ? body.passage : x))
+      }
+      this.wordsWaiting = body.waiting || 0
+      if (body.box) {
+        this.$set(this.entries, body.box.frameworkId + '::' + body.box.fieldKey, body.box.value)
+        this.markSaved()
+      }
     },
 
     /**
@@ -2331,6 +2497,7 @@ export default {
      */
     async onFieldOpened (payload) {
       if (!this.sessionId) { return }
+      this.openBox = { frameworkId: payload.frameworkId, fieldKey: payload.fieldKey }
       try {
         await fetch('/api/strategy/sessions/' + this.sessionId + '/timeline', {
           method: 'POST',

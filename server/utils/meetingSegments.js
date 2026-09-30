@@ -147,7 +147,10 @@ function publicSegments (meta) {
     // Slice 2: where the concept's summary has got to, and whether the client approved it —
     // what the finished banner's "Summaries still waiting for approval" counts.
     summaryState: s.summaryState || null,
-    summaryApproved: Boolean(s.summaryApprovedAt)
+    summaryApproved: Boolean(s.summaryApprovedAt),
+    // Screen 4: whether the section's words have been placed in their boxes, so the screen
+    // knows when to fetch them. The words themselves come only from GET .../words.
+    wordsState: s.wordsState || null
   }))
 }
 
