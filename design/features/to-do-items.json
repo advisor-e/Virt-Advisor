@@ -206,31 +206,6 @@
       "comment": "2026-09-25 - filed on Mike's yes at shutdown."
     },
     {
-      "ref": "44.1",
-      "name": "Review the whole Three-Way Forecast against IFRS and FRS-42, and disclose its assumptions",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The forecast is handed to lenders and accountants, and nobody has checked it against the standards as a whole. 13.5 alone found two treatments that differ, and a firm manager cannot see how any figure is treated.",
-      "risk": "A forecast that departs from the standards without saying so can mislead a lender, and the firm carries that. The IFRS and XRB texts are copyrighted: the review keeps citations, links and short quotes, and does not store the standards in the repository.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-26 - in his words: \"make an additional task - to download all the forecasting and reporting best practices for IFRS and review their best practice standards against the entire 3 way forecast model we have built to check if we are non compliant anywhere and to record our calculation / treatment assumptions as an available disclosure to firm managers\""
-      },
-      "touches": "server/report/threeWayForecastModel.js and importShipmentModel.js, where every treatment lives; design/CALCULATION-ASSUMPTIONS.md, the record, extended beyond section 1; a disclosure screen for firm managers under the hub-page rule, its tiers stated at scoping; 13.5, which already covers the currency treatments.",
-      "note": "STAGE 1 DONE: design/CALCULATION-ASSUMPTIONS.md section 2, 44 treatments recorded; term loans, shareholder accounts and opening balances fixed (threeWayForecastStandards.test.js); the rest is 44.2 (done) and 44.3. STAGE 2: the approved text (CALCULATION-ASSUMPTIONS-FOR-FIRMS.md, 0a913e11) becomes a Notes page in every forecast, not a Compliance item - each forecast's own notes, with its assumptions (FRS-42 paras 51, 55). BUILT to the approved drawing (fb5d76ee). Revision with the workbook's own notes (1814a520) BUILT and walked on the running app: design/mockups/three-way-forecast-notes.html. Two deliberate differences: the compilation report shows only once Prepared by names the firm; an unnamed client reads the business.",
-      "comment": "2026-09-26 - filed on Mike's instruction during 13.5's drawing questions. Score and scoreReason are ours; he has not ranked it. MIKE'S CALLS 2026-09-30: Stage 1; \"fix every departure with an identified fix\"; Stage 2 by the Compliance tab, no new page; wording approved; then a Notes page in the printed forecast instead of the Compliance tab - PROCEED, the drawing first.",
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-09-30"
-      }
-    },
-    {
       "ref": "22.2",
       "name": "The desktop's default Node is version 20, not the locked 14.15",
       "rankedByMike": false,

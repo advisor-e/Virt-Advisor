@@ -379,6 +379,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**44.1 · Nobody had checked the Three-Way Forecast against IFRS and FRS-42, and its assumptions were not disclosed.**
+✅ **Closed 2026-09-30 by Mike ("yes" to marking it done): the standards review and the Notes page are built.**
+
+- **His rulings:** filed on his words of 2026-09-26; Stage 1 approved, then *"fix every departure
+  with an identified fix"*; the firm-facing text approved (`0a913e11`); the Notes page in every
+  forecast instead of a Compliance item, drawn and approved (`fb5d76ee`), then revised with the
+  original workbook's own notes and approved (`1814a520`,
+  [`three-way-forecast-notes.html`](../mockups/three-way-forecast-notes.html)).
+- **What was done:** 44 treatments recorded in `CALCULATION-ASSUMPTIONS.md` §2; term loans'
+  current portion, shareholder accounts shown gross and opening debtors/creditors fixed; the
+  statement layout as 44.2. A Notes tab and printed page in every forecast, each forecast's own:
+  basis, assumptions, general assumptions, how the figures are worked out, where it differs from
+  NZ IFRS, and a compilation report in the firm's name. Bad debts continue as 44.3.
+- **What proves it:** `threeWayForecastStandards.test.js` and `threeWayForecastNotes.test.js` —
+  the notes' facts for five kinds of forecast, the approved wording pinned word for word to the
+  firm text and the drawing; walked on the running app. Two named differences from the drawing:
+  the compilation report shows only once "Prepared by" names the firm; an unnamed client reads
+  "the business". Commit: `91a9a8a4`.
+
 **44.2 · The forecast's cash flow and profit were not laid out the IAS 7 and IFRS 18 way.**
 ✅ **Closed 2026-09-30 by Mike ("yes" to marking it done), the day it was filed, drawn and built.**
 
