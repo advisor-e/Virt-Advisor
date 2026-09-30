@@ -352,7 +352,11 @@ function keyFiguresOf (block, text, evidence, citations) {
     // The citation attached after the figure, before its paragraph ends.
     const from = evidence.start + at
     const paraEnd = (() => { const i = text.indexOf('\n\n', from); return i < 0 || i > evidence.end ? evidence.end : i })()
-    const cite = citations.find(c => c.start >= from && c.start < paraEnd)
+    // The NEAREST one: a paragraph citing two figures carries two citations, and the second
+    // belongs to the second figure, whatever order the annotations arrived in.
+    const cite = citations
+      .filter(c => c.start >= from && c.start < paraEnd)
+      .reduce((near, c) => (!near || c.start < near.start ? c : near), null)
     if (!cite) { continue }
     out.keyFigures.push({
       what,

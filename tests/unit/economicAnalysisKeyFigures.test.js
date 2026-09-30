@@ -95,6 +95,28 @@ describe('the KEY FIGURES block', () => {
     expect(r.data.keyFigures.length).toBe(6)
   })
 
+  test('a figure first met inside a web address or a longer number is found where it stands alone', () => {
+    const s1 = 'World trade ([wto](https://wto.org/9.9%25)) rose 19.9% then 9.9% in the June 2026 quarter.'
+    const text = SECTIONS.replace('World trade grew 1.9% in the June 2026 quarter.', s1)
+    const cites = CITES.concat([{ url: 'https://wto.org/x', at: '9.9% in the' }])
+    const r = validateResearch(responseFrom(text + '\n\nKEY FIGURES\nFIGURE: Trade | 9.9% |', cites))
+    expect(r.data.keyFigures.map(k => k.url)).toEqual(['https://wto.org/x'])
+  })
+
+  test('only the first headline counts; a long one or a long date is not shown', () => {
+    const long = 'x'.repeat(301)
+    expect(run('KEY FIGURES\nHEADLINE: First.\nHEADLINE: Second.').data.headline).toBe('First.')
+    expect(run('KEY FIGURES\nHEADLINE: ' + long).data.headline).toBeNull()
+    const date = run('KEY FIGURES\nFIGURE: Premium | 1,902 | ' + 'June 2026 quarter '.repeat(4)).data.keyFigures[0]
+    expect(date.date).toBe('')
+  })
+
+  test('a figure in a section with no blank line before the next is still read to the section end', () => {
+    const tight = SECTIONS.replace('The average premium was 1,902.\n\n4.', 'The average premium was 1,902.\n4.')
+    const r = validateResearch(responseFrom(tight + '\n\nKEY FIGURES\nFIGURE: Premium | 1,902 |', CITES))
+    expect(r.data.keyFigures.map(k => k.host)).toEqual(['gov.ie'])
+  })
+
   test('the recorded runs, which carry no block, still validate as they did', () => {
     const r = validateResearch(loadRun(4))
     expect(r.ok).toBe(true)
