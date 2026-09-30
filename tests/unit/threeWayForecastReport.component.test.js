@@ -799,7 +799,8 @@ describe('Summary / Every line', () => {
     expect(w.vm.printStatements.map(s => s.key)).toEqual(['cash-0', 'profit-0', 'balance-0'])
     // Each carries its own figures, not the open tab's repeated three times.
     expect(w.vm.printStatements[0].rows).toEqual(w.vm.cashRows)
-    expect(w.vm.printStatements[1].rows).toEqual(w.vm.profitRows)
+    // The printed profit and loss shows its costs as deductions (item 44.4) — the same lines.
+    expect(w.vm.printStatements[1].rows).toEqual(w.vm.asDeductions(w.vm.profitRows))
     expect(w.vm.printStatements[2].rows).toEqual(w.vm.balanceRows)
 
     // And it does not follow the tab — the trap a later "simplification" would fall into.

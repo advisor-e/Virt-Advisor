@@ -1,6 +1,7 @@
 <template lang="pug">
 report-shell
   report-header(
+    class="tw-screenhead"
     :back-label="$t('modelLibrary.backToLibrary')"
     :eyebrow="$t('report.eyebrow') + ' · ' + $t('report.threeWayForecast.eyebrowClass')"
     :title="$t('report.threeWayForecast.title')"
@@ -43,6 +44,7 @@ report-shell
     :seed="liveInputs"
     :restore="loadedReport"
     :client-name="companyName || savedReport.clientName"
+    :economic-in-pack="economicInPack"
     :client-changes="clientChanges"
     @state-change="onReportState"
     @change-assumptions="goTo(3)"
@@ -192,6 +194,17 @@ export default {
         { n: 5, label: 'report.threeWayForecast.step5' }
       ]
       return this.savedReport.mode === 'client' ? chips.slice(1) : chips
+    },
+
+    /**
+     * Whether the economic analysis prints after the notes — the same three conditions
+     * EconomicAnalysisPack prints on, so the contents never lists a section that is absent.
+     * @returns {boolean}
+     */
+    economicInPack () {
+      const e = this.economic
+      return Boolean(e.included && e.approval && e.approval.isApproved === true &&
+        e.research && Array.isArray(e.research.sections) && e.research.sections.length)
     },
 
     /** The client's name from a dropped file — displayed locally, never sent anywhere. */
@@ -380,5 +393,8 @@ export default {
 .step.active .n { background: #ffffff30; color: var(--rs-accent-contrast); }
 .step.done { color: var(--rs-good); }
 .step.done .n { background: var(--rs-good-soft); color: var(--rs-good); }
-@media print { .steps { display: none !important; } }
+/* On paper the pack opens on its own cover (item 44.4), so the screen's title banner goes
+   with the step chips. `tw-screenhead` rides on ReportHeader's root, which carries this
+   page's scope. */
+@media print { .steps, .tw-screenhead { display: none !important; } }
 </style>

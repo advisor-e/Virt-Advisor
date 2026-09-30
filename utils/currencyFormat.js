@@ -62,6 +62,42 @@ export function money (value, currency, locale) {
 }
 
 /**
+ * Rounds a half away from zero, so a figure and its negative round to the same number of
+ * dollars. `Math.round` rounds -34,320.5 to -34,320 but 34,320.5 to 34,321 — so a cost
+ * printed as a deduction (item 44.4) would drift a dollar from the same cost printed plain.
+ * @param {number} n @returns {number}
+ */
+function roundHalfAway (n) {
+  return n < 0 ? -Math.round(-n) : Math.round(n)
+}
+
+/**
+ * Whole-currency amount with a negative in brackets, as published accounts show it:
+ * "$1,234", "($1,234)". Intl's own accounting style, so a locale whose accounts use a
+ * minus sign keeps it. Mike's ruling 2026-09-30 for the Three-Way Forecast (item 44.4): no
+ * standard mandates brackets; IAS 1.45 asks for consistency and the IFRS illustrative
+ * statements use them. @param {number|null} value @param {string} currency @param {string} locale
+ */
+export function accountingMoney (value, currency, locale) {
+  if (isBlank(value)) { return '—' }
+  const n = roundHalfAway(Number(value))
+  return currencyFormatter(locale, currency, {
+    minimumFractionDigits: 0, maximumFractionDigits: 0, currencySign: 'accounting'
+  }).format(n === 0 ? 0 : n)
+}
+
+/**
+ * A whole number with no symbol and a negative in brackets: "1,234", "(1,234)". For a
+ * printed statement, whose currency is stated once under its heading.
+ * @param {number|null} value @param {string} locale
+ */
+export function accountingNum (value, locale) {
+  if (isBlank(value)) { return '—' }
+  const n = roundHalfAway(Number(value))
+  return n < 0 ? '(' + num(-n, locale) + ')' : num(n, locale)
+}
+
+/**
  * Currency to 2 decimals: "$0.93", "£12.50". For unit costs / share prices.
  * @param {number|null} value @param {string} currency @param {string} locale
  */

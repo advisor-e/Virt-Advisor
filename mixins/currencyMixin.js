@@ -12,11 +12,11 @@
  * The read is firmAuth-guarded but must NEVER break a report — any failure (401,
  * offline, backend down) silently keeps the cached or default currency.
  *
- * A component that mixes this in gets `money`/`money2`/`signedMoney`/`kMoney`/`num`
+ * A component that mixes this in gets `money`/`money2`/`signedMoney`/`kMoney`/`num`/`figure`
  * for free; it should delete its own copies so these take effect.
  */
 import currenciesData from '~/data/currencies.json'
-import { money, money2, signedMoney, kMoney, num } from '~/utils/currencyFormat'
+import { money, money2, signedMoney, kMoney, num, accountingMoney, accountingNum } from '~/utils/currencyFormat'
 
 const TOKEN_KEY = 'advisor_e_token'
 const CACHE_KEY = 'advisor_e_currency'
@@ -103,8 +103,19 @@ export default {
       } catch (e) { /* keep cached / default — never surface to the report */ }
     },
 
-    /** @param {number|null} v @returns {string} whole-currency amount, e.g. "$1,234". */
-    money (v) { return money(v, this.firmCurrency, this.$i18n.locale) },
+    /**
+     * Whole-currency amount, e.g. "$1,234". A screen that sets `bracketNegatives: true` in
+     * its data shows a negative in brackets, "($1,234)", as published accounts do — the
+     * Three-Way Forecast, on Mike's ruling of 2026-09-30 (item 44.4).
+     * @param {number|null} v @returns {string}
+     */
+    money (v) {
+      return this.bracketNegatives === true
+        ? accountingMoney(v, this.firmCurrency, this.$i18n.locale)
+        : money(v, this.firmCurrency, this.$i18n.locale)
+    },
+    /** @param {number|null} v @returns {string} a printed statement's figure: no symbol, a negative in brackets. */
+    figure (v) { return accountingNum(v, this.$i18n.locale) },
     /** @param {number|null} v @returns {string} 2-dp currency, e.g. "$0.93". */
     money2 (v) { return money2(v, this.firmCurrency, this.$i18n.locale) },
     /** @param {number|null} v @returns {string} signed whole-currency, e.g. "+$1,234". */

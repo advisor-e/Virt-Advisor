@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { money } from '~/utils/currencyFormat'
+import { accountingMoney } from '~/utils/currencyFormat'
 import { intlLocaleFor } from '~/utils/dateLocale'
 
 const N = 'report.threeWayForecast.notes.'
@@ -380,8 +380,8 @@ export default {
       if (typeof v !== 'number' || !isFinite(v)) { return '—' }
       return new Intl.NumberFormat(this.intlLocale, { style: 'percent', maximumFractionDigits: 1, signDisplay: 'exceptZero' }).format(v)
     },
-    /** @param {number} v @returns {string} whole-currency amount in the forecast's currency. */
-    cash (v) { return money(v, this.currency, this.$i18n.locale) },
+    /** @param {number} v @returns {string} whole-currency amount, a negative in brackets (44.4). */
+    cash (v) { return accountingMoney(v, this.currency, this.$i18n.locale) },
     /** @param {number} v @returns {string} */
     ofSales (v) { return this.$t(N + 'assumptions.ofSales', { pct: this.pct(v) }) },
     /**
@@ -418,6 +418,13 @@ export default {
 .twn ul { list-style: disc; }
 .twn ol { list-style: decimal; }
 .twn li { margin-bottom: 4px; }
+/* On paper the notes set in two columns, as a board paper's notes are (item 44.4). */
+@media print {
+  .twn { columns: 2; column-gap: 12mm; font-size: 11.5px; }
+  .twn-title, .twn-sub { column-span: all; }
+  .twn-note, .twn h4 { break-after: avoid; }
+  .twn-table tr, .twn li { break-inside: avoid; }
+}
 .twn-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .twn-table td { padding: 6px 7px; border-bottom: 1px solid var(--rs-line); vertical-align: top; }
 .twn-table td:first-child { width: 38%; color: var(--rs-muted); }

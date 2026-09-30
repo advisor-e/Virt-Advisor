@@ -14,6 +14,22 @@ section.eap(v-if="show")
     .eap-meta {{ runLine }}
     .eap-meta {{ approvedLine }}
 
+  //- ── The opening headline and key indicators (item 44.4) ──────────────────
+  //- Each tile's figure was found in §§1–3 and its source is the citation beside it there
+  //- (server/report/economicAnalysis/researchResult.js → keyFiguresOf); none is the model's
+  //- own claim. A run that gave none shows neither, and opens on section 1 as before.
+  .eap-lead(v-if="headline || keyFigures.length")
+    .eap-headline(v-if="headline")
+      .eap-hk {{ $t('report.threeWayForecast.economicAnalysis.inShort') }}
+      p {{ headline }}
+    template(v-if="keyFigures.length")
+      .eap-sh {{ $t('report.threeWayForecast.economicAnalysis.keyIndicators') }}
+      .eap-inds
+        .eap-ind(v-for="(k, i) in keyFigures" :key="i")
+          .eap-ik {{ k.what }}
+          .eap-iv {{ k.figure }}
+          .eap-is {{ k.date ? k.host + ' · ' + k.date : k.host }}
+
   //- ── The five sections, in the model's own words ───────────────────────────
   //- §5 keeps the warning ground it has on screen. It is "what could not be sourced" —
   //- the most valuable part of the document and the easiest to skim past, and a funding
@@ -161,6 +177,12 @@ export default {
       return (this.research && this.research.sections) || []
     },
 
+    /** @returns {string} the research's one-sentence headline, or '' when it gave none. */
+    headline () { return (this.research && this.research.headline) || '' },
+
+    /** @returns {Array<object>} the key-indicator tiles, `{ what, figure, date, host }`. */
+    keyFigures () { return (this.research && Array.isArray(this.research.keyFigures)) ? this.research.keyFigures : [] },
+
     /** @returns {Array<object>} every distinct source behind the research. */
     sources () {
       return (this.research && this.research.sources) || []
@@ -254,6 +276,16 @@ export default {
 
   .eap-p { font-size: 12px; line-height: 1.55; margin: 0 0 9px; }
   .eap-p.is-heading { font-size: 14px; font-weight: 700; margin: 14px 0 7px; }
+  .eap-lead { margin-bottom: 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .eap-headline { border-left: 5px solid #0070c0; background: #ebf4fa; border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; }
+  .eap-hk { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #0070c0; margin-bottom: 3px; }
+  .eap-headline p { margin: 0; font: 700 16px/1.35 Georgia, serif; color: #002b64; }
+  /* One row across the page, as drawn, however many of the six came back. */
+  .eap-inds { display: grid; grid-template-columns: repeat(auto-fit, minmax(38mm, 1fr)); gap: 10px; }
+  .eap-ind { border: 1px solid #d5e1ee; border-radius: 8px; padding: 10px 12px; break-inside: avoid; }
+  .eap-ik { font-size: 11.5px; font-weight: 700; color: #002b64; }
+  .eap-iv { font: 700 24px/1.1 Georgia, serif; color: #002b64; margin: 5px 0 4px; }
+  .eap-is { font-size: 10.5px; color: #5b6f8a; overflow-wrap: anywhere; }
   .eap-list { font-size: 12px; line-height: 1.5; margin: 0 0 9px; padding-left: 20px; }
   ul.eap-list { list-style: disc; }
   ol.eap-list { list-style: decimal; }

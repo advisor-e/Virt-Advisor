@@ -13,6 +13,26 @@
   //- Position's page header is where its save / restore / client-access handlers hang.
   //- The forecast is the last screen item 4.62 has to wire, so its per-client controls
   //- will need exactly that seam.
+  //- [A2] 🔴 THE PRINTED PACK'S FRONT — cover, contents, the forecast at a glance. Print
+  //- only, and first on paper: the page's own header and step chips are hidden there, so
+  //- the cover is page one (item 44.4; drawing and wording approved by Mike 2026-09-30,
+  //- design/mockups/three-way-forecast-board-pack.html).
+  .tw-printfront(v-if="packStart")
+    three-way-forecast-cover(
+      :client-name="clientName"
+      :prepared-by="notesFields.preparedBy"
+      :start-iso="packStart"
+      :year-count="yearCount"
+      :economic-in-pack="economicInPack")
+    .tw-printglance
+      three-way-forecast-glance(
+        :result="result"
+        :year-count="yearCount"
+        :client-name="clientName"
+        :currency="firmCurrency")
+      p.tw-note.tw-printcaution
+        span.tw-printfirm(v-if="notesFields.preparedBy.trim()") {{ notesFields.preparedBy.trim() }}
+        | {{ $t('report.threeWayForecast.report.caution') }}
   template(v-if="data")
     //- A failed recompute must never sit silently behind live-looking figures.
     stale-banner(
@@ -28,7 +48,8 @@
     //- multi-year subs below only appear once there is more than one year to span. The
     //- third label is the one that changes, because "Result for the year" is not true of
     //- three of them — it is the wording of the approved drawing.
-    hero-strip(:columns="4" :stale="!!error")
+    //- `tw-hero`: hidden on paper, where the forecast at a glance says it (item 44.4).
+    hero-strip.tw-hero(:columns="4" :stale="!!error")
       hero-figure(
         :label="$t('report.threeWayForecast.report.closingCash')"
         :value="money(headline.closingCash)"
@@ -313,26 +334,35 @@
             .tw-glabel
               span.tw-dot
               h2.tw-h2 {{ s.heading }}
+            //- The board-pack restyle (item 44.4): the period and currency once under the
+            //- heading, figures without a symbol and negatives in brackets, a Year column on
+            //- the two statements that add across months. Lines and order are unchanged.
+            p.tw-printsub(v-if="s.sub") {{ s.sub }}
             .tw-tblwrap
-              table
+              table.tw-printtable
                 thead
                   tr
                     th
                     //- Each year carries its OWN month labels: a forecast starting
                     //- mid-year does not repeat year 1's months in year 2.
                     th(v-for="(m, i) in s.months" :key="i") {{ m }}
+                    th.tw-yr(v-if="s.kind !== 'balance'") {{ $t('report.threeWayForecast.pack.statements.year') }}
                 tbody
-                  tr(v-for="row in s.rows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong, 'is-section': row.section }")
-                    td(:colspan="row.section ? s.months.length + 1 : null") {{ row.rawLabel || $t(row.label) }}
+                  tr(v-for="row in s.rows" :key="row.key" :class="{ rule: row.rule, 'is-sub': row.sub, 'is-strong': row.strong, 'is-section': row.section, 'is-total': TOTAL_ROWS.includes(row.key) }")
+                    td(:colspan="row.section ? s.months.length + (s.kind === 'balance' ? 1 : 2) : null") {{ row.rawLabel || $t(row.label) }}
                     td(
                       v-for="(v, i) in row.values" :key="i"
-                      :class="cellClass(row, v)") {{ money(v) }}
+                      :class="cellClass(row, v)") {{ figure(v) }}
+                    td.tw-yr(v-if="s.kind !== 'balance' && !row.section") {{ figure(yearOf(row)) }}
             //- The screen's own copy of this note is keyed to the profit TAB being open,
             //- which is never true here, so the print reads its own count — per year.
             p.tw-note(v-if="s.hidden")
               | {{ $t('report.threeWayForecast.report.detail.hiddenOverheads', { hidden: s.hidden, total: overheadCount }) }}
-            //- Every printed page carries the FRS-42 caution, since a page can be handed on alone.
-            p.tw-note.tw-printcaution {{ $t('report.threeWayForecast.report.caution') }}
+            //- Every printed page carries the FRS-42 caution, since a page can be handed on
+            //- alone — and the firm's name where the drawing marked its logo.
+            p.tw-note.tw-printcaution
+              span.tw-printfirm(v-if="notesFields.preparedBy.trim()") {{ notesFields.preparedBy.trim() }}
+              | {{ $t('report.threeWayForecast.report.caution') }}
         //- The notes follow the statements they explain, as in any set of accounts, and come
         //- before the economic analysis (item 44.1). Their own page, with the caution under it.
         .tw-card.tw-printstmt(v-if="notesData")
@@ -343,7 +373,9 @@
               :currency="firmCurrency"
               :client-name="clientName"
               :fields="notesFields")
-            p.tw-note.tw-printcaution {{ $t('report.threeWayForecast.report.caution') }}
+            p.tw-note.tw-printcaution
+              span.tw-printfirm(v-if="notesFields.preparedBy.trim()") {{ notesFields.preparedBy.trim() }}
+              | {{ $t('report.threeWayForecast.report.caution') }}
 
       .tw-card
         .tw-group
@@ -405,6 +437,9 @@ import HeroStrip from '~/components/base/HeroStrip.vue'
 import HeroFigure from '~/components/base/HeroFigure.vue'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import ThreeWayForecastNotes from '~/components/ThreeWayForecastNotes.vue'
+import ThreeWayForecastCover from '~/components/ThreeWayForecastCover.vue'
+import ThreeWayForecastGlance from '~/components/ThreeWayForecastGlance.vue'
+import { intlLocaleFor } from '~/utils/dateLocale'
 import SliderField from '~/components/base/SliderField.vue'
 import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
@@ -416,7 +451,7 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
 export default {
   name: 'ThreeWayForecastReport',
 
-  components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge, ThreeWayForecastNotes },
+  components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge, ThreeWayForecastNotes, ThreeWayForecastCover, ThreeWayForecastGlance },
 
   mixins: [currencyMixin, reportRecompute],
 
@@ -436,7 +471,9 @@ export default {
      */
     restore: { type: Object, default: null },
     /** Saved-row names the client changed since the advisor's version (§5, D4). */
-    clientChanges: { type: Array, default: () => [] }
+    clientChanges: { type: Array, default: () => [] },
+    /** True when the approved economic analysis prints after the notes — the contents lists it. */
+    economicInPack: { type: Boolean, default: false }
   },
 
   data () {
@@ -478,7 +515,14 @@ export default {
        * The purpose starts as the workbook's own; a saved report's fields replace all three.
        */
       notesFields: this.notesFieldsFrom(this.restore && this.restore.notesFields),
+      /**
+       * Every amount a negative in brackets — "($400,760)" — on screen and in print (Mike's
+       * ruling 2026-09-30, item 44.4). Read by currencyMixin's `money`.
+       */
+      bracketNegatives: true,
       NF: 'report.threeWayForecast.notes.fields.',
+      /** The printed statements' totals, double-ruled (item 44.4): each statement's last word. */
+      TOTAL_ROWS: ['pbt', 'net', 'close', 'net-a', 'teq'],
       noteFieldKeys: ['purpose', 'salesBasis', 'preparedBy']
     }
   },
@@ -502,6 +546,16 @@ export default {
     notesData () {
       const y = this.result && Array.isArray(this.result.years) ? this.result.years[0] : null
       return y && y.notes ? Object.assign({}, y.notes, { laterYears: this.result.laterYears || [] }) : null
+    },
+
+    /**
+     * The forecast's first month, when every year carries its dates — the printed front
+     * (cover, contents, at a glance) needs them to state the period. @returns {string}
+     */
+    packStart () {
+      const years = (this.result && this.result.years) || []
+      const dated = years.length && years.every(y => y.months && Array.isArray(y.months.isoDates))
+      return dated ? years[0].months.isoDates[0] : ''
     },
 
     /** The two settings, in the order they are drawn. */
@@ -899,10 +953,19 @@ export default {
         // pages the print has produced since 2026-09-06. The year prefix appears only
         // when there is more than one year for it to tell apart.
         const head = label => (multi ? `${year} · ${this.$t(label)}` : this.$t(label))
+        // The board-pack subtitle under each heading (item 44.4, wording approved 2026-09-30).
+        const S = 'report.threeWayForecast.pack.statements.'
+        const iso = d.months && d.months.isoDates ? d.months.isoDates[11] : ''
+        const end = iso
+          ? new Date(Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)), 0))
+            .toLocaleDateString(intlLocaleFor(this.$i18n.locale), { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+          : ''
+        // A year with no dates has no period to state, so it carries no subtitle.
+        const sub = key => (end ? this.$t(S + key, { end, currency: this.firmCurrency }) : '')
         out.push(
-          { key: `cash-${i}`, heading: head('report.threeWayForecast.report.tabCash'), months, rows: this.cashRowsFor(d), hidden: 0 },
-          { key: `profit-${i}`, heading: head('report.threeWayForecast.report.tabProfit'), months, rows: this.profitRowsFor(d), hidden: this.hiddenOverheadsFor(d) },
-          { key: `balance-${i}`, heading: head('report.threeWayForecast.report.tabBalance'), months, rows: this.balanceRowsFor(d), hidden: 0 }
+          { key: `cash-${i}`, kind: 'cash', sub: sub('subFlow'), heading: head('report.threeWayForecast.report.tabCash'), months, rows: this.cashRowsFor(d), hidden: 0 },
+          { key: `profit-${i}`, kind: 'profit', sub: sub('subFlow'), heading: head('report.threeWayForecast.report.tabProfit'), months, rows: this.asDeductions(this.profitRowsFor(d)), hidden: this.hiddenOverheadsFor(d) },
+          { key: `balance-${i}`, kind: 'balance', sub: sub('subBalance'), heading: head('report.threeWayForecast.report.tabBalance'), months, rows: this.balanceRowsFor(d), hidden: 0 }
         )
       })
       return out
@@ -1053,6 +1116,32 @@ export default {
         debtorMonthAfter: Math.round(monthAfter),
         overheadShift: 0
       }
+    },
+
+    /**
+     * The printed profit and loss shows every deduction in brackets, as the approved drawing
+     * and the IFRS illustrative statements do (item 44.4): the costs inside cost of sales,
+     * overheads, financing costs and tax turn negative, so each group still adds down to its
+     * total. Closing stock stays positive — it reduces cost. A cost is not a bad result, so
+     * these lines lose the red a negative result carries. The screen is unchanged.
+     * @param {Array<object>} rows @returns {Array<object>}
+     */
+    asDeductions (rows) {
+      const DEDUCT = ['cos', 'oh', 'fin', 'tax', 'dep', 'open-stock', 'purch', 'frt', 'comm', 'dir2', 'dirx',
+        'pl-os-stock', 'pl-os-frt', 'pl-os-duty', 'pl-os-fx', 'int-od', 'int-loan', 'int-fac', 'int-sup', 'int-tax']
+      return rows.map(r => (DEDUCT.includes(r.key) || r.key.startsWith('oh-')
+        ? Object.assign({}, r, { values: r.values.map(v => (v ? -v : 0)), signed: false })
+        : r))
+    },
+
+    /**
+     * A printed row's Year figure: the twelve months added, except cash at month end, which
+     * is a balance — its year figure is where the year closes, never twelve balances summed.
+     * @param {object} row @returns {number}
+     */
+    yearOf (row) {
+      const v = row.values || []
+      return row.key === 'close' ? v[v.length - 1] : v.reduce((a, x) => a + (Number(x) || 0), 0)
     },
 
     /** A whole-number percentage, in the reader's language. */
@@ -1734,6 +1823,20 @@ td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-wei
 
 /* The print's three statements are built on every render and shown only on paper. */
 .tw-printall { display: none; }
+/* The pack's front — cover, contents, at a glance — likewise (item 44.4). */
+.tw-printfront { display: none; }
+.tw-printfirm { font-style: normal; font-weight: 700; margin-right: 10px; }
+.tw-printsub { margin: -4px 0 10px; font-size: 12px; color: var(--rs-muted); }
+/* The board-pack statement (item 44.4, drawing approved 2026-09-30): a navy heading row,
+   subtotals ruled, each statement's total double-ruled, the Year column tinted. */
+.tw-printtable th { background: #002b64; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.tw-printtable tr.is-strong td { color: #002b64; font-weight: 700; border-top: 1px solid #9fb3c8; }
+.tw-printtable tr.is-total td {
+  color: #002b64; font-weight: 700; background: #ebf4fa;
+  border-top: 1.5px solid #002b64; border-bottom: 3px double #002b64;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.tw-printtable td.tw-yr { font-weight: 700; background: #f5fbfe; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
 @media print {
   .tw-actions, .tw-levers, .tw-caution { display: none !important; }
@@ -1743,6 +1846,9 @@ td.impossible { color: var(--rs-crit); background: var(--rs-crit-soft); font-wei
      Hiding the buttons alone would have left an empty white card on the page. */
   .tw-screenstmt { display: none !important; }
   .tw-printall { display: block; }
+  .tw-printfront { display: block; }
+  .tw-printglance { break-after: page; page-break-after: always; }
+  .tw-hero { display: none !important; }
   .tw-printstmt + .tw-printstmt { break-before: page; page-break-before: always; }
   /* The statements take the whole page; the balance check follows them rather than
      leading the document with a one-line assurance about figures nobody has seen yet. */

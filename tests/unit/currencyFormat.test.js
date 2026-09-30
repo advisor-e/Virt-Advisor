@@ -1,4 +1,4 @@
-import { money, money2, signedMoney, kMoney, num } from '../../utils/currencyFormat'
+import { money, money2, signedMoney, kMoney, num, accountingMoney, accountingNum } from '../../utils/currencyFormat'
 
 // fr/de grouping can use a (narrow) no-break space (U+00A0 / U+202F); normalise it.
 const norm = s => s.replace(/\s/g, ' ')
@@ -57,6 +57,28 @@ describe('signedMoney', () => {
     expect(signedMoney(1500, 'NZD', 'en')).toBe('+$1,500')
     expect(signedMoney(-1500, 'NZD', 'en')).toBe('-$1,500')
     expect(signedMoney(0, 'NZD', 'en')).toBe('+$0')
+  })
+})
+
+describe('accountingMoney and accountingNum — negatives in brackets (item 44.4)', () => {
+  test('a negative is bracketed, a positive and zero are not, a blank is a dash', () => {
+    expect(accountingMoney(-400760.4, 'NZD', 'en')).toBe('($400,760)')
+    expect(accountingMoney(1234, 'NZD', 'en')).toBe('$1,234')
+    expect(accountingMoney(-0.4, 'NZD', 'en')).toBe('$0')
+    expect(accountingMoney(null, 'NZD', 'en')).toBe('—')
+    expect(accountingNum(-64195, 'en')).toBe('(64,195)')
+    expect(accountingNum(85000, 'en')).toBe('85,000')
+    expect(accountingNum(undefined, 'en')).toBe('—')
+  })
+
+  test('a figure and its negative round to the same dollars, so a deduction never drifts', () => {
+    expect(accountingNum(-34320.5, 'en')).toBe('(34,321)')
+    expect(accountingNum(34320.5, 'en')).toBe('34,321')
+    expect(accountingMoney(-0.5, 'NZD', 'en')).toBe('($1)')
+  })
+
+  test('a locale whose accounts use a minus sign keeps it', () => {
+    expect(norm(accountingMoney(-5, 'EUR', 'de'))).toBe('-5 €')
   })
 })
 

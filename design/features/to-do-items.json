@@ -349,8 +349,12 @@
         "detail": "2026-09-30 - in his words: \"we need a cover page for the 3 way forecast report\" and \"the forecast needs to have a more 'board to shareholder' feel about it - but still meet reporting best stds\""
       },
       "touches": "components/ThreeWayForecastReport.vue (the print), a new cover and at-a-glance component, components/EconomicAnalysisPack.vue, locales/en.json; the research prompt in data/ai-prompts.json and its validator for the tiles.",
-      "note": "Drawing design/mockups/three-way-forecast-board-pack.html: LAYOUT APPROVED by Mike 2026-09-30. NEGATIVES IN BRACKETS, screen and print: YES (Mike 2026-09-30, after asking what best practice requires - no standard mandates it; IAS 1.45 consistency, and the IFRS illustrative statements use brackets). RESEARCH PROMPT: YES (Mike 2026-09-30) - also ask for a one-sentence headline and up to six key figures (value, what it measures, date, source); a tile is drawn only for a figure found in the cited text; a firm copy without it gets no tiles. Still to rule: the new labels listed on the drawing. Measure: the motocross example printed before and after - key figures in the first two pages (0 today) and pages of unbroken text (about 5 today).",
-      "comment": "2026-09-30 - filed on Mike's request; score and scoreReason are ours, he has not ranked it."
+      "note": "Drawing design/mockups/three-way-forecast-board-pack.html, all approved 2026-09-30 (layout eb94372a; brackets; research headline and tiles; wording 342dd1f8). BUILT and walked on the running app: cover, contents, at a glance, restyled statements with costs as deductions, Notes in two columns, research headline and tiles (one live run: 6 tiles, all sourced). Named differences: firm name for the logo; no page numbers; tile source is the citation host. WAITING ON MIKE: the research-prompt KEY FIGURES paragraph wording (ECONOMIC-ANALYSIS-PROMPT.md). Measure: motocross example before and after.",
+      "comment": "2026-09-30 - filed on Mike's request; score and scoreReason are ours, he has not ranked it. MIKE'S CALL 2026-09-30: PROCEED - build it now.",
+      "activeOn": {
+        "machine": "desktop",
+        "since": "2026-09-30"
+      }
     }
   ]
 }
