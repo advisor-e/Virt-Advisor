@@ -5,9 +5,11 @@ UAT, and how to know it is *really* running. It is deliberately short and links 
 repeats: what a release **contains** is in its own release note, and this page is only how you
 **load** it.
 
-Written 2026-08-14. **The newest cut release is [`v0.9.0`](RELEASE-NOTES-v0.9.0.md)**, tagged
-2026-08-17 on commit `d4284e6`. It supersedes `v0.8.0`, which was tagged on 13 August and never
-pulled — taking `v0.9.0` gets you both.
+Updated at the `v0.14.0` cut, 2026-09-30. **The newest cut release is
+[`v0.14.0`](RELEASE-NOTES-v0.14.0.md)**, tagged on the merge commit of PR #145 (the hash is in
+[`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md)). It supersedes `v0.8.0` to `v0.13.0`, none of which
+was pulled — taking `v0.14.0` gets you all of them, and its install steps are written cumulatively
+from `v0.7.0`.
 
 ⚠ **This line goes stale the moment a tag is cut and nothing makes it go red.** It said `v0.8.0`
 for four days after `v0.9.0` existed, while the release email sent to the master team named
@@ -18,8 +20,8 @@ updating this page.**
 
 ## 1. Pull the tag, then write the ledger row
 
-Pull a **tag** (`v0.9.0`, …), never the `master` branch — a tag is immutable, a branch keeps
-moving, so "UAT is on v0.9.0" stays true and checkable forever.
+Pull a **tag** (`v0.14.0`, …), never the `master` branch — a tag is immutable, a branch keeps
+moving, so "UAT is on v0.14.0" stays true and checkable forever.
 
 The moment it is pulled, add a row to [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md): date,
 environment, exact commit hash (`git rev-parse HEAD`), who pulled it. **A deployment is not
@@ -35,10 +37,11 @@ that produced it.
 newer Node: both the frontend and the backend print a startup warning on anything else, and
 Node 22+ refuses to start at all.
 
-**`npm install`** — read the line at the top of the release note. `v0.7.0` needed one (it added
-an icon font, and without the install the Hub's tab icons rendered blank, which reads as a
-broken build). **`v0.8.0` and `v0.9.0` needed none** — neither changed a single dependency. It is
-stated explicitly in every release note for exactly this reason.
+**`npm install`** — read §1a of the release note. 🔴 **`v0.14.0` needs one:** it adds
+`pdfjs-dist` (backend only, for managers' imported concepts) and `sass` (a developer tool the
+running app does not use). `v0.7.0` needed one too (it added an icon font, and without the
+install the Hub's tab icons rendered blank, which reads as a broken build). It is stated
+explicitly in every release note for exactly this reason.
 
 ## 3. Environment variables
 
@@ -69,6 +72,10 @@ as they do today rather than routing personal data to a provider nobody has clea
 can have no backup at all — the economic analysis, the two PDF schedule readers and the meeting
 transcription — because no second provider offers the features they use. See `.env.example`.
 
+**New in `v0.14.0`, all optional:** `FIRM_BRAND_LOGO_COLUMN` / `FIRM_BRAND_COLOUR_COLUMN`
+(integration question 8) and `AI_PRIMARY_MODEL_TRANSLATE` / `AI_FALLBACK_MODEL_TRANSLATE` —
+the release note's §1c says what each does when unset.
+
 ## 4. Database
 
 Run [`config/db-schema.sql`](../config/db-schema.sql) against the Advisor-e MySQL instance.
@@ -80,6 +87,13 @@ in the schema file beside the `__platform__` insert.
 
 If Advisor-e already has a `firms` table, skip that `CREATE TABLE` block and repoint the foreign
 keys in the other tables — see [`HANDOFF.md`](HANDOFF.md) step 2.
+
+🔴 **Then [`config/db-migration-sales-tracker.sql`](../config/db-migration-sales-tracker.sql) —
+on every install, fresh or existing.** Its five tables are not in `db-schema.sql`.
+
+🔴 **And set MySQL `max_allowed_packet` to at least `32M`** — a manager's imported concept is one
+insert of up to 20 MB. The release note's §1b gives the order and what is new since each earlier
+version.
 
 ## 5. 🔴 The one decision only you can make
 
@@ -95,9 +109,11 @@ The second row is why this section exists. A tester can exercise the whole casca
 work, and sign it off having proved nothing — the database was never written to, and the file
 disappears on the next deploy.
 
-The reason the middle tiers need a dev token is not a defect in this app: **Advisor-e issues no
-role value for a global group manager or a group manager yet**, so there is no real login to use.
-See [`USER-LEVEL-CASCADE-HANDOVER.md`](USER-LEVEL-CASCADE-HANDOVER.md).
+The reason the middle tiers need a dev token here is not a defect in this app, and not a
+missing login: global group and group managers **do** sign into Advisor-e. **This app has not yet
+been told which role values their tokens carry** (integration question 3 in the release note), so
+it fails closed rather than guess. See
+[`USER-LEVEL-CASCADE-HANDOVER.md`](USER-LEVEL-CASCADE-HANDOVER.md).
 
 **Our recommendation:** run UAT with `NODE_ENV=production` so storage is honest, and demonstrate
 the two middle tiers separately on a non-production host with the dev tokens, treating that as a
@@ -131,10 +147,15 @@ anywhere for the four hubs. Give testers the addresses, not a path through a men
 | Mentor Hub | `/mentor` |
 | Global Group Manager Hub | `/global-group-manager` |
 | Group Manager Hub | `/group-manager` |
+| Strategy Planner (new in `v0.14.0`) | `/strategy-planner` |
+| Sales Tracker (new in `v0.14.0`) | `/sales-tracker` |
+| Business Owner Expectations (new in `v0.14.0`) | `/owner-expectations` |
+| Three-Way Forecast | `/three-way-forecast` |
 
 Inside Advisor-e this repo surfaces at three places — firm manager → *Manage AI Coach*; adviser →
 *AI help*; adviser → *Performance Reports*. The three tier hubs are not among them yet, which is
-why the addresses matter.
+why the addresses matter. **`v0.14.0` asks for two more links** — `/strategy-planner` and
+`/sales-tracker` — wherever an adviser's tools are listed (release note §6).
 
 ## 8. Prove it actually started
 
@@ -157,9 +178,10 @@ firms rather than real ones.
 ## 9. Known limits
 
 Not repeated here — they are stated in the release note you are loading
-([`v0.9.0`](RELEASE-NOTES-v0.9.0.md) → *§4 Known issues — read before reporting*; the section is
-named *Known limits* on `v0.8.0` and earlier), and the tier/login handover is
-[`USER-LEVEL-CASCADE-HANDOVER.md`](USER-LEVEL-CASCADE-HANDOVER.md).
+([`v0.14.0`](RELEASE-NOTES-v0.14.0.md) → *§5 Known before testing*), and the tier/login handover
+is [`USER-LEVEL-CASCADE-HANDOVER.md`](USER-LEVEL-CASCADE-HANDOVER.md). 🔴 **Meeting Review,
+strategy-session recording and Wordsmith must not be used on a real client** until Zero Data
+Retention is confirmed for the app's OpenAI Project.
 
 ## 10. Tell us three things
 

@@ -40,10 +40,10 @@
 -- invented here, so the Sales Tracker inherits a privacy model that is already
 -- built, already reviewed and already tested. Do not diverge from it.
 --
--- ⚠ OPEN QUESTION FOR MIKE, recorded rather than assumed: whether a FIRM
---   MANAGER sees their advisors' pipelines by default. `visibility` carries
---   either answer with no schema change; the Team screen (stage 4) is where it
---   becomes visible. Until he rules, nothing widens the default.
+-- A FIRM MANAGER SEES EVERY DEAL IN THE FIRM, private ones included — Mike's
+--   ruling, built and pinned (item 17; design/features/to-do-done-and-parked.md).
+--   It is gated server-side by `requireManagerRole`; `visibility` needed no
+--   schema change to carry it.
 --
 -- =============================================================================
 -- FIVE TABLES, NOT THE TEN THE SOURCE APP HAS
@@ -222,15 +222,13 @@ CREATE TABLE IF NOT EXISTS `va_sales_coi` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =============================================================================
--- THE BLOG TOOL — stage 5. Created here, INERT until that stage is built.
+-- THE BLOG TOOL — stage 5, built.
 -- =============================================================================
 -- Mike ruled 2026-09-21 that the blog tool is in scope. These three tables are
--- created now so the schema is complete in one migration rather than two.
---
--- ⚠ NOTHING READS OR WRITES THEM YET, and stage 5 carries the strictest bar in
---   the standards: 100% test coverage on anything validating LLM output, plus a
---   prompt-injection guard the source app does not have. See
---   design/features/sales-tracker.md §10 stage 5.
+-- read and written by server/utils/salesBlogStore.js behind the /api/sales/blog
+-- routes. Stage 5 carries the strictest bar in the standards: 100% test coverage
+-- on anything validating LLM output, plus a prompt-injection guard the source
+-- app does not have. See design/features/sales-tracker.md §10 stage 5.
 --
 -- 🔴 AND ONE FAULT THAT MUST NOT BE PORTED: the source's pages/index.vue pipes
 --    marked() straight into v-html with NO sanitiser, on text a model generated.

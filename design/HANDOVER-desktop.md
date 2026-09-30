@@ -9,25 +9,28 @@
 
 ---
 
-## 2026-09-29 (evening) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-09-30 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Clean and pushed once this commit lands; 1 ahead of `master` (this shutdown's commit), 0
-behind.** PRs #140, #141 and #143 merged today; the pre-push gate was green on each. Run tests,
-commits and pushes with the 14.15 folder first on PATH (item 22.2).
+**Released: `v0.14.0`** — on Mike's instruction, *"complete alignment with the laptop and then …
+cut a new release, inclusive of all handover notes for the master coding team"*. The laptop's
+branch reached `master` through PR #146, this branch through PR #145, and the tag sits on that
+merge. Notes: [`RELEASE-NOTES-v0.14.0.md`](RELEASE-NOTES-v0.14.0.md); the load pack
+[`UAT-LOAD-PACK.md`](UAT-LOAD-PACK.md) and [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md) updated
+with it. Run tests, commits and pushes with the 14.15 folder first on PATH (item 22.2).
 
-**Done today:** Mike's whole-brain question answered from the code in
-[`AI-WHOLE-BRAIN-FINDINGS.md`](AI-WHOLE-BRAIN-FINDINGS.md) — no design, no build. Seven faults
-found; six fixed and closed (15.29, 7.14, 15.30, 40.1, 7.15, 7.16). The privacy register
-(`aiCallSitesPersonal.test.js`) now covers every seam call site; Mike confirmed the sales blog
-writer not personal. At shutdown the primary-issue tie-break was changed to fence the advisor's
-words with `fenceUntrusted`. **Filed:** 7.17 (dead options in `buildClientContext`).
+**Done today, all closed on Mike's word:** 13.6 (whole sentences, part one), 44.1 (the forecast
+reviewed against NZ IFRS / FRS-42, and Notes to the forecast in every forecast), 44.2 (IFRS 18 /
+IAS 7 layout), 44.4 (the printed forecast as a board paper, negatives in brackets, the research
+headline and key-figure tiles — the research-prompt paragraph approved word for word). The
+economic research's tables and lists now print as tables and lists. **Filed:** 13.8, 44.3.
 
 ### FOR THE LAPTOP
 
-- **8.6 is yours** — Mike ruled it is designed alongside 8.4, whose files it shares.
-- Merge `master`. #143 touched your closed 15.14 code: `routes/wordsmith.js` now refuses a
-  planning session unless it is the recording's client's and advisor's (15.29), and
-  `wordsmith.routes.test.js` gained three cases. Also changed: `routes/strategyPlanner.js` (Suggest
-  is personal), `advisorEngine.js` (comments, one read condition), `locales/en.json`
-  (`firmAiPrompts.intro`), `strategy-planner.md` §9b (one sentence).
-- 15.14's follow-ups, 15.20 and 8.4 remain yours.
+- **Merge `master` at startup** — nothing to resolve. Both machines then match `v0.14.0`.
+- Shared files changed here today: `locales/en.json` (`report.threeWayForecast.pack`, `.notes`,
+  `economicAnalysis.inShort`/`keyIndicators`), `mixins/currencyMixin.js` (`figure`, and
+  `bracketNegatives`), `utils/currencyFormat.js` (`accountingMoney`/`accountingNum`),
+  `utils/researchText.js` (lists and tables), `data/ai-prompts.json` (economic analysis §6).
+- **8.4's note contradicts its own commit.** The item says it was "never yet run against real
+  OpenAI or a microphone"; `b10854c5`'s body says it was walked "with Chrome's test-tone
+  microphone and real OpenAI calls". The item is yours — put it right on Mike's word.
