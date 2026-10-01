@@ -70,7 +70,7 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.trends')" 
  */
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { pct, times, days, ratio2 } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /** Whether a rise in each row is good news. */
 const RISE_IS_GOOD = { revenue: true, netProfit: true, netMargin: true, stockTurn: true, debtorDays: false }
@@ -82,7 +82,7 @@ export default {
 
   components: { DashboardReportPage },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -144,16 +144,16 @@ export default {
     /** @param {string} unit @returns {Function} */
     formatter (unit) {
       if (unit === 'money') { return v => (v === null ? '—' : this.kMoney(v)) }
-      if (unit === 'percent') { return v => pct(v) }
-      if (unit === 'times') { return v => times(v) }
-      return v => days(v)
+      if (unit === 'percent') { return v => this.pct(v) }
+      if (unit === 'times') { return v => this.times(v) }
+      return v => this.days(v)
     },
     /** @param {string} key @returns {Function} */
     bmFormatter (key) {
       const kind = BM_FORMAT[key]
-      if (kind === 'pct') { return v => pct(v, 0) }
-      if (kind === 'times') { return v => times(v) }
-      return v => ratio2(v)
+      if (kind === 'pct') { return v => this.pct(v, 0) }
+      if (kind === 'times') { return v => this.times(v) }
+      return v => this.ratio2(v)
     }
   }
 }

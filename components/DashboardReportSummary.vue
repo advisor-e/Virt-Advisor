@@ -62,7 +62,7 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.summary')"
  */
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { pct, pts, signedPct, days } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 const RING = 2 * Math.PI * 52
 
@@ -71,7 +71,7 @@ export default {
 
   components: { DashboardReportPage },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -107,10 +107,6 @@ export default {
   },
 
   methods: {
-    pct,
-    pts,
-    signedPct,
-    days,
     arrow (v) { return v === null || v === undefined || v === 0 ? '' : (v > 0 ? '▲' : '▼') },
     tone (v) { return v === null || v === undefined || v === 0 ? '' : (v > 0 ? 'drd-up' : 'drd-down') },
     vsLastYear (v) { return v === null || v === undefined ? '' : this.$t('report.dashboardReports.doc.vsLastYear') }

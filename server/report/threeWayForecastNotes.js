@@ -19,6 +19,16 @@
 const sum = function (list) { return list.reduce(function (a, v) { return a + v }, 0) }
 const any = function (list) { return Array.isArray(list) && list.some(function (v) { return v > 0 }) }
 
+/**
+ * What a collection profile never collects, to four places — null when it totals 100%, by the
+ * same tolerance `uncollectedShare` in threeWayForecastModel.js charges by.
+ * @param {number} collected the profile's buckets, summed @returns {number|null}
+ */
+function gapOf (collected) {
+  const gap = collected < 1 - 1e-9 ? Math.round((1 - collected) * 10000) / 10000 : 0
+  return gap > 0 ? gap : null
+}
+
 /** A funding line that carries money this year: a balance at the start, or a drawdown. */
 function inUse (loan) { return loan.opening > 0 || any(loan.drawdowns) }
 
@@ -54,6 +64,7 @@ function forecastNotes (I, startIso) {
   const inTransit = I.openingBalanceSheet.stockInTransitDeposits > 0
   const loans = I.loans.filter(inUse)
   const collected = sum(O.overseasCollection)
+  const collectedLocally = sum(I.debtorCollection)
   const facts = {
     imports,
     exports,
@@ -65,9 +76,11 @@ function forecastNotes (I, startIso) {
     // A profile with nothing after the first month: the opening balance is settled in month 1.
     sameMonthDebtors: sum(I.debtorCollection.slice(1)) === 0,
     sameMonthCreditors: sum(I.creditorPayment.slice(1)) === 0,
-    // The share of overseas sales the profile never collects — what the model leaves in
-    // debtors for ever until item 44.3 charges it as a bad debt. Null when there is none.
-    overseasGap: exports && collected < 0.9995 ? Math.round((1 - collected) * 10000) / 10000 : null
+    // The share of local and of overseas sales each profile never collects: the bad debt the
+    // model charges (item 44.3). Null when there is none.
+    // The same test the model charges by, so the notes never miss a charge it makes.
+    localGap: gapOf(collectedLocally),
+    overseasGap: exports ? gapOf(collected) : null
   }
   const assumptions = {
     startIso,

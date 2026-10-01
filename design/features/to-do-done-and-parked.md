@@ -379,6 +379,47 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**44.3 · The forecast needed three facts — deferred tax, leases, shipping terms — and bad debts.**
+✅ **Closed 2026-10-01 by Mike ("yes"): bad debts built; the other three kept as disclosures, not built.**
+
+- **Bad debts, built:** a collection profile's shortfall, local or overseas, is charged as a bad
+  debt in the month of the sale, with the P&L line, step 3 and the Notes in his approved wording
+  ([`THREE-WAY-FORECAST-BAD-DEBT-WORDING.md`](../THREE-WAY-FORECAST-BAD-DEBT-WORDING.md));
+  `9efbf064`, `1b8d26d2`, `e3686275`; walked on a production build.
+- **The other three, his ruling after the impact test at scoping:** every forecast's Notes
+  already disclose all three (differences 2-4), and most small New Zealand clients keep
+  special-purpose tax accounts, which expense rent, carry no deferred tax and book overseas sales
+  at invoice — so building them would have added three questions and moved the forecast *away*
+  from the client's own books. Recorded in `CALCULATION-ASSUMPTIONS.md` §2.1, §2.5, §2.7 and the
+  count in §2.9. **If an exporter selling on delivered terms ever needs it, shipping terms is a
+  new item.**
+
+**7.17 · Three options of the engine's briefing builder were never used, so their code never ran.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done).**
+
+- **What was done:** `buildClientContext` in `server/advisorEngine.js` lost `includeSummaries`,
+  `includeSectionDesc` and `logicTree`/`logicTrees` with the code behind them, the
+  `includeSummaries: false` at the Phase 3 caller, and the now-unused `formatLogicTreeForPrompt`
+  import. Summaries, section descriptions and trees still reach the AI on their other paths.
+- **What proves it:** the briefing text for both callers' option shapes, four client questions,
+  12 cases and 785,494 characters, captured before and after — identical byte for byte. Full
+  suite green on Node 14.15. **Not walked on the running app**, which the item's risk line asked
+  for: the AI's input is proven unchanged, which is what a walk would have shown.
+
+**46.1 · Stats NZ benchmarks had this year's provisional years typed in, so the next release would mislabel them.**
+✅ **Closed 2026-10-01 by Mike ("done - yes"), the day he ruled on it.**
+
+- **His ruling:** the latest two years of any uploaded release are provisional and the year before
+  final, worked out from the file itself — no field for the manager to fill in. Unproved
+  assumption, stated to him: only the 2025 release note was seen, so Stats NZ always marking
+  exactly two years is not verified.
+- **What was done:** `PROVISIONAL_FROM = 2024` replaced by `provisionalYearsOf(year)` in
+  `statsNzBenchmarker.js`; the hub's sentence takes its years from `summaryOf`, so a release
+  already stored gets them too; the wording is unchanged. The rule is in the Brief, P9.
+- **What proves it:** `statsNzBenchmarker.test.js` reads a pretend 2026 release and gets 2024
+  final, 2025 and 2026 provisional. **Not walked in a browser** — on screen today it reads as
+  before, and Mike closed it on that basis.
+
 **44.4 · The printed forecast read as a spreadsheet: no cover, no contents, no summary, and the research was pages of plain text.**
 ✅ **Closed 2026-09-30 by Mike ("yes" to marking it done), the day he asked for it.**
 

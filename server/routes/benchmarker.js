@@ -80,7 +80,7 @@ function textOf (files, field) {
 /**
  * GET /api/firm-manager/benchmarker  (mentor)
  * @route GET /api/firm-manager/benchmarker
- * @returns {{dataset: {source, year, provisional, counts}, uploaded: boolean}} the release in
+ * @returns {{dataset: {source, year, provisional, finalYear, provisionalYears, counts}, uploaded: boolean}} the release in
  *   force, and whether it is an upload or the shipped file.
  */
 async function summary (req, res) {
@@ -101,7 +101,7 @@ async function summary (req, res) {
  * version at the platform scope. Nothing is stored until both files read cleanly.
  *
  * @route POST /api/firm-manager/benchmarker
- * @returns {{saved: true, dataset: {source, year, provisional, counts}}}
+ * @returns {{saved: true, dataset: {source, year, provisional, finalYear, provisionalYears, counts}}}
  */
 async function upload (req, res) {
   let files
@@ -190,7 +190,7 @@ async function history (req, res) {
  * POST /api/firm-manager/benchmarker/restore  (mentor)
  * @route POST /api/firm-manager/benchmarker/restore
  * @param {object} req.body - `{ versionId: number }`
- * @returns {{restored: true, dataset: {source, year, provisional, counts}}}
+ * @returns {{restored: true, dataset: {source, year, provisional, finalYear, provisionalYears, counts}}}
  */
 async function restore (req, res) {
   const versionId = req.body && req.body.versionId

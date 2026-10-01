@@ -105,7 +105,9 @@ never chosen.
 app, never from a search** (Mike, 2026-09-07). The app ships the 2025 release
 (`data/statsnz-benchmarker-2025.json`, built by the reader from the two CSVs Stats NZ publishes,
 never hand-edited); the mentor replaces it on a hub tab each release, and it carries its year,
-Stats NZ's provisional mark, and the accuracy category Stats NZ gives each industry's figures. Size bands are Stats NZ's, which are *turnover quartiles per industry* — *"four even
+Stats NZ's provisional mark — the release's latest two years provisional and the year before
+final, worked out from the file's own years (Mike, 2026-10-01, item 46.1; the files do not say
+it themselves) — and the accuracy category Stats NZ gives each industry's figures. Size bands are Stats NZ's, which are *turnover quartiles per industry* — *"four even
 quarters of the industry population based on the number of businesses"* — so the turnover range
 that makes a business "small" differs by industry and is shown beside each band. The eight
 benchmark ratios use Stats NZ's definitions, and so does the report's own copy of each, or the

@@ -68,14 +68,14 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.optional.profitBri
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import WaterfallChart from '~/components/base/WaterfallChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { pct } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 export default {
   name: 'DashboardReportProfitBridge',
 
   components: { DashboardReportPage, WaterfallChart },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -102,7 +102,7 @@ export default {
     },
     changeText () {
       const k = this.b.change >= 0 ? 'upBy' : 'downBy'
-      return this.$t('report.dashboardReports.doc.optional.profitBridge.' + k, { amount: this.money(Math.abs(this.b.change)), pct: this.b.changePct === null ? '' : pct(Math.abs(this.b.changePct), 1) })
+      return this.$t('report.dashboardReports.doc.optional.profitBridge.' + k, { amount: this.money(Math.abs(this.b.change)), pct: this.b.changePct === null ? '' : this.pct(Math.abs(this.b.changePct), 1) })
     },
     sentence () {
       const t = k => this.$t('report.dashboardReports.doc.optional.profitBridge.step.' + k).toLowerCase()
@@ -116,7 +116,6 @@ export default {
   },
 
   methods: {
-    pct,
     /** @param {number|null} v @param {number|null} of @returns {number|null} */
     share (v, of) { return of ? v / of : null },
     /** The sentence beside a step, from the two years' figures. @param {object} s */
@@ -125,9 +124,9 @@ export default {
       const c = this.b.current
       const k = 'report.dashboardReports.doc.optional.profitBridge.read.'
       if (s.key === 'salesGrowth') {
-        return this.$t(k + (c.revenue >= p.revenue ? 'salesUp' : 'salesDown'), { amount: this.money(Math.abs(c.revenue - p.revenue)), margin: pct(p.grossMarginPct, 1), effect: this.money(Math.abs(s.value)) })
+        return this.$t(k + (c.revenue >= p.revenue ? 'salesUp' : 'salesDown'), { amount: this.money(Math.abs(c.revenue - p.revenue)), margin: this.pct(p.grossMarginPct, 1), effect: this.money(Math.abs(s.value)) })
       }
-      if (s.key === 'margin') { return this.$t(k + 'margin', { from: pct(p.grossMarginPct, 1), to: pct(c.grossMarginPct, 1), effect: this.money(Math.abs(s.value)) }) }
+      if (s.key === 'margin') { return this.$t(k + 'margin', { from: this.pct(p.grossMarginPct, 1), to: this.pct(c.grossMarginPct, 1), effect: this.money(Math.abs(s.value)) }) }
       if (s.key === 'otherIncome') { return this.$t(k + 'otherIncome', { from: this.money(p.otherIncome), to: this.money(c.otherIncome) }) }
       if (s.key === 'overheads') { return this.$t(k + 'overheads', { from: this.money(p.overheads), to: this.money(c.overheads) }) }
       return this.$t(k + 'belowLine', { from: this.money(p.belowLine), to: this.money(c.belowLine) })

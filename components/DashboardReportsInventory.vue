@@ -91,7 +91,7 @@
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
 import { intlLocaleFor } from '~/utils/dateLocale'
-const { pct } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 const { AGEING_BANDS } = require('~/utils/dashboardReportsSavedShape')
 
 export default {
@@ -99,7 +99,7 @@ export default {
 
   components: { ProvenanceBadge },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     apiToken: { type: String, default: 'dev-local-bypass' },
@@ -128,7 +128,7 @@ export default {
       if (c.blocked === 'NO_STOCK_LINE') { return this.$t(k + 'noStockLine') }
       if (!c.available) { return '' }
       if (c.agrees) { return this.$t(k + 'agrees', { file: this.money(c.fileTotal) }) }
-      return this.$t(k + 'differs', { file: this.money(c.fileTotal), accounts: this.money(c.accountsStock), gap: this.money(Math.abs(c.gap)), pct: pct(c.gapPct === null ? null : Math.abs(c.gapPct)) })
+      return this.$t(k + 'differs', { file: this.money(c.fileTotal), accounts: this.money(c.accountsStock), gap: this.money(Math.abs(c.gap)), pct: this.pct(c.gapPct === null ? null : Math.abs(c.gapPct)) })
     },
     checkClass () {
       const c = this.check

@@ -59,6 +59,7 @@ describe('the model decides which notes apply', () => {
       facilities: false,
       sameMonthDebtors: false,
       sameMonthCreditors: false,
+      localGap: null,
       overseasGap: null
     })
   })
@@ -97,9 +98,11 @@ describe('the wording a lender reads is the wording Mike approved', () => {
     .map(l => l.replace(/^- /, '').replace(/^[0-9]+\. /, ''))
   const notes = en.report.threeWayForecast.notes
   const unchanged = Object.assign({}, notes.basis, notes.method, notes.differs)
-  const REWORDED = ['intro', 'collection', 'collectedAll', 'collectedOverseasGap', 'openingDebtorsFirstMonth',
+  // The bad-debt sentences are pinned by design/THREE-WAY-FORECAST-BAD-DEBT-WORDING.md (44.3).
+  const REWORDED = ['intro', 'collection', 'collectedAll', 'openingDebtorsFirstMonth',
     'aboveCost', 'belowCost', 'whatIf', 'rates', 'taxRate', 'shareholderInterest', 'suppliersPaid',
-    'suppliersPaidFirstMonth', 'gstNeverRevenue', 'gstImports', 'leadThree', 'leadFour', 'badDebtsOverseasGap']
+    'suppliersPaidFirstMonth', 'gstNeverRevenue', 'gstImports', 'leadThree', 'leadFour',
+    'badDebtLocal', 'badDebtOverseas', 'badDebtBoth', 'badDebtCharged', 'badDebtsShort']
 
   Object.keys(unchanged).filter(k => !REWORDED.includes(k)).forEach((key) => {
     it(`"${key}" is word for word the approved line`, () => {
@@ -214,12 +217,18 @@ describe('the notes render as this forecast\'s own', () => {
     w.destroy()
   })
 
-  it('an exporter collecting 80%: the uncollected 20% is said, in Note 3 and Note 4', () => {
+  it('an exporter collecting 80%: the uncollected 20% is said to be a bad debt, in Note 4 and Note 5', () => {
     const text = mountNotes(EXPORTER).text()
-    expect(text).toContain('20% of overseas sales is assumed never to be collected')
-    expect(text).toContain('the 20% of overseas sales not collected stays in what customers owe')
+    expect(text).toContain('20% of overseas sales is never collected. That share is charged as a bad debt')
+    expect(text).toContain('The only allowance made is the share of sales the collection profile never collects')
     expect(text).toContain('Four differences remain')
     expect(text).not.toContain('every sale is assumed to be collected')
+  })
+
+  it('both profiles short: one sentence names both shares, and the notes say what the model charges', () => {
+    const both = Object.assign({ debtorCollection: [0.1, 0.55, 0.3, 0, 0] }, EXPORTER)
+    expect(computeThreeWayForecast(both).notes.facts.localGap).toBe(0.05)
+    expect(mountNotes(both).text()).toContain('5% of local sales and 20% of overseas sales are never collected.')
   })
 
   it('a cash business: opening debtors and suppliers settled in the first month', () => {

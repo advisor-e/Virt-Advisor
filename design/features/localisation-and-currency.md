@@ -318,6 +318,7 @@ nothing about who may write the setting moved with the control.
 | Wording setup and merge | `plugins/i18n.js` |
 | Language helper | `mixins/localeMixin.js` |
 | Money formatting | `mixins/currencyMixin.js` |
+| Percentages, multiples, ratios, days — written in the reader's language (item 13.8) | `mixins/reportFormatMixin.js` over `utils/reportFormat.js`; a screen never requires the util directly (`reportFormat.test.js` guards it) |
 | Translation route | `server/routes/translate.js` |
 | Currency routes | `server/routes/currency.js` |
 | Supported lists | `data/languages.json`, `data/currencies.json` |
