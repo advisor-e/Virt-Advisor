@@ -251,10 +251,11 @@ async function runCheck (opts) {
     // fails. NOT personal: the prompt carries document FILE NAMES and the eight published
     // points — no client words, no figures. Pinned by aiCallSitesPersonal.test.js.
     const client = getClient('compliance')
+    // No temperature: the compliance role's model accepts only its default, and OpenAI
+    // refused every call that sent 0 (proven by a live call, 2026-10-01, item 7.26).
     const completion = await client.chat.completions.create(
       {
-        messages: [{ role: 'user', content: promptText }],
-        temperature: 0
+        messages: [{ role: 'user', content: promptText }]
       },
       // Nothing a person typed: file names and the published points (item 8.2).
       { timeout: TIMEOUT_MS, personal: false, moderate: [] }

@@ -247,8 +247,7 @@ function personText (v, out) {
  * @param {string} cfg.label - for the log line
  * @param {string} cfg.system - the system message
  * @param {string} cfg.user - the user message, already fenced
- * @param {number} cfg.maxTokens
- * @param {number} cfg.temperature
+ * @param {number} cfg.maxTokens - reasoning plus visible text
  * @param {Function} cfg.fallback - () => string, the template
  * @returns {Promise<{text: string, source: 'ai'|'template', error?: string}>}
  */
@@ -264,9 +263,12 @@ async function runOrFallback (cfg) {
   }
 
   try {
+    // The draft role's model reasons before it writes: it refuses `max_tokens` and any
+    // temperature but its default, and its hidden reasoning counts against this limit.
+    // Both refusals proven by live calls, 2026-10-01 (item 7.26) - until then every blog
+    // was the template.
     const response = await client.chat.completions.create({
-      temperature: cfg.temperature,
-      max_tokens: cfg.maxTokens,
+      max_completion_tokens: cfg.maxTokens,
       messages: [
         { role: 'system', content: cfg.system },
         { role: 'user', content: cfg.user }
@@ -341,8 +343,7 @@ function generateDraft (payload) {
     system,
     user: parts.join('\n\n'),
     moderate: personText(payload),
-    maxTokens: 1800,
-    temperature: 0.7,
+    maxTokens: 8000,
     fallback: () => buildDraftTemplate(payload)
   })
 }
@@ -406,8 +407,7 @@ function generateFinal (payload) {
     system,
     user: parts.filter(Boolean).join('\n\n'),
     moderate: personText(payload),
-    maxTokens: 3500,
-    temperature: 0.65,
+    maxTokens: 16000,
     fallback: () => buildFinalTemplate(payload)
   })
 }
