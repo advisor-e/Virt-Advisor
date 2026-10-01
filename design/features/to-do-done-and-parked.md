@@ -379,6 +379,48 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**12.3 · The course tutor put browser-sent history into the prompt unchecked.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was found:** the course session spread the browser's history into the messages as sent,
+  so a forged `system` message reached the model as an instruction and was never moderated, with
+  no limit on count or length. The quiz generator and grader read the same history.
+- **What was done:** `cleanSessionHistory` in `server/courseEngine.js` runs first in all three:
+  any role but user or assistant becomes user (moderated as typed, the advisor chat's rule), the
+  last 20 messages are kept, each cut at 8,000 characters - larger than the advisor chat's 2,000
+  so a tutor's lesson survives for the quiz.
+- **What proves it:** `tests/unit/courseSessionHistory.test.js`, four tests, all failing on the
+  old code; one drives a real session and shows the forged message reaching the model as user
+  text and in the moderated list. Full suite green on Node 14.15. Not walked in the app.
+
+**7.25 · The advisor profile reached the main prompt unfenced and unmoderated.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was found:** Discover, Learn and Plan sent the advisor's profile bare, and the client
+  recommendation's briefing carried a second bare copy beside the fenced one. No AI call that
+  sent the profile passed it to moderation, which rule Z3 requires of anything a person typed.
+- **What was done:** `fencedAdvisorProfile` in `server/advisorEngine.js` is now the only route by
+  which the profile enters a prompt, fenced as data. `typedTexts` and `writeBlocked` take the
+  profile, so the three calls that send it (the reply after a recommendation, the client
+  recommendation, and Discover/Learn/Plan) moderate its fields and quote a blocked one back as
+  the advisor's own. Moderation's 15-minute cache means an unchanged profile costs the allowance
+  once per 15 minutes.
+- **What proves it:** `tests/unit/advisorProfileFence.test.js` (fence, typed closing marker
+  stripped, empty profile adds nothing, fields screened, a blocked field quoted as typed). Full
+  suite green on Node 14.15. Not run against OpenAI or walked in the app: a prompt is not visible
+  on screen, so the tests are the proof.
+- **Left to 7.20:** the client recommendation still receives the profile twice; removing a copy
+  changes what the AI is told, so it is measured there.
+
+**22.6 · A second constitution file arrived with the speckit tools beside the Stack Constitution.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was found:** no clash. `.specify/memory/constitution.md` is 35 lines that restate no
+  rule: it points at `CLAUDE.md`, `WORKING-AGREEMENT.md` and `to-do-items.json` as the authority
+  and says amendments are made there, never to it (commit `0089a5b1`, 2026-09-08).
+- **The risk that remains:** the generic `speckit-constitution` skill writes that file, so running
+  it by name would replace the pointer with a fresh constitution. Nothing runs it automatically.
+
 **8.4 · Meetings longer than 23 minutes were refused by OpenAI and lost their audio.**
 ✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), after the browser walk.**
 

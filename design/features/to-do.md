@@ -54,19 +54,16 @@ repository sees; the two never both appear, and the build stops if they would.
 | 17 | **7.22** Test whether a stronger model should write the main advisory answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 18 | **7.23** Keep a record of every AI call: model, prompt version, tokens and time taken ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 19 | **7.24** The advisor sees only three dots while Discover, Learn and Plan answers are written ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 20 | **7.25** The advisor profile reaches the main prompt unfenced and unmoderated ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
-| 21 | **7.26** Several AI calls that write long output set no length limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 22 | **12.3** The course tutor puts browser-sent history into the prompt unchecked ⚠ *not yet ranked by Mike* | 5 | — | Us | — |
-| 23 | **28.1** Advisors cannot tell us an AI answer was wrong or useful ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 24 | **13.10** Only the advisory chat tells the AI which language to write in ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 25 | **40.2** The main advisory and course prompts cannot be seen or edited on any screen ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 26 | **22.5** Split the coding AI's rules into a short digest and an addendum of reasons ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 27 | **14.5** Give every feature Brief a one-screen current-state digest, with history moved out ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 28 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 29 | **22.6** A second constitution file arrived with the speckit tools beside the Stack Constitution ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 30 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 20 | **7.26** Several AI calls that write long output set no length limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 21 | **28.1** Advisors cannot tell us an AI answer was wrong or useful ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 22 | **13.10** Only the advisory chat tells the AI which language to write in ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 23 | **40.2** The main advisory and course prompts cannot be seen or edited on any screen ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 24 | **22.5** Split the coding AI's rules into a short digest and an addendum of reasons ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 25 | **14.5** Give every feature Brief a one-screen current-state digest, with history moved out ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 26 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 27 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 
-**30 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
+**27 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

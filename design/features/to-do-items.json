@@ -483,27 +483,6 @@
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.25",
-      "name": "The advisor profile reaches the main prompt unfenced and unmoderated",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 5,
-      "scoreReason": "security",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "In Discover, Learn and Plan the advisor's seven profile fields, up to 2,000 characters each, go into the prompt as plain text, while the client path fences them. Moderation never sees them.",
-      "risk": "Text typed into a profile can act as instructions to the AI on every later answer. CLAUDE.md requires user input in prompts to be wrapped in explicit delimiters.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
-      },
-      "touches": "server/advisorEngine.js formatAdvisorProfile (about 476) used unfenced in the main path (about 4120 and 4216) against the fenced use at about 612; typedTexts, which decides what is moderated.",
-      "note": "Confirmed in code 2026-10-01. Small and contained.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "7.26",
       "name": "Several AI calls that write long output set no length limit",
       "rankedByMike": false,
@@ -522,27 +501,6 @@
       },
       "touches": "server/utils/complianceCheck.js, conceptSummary.js, passageTidy.js, meetingReports.js, wordsmith.js, uiTranslation.js; server/routes/economicAnalysis.js, nextStepsDraft.js; countryScheduleRead.js, depreciationExtract.js.",
       "note": "Set each limit from the longest valid output seen, not a guess.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "12.3",
-      "name": "The course tutor puts browser-sent history into the prompt unchecked",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 5,
-      "scoreReason": "security",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Course sessions add whatever conversation history the browser sends straight into the messages: roles are not checked, so a forged system message goes through, and there is no limit on count or length.",
-      "risk": "Anyone signed in could steer the course AI with injected instructions, or send very large prompts to gpt-4o at cost. Only user turns are moderated. The advisor path already forces roles to user or assistant.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
-      },
-      "touches": "server/courseEngine.js handleSession (about 620-680), the quiz's use of assistant turns (about 792-796), the 256 KB body limit (about 971); server/utils/sanitiseInput.js as the pattern to follow.",
-      "note": "Confirmed in code 2026-10-01: ...sessionHistory is spread into messages as sent. Small and contained.",
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
@@ -669,27 +627,6 @@
       },
       "touches": "tests/unit/ beside buildHandbook.test.js and designArtefacts.test.js; design/features/*.md; CLAUDE.md.",
       "note": "Status claims need a checkable form - for example a status line naming the file that proves it - before a test can read them.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "22.6",
-      "name": "A second constitution file arrived with the speckit tools beside the Stack Constitution",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": ".specify/memory/constitution.md came in with ten speckit skills, and the speckit-constitution skill says it will create or update the project constitution - while CLAUDE.md's Stack Constitution may never be relaxed.",
-      "risk": "A session could treat the wrong file as the authority, or a skill could rewrite it. Not yet read, so this is a naming risk to check, not a confirmed clash.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
-      },
-      "touches": ".specify/memory/constitution.md; .claude/skills/speckit-*/SKILL.md, especially speckit-constitution; CLAUDE.md Stack Constitution.",
-      "note": "First job: read the file and compare it to CLAUDE.md.",
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
