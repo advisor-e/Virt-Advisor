@@ -11,7 +11,7 @@
 
 ## 2026-10-01 (afternoon) · Laptop · branch `feat/advisor-progress`
 
-**0 behind master (merged #151 at 16:00), pushed; PR #152 open into master, not merged.
+**0 behind master (merged #151 at 16:00), pushed; PR #152 merged into master, 7ee8ec90.
 Suite green: 689 suites / 14,837 tests on Node 14.15.**
 
 **8.4 CLOSED on Mike's word.** OpenAI's diarizing model refuses more than 1400 s of audio,
@@ -23,7 +23,7 @@ Mike ruled the advisor's voice clip extends to every recorded meeting (Decision 
 
 **13.9 filed:** the meeting reports and set-up screens still type their English in code.
 
-**FOR THE DESKTOP:** once #152 merges, merge master. Shared files changed: `locales/en.json`
+**FOR THE DESKTOP:** merge master — #152 is in it. Shared files changed: `locales/en.json`
 (`meetingRecorder.*`, `meetingReportsGap.*`), `components/MeetingRecorder.vue`,
 `components/MeetingReview.vue`, `server/routes/meetingReview.js`, `meetingSegments.js`,
 `server/utils/meetingAudioStore.js`, `utils/meetingParts.js` (new).
