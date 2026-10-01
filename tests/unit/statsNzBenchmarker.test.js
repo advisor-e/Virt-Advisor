@@ -18,7 +18,7 @@ const path = require('path')
 const {
   readBenchmarker, parseCsv, findIndustries, bandForRevenue, clientBenchmarkRatios, compareToIndustry, isBenchmarkerDataset, RATIO_ORDER
 } = require('../../server/report/benchmarks/statsNzBenchmarker')
-const { loadBenchmarker, BASE_BENCHMARKER, CONFIG_KEY, PLATFORM_SCOPE } = require('../../server/utils/benchmarkerStore')
+const { loadBenchmarker, summaryOf, BASE_BENCHMARKER, CONFIG_KEY, PLATFORM_SCOPE } = require('../../server/utils/benchmarkerStore')
 
 const fixture = name => fs.readFileSync(path.join(__dirname, '../fixtures/statsnz', name), 'utf8')
 const ratiosCsv = fixture('benchmark_ratios-excerpt.csv')
@@ -52,6 +52,16 @@ describe('reading the two Stats NZ files', () => {
     expect(r.dataset.year).toBe(2025)
     expect(r.dataset.provisional).toBe(true)
     expect(r.dataset.counts).toEqual({ industries: 3, withBenchmarks: 2, ratioRows: 32 + 24 })
+  })
+
+  test('🔴 NEXT YEAR\'S RELEASE NAMES ITS OWN YEARS — Mike\'s rule, item 46.1: latest two provisional, the year before final', () => {
+    const nextYear = financialCsv.replace(/Total_(\d{4})/g, (m, y) => 'Total_' + (Number(y) + 1))
+    const next = readBenchmarker({ ratiosCsv, financialCsv: nextYear })
+    expect(next.dataset.year).toBe(2026)
+    expect(next.dataset.provisional).toBe(true)
+    const summary = summaryOf(next.dataset)
+    expect(summary.finalYear).toBe(2024)
+    expect(summary.provisionalYears).toEqual([2025, 2026])
   })
 
   test('🔴 THE PERCENTILES LAND IN THE RIGHT COLUMNS — cafes, small band, Stats NZ\'s own rows', () => {

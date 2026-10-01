@@ -52,8 +52,17 @@ const RATIO_ORDER = ['returnOnEquity', 'grossProfitRatio', 'returnOnTotalAssets'
 const BANDS = ['micro', 'small', 'medium', 'large']
 const RATIOS_COLUMNS = ['Industry_Division', 'Industry_ANZSIC_class_name', 'Ratio', 'Industry_ANZSIC_class_code', 'Value_min_range', 'Value_max_range', 'Value_median', 'Sizeband_name', 'Sizeband_min', 'Sizeband_max']
 const FINANCIAL_COLUMNS = ['Industry_Division', 'Industry_Class', 'Industry_ANZSIC_class_code', 'Variable', 'Accuracy_category']
-/** Stats NZ's own note on the 2025 release: 2023 final, 2024 and 2025 provisional. */
-const PROVISIONAL_FROM = 2024
+/**
+ * Which years of a release are provisional. Mike's rule, 2026-10-01 (item 46.1): the latest
+ * two are provisional and the year before them final — Stats NZ's own note on the 2025
+ * release, applied to every release so no year is ever typed in here. The files do not say
+ * it themselves, so this is the one place the rule lives.
+ * @param {number} year - the release's latest year, from its own `Total_<year>` columns.
+ * @returns {{finalYear: number, provisionalYears: number[]}}
+ */
+function provisionalYearsOf (year) {
+  return { finalYear: year - 2, provisionalYears: [year - 1, year] }
+}
 const SOURCE = 'Stats NZ Business Performance Benchmarker'
 
 /**
@@ -192,7 +201,7 @@ function readBenchmarker (input) {
     dataset: {
       source: SOURCE,
       year,
-      provisional: year >= PROVISIONAL_FROM,
+      provisional: provisionalYearsOf(year).provisionalYears.includes(year),
       counts: { industries: codes.length, withBenchmarks: codes.filter(c => industries[c].benchmarks).length, ratioRows },
       industries
     }
@@ -333,7 +342,7 @@ module.exports = {
   BANDS,
   RATIOS_COLUMNS,
   FINANCIAL_COLUMNS,
-  PROVISIONAL_FROM,
+  provisionalYearsOf,
   parseCsv,
   readBenchmarker,
   isBenchmarkerDataset,

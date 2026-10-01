@@ -62,14 +62,14 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.balanceSheetTitle'
  */
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { times, ratio2, signedPct } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 export default {
   name: 'DashboardReportBalanceSheet',
 
   components: { DashboardReportPage },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -111,11 +111,9 @@ export default {
     netPosition () {
       const base = this.$t('report.dashboardReports.doc.equityOf', { amount: kMoneyOf(this) })
       if (this.b.equityChangePct === null || this.b.equityChangePct === undefined) { return base }
-      return base + ' ' + this.$t('report.dashboardReports.doc.equityChange', { change: signedPct(this.b.equityChangePct) })
+      return base + ' ' + this.$t('report.dashboardReports.doc.equityChange', { change: this.signedPct(this.b.equityChangePct) })
     }
-  },
-
-  methods: { times, ratio2 }
+  }
 }
 
 /** @param {object} vm @returns {string} the equity, in the firm's currency */

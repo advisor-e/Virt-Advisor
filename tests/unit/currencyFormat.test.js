@@ -87,6 +87,13 @@ describe('kMoney', () => {
     expect(kMoney(572000, 'NZD', 'en')).toBe('$572k')
     expect(kMoney(-3000, 'GBP', 'en')).toBe('-£3k')
   })
+
+  test('🔴 the "k" stays with the digits where the language puts the symbol after (item 13.8)', () => {
+    // German wrote "134 $k" before — the symbol between the number and its unit.
+    expect(norm(kMoney(134000, 'NZD', 'de'))).toBe('134k $')
+    expect(norm(kMoney(3654000, 'NZD', 'de'))).toBe('3.654k $')
+    expect(norm(kMoney(-3000, 'EUR', 'fr'))).toBe('-3k €')
+  })
 })
 
 describe('num', () => {

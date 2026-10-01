@@ -120,12 +120,20 @@ export function signedMoney (value, currency, locale) {
 
 /**
  * Thousands, abbreviated with the currency symbol: "$12k", "-$3k". Chart-label helper
- * for the $-bearing "kf" formatters. @param {number|null} value @param {string} currency @param {string} locale
+ * for the $-bearing "kf" formatters.
+ *
+ * The "k" goes straight after the digits, wherever the language puts the symbol (item
+ * 13.8): German writes "12k $", where appending it to the whole string gave "12 $k".
+ * @param {number|null} value @param {string} currency @param {string} locale
  */
 export function kMoney (value, currency, locale) {
   if (isBlank(value)) { return '—' }
   const k = Math.round(Number(value) / 1000)
-  return money(k, currency, locale) + 'k'
+  const parts = currencyFormatter(locale, currency, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).formatToParts(k)
+  let last = -1
+  parts.forEach((p, i) => { if (p.type === 'integer' || p.type === 'group') { last = i } })
+  if (last < 0) { return money(k, currency, locale) + 'k' }
+  return parts.map((p, i) => (i === last ? p.value + 'k' : p.value)).join('')
 }
 
 /**

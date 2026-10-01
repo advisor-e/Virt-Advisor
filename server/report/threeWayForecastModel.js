@@ -1383,6 +1383,22 @@ function openingRunOff (openingBalance, buckets, corrected) {
   return out
 }
 
+/**
+ * The share of each sale a collection profile never collects: the bad debt (item 44.3).
+ *
+ * A profile keyed as whole percentages arrives as 0.1 + 0.55 + 0.3 + 0.05, which floating point
+ * sums to a hair either side of 1. That is 100% and must charge nothing, or every forecast
+ * would carry a bad debt of a millionth of a cent. A profile over 100% charges nothing either:
+ * the intake refuses a domestic one, and an overseas one is the advisor's to correct.
+ *
+ * @param {Array<number>} buckets [same month, +1, +2, +3, +4]
+ * @returns {number} 0 to 1
+ */
+function uncollectedShare (buckets) {
+  const collected = buckets.reduce(function (a, v) { return a + v }, 0)
+  return collected < 1 - 1e-9 ? 1 - collected : 0
+}
+
 /* ------------------------------------------------------------------- the compute -- */
 
 /**
@@ -1634,13 +1650,40 @@ function computeThreeWayForecast (rawInputs, options) {
   const openingDebtorRunOff = openingRunOff(opening.accountsReceivable, I.debtorCollection, corrected)
   const domesticCash = addSeries(collection.total, openingDebtorRunOff)
   const cashFromDebtors = addSeries(domesticCash, OS.overseasCollections)
+
+  // 🔴 THE SHORTFALL IN A COLLECTION PROFILE IS THE BAD DEBT — Mike's ruling of 2026-09-30
+  // (item 44.3), domestic and overseas alike. Until then an overseas shortfall sat in debtors
+  // for ever and was never an expense, and a domestic one was refused. Basis:
+  // design/CALCULATION-ASSUMPTIONS.md §2.1.
+  //
+  // Charged in the MONTH OF THE SALE, as the expected loss it is (IFRS 9 5.5.1, 5.5.15): the
+  // profile says so the day the invoice is raised. The expense is the amount before GST; the
+  // GST on it comes off the GST owed, because GST is never paid on money never received —
+  // on the invoice basis as bad-debt relief on the return, on the cash basis because the
+  // return only ever saw cash. Taking the relief in the month of sale rather than when the
+  // debt is formally written off is a timing simplification, and the notes say so.
+  //
+  // Opening debtors are untouched: they are collected in full, as before.
+  //
+  // With both profiles at 100% every series here is zero, so no figure moves. Source-fidelity
+  // mode charges nothing, so the workbook port stays provable.
+  const domesticUncollected = corrected ? uncollectedShare(I.debtorCollection) : 0
+  const overseasUncollected = corrected ? uncollectedShare(I.overseas.overseasCollection) : 0
+  const badDebts = domesticRevenue.map(function (r, m) {
+    return r * domesticUncollected + OS.overseasRevenue[m] * overseasUncollected
+  })
+  const badDebtGst = domesticGst.map(function (g, m) {
+    return g * domesticUncollected + OS.overseasGst[m] * overseasUncollected
+  })
+  const badDebtsWrittenOff = addSeries(badDebts, badDebtGst)
+
   const debtorOpening = zeroes(); const debtorSubtotal = zeroes(); const debtorClosing = zeroes()
   for (let m = 0; m < MONTHS; m++) {
     debtorOpening[m] = m === 0 ? opening.accountsReceivable : debtorClosing[m - 1]
     debtorSubtotal[m] = debtorOpening[m] + salesInclusive[m]
     // The exchange movement comes off the debtor as well as through the P&L. Without it
     // the balance sheet would carry a receivable that is never going to arrive.
-    debtorClosing[m] = debtorSubtotal[m] - cashFromDebtors[m] - OS.fxOnSales[m]
+    debtorClosing[m] = debtorSubtotal[m] - cashFromDebtors[m] - OS.fxOnSales[m] - badDebtsWrittenOff[m]
   }
 
   /* -- expense payment blocks (rows 183-221) --------------------------------------- */
@@ -1777,7 +1820,7 @@ function computeThreeWayForecast (rawInputs, options) {
     // costs above the gross margin — Mike's ruling, 2026-09-04. It is what a supplier
     // charges for waiting to be paid, not a cost of getting the goods here.
     totalOverheads[m] = oh + depreciationCharged[m] + overdraftInterest[m] + loanInterest[m] +
-      OS.supplierInterest[m]
+      OS.supplierInterest[m] + badDebts[m]
     operatingSurplus[m] = grossSurplus[m] - totalOverheads[m]
 
     // R10: a gain or loss on sale is other income in the month of the sale — not spread,
@@ -1810,7 +1853,7 @@ function computeThreeWayForecast (rawInputs, options) {
     gstOnIncome[m] = I.gstBasis === 'Cash'
       ? ((domesticCash[m] + (I.overseas.zeroRated ? 0 : OS.overseasCollections[m])) /
          ((100 + gst * 100) / (gst * 100)))
-      : salesGst[m]
+      : salesGst[m] - badDebtGst[m]
     gstOnOtherIncome[m] = otherIncomeGstInclusive[m] * gst
     // R3/R4 do not apply here: the sheet's own GST rows already cover all six categories.
     // R10: GST follows the invoice, so it is charged on what the asset sold for — not on
@@ -1844,7 +1887,7 @@ function computeThreeWayForecast (rawInputs, options) {
     gstPaymentsMade[m] = m === 0
       ? gstBalanceOpening[0]
       : (typeof gstAmountToFile[m - 1] === 'number' ? gstAmountToFile[m - 1] : 0)
-    gstBalanceSubtotal[m] = gstBalanceOpening[m] + salesGst[m] + gstOnOtherIncome[m] + gstOnAssetSales[m]
+    gstBalanceSubtotal[m] = gstBalanceOpening[m] + salesGst[m] - badDebtGst[m] + gstOnOtherIncome[m] + gstOnAssetSales[m]
     // Always the accrued (invoice-basis) GST on payables, whatever the accounting basis
     // — the balance-sheet movement is what has been INVOICED, not what has been paid.
     gstOnPayables[m] = blockOneGst[m] + blockTwoGst[m] + purchaseGst[m]
@@ -2098,6 +2141,8 @@ function computeThreeWayForecast (rawInputs, options) {
       grossMargin,
       overheads: overhead,
       depreciation: depreciationCharged,
+      // Inside `totalOverheads` and `operatingOverheads`; zero while both profiles total 100%.
+      badDebts,
       interestBankOverdraft: overdraftInterest,
       // Term loans and facilities are two figures, never one — see the ruling at
       // `termLoanInterest`. Both are inside `totalOverheads`; with no facility entered the
@@ -2156,6 +2201,9 @@ function computeThreeWayForecast (rawInputs, options) {
         collectionSlices: collection.slices,
         openingBalanceRunOff: openingDebtorRunOff,
         cashReceived: cashFromDebtors,
+        // What the profiles never collect, GST included, and the GST share of it (44.3).
+        badDebtsWrittenOff,
+        badDebtGst,
         openingBalance: debtorOpening,
         subtotal: debtorSubtotal,
         closingBalance: debtorClosing

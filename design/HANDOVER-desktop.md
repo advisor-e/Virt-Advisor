@@ -9,32 +9,27 @@
 
 ---
 
-## 2026-09-30 · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-10-01 · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Released: `v0.14.0`** — on Mike's instruction, *"complete alignment with the laptop and then …
-cut a new release, inclusive of all handover notes for the master coding team"*. The laptop's
-branch reached `master` through PR #146, this branch through PR #145, and the tag sits on that
-merge. Notes: [`RELEASE-NOTES-v0.14.0.md`](RELEASE-NOTES-v0.14.0.md); the load pack
-[`UAT-LOAD-PACK.md`](UAT-LOAD-PACK.md) and [`DEPLOYED-VERSIONS.md`](DEPLOYED-VERSIONS.md) updated
-with it. Run tests, commits and pushes with the 14.15 folder first on PATH (item 22.2).
+**0 behind master, 6 ahead once this shutdown's commit lands; pushed; suite green:
+682 suites / 14,772 tests on Node 14.15, audit PASS.**
 
-**Done today, all closed on Mike's word:** 13.6 (whole sentences, part one), 44.1 (the forecast
-reviewed against NZ IFRS / FRS-42, and Notes to the forecast in every forecast), 44.2 (IFRS 18 /
-IAS 7 layout), 44.4 (the printed forecast as a board paper, negatives in brackets, the research
-headline and key-figure tiles — the research-prompt paragraph approved word for word). The
-economic research's tables and lists now print as tables and lists. **Filed:** 13.8, 44.3.
+**44.3 — bad debts BUILT, Mike's call PROCEED, `activeOn` desktop.** A short collection
+profile, local or overseas, is charged as a bad debt in the month of the sale: the P&L's
+Bad debts line, step 3 and the Notes, in Mike's approved wording
+([`THREE-WAY-FORECAST-BAD-DEBT-WORDING.md`](THREE-WAY-FORECAST-BAD-DEBT-WORDING.md)).
+Walked on a production build; the walk found the step-4 "month after" lever stretching
+every profile back to 100% (fixed, `e3686275`). Step 3 now refuses overseas "Then they
+pay" over 100% and a supplier balance that is not exactly 100%; a short profile shows
+amber. **Left in 44.3:** deferred tax, leases, shipping terms — each needs Mike's drawing
+and wording first.
 
-**Next here: 44.3** — Mike's call proceed; the bad-debt slice first, as designed (the collection
-shortfall charged as a bad debt, domestic and overseas).
+**8.6 marked `activeOn` laptop** on Mike's yes — your 30 Sep handover says it is in hand there.
 
 ### FOR THE LAPTOP
 
-- **Merge `master` at startup** — nothing to resolve. Both machines then match `v0.14.0`.
-- Shared files changed here today: `locales/en.json` (`report.threeWayForecast.pack`, `.notes`,
-  `economicAnalysis.inShort`/`keyIndicators`), `mixins/currencyMixin.js` (`figure`, and
-  `bracketNegatives`), `utils/currencyFormat.js` (`accountingMoney`/`accountingNum`),
-  `utils/researchText.js` (lists and tables), `data/ai-prompts.json` (economic analysis §6).
-- **8.4's note corrected here on Mike's word (the list entry only, none of your files).** It said
-  the first build was "never yet run against real OpenAI or a microphone"; `b10854c5` records the
-  walk with Chrome's test-tone microphone and real OpenAI calls. It now says so, and that it has
-  never been run with a real person speaking.
+- **Merge `master` at startup** once this reaches it (the check showed you 32 behind today).
+- Shared files changed here: `locales/en.json` (`assume.debtorShort`; `notes.method.badDebt*`;
+  `notes.differs.badDebtsShort`; `report.line.badDebts` — `collectedOverseasGap` and
+  `badDebtsOverseasGap` removed), `design/features/to-do-items.json`,
+  `design/features/README.md` (the report-models row).

@@ -93,13 +93,13 @@ import DashboardReportsWords from '~/components/DashboardReportsWords.vue'
 import DashboardReportsPages from '~/components/DashboardReportsPages.vue'
 import DashboardReport from '~/components/DashboardReport.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import firmBrand from '~/mixins/firmBrand'
 import { intlLocaleFor } from '~/utils/dateLocale'
 const { emptyState, pagesRequestFrom, OPTIONAL_PAGES, SOURCES } = require('~/utils/dashboardReportsSavedShape')
 const { sendListFrom } = require('~/utils/nextStepsSendList')
 const { LINES } = require('~/server/report/intake/dashboardReportsAssembler')
-const { pct, days, times } = require('~/utils/reportFormat')
 
 /** Why an optional page with no model behind it yet cannot be added — the stage it waits on. */
 const REASON_KEY = {
@@ -127,7 +127,7 @@ export default {
     DashboardReport
   },
 
-  mixins: [currencyMixin, reportRecompute, firmBrand],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute, firmBrand],
 
   props: {
     /** For the intake upload (firmAuth). */
@@ -227,9 +227,9 @@ export default {
         const b = f ? f.balanceSheet : null
         return [
           { label: t('revenue'), value: p ? this.kMoney(p.revenue) : dash, sub: t('fromPl') },
-          { label: t('netProfit'), value: p ? this.kMoney(p.netProfit) : dash, sub: p ? t('ofRevenue', { pct: pct(p.netMarginPct) }) : '' },
+          { label: t('netProfit'), value: p ? this.kMoney(p.netProfit) : dash, sub: p ? t('ofRevenue', { pct: this.pct(p.netMarginPct) }) : '' },
           { label: t('totalAssets'), value: b ? this.kMoney(b.current.totalAssets) : dash, sub: s.current.balanceSheetDate || '' },
-          { label: t('equity'), value: b ? this.kMoney(b.current.equity) : dash, sub: b && b.equityChangePct !== null ? t('changeOnLastYear', { pct: pct(b.equityChangePct) }) : t('noLastYear') }
+          { label: t('equity'), value: b ? this.kMoney(b.current.equity) : dash, sub: b && b.equityChangePct !== null ? t('changeOnLastYear', { pct: this.pct(b.equityChangePct) }) : t('noLastYear') }
         ]
       }
       if (this.step === 3 && !this.clientMode) {
@@ -240,8 +240,8 @@ export default {
           sf
             ? { label: t('stockAtCost'), value: this.kMoney(sf.totalValue), sub: t('fromStockExport') }
             : { label: t('stockAtCost'), value: i && i.stockAtCost !== null ? this.kMoney(i.stockAtCost) : dash, sub: t('fromAccounts') },
-          { label: t('stockTurn'), value: i ? times(i.stockTurn) : dash, sub: t('fromAccounts') },
-          { label: t('daysOnShelf'), value: i ? days(i.stockDays) : dash, sub: t('fromAccounts') },
+          { label: t('stockTurn'), value: i ? this.times(i.stockTurn) : dash, sub: t('fromAccounts') },
+          { label: t('daysOnShelf'), value: i ? this.days(i.stockDays) : dash, sub: t('fromAccounts') },
           { label: t('slowObsolete'), value: i && i.slowObsolete !== null ? this.kMoney(i.slowObsolete) : dash, sub: t('enteredByYou') }
         ]
       }
@@ -250,7 +250,7 @@ export default {
         const cf = f ? f.cashFlow : null
         return [
           { label: t('healthScore'), value: sc && sc.score !== null ? sc.score : dash, sub: sc && sc.score !== null ? t('measuresGreen', { green: sc.green, n: sc.total, band: this.$t('report.dashboardReports.doc.band.' + sc.band) }) : t('noScore') },
-          { label: t('cashCycle'), value: cf ? days(cf.cashCycleDays) : dash, unit: cf && cf.cashCycleDays !== null ? this.$t('report.dashboardReports.doc.days') : '', sub: this.cycleChangeText },
+          { label: t('cashCycle'), value: cf ? this.days(cf.cashCycleDays) : dash, unit: cf && cf.cashCycleDays !== null ? this.$t('report.dashboardReports.doc.days') : '', sub: this.cycleChangeText },
           { label: t('drivers'), value: cf ? cf.drivers.filter(d => d.direction === 'uses').length : dash, sub: t('usingCash') },
           { label: t('drivers'), value: cf ? cf.drivers.filter(d => d.direction === 'releases').length : dash, sub: t('releasingCash') }
         ]

@@ -149,6 +149,71 @@ describe('opening debtors and creditors are settled whatever the profile (2026-0
   })
 })
 
+describe('the shortfall in a collection profile is the bad debt (IFRS 9 5.5.1; item 44.3)', () => {
+  // Mike's ruling of 2026-09-30, domestic and overseas alike. Before it, an overseas shortfall
+  // sat in debtors for ever and was never an expense: profit and debtors both overstated, and
+  // the balance check still reading flat — nothing a tester would see on screen.
+  const full = computeThreeWayForecast({})
+  const short = computeThreeWayForecast({ debtorCollection: [0.1, 0.55, 0.25, 0.05, 0] })
+  const flat = f => f.balanceSheet.months.balanceCheck.forEach(v => expect(v).toBe(f.balanceSheet.opening.balanceCheck))
+
+  it('a profile totalling 100% charges nothing, whatever floating point makes of its sum', () => {
+    expect(full.profitAndLoss.badDebts.every(v => v === 0)).toBe(true)
+    expect(full.schedules.debtors.badDebtsWrittenOff.every(v => v === 0)).toBe(true)
+    const keyed = computeThreeWayForecast({ debtorCollection: [10, 55, 30, 5, 0].map(v => v / 100) })
+    expect(keyed.profitAndLoss.badDebts.every(v => v === 0)).toBe(true)
+  })
+
+  it('charges the missing 5% of each month’s sales, before GST, in the month of the sale', () => {
+    short.profitAndLoss.revenue.forEach((r, m) => {
+      expect(short.profitAndLoss.badDebts[m]).toBeCloseTo(0.05 * r, 6)
+      // Operating overheads carry no interest, so this difference is the bad debt alone.
+      expect(short.profitAndLoss.operatingOverheads[m] - full.profitAndLoss.operatingOverheads[m])
+        .toBeCloseTo(short.profitAndLoss.badDebts[m], 6)
+    })
+  })
+
+  it('takes it off debtors with its GST, and off the GST return on the invoice basis', () => {
+    const d = short.schedules.debtors
+    const g = short.schedules.gst
+    d.badDebtGst.forEach((v, m) => {
+      expect(v).toBeCloseTo(0.05 * d.gst[m], 6)
+      expect(d.badDebtsWrittenOff[m]).toBeCloseTo(short.profitAndLoss.badDebts[m] + v, 6)
+      expect(g.onIncome[m]).toBeCloseTo(d.gst[m] - v, 6)
+    })
+    flat(short)
+  })
+
+  it('on the cash basis the return is still worked from cash received, and the statements still articulate', () => {
+    const cash = computeThreeWayForecast({ debtorCollection: [0.1, 0.55, 0.25, 0.05, 0], gstBasis: 'Cash' })
+    const cashFull = computeThreeWayForecast({ gstBasis: 'Cash' })
+    expect(sum(cash.profitAndLoss.badDebts)).toBeCloseTo(sum(short.profitAndLoss.badDebts), 6)
+    // Less cash arrives, so less GST is returned — by the GST share of what never arrived.
+    const cashIn = f => sum(f.schedules.debtors.cashReceived)
+    const returned = f => sum(f.schedules.gst.onIncome)
+    expect(returned(cashFull) - returned(cash)).toBeCloseTo((cashIn(cashFull) - cashIn(cash)) * 0.15 / 1.15, 6)
+    flat(cash)
+  })
+
+  it('an overseas shortfall is charged the same way, not left in debtors', () => {
+    const sales = [0, 20000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    const os = computeThreeWayForecast({ overseas: { enabled: true, overseasSales: sales, overseasCollection: [0, 0.4, 0.4, 0, 0] } })
+    expect(os.profitAndLoss.badDebts[1]).toBeCloseTo(4000, 6)
+    expect(sum(os.profitAndLoss.badDebts)).toBeCloseTo(4000, 6)
+    flat(os)
+  })
+
+  it('the three-year chain articulates, and source-fidelity mode charges nothing', () => {
+    const three = computeThreeYearForecast({ debtorCollection: [0.1, 0.55, 0.25, 0.05, 0] })
+    three.years.forEach((y) => {
+      expect(sum(y.profitAndLoss.badDebts)).toBeGreaterThan(0)
+      flat(y)
+    })
+    const asWritten = computeThreeWayForecast({ debtorCollection: [0.1, 0.55, 0.25, 0.05, 0] }, { sourceFidelity: true })
+    expect(asWritten.profitAndLoss.badDebts.every(v => v === 0)).toBe(true)
+  })
+})
+
 describe('shareholder current accounts are shown gross, never netted (IAS 1.32)', () => {
   // The sample: Bob +25,000 and John +18,000 are owed BY the company; Mary −32,000 and
   // Joan −25,000 owe it. Netted, they read as one 14,000 asset.

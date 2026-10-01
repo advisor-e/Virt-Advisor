@@ -555,7 +555,7 @@
             .fieldlab
               span {{ $t(bucketLabel) }}
             b-input(v-model.number="form.debtor[i]" type="number" step="any" size="is-small")
-          .tw-foot(:class="debtorTotal === 100 ? 'is-good' : 'is-crit'") {{ debtorMessage }}
+          .tw-foot(:class="collectionClass(debtorTotal)") {{ debtorMessage }}
 
         .tw-group
           .tw-glabel
@@ -1149,8 +1149,7 @@
                       .fieldlab
                         span {{ $t(bucketLabel) }}
                       b-input(v-model.number="form.overseas.overseasCollection[i]" type="number" step="any" size="is-small")
-                    .tw-foot(:class="overseasCollectionTotal === 100 ? 'is-good' : 'is-crit'")
-                      | {{ overseasCollectionTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct(overseasCollectionTotal) }) }}
+                    .tw-foot(:class="collectionClass(overseasCollectionTotal)") {{ overseasCollectionMessage }}
                     .field
                       .fieldlab
                         span {{ $t('report.threeWayForecast.assume.overseas.overseasMarkup') }}
@@ -2271,12 +2270,11 @@ export default {
      * What a collection profile that does not total 100% actually MEANS, rather than that
      * the sum is wrong.
      *
-     * The block itself is right and stays: a profile summing to 87 quietly means a
-     * thirteenth of the sales are never collected, and the cash flow is then wrong in a way
-     * that looks entirely plausible. What it did not say is WHICH WAY it is wrong or what to
-     * do about it — obvious to somebody who has built a cash flow before, and a dead end to
-     * somebody who has not. The two profiles need different sentences because a shortfall
-     * means opposite things: money you never collect, against money you never pay.
+     * A customers' profile summing to 87 means 13% of sales are never collected, which the
+     * forecast charges as a bad debt (item 44.3) — so the sentence says that, and how to
+     * collect it instead. A suppliers' shortfall is money never paid, which is never right,
+     * and still blocks. The two need different sentences because a shortfall means opposite
+     * things on each.
      *
      * @returns {string}
      */
@@ -2423,9 +2421,16 @@ export default {
 
     /* -- buying and selling overseas (4.64) ---------------------------------------- */
 
-    /** The two profiles the overseas section adds, each validated to 100% like the rest. */
+    /** The two profiles the overseas section adds. `buildForecast` says which totals it refuses. */
     balanceTotal () { return this.sumOf(this.form.overseas.balancePayment) },
     overseasCollectionTotal () { return this.sumOf(this.form.overseas.overseasCollection) },
+    /** Short is a bad debt and says so, as the local profile does (item 44.3); over is refused. */
+    overseasCollectionMessage () {
+      const total = this.overseasCollectionTotal
+      return total > 100
+        ? this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(total) })
+        : this.profileMessage(total, 'debtor')
+    },
 
     /** The demand patterns the mentor holds, for the chooser. */
     sellDownPatterns () { return SELL_DOWN.patterns },
@@ -3578,6 +3583,16 @@ export default {
     },
 
     /**
+     * A customers' profile: green at 100%, amber when short — it builds, as a bad debt (44.3),
+     * so red would read as refused — and red over 100%, which is.
+     * @param {number} total whole percent @returns {string}
+     */
+    collectionClass (total) {
+      if (total === 100) { return 'is-good' }
+      return total < 100 ? 'is-warn' : 'is-crit'
+    },
+
+    /**
      * One collection profile's line, in plain English. See `debtorMessage`.
      *
      * @param {number} total the profile's five buckets, summed, as whole percent.
@@ -4670,17 +4685,16 @@ export default {
     },
 
     /**
-     * Hand the confirmed inputs to the report screen. Both collection profiles must total
-     * 100% first: the model does not normalise them, so a profile summing to 80 quietly
-     * means a fifth of the sales are never collected and the cash flow is wrong in a way
-     * that looks entirely plausible.
+     * Hand the confirmed inputs to the report screen. A customers' profile under 100% builds:
+     * the shortfall is charged as a bad debt (item 44.3), and the block says so. Over 100% it
+     * would collect money never billed, and the suppliers' profile must be exactly 100%.
      */
     buildForecast () {
       this.buildError = null
       // The refusal names WHICH block is wrong and repeats what the block itself says. The
       // button sits at the foot of a long screen and the two profiles are far up it, so
       // "these must add to 100%" left the advisor hunting for which "these".
-      if (this.debtorTotal !== 100) {
+      if (this.debtorTotal > 100) {
         this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
           block: this.$t('report.threeWayForecast.assume.debtorsHeading'), reason: this.debtorMessage
         })
@@ -4689,6 +4703,24 @@ export default {
       if (this.creditorTotal !== 100) {
         this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
           block: this.$t('report.threeWayForecast.assume.creditorsHeading'), reason: this.creditorMessage
+        })
+        return
+      }
+      // The two overseas profiles are used exactly as typed. Over 100%, "Then they pay" banks
+      // cash nobody was billed for; a supplier balance that is not 100% pays more or less than
+      // is owed. A shortfall on "Then they pay" builds: it is a bad debt (item 44.3). Found
+      // 2026-10-01; until then both only turned red.
+      if (this.form.overseas.enabled && this.overseasCollectionTotal > 100) {
+        this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
+          block: this.$t('report.threeWayForecast.assume.overseas.thenTheyPayHeading'),
+          reason: this.profileMessage(this.overseasCollectionTotal, 'debtor')
+        })
+        return
+      }
+      if (this.form.overseas.enabled && this.balanceTotal !== 100) {
+        this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
+          block: this.$t('report.threeWayForecast.assume.overseas.balanceHeading'),
+          reason: this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(this.balanceTotal) })
         })
         return
       }
@@ -4737,6 +4769,7 @@ export default {
 .tw-foot { font-size: 12px; color: var(--rs-muted); }
 .tw-foot.is-good { color: var(--rs-good); font-weight: 600; }
 .tw-foot.is-crit { color: var(--rs-crit); font-weight: 600; }
+.tw-foot.is-warn { color: #b36b00; font-weight: 600; }
 
 /* Step 1 — the drop zone. */
 .drop { border: 2px dashed #7fd3f1; border-radius: var(--rs-card-radius); background: var(--rs-panel-2); padding: 26px 20px; text-align: center; }
