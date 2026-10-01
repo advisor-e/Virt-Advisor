@@ -45,6 +45,7 @@ const COMPLIANCE = 'compliance-check' // item 4.83 slice 4 — all four tiers, l
 // table it produces and must be able to read what the machine was told.
 const SURVEY = 'country-schedule-survey'
 const PASS = 'country-schedule-pass'
+const TIDY = 'passage-tidy' // item 8.4 screen 4 — the mentor alone
 
 function makeMockRes () {
   return {
@@ -117,7 +118,7 @@ describe('what a tier is given when it opens the tab', () => {
     await routes.getForManager(makeReq({ firmId: '__platform__' }), res)
 
     expect(res._body.tier).toBe('mentor')
-    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(res._body.prompts.map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE, TIDY])
   })
 
   test('the two middle tiers resolve correctly, unexercised though they are today', async () => {

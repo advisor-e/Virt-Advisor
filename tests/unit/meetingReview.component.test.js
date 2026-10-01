@@ -127,6 +127,20 @@ describe('loading', () => {
     await flush()
     expect(wrapper.text()).toContain('could not reliably tell the two voices apart')
   })
+
+  it('🔴 names every stretch no report could read, above both reports — and says nothing for a whole meeting', async () => {
+    // Item 8.4, Decision E: a part that could not be turned into text must never be read across
+    // as if nothing were missing. A tester only sees this once a part has failed.
+    const gapped = mountScreen({ ...LOADED, missingRanges: [{ segment: 2, from: 1200, to: 2400 }, { segment: 4, from: 3600, to: 4032 }] })
+    await flush()
+    const ranges = JSON.stringify({ ranges: '20:00–40:00meetingReportsGap.listAnd60:00–67:12' })
+    expect(gapped.text()).toContain('meetingReportsGap.summary ' + ranges)
+    expect(gapped.text()).toContain('meetingReportsGap.coaching ' + ranges)
+
+    const whole = mountScreen(LOADED)
+    await flush()
+    expect(whole.text()).not.toContain('meetingReportsGap')
+  })
 })
 
 describe('🔴 the audio is gone, and the screen never pretends otherwise', () => {
@@ -318,8 +332,9 @@ describe('generating when there is nothing yet', () => {
 // the ONLY route to this screen, so a session rewording it casually would be changing the one
 // sentence that tells an advisor the notes are theirs.
 //
-// It is asserted against the recorder's source rather than by mounting it, because mounting
-// MeetingRecorder means standing up MediaRecorder and a wake-lock to check a noun.
+// It is asserted against the locale file and the recorder's source rather than by mounting
+// it, because mounting MeetingRecorder means standing up MediaRecorder and a wake-lock to
+// check a noun. The words moved into locales/en.json on 2026-10-01; the pin moved with them.
 describe('🔴 the approved label into this screen', () => {
   const fs = require('fs')
   const path = require('path')
@@ -327,7 +342,8 @@ describe('🔴 the approved label into this screen', () => {
   it('the recorder still says "Read my reports" — Mike\'s wording, 2026-09-07', () => {
     const source = fs.readFileSync(
       path.resolve(__dirname, '../../components/MeetingRecorder.vue'), 'utf8')
-    expect(source).toContain('Read my reports')
+    expect(require('../../locales/en.json').meetingRecorder.readReports).toBe('Read my reports')
+    expect(source).toContain("$t('meetingRecorder.readReports')")
   })
 })
 

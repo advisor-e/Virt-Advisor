@@ -928,6 +928,10 @@ server.get('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, m
 server.put('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.saveSegmentSummary)
 server.post('/api/meeting/recordings/:meetingId/segments/:n/summary', firmAuth, meetingSegmentsRoute.regenerateSegmentSummary)
 server.post('/api/meeting/recordings/:meetingId/segments/:n/summary/approve', firmAuth, meetingSegmentsRoute.approveSegmentSummary)
+// Screen 4 — each section's words under the box open when they were spoken, placed by the clock
+// (Decision 11); Keep adds below what is typed (Decision F). Advisor-scoped as the summary is.
+server.get('/api/meeting/recordings/:meetingId/words', firmAuth, meetingSegmentsRoute.getWords)
+server.post('/api/meeting/recordings/:meetingId/segments/:n/words/:passageId', firmAuth, meetingSegmentsRoute.decideWords)
 // Wordsmith (item 15.14): the five Alignment Statements written from that section's recorded
 // words, started and polled; "Use this wording" needs the client's agreement and writes the
 // record before the box. Advisor-scoped exactly as the summary routes above.

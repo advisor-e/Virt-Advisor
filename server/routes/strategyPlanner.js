@@ -1139,6 +1139,8 @@ async function getSuggestQuestions (req, res) {
 }
 
 module.exports = {
+  // Shared with Meeting Review's screen 4, which moves a recorded passage between boxes.
+  unknownBoxes,
   getSuggestQuestions,
   getFrameworks,
   getConcepts,

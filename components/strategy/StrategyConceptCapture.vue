@@ -151,6 +151,7 @@ section.scc2
                 @input-field="onInput"
                 @typing-field="onTyping"
               )
+                strategy-heard-passages(v-if="conceptId" :concept-id="conceptId" :field-key="field.key")
 
   template(v-else)
     .scc2-grid(
@@ -217,6 +218,8 @@ section.scc2
             @input="onInput(field, $event)"
             @input.native="onTyping(field, $event.target.value)"
           )
+          //- Screen 4 of the recorded session: what was said while this box was open.
+          strategy-heard-passages(v-if="conceptId" :concept-id="conceptId" :field-key="field.key")
 </template>
 
 <script>
@@ -247,6 +250,7 @@ import StrategyConceptGraphic from '~/components/strategy/StrategyConceptGraphic
 import ImportedConceptPage from '~/components/strategy/ImportedConceptPage.vue'
 import StrategyCaptureBox from '~/components/strategy/StrategyCaptureBox.vue'
 import StrategyOrgChartBuilder from '~/components/strategy/StrategyOrgChartBuilder.vue'
+import StrategyHeardPassages from '~/components/strategy/StrategyHeardPassages.vue'
 import SpeechStatusLine from '~/components/base/SpeechStatusLine.vue'
 import { hasConceptGraphic, conceptTitlesItself, conceptSheetCount } from '~/components/strategy/concepts'
 import { agendaSheetCount } from '~/utils/agendaLayout'
@@ -322,6 +326,7 @@ export default {
     ImportedConceptPage,
     StrategyCaptureBox,
     StrategyOrgChartBuilder,
+    StrategyHeardPassages,
     SpeechStatusLine,
     ReportShell: () => import('~/components/base/ReportShell.vue'),
     StrategyReportImport: () => import('~/components/strategy/StrategyReportImport.vue')

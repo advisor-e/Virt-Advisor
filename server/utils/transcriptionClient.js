@@ -68,7 +68,8 @@ const UPLOAD_FILENAME = 'recording.webm'
 /**
  * The label a known voice comes back under, when the advisor's clip is sent with a segment.
  *
- * 🔴 A STRATEGY SESSION IS RECORDED IN SEGMENTS (item 8.4, drawing approved 2026-09-28), and
+ * 🔴 A STRATEGY SESSION IS RECORDED IN SEGMENTS (item 8.4, drawing approved 2026-09-28), and so
+ * is any meeting past 20 minutes (the long-recording drawing, approved 2026-10-01, Decision C) —
  * only the FIRST segment opens with the consent line. `attributeSpeakers`' anchor — whoever
  * speaks first is the advisor — is therefore true of segment 1 and false of every other: a
  * client who speaks first in segment 4 would swap every label in it, confidently. OpenAI's
@@ -208,10 +209,10 @@ function parseDiarizedResponse (parsed) {
  * 🔴 THE ANCHOR IS THE CONSENT LINE, AND THAT IS THE WHOLE DESIGN. Brief §3: the advisor
  * speaks the consent wording, and speaks it FIRST, so whoever opens the recording is the
  * advisor. The legal foundation and the technical anchor are the same sentence. This is why
- * a single-file meeting keeps no voice sample — a sample held so software can recognise a
- * person is biometric data, special-category under UK and EU law, and here it is unnecessary.
- * A SEGMENTED strategy session is the one exception: its later segments have no consent line
- * to anchor on, so the advisor's clip travels with them (`knownAdvisor`, and
+ * a part that opens with the consent line needs no voice sample — a sample held so software can
+ * recognise a person is biometric data, special-category under UK and EU law. A SEGMENTED
+ * recording's later segments (a strategy session's sections, a long meeting's parts — Mike's
+ * ruling of 2026-10-01) have no consent line to anchor on, so the advisor's clip travels with them (`knownAdvisor`, and
  * `ADVISOR_SPEAKER_NAME` for why and for how long it lives).
  *
  * ⚠ AND IT IS WHY THE CONSENT LINE MUST NOT BE SHORTENED, MOVED, OR READ BY THE CLIENT.

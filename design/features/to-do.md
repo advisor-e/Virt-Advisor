@@ -37,15 +37,15 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- | --- |
 | 1 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 2 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
-| 3 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-25 |
-| 4 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 5 | **13.6** Translations mistake business words ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 6 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 7 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 8 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-30 |
-| 9 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 10 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
-| 11 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 3 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 4 | **13.6** Translations mistake business words ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 5 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 6 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 7 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-30 |
+| 8 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 9 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
+| 10 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 11 | **13.9** Meeting reports and set-up screens cannot be translated ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
 **Eleven live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->

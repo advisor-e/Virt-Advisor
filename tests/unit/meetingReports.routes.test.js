@@ -150,6 +150,22 @@ describe('who may read a report', () => {
     expect(res._status).toBe(200)
     expect(res._body.summary.covered).toBe('We met.')
     expect(res._body.coaching.findings).toHaveLength(2)
+    expect(res._body.missingRanges).toEqual([])
+  })
+
+  test('🔴 a meeting with a part that could not be turned into text says which minutes the reports could not read', () => {
+    // Decision E of the long-recording drawing (item 8.4): the reports must not read across a
+    // gap as if nothing were missing. A tester only sees this after a part has failed.
+    const meetingId = seedMeeting({ summary: A_SUMMARY })
+    store.writeTranscript(meetingId, {
+      segments: SEGMENTS,
+      text: '…',
+      attributionConfident: true,
+      missingRanges: [{ segment: 2, from: 1200, to: 2400 }]
+    })
+    const res = makeMockRes()
+    routes.getReports(makeReq({ params: { meetingId } }), res)
+    expect(res._body.missingRanges).toEqual([{ segment: 2, from: 1200, to: 2400 }])
   })
 })
 
@@ -169,6 +185,21 @@ describe('generating', () => {
     const res = makeMockRes()
     await routes.generateReports(makeReq({ params: { meetingId } }), res)
     expect(res._status).toBe(202)
+  })
+
+  test('🔴 a meeting recorded in 20-minute parts gets its summary written from the transcript, not composed from concepts it does not have', async () => {
+    // Found walking item 8.4 in a browser, 2026-10-01: the parts are segments, and the
+    // strategy session's Decision J composed an EMPTY summary from approved concept summaries
+    // that a meeting in parts never has. A tester sees it only after a 20-minute recording.
+    reports.generateSummary.mockResolvedValue(A_SUMMARY)
+    reports.generateCoachingNotes.mockResolvedValue(A_COACHING)
+    const { meetingId } = store.createMeeting({ firmId: FIRM, advisor: ADVISOR, scenarioId: 'eoy_meeting', retentionMonths: 18, segmented: true, inParts: true })
+    store.writeTranscript(meetingId, { segments: SEGMENTS, text: '…', attributionConfident: true })
+
+    await routes.runReports(meetingId, { points: [], scenarioName: 'End of year meeting' })
+
+    expect(reports.generateSummary).toHaveBeenCalled()
+    expect(store.readReport(meetingId, 'summary').covered).toBe('We met.')
   })
 
   test('🔴 keeps the summary when the coaching call fails, and says which one is missing', async () => {
