@@ -450,6 +450,17 @@ unknown**.
    the no-match sentence — recommending a template and denying having one, in the same reply.
    **A correction that empties a required block must say what to do with the empty block**, or
    the model finds its own way out.
+10. **The advisor profile is typed input.** It enters a prompt only through `fencedAdvisorProfile`
+   — fenced, and moderated on every call that sends it. A new path that formats it directly sends
+   it bare.
+
+### Measuring a change — the answer bench
+
+`scripts/answer-bench.js` asks the real chat the 51 Scenario Lab cases and scores each answer by
+code checks and an AI judge on the approved
+[`ANSWER-BENCH-CHECKLIST.md`](../ANSWER-BENCH-CHECKLIST.md). Measure a change with a before and an
+after run made back to back, read point by point; runs live in
+[`design/answer-bench-runs/`](../answer-bench-runs/README.md).
 
 ### Known gaps, honestly
 

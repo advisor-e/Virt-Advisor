@@ -353,7 +353,7 @@
         "detail": "2026-10-01 - the app-side digest from the review he asked for; he asked for every suggestion to be recorded as a task."
       },
       "touches": "server/utils/reportModels.js formatReportModelsForPrompt; server/advisorEngine.js context assembly (about 4060-4352, MODE_SECTIONS about 471); data/prompts/learn.txt fixed topic sections; templates.js list formatting; design/OPENAI-ZDR-CONSTRAINTS.md Z10.",
-      "note": "Measured 2026-10-01: first Discover turn about 24,000 tokens, worst case about 45,000; client about 25,000-34,000; Learn about 31,000-46,000. Each model's useWhen and answers already allow topic filtering. Prove it on the answer bench (7.19, built 2026-10-01): a before and an after run, back to back.",
+      "note": "Measured 2026-10-01: first Discover turn about 24,000 tokens, worst case about 45,000; client about 25,000-34,000; Learn about 31,000-46,000. Each model's useWhen and answers already allow topic filtering. Prove it on the answer bench (7.19, built 2026-10-01): a before and an after run, back to back. The client recommendation receives the advisor profile twice (the brief's note and the context block); removing one copy is part of this item, measured on the bench.",
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {

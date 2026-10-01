@@ -1,10 +1,10 @@
 # Answer Bench — the judge's checklist (item 7.19)
 
-**Status: points 1–5 and 7 ✅ APPROVED BY MIKE 2026-10-01 ("yes"), as committed in `fd417a13`.
-Point 6 REDRAFTED the same day at his request — ☐ awaiting his approval.** Its first wording
-judged every answer as if a business owner read it, but both the client chat and Discover answer
-the advisor. Until point 6 is approved, no bench run counts as a result. The judge uses these
-points word for word; a change to them is a fresh approval.
+**Status: ✅ ALL SEVEN APPROVED BY MIKE 2026-10-01 ("yes").** Points 1–5 and 7 as committed in
+`fd417a13`; point 6 redrafted at his request and approved as committed in `b19dbba6` — its first
+wording judged every answer as if a business owner read it, but both the client chat and Discover
+answer the advisor. The judge uses these points word for word; a change to them is a fresh
+approval.
 
 The answer bench asks the real advisory chat the 51 invented Scenario Lab cases and scores each
 written recommendation two ways (Mike's ruling, 2026-10-01):

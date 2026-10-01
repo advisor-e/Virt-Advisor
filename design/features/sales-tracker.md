@@ -696,6 +696,9 @@ nearly the house one is how a rule quietly drifts out of step with itself.**
 error each return a markdown skeleton built from the advisor's own brief, with
 `source: 'template'` and the reason. **Both generate routes answer 200 on a model failure** — a
 500 would throw away an outline the advisor can still edit. A missing field is still a 400.
+The draft model is called with `max_completion_tokens` and no temperature: it refuses both
+`max_tokens` and any non-default temperature, and the fallback hides a refusal, so the request is
+pinned by `salesBlogEngine.test.js`.
 
 ⚠ **`isPinned` on a post, and `kind`, fail safe.** An unrecognised `kind` stores as `draft`,
 never `final`: publishing something unfinished is the damaging direction.
