@@ -353,8 +353,8 @@
         "detail": "2026-10-01 - from the digest-and-addendum review he asked for; he asked for every suggestion to be recorded as a task."
       },
       "touches": "scripts/ (a new lab beside scenario-lab.js and discover-lab.js), the real prompt assembly in server/advisorEngine.js, data/prompts/*.txt, a question set and scoring rubric, and stored results per run.",
-      "note": "NEEDS: a question set with the elements a good answer must contain; a rubric (grounded, right template named, nothing invented, tone); a judge; results kept per run and tied to model and prompt version (7.23), never overwritten. Fold in discover-lab's own-prompt gap. Impact test at scoping.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+      "note": "MIKE RULED 2026-10-01: (1) questions = the 51 invented Scenario Lab cases, extendable with his wording; no real conversations. (2) scoring = code checks (names exist, within budget, crisis leads with survival, pick matches engine top, domain matches) AND an AI judge on a fixed checklist he approves. Proven drivable offline: about 13 scripted turns to Phase 3, under 1 dollar a run. Proves itself by scoring a damaged copy lower. Results kept per run, tied to model and prompt version (7.23).",
+      "comment": "2026-10-01 - filed on Mike's instruction; question set ruled the same day. Score and scoreReason are ours; he has not ranked it."
     },
     {
       "ref": "7.20",
@@ -428,7 +428,7 @@
       "scoreReason": "robustness",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Outside",
       "why": "Token counts and timings go only to the server console, some calls record none, and nothing ties an answer to the prompt version or model that wrote it. Cost per firm or feature is unknown.",
       "risk": "Nobody can say whether answers improved after a prompt change, what the AI costs, or which change caused a problem. The record must hold versions and counts, not client content, to stay inside the privacy rules.",
       "askedBy": {
@@ -437,8 +437,8 @@
         "detail": "2026-10-01 - from the review he asked for; he asked for every suggestion to be recorded as a task."
       },
       "touches": "logAI in server/advisorEngine.js (about 839-845) and the same pattern in courseEngine.js, conceptSummary.js, wordsmith.js; config/db-schema.sql for a store; promptLoader.js for a prompt version; the intake, course and strategy calls that record no usage.",
-      "note": "Calls recording nothing today: intake (advisorEngine.js about 2856), course design and session, strategy planner pre-tick, primary-issue proposer, transcription. Rate limits are per IP in memory; behind the master app's proxy all users may share one IP unless TRUST_PROXY is set.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+      "note": "IMPACT TEST RUN 2026-10-01: the compliance check and every sales blog failed on 100% of calls, visible only in console lines nobody kept. Most of the data is already in those lines. ASKING FIRST: does the master team keep the backend console log in UAT and production, and for how long? If yes, a log-reading report may do; if no, a table of our own, which ships as a database change. Calls recording nothing today: intake, course design and session, strategy pre-tick, primary-issue proposer, transcription.",
+      "comment": "2026-10-01 - MIKE'S CALL: ask the master team about their logs before designing a table; question drafted for him to send. Score and scoreReason are ours; he has not ranked it."
     },
     {
       "ref": "7.24",
@@ -607,6 +607,27 @@
       "touches": "design/RELEASE-NOTES-v*.md; design/WORKING-AGREEMENT.md Integration steps.",
       "note": "Could be drawn from the closed items in each release rather than written by hand.",
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.27",
+      "name": "Every advisor may share one usage limit, because the backend sees only the Nuxt server's address",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The advisor chat allows 30 requests a minute and courses 15, counted per address. Every request reaches the backend through the Nuxt server, so unless TRUST_PROXY is on, all users share one count.",
+      "risk": "In production a busy firm would see \"Rate limit exceeded\" once the whole deployment passes 30 advisor messages in a minute. UAT, with a few testers, would never show it. Whether TRUST_PROXY is set in UAT or production is the master team's to say.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found checking a sentence moved out of 7.23; filed on Mike's yes. A defect we found."
+      },
+      "touches": "server/utils/rateLimit.js clientIp; its callers in server/advisorEngine.js (30), server/courseEngine.js (15), server/routes/mentor.js, outcomeLearning.js, promptCheck.js; server-middleware/advisor.js and course.js, which forward from the Nuxt server; firmAuth, which already knows the signed-in advisor.",
+      "note": "Likely fix: count per signed-in advisor rather than per address. Needs a small design first. Not proven in a deployed environment.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }
