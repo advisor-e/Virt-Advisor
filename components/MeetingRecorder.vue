@@ -642,6 +642,17 @@ export default {
   color: #6b7785;
   flex: 1 1 auto;
 }
+/* The parts row (item 8.4): a little air below the bar and between the parts, as drawn. */
+.mrec-parts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+.mrec-why {
+  flex-basis: 100%;
+}
 .mrec-pt {
   display: flex;
   align-items: flex-start;

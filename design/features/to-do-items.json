@@ -135,8 +135,8 @@
         "detail": "2026-09-24 - found while proving item O5 of the OpenAI working page. Mike said yes to filing it, and added the section-by-section option in the note."
       },
       "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; the Strategy Planner's Run session (pages/strategy-planner.vue, StrategyConceptCapture.vue, StrategyCaptureCard.vue) and its navigation timeline (strategySessionStore.js); item 8.3, since both need the same design work.",
-      "note": "PROCEED - MIKE'S CALL 2026-10-01. STRATEGY SESSIONS ARE FIXED: every screen of design/mockups/strategy-session-recording.html is built, screen 4 on 2026-10-01 (aa7ebbbe, 4f902646), and a section splits at 20 minutes (Mike's yes 2026-10-01; 25 was over the model's limit). Walked on a computer-voiced recording with real OpenAI calls; never yet with a real person, nor two voices. Rulings and differences: strategy-planner.md §9b. ORDINARY MEETINGS BUILT 2026-10-01 from design/mockups/meeting-review-long-recording.html (approved, 4ed01801): 20-minute parts, joined, a failed part named on the done panel and above both reports. Measured: the refused 40-minute meeting came back with 126 of 126 points and 252 of 252 lines labelled right. Not yet walked in a browser. The 2026-09-28 note named 15.2's screen 2 as next.",
-      "comment": "2026-10-01 - Mike's call: PROCEED, build it now - after approving the long-recording drawing the same day. Filed 2026-09-24 on his yes, with his option recorded; designed together with 8.3.",
+      "note": "PROCEED - MIKE'S CALL 2026-10-01. STRATEGY SESSIONS FIXED: every screen of strategy-session-recording.html built, sections split at 20 minutes (25 was over the model's limit); rulings in strategy-planner.md §9b. ORDINARY MEETINGS BUILT from meeting-review-long-recording.html (approved, 4ed01801): 20-minute parts, joined, a failed part named on the done panel and above both reports. WALKED 2026-10-01 in a built app, 41 minutes, a recorded two-voice meeting as the microphone: three parts, 129 of 129 points, 257 of 257 lines labelled right, no audio left; the walk found an empty Meeting Summary for a meeting in parts, fixed. Never yet run with real people. The 2026-09-28 note named 15.2's screen 2 as next.",
+      "comment": "2026-10-01 - Mike's call after the build: PROCEED, browser walk now. Filed 2026-09-24 on his yes, with his option recorded; designed together with 8.3.",
       "activeOn": {
         "machine": "laptop",
         "since": "2026-09-25"
@@ -376,6 +376,27 @@
       "touches": "pages/strategy-planner.vue - the clientId watcher, which resets only modelPrints and the guided answers; sessionId, chosen and suggested are never cleared on a client change.",
       "note": "PROVED: 2 concepts ticked for Harbour Joinery stayed ticked after switching to Kinetic Planning. NOT PROVED: that an open session is written to under the new client - trace a save end to end first. Needs Mike's call on whether ticks should ever carry over, e.g. correcting a wrongly picked client.",
       "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "13.9",
+      "name": "Meeting reports and set-up screens cannot be translated",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The meeting reports screen and the meeting set-up screen type their English straight into the code, so an advisor reading in another language sees them in English.",
+      "risk": "Every other Meeting Review screen now translates - the recorder moved on 2026-10-01 - so these two stand out in another language. The reports screen's own comment still defends the typed English by saying the recorder does the same, which is no longer true.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found building item 8.4's gap notice; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, locales/en.json, and the report tests that read English text.",
+      "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

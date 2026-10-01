@@ -779,8 +779,9 @@ async function runReports (meetingId, ctx) {
     const meta = store.readMeta(meetingId)
     // 🔴 DECISION J (item 8.4, Mike 2026-09-28): a strategy session's Meeting Summary is built
     // ONLY from the concept summaries the client approved — no model call, and no word the
-    // client never saw. A single-file meeting keeps its generated summary, unchanged.
-    const summary = (meta && meta.segmented)
+    // client never saw. A single-file meeting keeps its generated summary, unchanged — and so
+    // does a meeting recorded in 20-minute parts, which has no concepts to compose from.
+    const summary = (meta && meta.segmented && !meta.inParts)
       ? require('../utils/conceptSummary').composeMeetingSummary(
         meta.segments, n => store.readSegmentSummary(meetingId, n))
       : await generateSummary({

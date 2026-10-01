@@ -187,6 +187,21 @@ describe('generating', () => {
     expect(res._status).toBe(202)
   })
 
+  test('🔴 a meeting recorded in 20-minute parts gets its summary written from the transcript, not composed from concepts it does not have', async () => {
+    // Found walking item 8.4 in a browser, 2026-10-01: the parts are segments, and the
+    // strategy session's Decision J composed an EMPTY summary from approved concept summaries
+    // that a meeting in parts never has. A tester sees it only after a 20-minute recording.
+    reports.generateSummary.mockResolvedValue(A_SUMMARY)
+    reports.generateCoachingNotes.mockResolvedValue(A_COACHING)
+    const { meetingId } = store.createMeeting({ firmId: FIRM, advisor: ADVISOR, scenarioId: 'eoy_meeting', retentionMonths: 18, segmented: true, inParts: true })
+    store.writeTranscript(meetingId, { segments: SEGMENTS, text: '…', attributionConfident: true })
+
+    await routes.runReports(meetingId, { points: [], scenarioName: 'End of year meeting' })
+
+    expect(reports.generateSummary).toHaveBeenCalled()
+    expect(store.readReport(meetingId, 'summary').covered).toBe('We met.')
+  })
+
   test('🔴 keeps the summary when the coaching call fails, and says which one is missing', async () => {
     // P11: a failure is stated. Discarding a good report because the other call failed would
     // cost the advisor their client summary for no reason.
