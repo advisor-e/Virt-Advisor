@@ -346,10 +346,12 @@ Transcribing piece by piece is not built; it belongs to item 8.4's design. **The
 throttle or suspend a backgrounded tab, and a screen lock mid-meeting is not a rare event. Hold a
 wake-lock, and treat "recording stopped unexpectedly" as an alarm, never a silent state.
 
-**Splitting at capture buys crash-safety (P10), not the size limit.** OpenAI refuses a file over
-25 MB, and browser audio runs at about 0.9 MB a minute (measured 2026-09-24), yet the final pass
-sends the whole recording as one file — so a meeting past about 27 minutes will be refused, and its
-audio is destroyed either way. Item 8.4.
+**Splitting at capture buys crash-safety (P10), not the length limit.** The diarizing model
+refuses more than **1400 seconds** of audio (23 min 20 s) whatever the file's size — proven
+2026-10-01 by sending it 40 minutes at 72.8 MB and at 18.2 MB, both refused on duration — and the
+final pass sends the whole recording as one file. So a meeting past 23 minutes 20 seconds is
+refused, and its audio is destroyed either way. OpenAI's 25 MB file limit would bite later, at about
+27 minutes. Item 8.4.
 
 **Where the observation points are edited, and at which tiers.** They are content that shapes AI
 output, so the hub-page rule in `CLAUDE.md` applies: **the mentor tier gets the screen, and gets it

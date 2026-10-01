@@ -1718,7 +1718,8 @@ recorded **one concept at a time**:
   Meeting Review's own panel (record → speak → confirm). "Take a break" closes the live section;
   "End recording" finishes; "Stop and delete everything" destroys every section. A tab the system
   suspends raises Meeting Review's own red alarm, with "Resume recording".
-- **Size and silence.** A section rolls over to "part 2" at 25 minutes or 20 MB. After **3 minutes
+- **Size and silence.** A section rolls over to "part 2" at 20 minutes or 20 MB, inside both of
+  OpenAI's limits: 25 MB, and 1400 seconds of audio for the diarizing model. After **3 minutes
   quieter than a quarter of the advisor's own level** (measured on the consent line, in the
   browser, nothing sent) the recording pauses, in amber, and carries on at the first sound; the
   paused minutes are added back to later words' times. The countdown keeps counting.
@@ -1817,9 +1818,11 @@ refusal to transcribe without it (`finishRecording`) still holds for each segmen
 line is also where the advisor's 8-second voice clip is taken.
 
 **A long segment splits itself (Decision E).** Mike's yes to: a concept segment closes by itself
-and carries on as "part 2" of the same card at **25 minutes or 20 MB, whichever comes first**.
-Size, because OpenAI's limit is 25 MB, and the 0.9 MB-a-minute rate was measured once, in one
-browser. The server already counts each recording's bytes as the pieces arrive (`meta.bytes`).
+and carries on as "part 2" of the same card at **20 minutes or 20 MB, whichever comes first**.
+Time, because the diarizing model refuses more than **1400 seconds** of audio — found 2026-10-01 by
+sending it 40 minutes, and stated in neither saved OpenAI guide — so on his yes that day the 25
+minutes he first ruled became 20. Size, because OpenAI's file limit is 25 MB, and the 0.9
+MB-a-minute rate was measured once, in one browser. The server already counts each recording's bytes as the pieces arrive (`meta.bytes`).
 He added, the same day: *"perhaps a small count-down time in the corner of the screen will help
 people stay focused??"* The planner then held no planned time per concept, and he answered what it
 counts from: *"the build section should have a time allowance next to each content in the agenda.

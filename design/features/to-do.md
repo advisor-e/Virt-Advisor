@@ -37,7 +37,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | --- | --- | --- | --- | --- | --- |
 | 1 | **15.18** The advisor never sees the worked answer Mike wrote on a ruled table ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 2 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
-| 3 | **8.4** Meetings longer than about 27 minutes are too big for OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-25 |
+| 3 | **8.4** Meetings longer than 23 minutes are refused by OpenAI and lose their audio ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-25 |
 | 4 | **15.22** Seven Strategy Planner topics still need Mike's ruling before they can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 5 | **13.6** Translations mistake business words ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 6 | **46.1** Stats NZ benchmarks have this year's provisional years typed in, so the next release mislabels them ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |

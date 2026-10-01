@@ -89,11 +89,12 @@ const MAX_MEETING_BYTES = 400 * 1024 * 1024
 
 // ── A strategy session, recorded in concept segments (item 8.4) ─────────────────────
 //
-// 🔴 WHY SEGMENTS. OpenAI refuses a file over 25 MB, about 27 minutes of browser audio, and
-// this store otherwise sends a meeting as ONE file. A planning session runs for hours. Mike's
-// rulings of 2026-09-28 (design/mockups/strategy-session-recording.html, approved for build):
-// one segment per concept, one consent per session, and a segment closes by itself at 25
-// minutes or 20 MB. The browser rolls over at SEGMENT_ROLL_BYTES; SEGMENT_MAX_BYTES is the
+// 🔴 WHY SEGMENTS. The diarizing model refuses more than 1400 seconds of audio (proven
+// 2026-10-01) and OpenAI any file over 25 MB, and this store otherwise sends a meeting as ONE
+// file. A planning session runs for hours. Mike's rulings of 2026-09-28
+// (design/mockups/strategy-session-recording.html, approved for build): one segment per
+// concept, one consent per session, and a segment closes by itself at 20 minutes (his yes of
+// 2026-10-01; first ruled 25, over the model's limit) or 20 MB. The browser rolls over at SEGMENT_ROLL_BYTES; SEGMENT_MAX_BYTES is the
 // server's own guard below OpenAI's limit, for a browser that did not.
 //
 // ⚠ Every segment file name starts with SEGMENT_PREFIX, so the deletions below can find them

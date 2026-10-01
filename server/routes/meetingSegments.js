@@ -7,8 +7,9 @@
  * Drawing `design/mockups/strategy-session-recording.html`, APPROVED FOR BUILD by Mike on
  * 2026-09-28 (as committed in 976533c2). Rulings in `design/features/strategy-planner.md` §9b:
  * one segment per concept, framing and agenda first (A); a segment starts only on the
- * advisor's press (B); one consent per session (C); a segment closes itself at 25 minutes or
- * 20 MB (E); breaks close the recording.
+ * advisor's press (B); one consent per session (C); a segment closes itself at 20 minutes or
+ * 20 MB (E) — under both of OpenAI's limits, 25 MB and 1400 seconds of audio; breaks close the
+ * recording.
  *
  * 🔴 EVERY PROMISE MEETING REVIEW MAKES STILL HOLDS, PER SEGMENT:
  *   - **Consent first.** Nothing is transcribed until consent is confirmed. Segment 1 records

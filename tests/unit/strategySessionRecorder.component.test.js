@@ -10,8 +10,8 @@
  * and what these pin:
  *   - NOTHING RECORDS BEFORE THE ADVISOR PRESSES START, and consent is asked once, with the
  *     recording already running so the words land inside it (record → speak → confirm);
- *   - a session is opened as a SEGMENTED "Strategy Session" — a single-file recording would
- *     silently fail past 27 minutes;
+ *   - a session is opened as a SEGMENTED "Strategy Session" — a single-file recording fails
+ *     past 1400 seconds of audio, the diarizing model's limit;
  *   - pressing the next card CLOSES the live segment before opening the next, never two at once;
  *   - a long segment rolls over as the SAME concept's next part, so its summary and countdown
  *     follow it;
@@ -157,6 +157,20 @@ test('a roll-over carries the SAME concept on as its next part, and its countdow
   expect(opens[1].body.label).toMatch(/strategyPlanner\.recording\.part/)
   expect(w.vm.live.part).toBe(2)
   expect(w.vm.live.startedAt).toBe(startedAt)
+})
+
+// OpenAI refuses more than 1400 seconds of audio from the diarizing model (sent 40 minutes,
+// 2026-10-01), and a section past it is lost with its audio. UAT never records that long.
+test('a section rolls over at 20 minutes of recorded audio, inside the model\'s 1400-second limit', async () => {
+  const w = mount()
+  await startSession(w)
+  const spy = jest.spyOn(w.vm, 'rollOver').mockImplementation(() => Promise.resolve())
+  w.vm.recordedSeconds = () => 20 * 60 - 1
+  jest.advanceTimersByTime(1000)
+  expect(spy).not.toHaveBeenCalled()
+  w.vm.recordedSeconds = () => 20 * 60
+  jest.advanceTimersByTime(1000)
+  expect(spy).toHaveBeenCalled()
 })
 
 test('a chunk the server says has passed the roll-over size rolls the segment over', async () => {

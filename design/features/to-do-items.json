@@ -119,7 +119,7 @@
     },
     {
       "ref": "8.4",
-      "name": "Meetings longer than about 27 minutes are too big for OpenAI and lose their audio",
+      "name": "Meetings longer than 23 minutes are refused by OpenAI and lose their audio",
       "rankedByMike": false,
       "kind": "defect",
       "score": 4,
@@ -127,16 +127,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "The end-of-meeting pass sends the whole recording to OpenAI as one file, OpenAI refuses files over 25 MB, and the browser records about 0.9 MB a minute, so a normal client meeting will not transcribe.",
-      "risk": "The audio is deleted whether or not transcription worked, so an advisor who records an hour-long meeting ends with no transcript and no recording to retry. Near-certain rather than proven: the 25 MB cap is OpenAI's stated limit and the rate was measured on 2026-09-24, but no 30-minute recording has been sent.",
+      "why": "Meeting Review's own recorder sends the whole meeting to OpenAI as one file, and the diarizing model refuses more than 1400 seconds of audio (23 min 20 s) whatever the file's size, so a normal client meeting will not transcribe.",
+      "risk": "The audio is deleted whether or not transcription worked, so an advisor who records an hour-long meeting ends with no transcript and no recording to retry. PROVEN 2026-10-01: a 40-minute two-voice recording sent through the same call runTranscription makes was refused at 72.8 MB and at 18.2 MB alike - 'audio duration 2387 seconds is longer than 1400 seconds which is the maximum for this model'. Neither saved OpenAI guide states that limit.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-09-24 - found while proving item O5 of the OpenAI working page. Mike said yes to filing it, and added the section-by-section option in the note."
       },
       "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; the Strategy Planner's Run session (pages/strategy-planner.vue, StrategyConceptCapture.vue, StrategyCaptureCard.vue) and its navigation timeline (strategySessionStore.js); item 8.3, since both need the same design work.",
-      "note": "PROCEED - MIKE'S CALL 2026-10-01. EVERY SCREEN OF design/mockups/strategy-session-recording.html IS BUILT: 1-3 and 5-11 on 2026-09-28 (one concept per recorded section, so no file reaches OpenAI's limit), screen 4 on 2026-10-01 (aa7ebbbe, 4f902646) - each section's words under the box open when said, with suggested wording, kept below what is typed. Walked 2026-10-01 on a computer-voiced recording with real OpenAI calls: 3 of 3 under the right box, 1 of 1 to the tray, typed text untouched. Rulings and differences: strategy-planner.md §9b. NEVER YET RUN with a real person speaking, nor two voices. The 2026-09-28 note named 15.2's screen 2 as next.",
-      "comment": "2026-10-01 - Mike's call: PROCEED, after screen 4 was built and walked. Filed 2026-09-24 on his yes, with his option recorded; designed together with 8.3.",
+      "note": "PROCEED - MIKE'S CALL 2026-10-01. STRATEGY SESSIONS ARE FIXED: every screen of design/mockups/strategy-session-recording.html is built, screen 4 on 2026-10-01 (aa7ebbbe, 4f902646), and a section splits at 20 minutes (Mike's yes 2026-10-01; 25 was over the model's limit). Walked on a computer-voiced recording with real OpenAI calls; never yet with a real person, nor two voices. Rulings and differences: strategy-planner.md §9b. WHAT REMAINS: Meeting Review's own recorder, outside the planner, still sends one file and fails past 23 min 20 s - that drawing says it needs its own drawing, having no cards to hang sections on. The 2026-09-28 note named 15.2's screen 2 as next.",
+      "comment": "2026-10-01 - Mike's call: PROCEED, after the 20-minute split; next step a drawing of how Meeting Review's own recorder splits a meeting longer than 20 minutes. Filed 2026-09-24 on his yes, with his option recorded; designed together with 8.3.",
       "activeOn": {
         "machine": "laptop",
         "since": "2026-09-25"

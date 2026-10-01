@@ -91,8 +91,10 @@
  * second recorder on the same microphone — the locked Node 14.15 runs no audio tools, so the
  * server cannot cut it. It is the ADVISOR's voice: the consent line is read by the advisor.
  *
- * ⚠ A SEGMENT ROLLS OVER TO "part 2" by itself at 25 minutes or when the server says it has
- * passed 20 MB (Decision E), so no file reaches OpenAI's 25 MB limit.
+ * ⚠ A SEGMENT ROLLS OVER TO "part 2" by itself at 20 minutes or when the server says it has
+ * passed 20 MB (Decision E), so no file reaches either of OpenAI's limits: 25 MB, and 1400
+ * seconds of audio for the diarizing model — the second found by sending it 40 minutes on
+ * 2026-10-01, and stated in neither saved OpenAI guide.
  *
  * ⚠ SSR: every browser API — `navigator.mediaDevices`, `MediaRecorder`, `navigator.wakeLock` —
  * is touched only from a click or `mounted()`.
@@ -104,8 +106,11 @@ import MeetingConsentPanel from '~/components/MeetingConsentPanel.vue'
 /** How often captured audio leaves the browser — Meeting Review's own figure. */
 const CHUNK_MS = 15000
 
-/** Decision E: a segment closes itself here, and carries on as "part 2". */
-const ROLL_SECONDS = 25 * 60
+/**
+ * Decision E: a segment closes itself here, and carries on as "part 2". 20 minutes, Mike's
+ * ruling of 2026-10-01: the 25 he first ruled is over the model's 1400-second limit.
+ */
+const ROLL_SECONDS = 20 * 60
 
 /** The advisor's voice clip: 2–10 seconds is OpenAI's documented range. */
 const CLIP_MS = 8000
