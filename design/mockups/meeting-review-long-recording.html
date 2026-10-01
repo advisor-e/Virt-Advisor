@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Long Meeting Recordings</title>
+<!--
+================================================================================
+  RECORDING A LONG MEETING IN PARTS: Meeting Review's own recorder, item 8.4.
+  Drawn 2026-10-01 on Mike's yes to draw it. NOT APPROVED, NOT BUILT.
+
+  It is the artefact the build will be measured against, per CLAUDE.md's
+  Save-the-Artefact rule: open it beside the build and name every difference
+  before shipping.
+
+  WHY IT EXISTS. design/mockups/strategy-session-recording.html, approved
+  2026-09-28, says under "What this drawing does not solve": "Meeting Review's own
+  recorder, used outside the planner, still records one file ... its screen has no
+  cards to hang sections on, so it needs its own drawing."
+
+  WHAT IS REUSED, NOT REDRAWN. Everything the strategy session already built:
+  segments in meetingAudioStore.js, per-segment transcription and the join in
+  server/routes/meetingSegments.js and server/utils/meetingSegments.js
+  (joinTranscripts), and the advisor's 8-second voice clip cut from the consent
+  line (StrategySessionRecorder.vue, transcriptionClient.js known_speaker_references).
+  The screen is components/MeetingRecorder.vue as built.
+
+  WORDS ALREADY ON THE BUILT SCREEN ARE COPIED FROM MeetingRecorder.vue and are not
+  reworded. EVERY NEW WORD ON THIS PAGE IS OURS, and is listed in the wording table
+  for Mike to rule on.
+================================================================================
+-->
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+    --good: #2e7d32; --crit: #c0392b; --warn: #b36b00; --rec: #d32f2f;
+    --goodwash: #edf7ee; --critwash: #fdeeee; --recwash: #fff1f1; --warnwash: #fff6e5;
+    --shadow: 0 1px 2px #002b6412, 0 8px 24px -12px #002b6426;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+      --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+      --good: #7fcf85; --crit: #ff8a80; --warn: #ffb74d; --rec: #ff6b6b;
+      --goodwash: #16301c; --critwash: #3a1c1c; --recwash: #3a1a1f; --warnwash: #3a2c12;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #cfe3ff; --body: #c5d3e3; --line: #2c3e55; --wash: #16263a;
+    --accent: #4aa8ff; --eg: #8ea3bd; --bg: #0d1726;
+    --good: #7fcf85; --crit: #ff8a80; --warn: #ffb74d; --rec: #ff6b6b;
+    --goodwash: #16301c; --critwash: #3a1c1c; --recwash: #3a1a1f; --warnwash: #3a2c12;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+    color: var(--body); background: var(--bg); margin: 0;
+    padding-block: 32px 80px; padding-inline: 16px; line-height: 1.55;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: clamp(24px, 4vw, 30px); margin: 0 0 6px; text-wrap: balance; }
+  h2 { color: var(--ink); font-size: clamp(18px, 3vw, 21px); margin: 40px 0 4px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 78ch; }
+  .lede b { color: var(--ink); }
+  .cap { color: var(--eg); font-size: 12.5px; margin: 8px 0 0; max-width: 82ch; }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 18px 0 0; }
+  .note.risk { border-left-color: var(--crit); background: var(--critwash); }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 20px; }
+  .note li { margin: 0 0 5px; }
+  code { font-size: 12.5px; }
+  .tablewrap { overflow-x: auto; }
+  table.m { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+  table.m th, table.m td { text-align: left; padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.m th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--eg); font-weight: 700; }
+  .dec { display: inline-block; font-size: 10.5px; font-weight: 700; color: var(--accent); border: 1px dashed var(--accent); border-radius: 4px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+  .new { background: #fff3b0; color: #3d3400; border-radius: 3px; padding: 0 3px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .new { background: #4a4210; color: #fff3b0; } }
+
+  /* the screen, drawn as MeetingRecorder.vue renders it */
+  .screen { border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); background: var(--bg); overflow: hidden; margin: 14px 0 0; }
+  .box { margin: 16px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 8px; }
+  .bar { display: flex; align-items: center; gap: 11px; padding: 9px 13px; border-radius: 4px; background: var(--recwash); flex-wrap: wrap; }
+  .blip { width: 10px; height: 10px; border-radius: 50%; background: var(--rec); }
+  .clock { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--rec); }
+  .say { font-size: 12.5px; color: var(--eg); flex: 1 1 auto; }
+  .btn { display: inline-block; background: var(--accent); color: #fff; border-radius: 5px; padding: 5px 12px; font-weight: 600; font-size: 13.5px; white-space: nowrap; }
+  .btn.danger { background: var(--crit); }
+  .btn.small { padding: 3px 9px; font-size: 12.5px; }
+  .parts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 10px 0 0; }
+  .parts .why { font-size: 12px; color: var(--eg); flex-basis: 100%; margin: 2px 0 0; }
+  .part { font-size: 12px; border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; font-variant-numeric: tabular-nums; }
+  .part.done { border-color: var(--good); color: var(--good); background: var(--goodwash); }
+  .part.now { border-color: var(--rec); color: var(--rec); background: var(--recwash); font-weight: 700; }
+  .part.work { border-color: var(--warn); color: var(--warn); }
+  .part.fail { border-color: var(--crit); color: var(--crit); background: var(--critwash); font-weight: 700; }
+  h4 { color: var(--ink); font-size: 14px; margin: 16px 0 6px; }
+  .pt { display: flex; gap: 9px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .pt:last-child { border-bottom: 0; }
+  .tick { flex: 0 0 auto; width: 14px; height: 14px; margin-top: 3px; border: 1.5px solid var(--line); border-radius: 3px; }
+  .msg { border-radius: 6px; padding: 10px 13px; margin: 12px 0 0; font-size: 13.5px; }
+  .msg b { display: block; }
+  .msg small { display: block; font-size: 12.5px; margin: 3px 0 0; }
+  .msg.crit { background: var(--critwash); border-left: 4px solid var(--crit); }
+  .msg.crit b { color: var(--crit); }
+  .msg.warn { background: var(--warnwash); border-left: 4px solid var(--warn); }
+  .msg.warn b { color: var(--warn); }
+  .progress { height: 8px; border-radius: 99px; background: var(--wash); overflow: hidden; margin: 10px 0 0; }
+  .progress i { display: block; width: 45%; height: 100%; background: var(--accent); }
+  .strong { font-weight: 700; color: var(--ink); }
+  .muted { color: var(--eg); font-size: 12.5px; }
+
+  .flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 10px; margin: 14px 0 0; counter-reset: s; }
+  .flow div { border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; font-size: 13px; background: var(--bg); }
+  .flow div::before { counter-increment: s; content: counter(s); display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; margin: 0 0 6px; }
+  .flow b { color: var(--ink); display: block; }
+
+  .decision { border: 1px solid #9fd0f5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 15px; margin: 12px 0; background: var(--bg); }
+  .decision h3 { margin: 0 0 6px; font-size: 14px; color: var(--ink); }
+  .decision p { margin: 0 0 6px; }
+  .rec { font-weight: 600; color: var(--ink); }
+  .against { color: var(--eg); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">Meeting Review · the recorder · item 8.4 · drawn 2026-10-01 on Mike's yes to draw it · <b>NOT APPROVED, NOT BUILT</b></p>
+  <h1>Recording a long meeting in parts</h1>
+  <p class="lede">An ordinary recorded meeting is cut into <b>20-minute parts</b> by itself. The advisor doesn't
+    have to do anything. Each part is turned into text <b>as soon as it closes</b>, and its audio is deleted
+    straight after. At the end the parts join into <b>one transcript</b>, so My Coaching Notes and the Meeting
+    Summary work exactly as they do now. Words with a <span class="new">yellow background</span> are new on this
+    screen. Everything else is the recorder as it is built today.</p>
+
+  <div class="note">
+    <h3>The impact test, stated before the design</h3>
+    <ul>
+      <li><b>The problem.</b> Any recorded client meeting longer than <b>23 minutes 20 seconds</b> gets no
+        transcript, and its audio is deleted anyway. OpenAI's speaker-labelling model refuses more than 1400
+        seconds of audio. That was <b>proven on 1 Oct</b>: a 40-minute recording was refused at 72.8 MB and
+        again at 18.2 MB, so the limit is the length, not the file size. Most client meetings run longer than
+        that.</li>
+      <li><b>How we'll know.</b>
+        <ul>
+          <li>The same 40-minute, two-voice test recording that was refused on 1 Oct comes back as one transcript.
+            All 126 numbered points are present, in order, with no gap at 20:00 or 40:00.</li>
+          <li>The advisor is labelled as the advisor in <b>every</b> part, not only the first. Checked by reading
+            each part of that test.</li>
+          <li>Words lost where one part ends and the next begins are counted at each boundary, not assumed to be
+            none.</li>
+          <li>Later, one real client meeting of an hour or more, checked the same way.</li>
+        </ul></li>
+      <li><b>What already does this job.</b> The strategy-session recorder already records in parts, labels the
+        advisor in every part, and joins the parts into one transcript. This drawing <b>reuses that machinery</b>.
+        It isn't enough on its own because it hangs each part on a concept card, and an ordinary meeting has no
+        cards.</li>
+    </ul>
+  </div>
+
+  <h2>How it works</h2>
+  <div class="flow">
+    <div><b>Consent, as today</b>The advisor reads the consent line. Its first 8 seconds are kept as the advisor's
+      voice clip. <span class="dec">Decision C</span></div>
+    <div><b>Part 1 records</b>Nothing on screen changes until 20:00.</div>
+    <div><b>At 20:00, part 2 starts</b>Recording carries on with no gap. Part 1 is sent to be turned into text, and
+      its audio is deleted. <span class="dec">A</span> <span class="dec">B</span></div>
+    <div><b>"Finish meeting"</b>Only the last part is still waiting to be turned into text, so the wait at the end
+      is a few minutes at most.</div>
+    <div><b>One transcript</b>The parts join in order, each part's times shifted by when it started. The reports
+      read it as they do today. <span class="dec">E</span></div>
+  </div>
+
+  <!-- ─────────────────────────── SCREEN 1 ─────────────────────────── -->
+  <h2>Screen 1 · Recording, 47 minutes in</h2>
+  <div class="screen">
+    <div class="box">
+      <div class="bar">
+        <span class="blip"></span>
+        <span class="clock">47:12</span>
+        <span class="say">Saved to this point. Your screen will not sleep while recording.</span>
+        <span class="btn danger small">Stop and delete</span>
+      </div>
+      <div class="parts">
+        <span class="part done"><span class="new">Part 1 · 00:00–20:00 · text ready</span></span>
+        <span class="part done"><span class="new">Part 2 · 20:00–40:00 · text ready</span></span>
+        <span class="part now"><span class="new">Part 3 · recording</span></span>
+        <span class="why"><span class="new">A long meeting is recorded in 20-minute parts, so each one is short enough to turn into text.</span></span>
+      </div>
+      <h4>Your observation points</h4>
+      <div class="pt"><span class="tick"></span>Did I agree the next action and who owns it?</div>
+      <div class="pt"><span class="tick"></span>Did the client say what success looks like in their own words?</div>
+      <div style="margin-top:14px"><span class="btn">Finish meeting</span></div>
+    </div>
+  </div>
+  <p class="cap">The parts row appears at 20:00, when there's a second part. A meeting under 20 minutes looks exactly
+    as it does today. <span class="dec">Decision D</span></p>
+
+  <!-- ─────────────────────────── SCREEN 2 ─────────────────────────── -->
+  <h2>Screen 2 · A part couldn't be turned into text, while the meeting is still going</h2>
+  <div class="screen">
+    <div class="box">
+      <div class="bar">
+        <span class="blip"></span>
+        <span class="clock">24:05</span>
+        <span class="say">Saved to this point. Your screen will not sleep while recording.</span>
+        <span class="btn danger small">Stop and delete</span>
+      </div>
+      <div class="parts">
+        <span class="part fail"><span class="new">Part 1 · 00:00–20:00 · not turned into text</span></span>
+        <span class="part now"><span class="new">Part 2 · recording</span></span>
+      </div>
+      <div class="msg warn">
+        <b><span class="new">Part 1 (00:00–20:00) could not be turned into text.</span></b>
+        <small><span class="new">Its audio has been deleted, as your client was promised. Recording carries on, and the rest of the meeting will still be transcribed.</span></small>
+      </div>
+      <h4>Your observation points</h4>
+      <div class="pt"><span class="tick"></span>Did I agree the next action and who owns it?</div>
+    </div>
+  </div>
+  <p class="cap">This is the early warning you asked for on 8.4: <i>"shows a technical dropout sooner than the end of
+    the meeting."</i> The advisor finds out within minutes, while the client is still in the room. They can't
+    retry, because the audio is already gone. The promise to delete it holds whether or not the text worked
+    (P8). <span class="dec">Decision E</span></p>
+
+  <!-- ─────────────────────────── SCREEN 3 ─────────────────────────── -->
+  <h2>Screen 3 · After "Finish meeting"</h2>
+  <div class="screen">
+    <div class="box">
+      <p class="strong" style="margin:0">Turning the recording into a transcript</p>
+      <p class="muted" style="margin:4px 0 0">This takes a few minutes for a long meeting. The recording is deleted as soon as the transcript exists — you can leave this page open.</p>
+      <div class="progress"><i></i></div>
+      <div class="parts">
+        <span class="part done"><span class="new">Part 1 · text ready</span></span>
+        <span class="part done"><span class="new">Part 2 · text ready</span></span>
+        <span class="part work"><span class="new">Part 3 · turning into text</span></span>
+      </div>
+    </div>
+  </div>
+  <p class="cap">The words above the bar are today's, unchanged. Only the last part is still being worked on.</p>
+
+  <!-- ─────────────────────────── SCREEN 4 ─────────────────────────── -->
+  <h2>Screen 4 · Done, with a part missing</h2>
+  <div class="screen">
+    <div class="box">
+      <p class="strong" style="margin:0">The transcript is made and the recording has been deleted.</p>
+      <p class="muted" style="margin:4px 0 0">Nothing of the audio remains on the server.</p>
+      <div class="msg warn">
+        <b><span class="new">The transcript is missing 00:00–20:00.</span></b>
+        <small><span class="new">That part could not be turned into text. Your reports leave those minutes out and say so.</span></small>
+      </div>
+      <div style="margin-top:12px"><span class="btn">Read my reports</span></div>
+    </div>
+  </div>
+  <p class="cap">When every part worked, this screen is exactly today's "done" panel and nothing new shows.
+    <b>"Read my reports" is your wording, pinned by a test, and isn't touched.</b> If no part could be turned into
+    text, today's "The transcript could not be made." panel shows instead. <span class="dec">Decision E</span></p>
+
+  <!-- ─────────────────────────── DECISIONS ─────────────────────────── -->
+  <h2>Decisions for you, one at a time</h2>
+
+  <div class="decision">
+    <h3>A · The meeting splits itself at 20 minutes</h3>
+    <p class="rec">Recommended: every 20 minutes of recorded audio, a part closes and the next one starts with no
+      gap. The advisor doesn't press anything. There's also a 20 MB cut, whichever comes first, the same as the
+      strategy session you ruled today.</p>
+    <p class="against">A hard cut can split a sentence, and a word or two at the join may be lost or garbled. OpenAI's
+      own guide warns about this. The test above counts the loss at each join rather than assuming it away. If it's
+      noticeable, the fix is to cut at the first quiet second after 19 minutes. That would be a change for both
+      recorders, and yours to rule then.</p>
+  </div>
+
+  <div class="decision">
+    <h3>B · Each part is turned into text as soon as it closes, and its audio deleted at once</h3>
+    <p class="rec">Recommended: yes, as in the strategy session. Audio is held for 20 minutes at most instead of the
+      whole meeting. A failure shows within minutes, and the wait after "Finish meeting" is only the last part.</p>
+    <p class="against">Not recommended: holding every part until the end and sending them all then. It's simpler, but
+      the audio lives longer and a failure is only found after the client has left.</p>
+  </div>
+
+  <div class="decision">
+    <h3>C · The advisor's 8-second voice clip is used to label the advisor in every part</h3>
+    <p class="rec">Recommended: yes, exactly as in the strategy session. The clip is cut from the start of the consent
+      line, sent with each part, and deleted when the recording ends. If the meeting ends before 20:00 it is never
+      sent anywhere and is deleted at the end.</p>
+    <p class="against">Why it's needed: today the app decides who the advisor is by who speaks first, because the
+      advisor reads the consent line. That's only true of part 1. In part 2 the client may speak first, and every
+      label in that part would swap without anyone noticing. The other option considered was matching speakers
+      using a few seconds where the parts overlap. That keeps no voice sample, but nothing like it has been built or
+      tested, and it fails when nobody speaks in the overlap.</p>
+  </div>
+
+  <div class="note risk">
+    <h3>🔴 The privacy risk in Decision C, stated before you rule</h3>
+    <ul>
+      <li>A voice clip kept so software can recognise a person is <b>biometric data</b>, which is special-category
+        under UK and EU law. The Meeting Review Brief (§3) deliberately keeps none for an ordinary meeting, because
+        until now it wasn't needed.</li>
+      <li>You approved this same clip for strategy sessions on 28 Sep, with the risk stated. Saying yes here extends
+        it to <b>every recorded meeting</b>. It's a new decision, not a consequence of that one.</li>
+      <li>What limits it: the clip is the <b>advisor's</b> voice, never the client's. It lives only while the meeting's
+        audio does, and is deleted with logged proof. It goes only to the transcription endpoint, which keeps
+        nothing (ZDR rule Z1).</li>
+      <li>The consent wording isn't changed. It already names AI transcription, and the strategy session uses the
+        same wording with the same clip.</li>
+    </ul>
+  </div>
+
+  <div class="decision">
+    <h3>D · The advisor sees the parts</h3>
+    <p class="rec">Recommended: yes, from 20:00, as the row on screen 1. It's the only way a failed part shows while
+      the client is still there (screen 2).</p>
+    <p class="against">Not recommended: hiding the parts and showing one clock only. It's tidier, but a failure in
+      part 1 would stay hidden until the end.</p>
+  </div>
+
+  <div class="decision">
+    <h3>E · A failed part leaves a stated gap. It never fails the whole meeting</h3>
+    <p class="rec">Recommended: the parts that worked are kept and joined. The "done" panel names the missing minutes
+      (screen 4), and <b>both reports say which minutes they could not read</b>. They don't quote across the gap as
+      if it weren't there.</p>
+    <p class="against">⚠ This also applies to the strategy session as built. Its join already records a missing part,
+      but the reports don't read that record yet. Building E fixes both recorders at once.</p>
+  </div>
+
+  <!-- ─────────────────────────── WORDING ─────────────────────────── -->
+  <h2>Every new word, for your ruling</h2>
+  <div class="tablewrap">
+    <table class="m">
+      <tr><th>Where</th><th>Words (ours)</th></tr>
+      <tr><td>Parts row, a part with text</td><td>Part 1 · 00:00–20:00 · text ready</td></tr>
+      <tr><td>Parts row, the live part</td><td>Part 3 · recording</td></tr>
+      <tr><td>Parts row, a part being worked on</td><td>Part 3 · turning into text</td></tr>
+      <tr><td>Parts row, a failed part</td><td>Part 1 · 00:00–20:00 · not turned into text</td></tr>
+      <tr><td>Under the parts row</td><td>A long meeting is recorded in 20-minute parts, so each one is short enough to turn into text.</td></tr>
+      <tr><td>A part failed, during the meeting</td><td>Part 1 (00:00–20:00) could not be turned into text. / Its audio has been deleted, as your client was promised. Recording carries on, and the rest of the meeting will still be transcribed.</td></tr>
+      <tr><td>Done, with a part missing</td><td>The transcript is missing 00:00–20:00. / That part could not be turned into text. Your reports leave those minutes out and say so.</td></tr>
+      <tr><td>In each report, where a part is missing</td><td>Not drawn here. Wording to follow with Decision E, on your yes to it.</td></tr>
+    </table>
+  </div>
+
+  <div class="note">
+    <h3>Checked against the OpenAI contract rules (<code>OPENAI-ZDR-CONSTRAINTS.md</code>)</h3>
+    <ul>
+      <li><b>Z1:</b> audio still goes only to <code>/v1/audio/transcriptions</code>, which keeps nothing. Nothing new
+        is sent anywhere. The meeting just goes in pieces.</li>
+      <li><b>Z9:</b> until OpenAI switches ZDR on for the project, nothing here may be described as covered by it.</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>What this drawing does not solve</h3>
+    <ul>
+      <li>🔴 <b>The speaker-labelling model retires on 26 Feb 2027</b> (item 8.3). Its 1400-second limit, and the voice
+        clip, belong to that model. A successor may change both.</li>
+      <li><b>Live proof needs a real browser and a database.</b> The laptop can prove the transcription and the join
+        with real OpenAI calls, but not a saved meeting.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
