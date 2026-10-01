@@ -379,6 +379,24 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.19 · Build a bench that scores the written answer the real advisory prompt produces.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **His rulings:** the questions are the 51 invented Scenario Lab cases (no real conversations);
+  scoring is code checks plus an AI judge marking each answer against
+  [`ANSWER-BENCH-CHECKLIST.md`](../ANSWER-BENCH-CHECKLIST.md), approved as committed in `fd417a13`.
+- **What was built:** `scripts/answer-bench.js` drives the real advisory chat offline (about 13
+  scripted turns to Phase 3 in client mode; one or two in Discover) and keeps every run in
+  [`design/answer-bench-runs/`](../answer-bench-runs/README.md), reported point by point;
+  `scripts/answer-bench-score.js` holds the checks, the judge's question and a strict check of the
+  judge's reply - anything malformed is unscored, never a pass.
+- **What proves it:** two damaged runs. Swapping the chat's instructions for one generic line
+  dropped the code checks to 73.6% (client) and 0% (Discover); telling the chat another case's
+  story dropped "About this client" from 17 of 51 to 0 and 16 to 0. `answerBenchScore.test.js`,
+  28 tests, every line of the scoring covered.
+- **How to use it:** a change to the AI is measured by a "before" and an "after" run made back to
+  back - never against these proving runs, which used an earlier version of the judge.
+
 **7.26 · Several AI calls that write long output set no length limit.**
 ✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
 

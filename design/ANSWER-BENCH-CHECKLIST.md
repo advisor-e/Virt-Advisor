@@ -1,6 +1,7 @@
 # Answer Bench — the judge's checklist (item 7.19)
 
-**Status: DRAFT for Mike's approval.** Not in use until he approves this wording.
+**Status: ✅ APPROVED BY MIKE 2026-10-01 ("yes"), as committed in `fd417a13`.** The judge uses
+these seven points word for word; a change to them is a fresh approval.
 
 The answer bench asks the real advisory chat the 51 invented Scenario Lab cases and scores each
 written recommendation two ways (Mike's ruling, 2026-10-01):

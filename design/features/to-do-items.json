@@ -336,27 +336,6 @@
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.19",
-      "name": "Build a bench that scores the written answer the real advisory prompt produces",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": true,
-      "blocks": "7.20, 7.21, 7.22",
-      "waitingOn": "Us",
-      "why": "Nothing today scores the advisor's actual answer: Scenario Lab measures template ranking, and discover-lab uses its own prompt, not discover.txt. Without a bench, no prompt, context or model change can be proved better.",
-      "risk": "Every later AI improvement ships on hope. Real advisor transcripts in va_case_studies are personal data, so using them as seed questions needs anonymising and Mike's ruling; OpenAI-hosted evals are banned for real content by ZDR rule Z1.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-10-01 - from the digest-and-addendum review he asked for; he asked for every suggestion to be recorded as a task."
-      },
-      "touches": "scripts/ (a new lab beside scenario-lab.js and discover-lab.js), the real prompt assembly in server/advisorEngine.js, data/prompts/*.txt, a question set and scoring rubric, and stored results per run.",
-      "note": "MIKE RULED 2026-10-01: (1) questions = the 51 invented Scenario Lab cases, extendable with his wording; no real conversations. (2) scoring = code checks (names exist, within budget, crisis leads with survival, pick matches engine top, domain matches) AND an AI judge on a fixed checklist he approves. Proven drivable offline: about 13 scripted turns to Phase 3, under 1 dollar a run. Proves itself by scoring a damaged copy lower. Results kept per run, tied to model and prompt version (7.23).",
-      "comment": "2026-10-01 - filed on Mike's instruction; question set ruled the same day. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "7.20",
       "name": "Send the AI only the context the advisor's topic needs",
       "rankedByMike": false,
@@ -374,7 +353,7 @@
         "detail": "2026-10-01 - the app-side digest from the review he asked for; he asked for every suggestion to be recorded as a task."
       },
       "touches": "server/utils/reportModels.js formatReportModelsForPrompt; server/advisorEngine.js context assembly (about 4060-4352, MODE_SECTIONS about 471); data/prompts/learn.txt fixed topic sections; templates.js list formatting; design/OPENAI-ZDR-CONSTRAINTS.md Z10.",
-      "note": "Measured 2026-10-01: first Discover turn about 24,000 tokens, worst case about 45,000; client about 25,000-34,000; Learn about 31,000-46,000. Each model's useWhen and answers already allow topic filtering. Waits on 7.19 for proof.",
+      "note": "Measured 2026-10-01: first Discover turn about 24,000 tokens, worst case about 45,000; client about 25,000-34,000; Learn about 31,000-46,000. Each model's useWhen and answers already allow topic filtering. Prove it on the answer bench (7.19, built 2026-10-01): a before and an after run, back to back.",
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
@@ -395,7 +374,7 @@
         "detail": "2026-10-01 - found in the digest-and-addendum review; filed on Mike's instruction to record every suggestion. A defect we found."
       },
       "touches": "server/utils/sanitiseInput.js lines 11 and 59-63; server/advisorEngine.js history replay; the 2-hour in-memory session store (about 376-413); a rolling conversation summary as the alternative to full replay.",
-      "note": "Confirmed in code 2026-10-01: MAX_FIELD 2000 applies to assistant turns too. Recommendation replies allow up to 2,500 tokens, roughly 10,000 characters. Measure on 7.19 before and after.",
+      "note": "Confirmed in code 2026-10-01: MAX_FIELD 2000 applies to assistant turns too. Recommendation replies allow up to 2,500 tokens, roughly 10,000 characters. Measure on the answer bench (7.19, built 2026-10-01): a before and an after run, back to back.",
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
@@ -416,7 +395,7 @@
         "detail": "2026-10-01 - from the review he asked for; he asked for every suggestion to be recorded as a task."
       },
       "touches": "config/integration.js role map (about 308-323); server/routes/economicAnalysis.js:66, server/routes/nextStepsDraft.js:46, server/utils/depreciationExtract.js:62 hard-coded models; scripts/quiz-lab.js:190 hard-coded gpt-4o.",
-      "note": "Waits on 7.19 for the comparison and on Mike for the cost call. The data-controls page lists gpt-6-astra as ZDR-eligible for Chat Completions and Responses.",
+      "note": "The answer bench (7.19, built 2026-10-01) makes the comparison; waits on Mike for the cost call. The data-controls page lists gpt-6-astra as ZDR-eligible for Chat Completions and Responses.",
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
