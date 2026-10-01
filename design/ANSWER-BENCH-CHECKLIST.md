@@ -1,7 +1,10 @@
 # Answer Bench — the judge's checklist (item 7.19)
 
-**Status: ✅ APPROVED BY MIKE 2026-10-01 ("yes"), as committed in `fd417a13`.** The judge uses
-these seven points word for word; a change to them is a fresh approval.
+**Status: points 1–5 and 7 ✅ APPROVED BY MIKE 2026-10-01 ("yes"), as committed in `fd417a13`.
+Point 6 REDRAFTED the same day at his request — ☐ awaiting his approval.** Its first wording
+judged every answer as if a business owner read it, but both the client chat and Discover answer
+the advisor. Until point 6 is approved, no bench run counts as a result. The judge uses these
+points word for word; a change to them is a fresh approval.
 
 The answer bench asks the real advisory chat the 51 invented Scenario Lab cases and scores each
 written recommendation two ways (Mike's ruling, 2026-10-01):
@@ -26,7 +29,7 @@ runs can be compared.
 | 3 | **Reasons match the tools** | Each template or model it names is recommended for a reason that matches what that tool is for. |
 | 4 | **Right urgency** | In a crisis it puts survival first; outside a crisis it does not alarm. |
 | 5 | **Something to do next** | The advisor could act on it at the next meeting: it says what to do first. |
-| 6 | **Plain English** | A business owner with no finance training could follow it; any specialist term is explained. |
+| 6 | **Plain for its reader** | An advisor could follow it at a glance. Specialist terms are fine, but anything the advisor is meant to say to the client is in words the client would understand. |
 | 7 | **No invented certainty** | It claims no figures, results or facts about the client that it was not given. |
 
 ## What the judge never sees

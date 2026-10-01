@@ -607,6 +607,27 @@
       "touches": "server/utils/rateLimit.js clientIp; its callers in server/advisorEngine.js (30), server/courseEngine.js (15), server/routes/mentor.js, outcomeLearning.js, promptCheck.js; server-middleware/advisor.js and course.js, which forward from the Nuxt server; firmAuth, which already knows the signed-in advisor.",
       "note": "Likely fix: count per signed-in advisor rather than per address. Needs a small design first. Not proven in a deployed environment.",
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.28",
+      "name": "In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "When the engine reads distress, the client chat is told to change its tone only and keep the same templates in the same order, so a business facing liquidation is offered growth tools. Discover leads with Receivership vs Liquidation.",
+      "risk": "An advisor whose client may be about to fail is steered to Customer Journey and sales tools first. It looks deliberate (urgencyDirective says WORDING only) but no ruling of Mike's is recorded, so whether client mode should lead with a survival tool is his decision.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found by the answer bench (7.19) and confirmed by the Scenario Lab report; filed on Mike's yes. A defect we found."
+      },
+      "touches": "server/advisorEngine.js urgencyDirective (about 1496-1511) and the Phase 3 display set; the resolver's ranking when distress is read; design/SCENARIO-LAB-REPORT.md crisis cases 2, 49, 50, 51; scripts/answer-bench-score.js CRISIS_TOOLS.",
+      "note": "Evidence: answer bench baseline 2026-10-01 - client chat led with a survival tool in 0 of 4 crisis cases, Discover in 4 of 4. Scenario Lab read distress correctly in all 4, yet ranked Customer Journey, Farm Succession, Forecasting and Cafe first. Measure any change with a before and after bench run.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

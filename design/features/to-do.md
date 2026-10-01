@@ -60,8 +60,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 23 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 24 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 25 | **7.27** Every advisor may share one usage limit, because the backend sees only the Nuxt server's address ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 26 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 
-**25 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
+**26 live items. Twelve need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
