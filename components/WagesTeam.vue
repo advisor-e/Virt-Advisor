@@ -83,7 +83,7 @@
       //- 🔴 THE CHECK THAT MAKES IT TRUSTWORTHY. A mix adding to 80% quietly returns a rate a
       //- fifth too low, and nothing else on the screen would look wrong. The workbook carries
       //- this as its own "Balance Time Remaining" row.
-      span.wt-mixwarn(v-if="mixShare !== 100") {{ $t('report.wagesReview.team.blendShareWarn', { share: mixShare }) }}
+      span.wt-mixwarn(v-if="mixShare !== 100") {{ $t('report.wagesReview.team.blendShareWarn', { share: mixShareText }) }}
 
   .wt-card
     h3.wt-title {{ $t('report.wagesReview.team.title') }}
@@ -530,6 +530,12 @@ export default {
      */
     mixShare () {
       return this.helper.mix.reduce((sum, m) => sum + num(m.share), 0)
+    },
+
+    /** The shares' total for the warning, in the reader's language — "99.9", never "99.89999". */
+    mixShareText () {
+      const s = Math.round(this.mixShare * 10) / 10
+      return this.num(s, Number.isInteger(s) ? 0 : 1)
     },
 
     /**

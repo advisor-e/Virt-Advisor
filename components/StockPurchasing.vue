@@ -297,6 +297,7 @@ import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
 /** How many ranked lines the screen shows before "show all" — the drawing's own fourteen. */
@@ -332,7 +333,7 @@ export default {
 
   components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute],
 
   props: {
     /** Bearer token for the upload route, which carries firmAuth. The calc route is anonymous. */
@@ -539,10 +540,7 @@ export default {
       // something. Found by opening the screen: rounding to whole percent showed 40% as the floor
       // of a rung whose real floor is 40.1%, which is the rung below's ceiling and reads as an
       // overlap.
-      const pct = (v) => {
-        const n = Math.round(v * 1000) / 10
-        return (Number.isInteger(n) ? String(n) : n.toFixed(1)) + '%'
-      }
+      const pct = v => this.pctUpTo(v)
       let show = v => this.num(v)
       if (criterion === 'margin' || criterion === 'shareOfStock') { show = pct }
       return {
@@ -668,12 +666,12 @@ export default {
 
     /** @param {number|null} v @returns {string} a ratio to 2dp, or the not-entered dash. */
     ratio (v) {
-      return v === null || v === undefined ? this.notEntered : v.toFixed(2)
+      return v === null || v === undefined ? this.notEntered : this.ratio2(v)
     },
 
     /** @param {number|null} v @returns {string} a percentage to 1dp, or the not-entered dash. */
     percent (v) {
-      return v === null || v === undefined ? this.notEntered : (v * 100).toFixed(1) + '%'
+      return v === null || v === undefined ? this.notEntered : this.pct(v)
     },
 
     /** @param {string} ref  'salesSheet' or 'stockSheet' */

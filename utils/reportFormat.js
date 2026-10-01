@@ -56,6 +56,18 @@ function pct (v, d, locale) {
 }
 
 /**
+ * A fraction as a percentage to AT MOST `d` places, a trailing zero dropped:
+ * `pctUpTo(0.8)` → "80%", `pctUpTo(0.401)` → "40.1%". For bands and rates that are
+ * usually whole and sometimes not, where "80.0%" would read as false precision.
+ * @param {number|null} v @param {number} [d=1] @param {string} [locale]
+ * @returns {string}
+ */
+function pctUpTo (v, d, locale) {
+  if (!finite(v)) { return DASH }
+  return formatter(locale, { style: 'percent', minimumFractionDigits: 0, maximumFractionDigits: d === undefined ? 1 : d }).format(v)
+}
+
+/**
  * A percentage that is already ×100 (the trend model's measures). `pct100(13.9)` → "13.9%".
  * @param {number|null} v @param {number} [d=1] @param {string} [locale]
  * @returns {string}
@@ -88,12 +100,12 @@ function signedPct (v, locale) {
 
 /**
  * A signed percentage that is already ×100. `signedPct100(2.2)` → "+2.2%".
- * @param {number|null} v @param {string} [locale]
+ * @param {number|null} v @param {string} [locale] @param {number} [d=1]
  * @returns {string}
  */
-function signedPct100 (v, locale) {
+function signedPct100 (v, locale, d) {
   if (!finite(v)) { return DASH }
-  return (v > 0 ? '+' : '') + percent(v / 100, 1, locale)
+  return (v > 0 ? '+' : '') + percent(v / 100, d === undefined ? 1 : d, locale)
 }
 
 /**
@@ -107,11 +119,11 @@ function days (v, locale) {
 
 /**
  * A multiple. `times(5.23)` → "5.2×".
- * @param {number|null} v @param {string} [locale] @returns {string}
+ * @param {number|null} v @param {string} [locale] @param {number} [d=1] @returns {string}
  */
-function times (v, locale) {
+function times (v, locale, d) {
   if (!finite(v)) { return DASH }
-  return fixed(v, 1, locale) + '×'
+  return fixed(v, d === undefined ? 1 : d, locale) + '×'
 }
 
 /**
@@ -129,4 +141,4 @@ function direction (v) {
   return v > 0 ? 'up' : 'down'
 }
 
-module.exports = { DASH, pct, pct100, pts, signedPct, signedPct100, days, times, ratio2, direction }
+module.exports = { DASH, pct, pctUpTo, pct100, pts, signedPct, signedPct100, days, times, ratio2, direction }

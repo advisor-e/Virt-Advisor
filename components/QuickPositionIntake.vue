@@ -79,11 +79,14 @@
  * *entered*; a figure the file can't supply is never guessed.
  */
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
+import currencyMixin from '~/mixins/currencyMixin'
 
 export default {
   name: 'QuickPositionIntake',
 
   components: { ProvenanceBadge },
+
+  mixins: [currencyMixin],
 
   props: {
     // Verified login pass (JWT); the intake route is firmAuth-guarded.
@@ -158,10 +161,8 @@ export default {
   },
 
   methods: {
-    /** @param {number} n */
-    money (n) {
-      return '$' + Math.round(n).toLocaleString('en-US')
-    },
+    // money() comes from currencyMixin — the firm's currency in the reader's language,
+    // where a hardcoded "$" showed dollars to every firm.
     /** Pull the "12 March 2026"-style token out of a report date line. @param {string} s */
     datePart (s) {
       const m = /(\d{1,2}\s+\w+\s+\d{4})\s*$/.exec(String(s || ''))

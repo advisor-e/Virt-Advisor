@@ -243,7 +243,7 @@
                     td {{ $t('report.salesDashboard.bands.total') }}
                     td.r.num {{ num(totals.transactions) }}
                     td.r.num {{ money(totals.salesValue) }}
-                    td.r.num 100%
+                    td.r.num {{ pct(1, 0) }}
                     td
                     td.r.num {{ money(totals.salesMargin) }}
                     td.r.num {{ totals.marginPct === null ? dash : percent(totals.marginPct) }}
@@ -267,6 +267,8 @@ import SampleNotice from '~/components/base/SampleNotice'
 import DoughnutChart from '~/components/base/DoughnutChart'
 import BarPairChart from '~/components/base/BarPairChart'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
+import { intlLocaleFor } from '~/utils/dateLocale'
 import reportRecompute from '~/mixins/reportRecompute'
 
 /**
@@ -329,7 +331,7 @@ export default {
     ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, DoughnutChart, BarPairChart
   },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute],
 
   props: {
     /** Bearer token for the upload route, which carries firmAuth. The calc route is anonymous. */
@@ -493,7 +495,7 @@ export default {
 
     /** @param {number|null} v @returns {string} a percentage to 1dp, or the dash. */
     percent (v) {
-      return v === null || v === undefined ? this.dash : (v * 100).toFixed(1) + '%'
+      return v === null || v === undefined ? this.dash : this.pct(v)
     },
 
     /**
@@ -506,8 +508,13 @@ export default {
      */
     monthLabel (key) {
       const parts = String(key || '').split('-')
-      const month = MONTHS[Number(parts[1]) - 1]
-      return month ? month + ' ' + parts[0].slice(2) : String(key)
+      const m = Number(parts[1]) - 1
+      if (!MONTHS[m]) { return String(key) }
+      // The reader's language names the month; English keeps its own fixed list.
+      const month = this.$i18n.locale === 'en'
+        ? MONTHS[m]
+        : new Date(2000, m, 1).toLocaleString(intlLocaleFor(this.$i18n.locale), { month: 'short' })
+      return month + ' ' + parts[0].slice(2)
     },
 
     /** @param {Object} row @returns {string} the row's bar width, against the largest. */

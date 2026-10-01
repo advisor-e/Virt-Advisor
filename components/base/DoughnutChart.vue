@@ -33,10 +33,14 @@ svg.dnc(:viewBox="showLegend ? '0 0 520 210' : '0 0 210 210'" role="img" :aria-l
  * left of empty space. Added rather than hand-rolling a second ring: Decision 5 ruled this
  * component be reused so no charting library and no bundle weight arrive with the screen.
  */
+import reportFormatMixin from '~/mixins/reportFormatMixin'
+
 const CIRCUMFERENCE = 2 * Math.PI * 66
 
 export default {
   name: 'DoughnutChart',
+
+  mixins: [reportFormatMixin],
 
   props: {
     /** `{ label, value, colour }` per slice; a zero or null value is drawn as nothing. */
@@ -71,7 +75,7 @@ export default {
       return this.slices.map(s => ({
         label: s.label,
         colour: s.colour,
-        pct: this.total > 0 && Number.isFinite(s.value) ? Math.round((Math.max(s.value, 0) / this.total) * 100) + '%' : '—'
+        pct: this.total > 0 && Number.isFinite(s.value) ? this.pct(Math.max(s.value, 0) / this.total, 0) : '—'
       }))
     }
   }

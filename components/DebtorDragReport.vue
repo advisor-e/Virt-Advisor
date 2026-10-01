@@ -56,7 +56,7 @@
           span.ddg-lft
             span.ddg-dot
             h2.ddg-h2 {{ $t('report.debtorDrag.group.' + g.k) }}
-          span.ddg-total(v-if="g.total" :class="totalOk(g.total) ? 'ok' : 'bad'") {{ totalOf(g.total) }}%
+          span.ddg-total(v-if="g.total" :class="totalOk(g.total) ? 'ok' : 'bad'") {{ pctUpTo(totalOf(g.total) / 100) }}
         slider-field(
           v-for="fld in g.fields"
           :key="fld.k"
@@ -151,6 +151,7 @@ import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import savedReport from '~/mixins/savedReport'
 import { intlLocaleFor } from '~/utils/dateLocale'
@@ -166,7 +167,7 @@ export default {
 
   components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField, ProvenanceBadge },
 
-  mixins: [currencyMixin, reportRecompute, savedReport],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -233,7 +234,7 @@ fields: [
       return (this.plan.deepestLow.value - this.before.deepestLow.value) >= 0 ? 'good' : 'crit'
     },
     deltaText () {
-      if (!this.before || !this.plan) { return '$0' }
+      if (!this.before || !this.plan) { return this.money(0) }
       const d = this.plan.deepestLow.value - this.before.deepestLow.value
       return this.signedMoney(d)
     },
@@ -300,7 +301,8 @@ lowY: y(plan[lowIdx])
     fmtField (fld) {
       const v = this.f[fld.k]
       if (fld.fmt === 'money') { return this.money(v) }
-      return v + '%'
+      // Whole percentages, and GST's half steps ("15.5%") — in the reader's language.
+      return this.pctUpTo(v / 100)
     },
     /**
      * A slider moved: store the new value and queue a recompute. SliderField reports

@@ -260,6 +260,11 @@
     },
     "eightLevers": {
       "title": "8 Levers",
+      "unit": {
+        "hours": "{n} hrs",
+        "weeks": "{n} wks",
+        "days": "{n} days"
+      },
       "instruction": "Move a lever and watch the profit move. The point isn't the numbers — it's which lever pays best. A small lift in margin usually beats a big lift in volume.",
       "market": "Market",
       "marketHint": "How many potential customers are in the client's market? Size this to the real business — every scenario below is measured against it.",
@@ -758,7 +763,10 @@
         "cash": "Cash",
         "stock": "Stock",
         "sale": "Sale",
-        "debtors": "Debtors"
+        "debtors": "Debtors",
+        "perMonth": "{v}/mo",
+        "daysShort": "{n}d",
+        "unitsShort": "{n} u"
       },
       "coach": {
         "lead": "Coach",
