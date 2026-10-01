@@ -186,6 +186,7 @@ section.mentor-model-choices
 <script>
 import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
 
 /**
  * Buefy tag colour per "how we know". A lookup rather than a chain of v-ifs so a
@@ -323,8 +324,8 @@ export default {
     formatWhen (dt) {
       if (!dt) { return '' }
       const d = new Date(dt)
-      const day = d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })
-      const time = d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', hour12: false })
+      const day = fmtDate(d, this.$i18n.locale, { day: 'numeric', month: 'short' })
+      const time = fmtDate(d, this.$i18n.locale, { hour: '2-digit', minute: '2-digit', hour12: false })
       return `${day} ${time}`
     }
   }

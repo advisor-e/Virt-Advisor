@@ -6144,7 +6144,7 @@
     "tileLiveSub": "{proposed} proposed · {held} held · {below} below the floor",
     "tileReach": "Loop reach",
     "tileReachValue": "{reviewed} of {delivered}",
-    "tileReachSub": "{percent}% of delivered cases reviewed · read {when}",
+    "tileReachSub": "{percent} of delivered cases reviewed · read {when}",
     "tileReachUnavailable": "Not available",
     "tileRecomputed": "Last recomputed",
     "justNow": "Just now",

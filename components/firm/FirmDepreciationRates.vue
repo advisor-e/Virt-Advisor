@@ -159,7 +159,7 @@
               td.is-size-7 {{ rule.excludes }}
             tr
               td {{ $t('firmDepreciationRates.rule.adoptedBy') }}
-              td.is-size-7.has-text-grey {{ rule.approvedBy }} · {{ rule.approvedAt }}
+              td.is-size-7.has-text-grey {{ rule.approvedBy }} · {{ stampText(rule.approvedAt) }}
         .notification.is-info.is-light.py-2
           p.is-size-7 {{ $t('firmDepreciationRates.rule.bringsForward') }}
         b-button(
@@ -189,7 +189,7 @@
           tr(v-for="h in history" :key="h.id")
             td {{ $t('firmDepreciationRates.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.saved_by }}
-            td.is-size-7.has-text-grey {{ h.created_at }}
+            td.is-size-7.has-text-grey {{ stampText(h.created_at) }}
             td.has-text-right
               b-button(size="is-small" type="is-light" @click="restore(h.id)") {{ $t('firmDepreciationRates.history.restore') }}
 </template>
@@ -229,13 +229,15 @@
  */
 import DepreciationDocumentReview from './DepreciationDocumentReview.vue'
 import moderationMessage from '~/mixins/moderationMessage'
+import { formatStamp } from '~/utils/dateLocale'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 export default {
   name: 'FirmDepreciationRates',
 
   components: { DepreciationDocumentReview },
 
-  mixins: [moderationMessage],
+  mixins: [reportFormatMixin, moderationMessage],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -303,7 +305,7 @@ export default {
           // The tax authority's own wording for the class this rate was taken from. Absent
           // on an app default, because an app default came from no published class at all.
           className: c.label || '',
-          rate: operative === null || operative === undefined ? '—' : `${Math.round(operative * 1000) / 10}%`,
+          rate: operative === null || operative === undefined ? '—' : this.pctUpTo(operative),
           method: c.method === 'sl' ? this.$t('firmDepreciationRates.methods.sl') : this.$t('firmDepreciationRates.methods.dv'),
           origin: this.originLabel(c),
           badgeType: c.originTier ? 'is-info is-light' : 'is-light',
@@ -327,11 +329,11 @@ export default {
     },
 
     rulePercent () {
-      return this.rule ? `${Math.round(this.rule.rate * 1000) / 10}%` : ''
+      return this.rule ? this.pctUpTo(this.rule.rate) : ''
     },
 
     ruleRemainder () {
-      return this.rule ? `${Math.round((1 - this.rule.rate) * 1000) / 10}%` : ''
+      return this.rule ? this.pctUpTo(1 - this.rule.rate) : ''
     },
 
     ruleSource () {
@@ -371,6 +373,9 @@ export default {
   },
 
   methods: {
+    /** A stored stamp in the reader's language, never the raw database value (item 13.8). */
+    stampText (v) { return formatStamp(v, this.$i18n.locale) },
+
     /**
      * Which tier supplied a rate, in the words a manager reads on the forecast itself.
      * @param {object} c - a resolved category

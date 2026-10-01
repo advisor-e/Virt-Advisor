@@ -46,7 +46,7 @@
               p.has-text-grey.mt-1(v-else-if="s.unresolved")
                 | {{ $tc('countryRateSchedules.library.unresolved', s.unresolved, { count: s.unresolved }) }}
             td {{ s.published }}
-            td.has-text-right {{ s.classes }}
+            td.has-text-right {{ numUpTo(s.classes, 0) }}
             td
               | {{ s.approvedBy }}
               br
@@ -75,7 +75,7 @@
         )
         p.is-size-7.has-text-grey
           template(v-if="r.passesPlanned")
-            | {{ $t('countryRateSchedules.reads.passProgress', { done: r.passesDone, planned: r.passesPlanned, classes: r.classesSoFar }) }}
+            | {{ $t('countryRateSchedules.reads.passProgress', { done: r.passesDone, planned: r.passesPlanned, classes: numUpTo(r.classesSoFar, 0) }) }}
           template(v-else) {{ $t('countryRateSchedules.reads.surveying') }}
           |  {{ $t('countryRateSchedules.reads.canLeave') }}
 
@@ -92,7 +92,7 @@
       template(v-else-if="r.status === 'pending'")
         i18n.is-size-7.mb-2(path="countryRateSchedules.reads.pendingSentence" tag="p")
           template(#classes)
-            b {{ $t('countryRateSchedules.reads.pendingClasses', { count: r.classesSoFar }) }}
+            b {{ $t('countryRateSchedules.reads.pendingClasses', { count: numUpTo(r.classesSoFar, 0) }) }}
           template(#document) {{ r.documentName }}
           template(#published) {{ r.published }}
           template(#pages) {{ r.totalPages }}
@@ -177,11 +177,12 @@
  */
 import moderationMessage from '~/mixins/moderationMessage'
 import { scheduleUnreadSentence } from '~/utils/scheduleUnreadWords'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 export default {
   name: 'CountryRateSchedules',
 
-  mixins: [moderationMessage],
+  mixins: [reportFormatMixin, moderationMessage],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */

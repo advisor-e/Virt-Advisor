@@ -57,7 +57,7 @@
         .fsd-band(v-for="b in bands" :key="b.days" :class="'is-' + b.rung")
           .fsd-band-days {{ b.range }}
           .fsd-band-rung {{ b.label }}
-          .fsd-band-mark {{ b.markup }}%
+          .fsd-band-mark {{ pctUpTo(b.markup / 100, 2) }}
       p.is-size-7.has-text-danger.mt-2(v-if="deadRung")
         i18n(path="firmSellDownLadder.container.deadRung" tag="span")
           template(#rung)
@@ -120,12 +120,15 @@
           tr(v-for="h in history" :key="h.id")
             td {{ $t('firmSellDownLadder.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.saved_by }}
-            td.is-size-7.has-text-grey {{ h.created_at }}
+            td.is-size-7.has-text-grey {{ stampText(h.created_at) }}
             td.has-text-right
               b-button(size="is-small" type="is-light" @click="restore(h.id)") {{ $t('firmSellDownLadder.history.restore') }}
 </template>
 
 <script>
+import { formatStamp } from '~/utils/dateLocale'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
+
 /**
  * FirmSellDownLadder — the tab the price ladder for imported stock is set on. Item 4.64.
  *
@@ -170,6 +173,8 @@
  */
 export default {
   name: 'FirmSellDownLadder',
+
+  mixins: [reportFormatMixin],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -297,7 +302,7 @@ export default {
       const p = this.patterns.filter(x => x.name === this.form.defaultPattern)[0]
       if (!p) { return '' }
       return this.$t('firmSellDownLadder.pattern.sentence', {
-        bands: p.curve.map(v => Math.round(v * 100) + '%').join(' / ')
+        bands: p.curve.map(v => this.pct(v, 0)).join(' / ')
       })
     }
   },
@@ -307,6 +312,9 @@ export default {
   },
 
   methods: {
+    /** A stored stamp in the reader's language, never the raw database value (item 13.8). */
+    stampText (v) { return formatStamp(v, this.$i18n.locale) },
+
     /** Read what this level inherits, what it has changed, and the resolved result. */
     async load () {
       this.loading = true
@@ -380,7 +388,7 @@ export default {
      */
     pricePer100 (key) {
       const n = this.numOf(key)
-      return String(Math.round((100 + n) * 100) / 100)
+      return this.numUpTo(Math.round((100 + n) * 100) / 100, 2)
     },
 
     /**

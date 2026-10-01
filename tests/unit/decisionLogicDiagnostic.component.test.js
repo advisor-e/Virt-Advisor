@@ -151,7 +151,7 @@ describe('DecisionLogicDiagnostic — the score sheet', () => {
   it('states the gap and what to do about it', async () => {
     const wrapper = await runWith(mountDx(), RESULT)
     const text = wrapper.text()
-    expect(text).toContain('firmDecisionLogic.dxGapHead {"points":7}')
+    expect(text).toContain('firmDecisionLogic.dxGapHead {"points":"7"}')
     expect(wrapper.vm.gapCase).toBe('noDistinction')
     expect(text).toContain('firmDecisionLogic.dxGapDoD {"distinction":5}')
     expect(text).toContain('firmDecisionLogic.dxGapDoF {"tree":3}')
@@ -286,11 +286,11 @@ describe('DecisionLogicDiagnostic — the score sheet', () => {
     outside.gap = 18
     const wrapper = await runWith(mountDx(), outside)
 
-    expect(wrapper.text()).toContain('firmDecisionLogic.dxOutsideSheet {"score":1,"shown":2}')
+    expect(wrapper.text()).toContain('firmDecisionLogic.dxOutsideSheet {"score":"1","shown":2}')
     // The gap is the whole point of the section, and it must not disappear for
     // the case where the shortfall is largest.
     expect(wrapper.find('.gap').exists()).toBe(true)
-    expect(wrapper.text()).toContain('firmDecisionLogic.dxGapHead {"points":18}')
+    expect(wrapper.text()).toContain('firmDecisionLogic.dxGapHead {"points":"18"}')
   })
 
   it('says it scored nothing when it genuinely scored nothing', async () => {

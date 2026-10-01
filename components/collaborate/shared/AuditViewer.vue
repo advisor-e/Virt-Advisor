@@ -44,6 +44,8 @@
 </template>
 
 <script>
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+
 /**
  * AuditViewer — the admin/compliance audit-log viewer (FEAT-AUDIT-UI). Reads the
  * append-only trail (WHO did WHAT, WHEN, to WHICH target) newest-first and lets an
@@ -130,8 +132,7 @@ export default {
     },
     formatWhen (at) {
       if (!at) { return '' }
-      const d = new Date(at)
-      return isNaN(d.getTime()) ? '' : d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      return fmtDate(at, this.$i18n.locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     }
   }
 }

@@ -46,8 +46,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 9 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-10-01 |
 | 10 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
 | 11 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 12 | **22.3** First-load page code is 382 KB against the 300 KB limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 13 | **8.7** The Meeting Review screen is almost entirely in English ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 
-**Eleven live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Thirteen live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

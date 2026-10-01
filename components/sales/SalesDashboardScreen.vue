@@ -29,28 +29,28 @@ section.section.dashboard-page
       )
       stat-card(
         :label="$t('salesTrackerDashboard.approachMeeting')"
-        :value="combinedMeetingRate + '%'"
+        :value="pct100(combinedMeetingRate, 0)"
         :badge="$t('salesTrackerDashboard.combined')"
         badge-color="cyan"
         :footer="combinedMeetings + '/' + combinedApproaches"
       )
       stat-card(
         :label="$t('salesTrackerDashboard.meetingProposal')"
-        :value="combinedProposalRate + '%'"
+        :value="pct100(combinedProposalRate, 0)"
         :badge="$t('salesTrackerDashboard.combined')"
         badge-color="blue"
         :footer="combinedProposals + '/' + combinedMeetings"
       )
       stat-card(
         :label="$t('salesTrackerDashboard.proposalSecured')"
-        :value="combinedSecuredRate + '%'"
+        :value="pct100(combinedSecuredRate, 0)"
         :badge="$t('salesTrackerDashboard.combined')"
         badge-color="teal"
         :footer="combinedSecured + '/' + combinedProposals"
       )
       stat-card(
         :label="$t('salesTrackerDashboard.overallWinRate')"
-        :value="combinedOverallRate + '%'"
+        :value="pct100(combinedOverallRate, 0)"
         :badge="$t('salesTrackerDashboard.combined')"
         badge-color="green"
         :footer="combinedSecured + '/' + combinedApproaches"
@@ -83,7 +83,7 @@ section.section.dashboard-page
             svg(viewBox="0 0 100 100")
               circle.ring-bg(cx="50" cy="50" r="42")
               circle.ring-progress.cyan(cx="50" cy="50" r="42" :stroke-dasharray="264" :stroke-dashoffset="264 - (264 * campaignMeetingRate / 100)")
-            .rate-value {{ campaignMeetingRate }}%
+            .rate-value {{ pct100(campaignMeetingRate, 0) }}
           span.rate-label {{ $t('salesTrackerDashboard.approachMeeting') }}
           span.rate-count {{ metrics.campaignFunnel.meetings }}/{{ metrics.campaignFunnel.approaches }}
         .rate-card
@@ -91,7 +91,7 @@ section.section.dashboard-page
             svg(viewBox="0 0 100 100")
               circle.ring-bg(cx="50" cy="50" r="42")
               circle.ring-progress.blue(cx="50" cy="50" r="42" :stroke-dasharray="264" :stroke-dashoffset="264 - (264 * campaignProposalRate / 100)")
-            .rate-value {{ campaignProposalRate }}%
+            .rate-value {{ pct100(campaignProposalRate, 0) }}
           span.rate-label {{ $t('salesTrackerDashboard.meetingProposal') }}
           span.rate-count {{ metrics.campaignFunnel.proposals }}/{{ metrics.campaignFunnel.meetings }}
         .rate-card
@@ -99,7 +99,7 @@ section.section.dashboard-page
             svg(viewBox="0 0 100 100")
               circle.ring-bg(cx="50" cy="50" r="42")
               circle.ring-progress.teal(cx="50" cy="50" r="42" :stroke-dasharray="264" :stroke-dashoffset="264 - (264 * campaignSecuredRate / 100)")
-            .rate-value {{ campaignSecuredRate }}%
+            .rate-value {{ pct100(campaignSecuredRate, 0) }}
           span.rate-label {{ $t('salesTrackerDashboard.proposalSecured') }}
           span.rate-count {{ metrics.campaignFunnel.secured }}/{{ metrics.campaignFunnel.proposals }}
         .rate-card
@@ -107,7 +107,7 @@ section.section.dashboard-page
             svg(viewBox="0 0 100 100")
               circle.ring-bg(cx="50" cy="50" r="42")
               circle.ring-progress.green(cx="50" cy="50" r="42" :stroke-dasharray="264" :stroke-dashoffset="264 - (264 * campaignOverallRate / 100)")
-            .rate-value {{ campaignOverallRate }}%
+            .rate-value {{ pct100(campaignOverallRate, 0) }}
           span.rate-label {{ $t('salesTrackerDashboard.overallWinRate') }}
           span.rate-count {{ metrics.campaignFunnel.secured }}/{{ metrics.campaignFunnel.approaches }}
         .stat-card-inline.cyan
@@ -140,7 +140,7 @@ section.section.dashboard-page
             svg(viewBox="0 0 100 100")
               circle.ring-bg(cx="50" cy="50" r="42")
               circle.ring-progress.orange(cx="50" cy="50" r="42" :stroke-dasharray="264" :stroke-dashoffset="264 - (264 * totalNeedsMeetingRate / 100)")
-            .rate-value {{ totalNeedsMeetingRate }}%
+            .rate-value {{ pct100(totalNeedsMeetingRate, 0) }}
           span.rate-label {{ $t('salesTrackerDashboard.approachMeeting') }}
           span.rate-count {{ metrics.totalNeedsFunnel.meetings }}/{{ metrics.totalNeedsFunnel.approaches }}
         .rate-card
@@ -148,7 +148,7 @@ section.section.dashboard-page
             svg(viewBox="0 0 100 100")
               circle.ring-bg(cx="50" cy="50" r="42")
               circle.ring-progress.amber(cx="50" cy="50" r="42" :stroke-dasharray="264" :stroke-dashoffset="264 - (264 * totalNeedsProposalRate / 100)")
-            .rate-value {{ totalNeedsProposalRate }}%
+            .rate-value {{ pct100(totalNeedsProposalRate, 0) }}
           span.rate-label {{ $t('salesTrackerDashboard.meetingProposal') }}
           span.rate-count {{ metrics.totalNeedsFunnel.proposals }}/{{ metrics.totalNeedsFunnel.meetings }}
         .rate-card
@@ -156,7 +156,7 @@ section.section.dashboard-page
             svg(viewBox="0 0 100 100")
               circle.ring-bg(cx="50" cy="50" r="42")
               circle.ring-progress.lime(cx="50" cy="50" r="42" :stroke-dasharray="264" :stroke-dashoffset="264 - (264 * totalNeedsSecuredRate / 100)")
-            .rate-value {{ totalNeedsSecuredRate }}%
+            .rate-value {{ pct100(totalNeedsSecuredRate, 0) }}
           span.rate-label {{ $t('salesTrackerDashboard.proposalSecured') }}
           span.rate-count {{ metrics.totalNeedsFunnel.secured }}/{{ metrics.totalNeedsFunnel.proposals }}
         .rate-card
@@ -164,7 +164,7 @@ section.section.dashboard-page
             svg(viewBox="0 0 100 100")
               circle.ring-bg(cx="50" cy="50" r="42")
               circle.ring-progress.emerald(cx="50" cy="50" r="42" :stroke-dasharray="264" :stroke-dashoffset="264 - (264 * totalNeedsOverallRate / 100)")
-            .rate-value {{ totalNeedsOverallRate }}%
+            .rate-value {{ pct100(totalNeedsOverallRate, 0) }}
           span.rate-label {{ $t('salesTrackerDashboard.overallWinRate') }}
           span.rate-count {{ metrics.totalNeedsFunnel.secured }}/{{ metrics.totalNeedsFunnel.approaches }}
         .stat-card-inline.orange
@@ -282,6 +282,7 @@ import LoadingSpinner from '~/components/sales/LoadingSpinner.vue'
 import DoughnutChart from '~/components/base/DoughnutChart.vue'
 import LineChart from '~/components/base/LineChart.vue'
 import HBarChart from '~/components/base/HBarChart.vue'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 const TOKEN_KEY = 'advisor_e_token'
 
@@ -311,7 +312,7 @@ export default {
 
   components: { StatCard, ChartCard, LoadingSpinner, DoughnutChart, LineChart, HBarChart },
 
-  mixins: [currencyMixin],
+  mixins: [reportFormatMixin, currencyMixin],
 
   data () {
     return {

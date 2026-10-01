@@ -165,6 +165,8 @@
 </template>
 
 <script>
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+
 /**
  * ManagerConsole — the shared management console for the role hierarchy (Q-ROLES).
  *
@@ -345,8 +347,7 @@ export default {
     },
     formatWhen (at) {
       if (!at) { return '' }
-      const d = new Date(at)
-      return isNaN(d.getTime()) ? '' : d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      return fmtDate(at, this.$i18n.locale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     },
     async setPosture (posture) {
       // Compare against the manager's OWN choice — they may set Open even while

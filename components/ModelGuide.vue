@@ -103,6 +103,7 @@
  * Presentation only. No business logic: the records arrive whole from the backend.
  */
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /**
  * Words carried by almost any sentence, which say nothing about which model is wanted.
@@ -120,7 +121,7 @@ const SEARCH_NOISE = new Set([
 export default {
   name: 'ModelGuide',
 
-  mixins: [currencyMixin],
+  mixins: [reportFormatMixin, currencyMixin],
 
   data () {
     return {
@@ -311,8 +312,8 @@ export default {
       switch (figure.format) {
         case 'money': return this.money(v)
         case 'number1': return this.num(v, 1)
-        case 'percent1': return (Math.round(v * 1000) / 10).toFixed(1) + '%'
-        case 'percentInt': return Math.round(v * 100) + '%'
+        case 'percent1': return this.pct(v, 1)
+        case 'percentInt': return this.pct(v, 0)
         default: return this.num(v, 0)
       }
     },

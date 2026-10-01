@@ -3,7 +3,7 @@
  * bound to the reader's language, the way `currencyMixin` binds money (item 13.8).
  *
  * A component that mixes this in gets `pct`, `pctUpTo`, `pct100`, `pts`, `signedPct`,
- * `signedPct100`, `days`, `times` and `ratio2` as methods, with the same arguments as the
+ * `signedPct100`, `days`, `times`, `ratio2` and `numUpTo` as methods, with the same arguments as the
  * plain functions minus the locale, which is always `$i18n.locale`. Calling the plain
  * functions directly from a screen writes English digits in every language — the fault this
  * exists to stop.
@@ -32,6 +32,8 @@ export default {
     /** @param {number|null} v @param {number} [d] @returns {string} "5.2×" */
     times (v, d) { return f.times(v, this.$i18n.locale, d) },
     /** @param {number|null} v @returns {string} "0.38" */
-    ratio2 (v) { return f.ratio2(v, this.$i18n.locale) }
+    ratio2 (v) { return f.ratio2(v, this.$i18n.locale) },
+    /** @param {number|null} v @param {number} [d] - at most @returns {string} "7", "7.5" */
+    numUpTo (v, d) { return f.numUpTo(v, d, this.$i18n.locale) }
   }
 }

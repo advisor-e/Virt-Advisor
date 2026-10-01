@@ -318,7 +318,8 @@ nothing about who may write the setting moved with the control.
 | Wording setup and merge | `plugins/i18n.js` |
 | Language helper | `mixins/localeMixin.js` |
 | Money formatting | `mixins/currencyMixin.js` |
-| Percentages, multiples, ratios, days — written in the reader's language on every Model Library report and the Business Performance Report (item 13.8) | `mixins/reportFormatMixin.js` over `utils/reportFormat.js`. `reportFormat.test.js` guards both ways a screen can slip back to English: requiring the util directly, and keeping its own `pct`/`percent` of the same name, which silently beats the mixin's in Vue 2 |
+| Percentages, multiples, ratios, days, scores and counts — written in the reader's language on every report, hub screen and adviser screen (item 13.8) | `mixins/reportFormatMixin.js` over `utils/reportFormat.js`. `reportFormat.test.js` guards both ways a screen can slip back to English: requiring the util directly, and keeping its own `pct`/`percent` of the same name, which silently beats the mixin's in Vue 2 |
+| Dates — the reader's language, never the browser's. **English is day first with a 24-hour clock ("7 Sept 2026, 14:05")** (Mike, 2026-10-01) | `formatDate` / `formatStamp` in `utils/dateLocale.js`, over `intlLocaleFor`, which maps `en` to `en-GB`. `i18nDateFormats.test.js` fails on a date or number written with no locale, `undefined`, `[]` or a hardcoded `'en-AU'`/`'en-US'`/`'en-NZ'` — each follows the browser or one country |
 | Translation route | `server/routes/translate.js` |
 | Currency routes | `server/routes/currency.js` |
 | Supported lists | `data/languages.json`, `data/currencies.json` |

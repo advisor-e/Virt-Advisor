@@ -100,7 +100,7 @@ section.mentor-adoption
         numeric
         sortable
       )
-        span(v-if="row.avgQuiz !== null") {{ row.avgQuiz }}%
+        span(v-if="row.avgQuiz !== null") {{ pctUpTo(row.avgQuiz / 100) }}
         span.has-text-grey(v-else) —
 
       b-table-column(
@@ -128,6 +128,8 @@ section.mentor-adoption
 <script>
 import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /**
  * Buefy tag colour per status. Kept as a lookup rather than a chain of v-ifs so
@@ -144,6 +146,8 @@ export default {
   name: 'MentorAdoption',
 
   components: { TierNotConnected },
+
+  mixins: [reportFormatMixin],
 
   props: {
     /** Bearer token for the mentor API (the server re-checks the role every call). */
@@ -266,7 +270,7 @@ export default {
      * @returns {string} e.g. "29 Jul 2026".
      */
     formatDate (dt) {
-      return new Date(dt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+      return fmtDate(dt, this.$i18n.locale)
     }
   }
 }

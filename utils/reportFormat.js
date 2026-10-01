@@ -135,10 +135,21 @@ function ratio2 (v, locale) {
   return fixed(v, 2, locale)
 }
 
+/**
+ * A plain number to AT MOST `d` places, a trailing zero dropped: `numUpTo(7)` → "7",
+ * `numUpTo(7.5)` → "7.5", `numUpTo(1234.567)` → "1,234.57". For scores and prices that are
+ * usually whole, where a fixed "7.00" would read as false precision.
+ * @param {number|null} v @param {number} [d=2] @param {string} [locale] @returns {string}
+ */
+function numUpTo (v, d, locale) {
+  if (!finite(v)) { return DASH }
+  return formatter(locale, { minimumFractionDigits: 0, maximumFractionDigits: d === undefined ? 2 : d }).format(v)
+}
+
 /** @param {number|null} v @returns {'up'|'down'|null} the direction of a movement */
 function direction (v) {
   if (!finite(v) || v === 0) { return null }
   return v > 0 ? 'up' : 'down'
 }
 
-module.exports = { DASH, pct, pctUpTo, pct100, pts, signedPct, signedPct100, days, times, ratio2, direction }
+module.exports = { DASH, pct, pctUpTo, pct100, pts, signedPct, signedPct100, days, times, ratio2, numUpTo, direction }

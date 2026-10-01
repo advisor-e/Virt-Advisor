@@ -230,7 +230,7 @@
             td.is-size-7 {{ partLabel(h.part) }}
             td {{ $t('firmMeetingObservations.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.saved_by }}
-            td.is-size-7.has-text-grey {{ h.created_at }}
+            td.is-size-7.has-text-grey {{ stampText(h.created_at) }}
             td.has-text-right
               b-button(size="is-small" type="is-light" @click="restore(h)") {{ $t('firmMeetingObservations.history.restore') }}
 </template>
@@ -279,8 +279,7 @@
  */
 import FirmMeetingTypes from '~/components/firm/FirmMeetingTypes.vue'
 import FirmMeetingPatterns from '~/components/firm/FirmMeetingPatterns.vue'
-import { intlLocaleFor } from '~/utils/dateLocale'
-
+import { intlLocaleFor, formatStamp } from '~/utils/dateLocale'
 export default {
   name: 'FirmMeetingObservations',
 
@@ -421,6 +420,9 @@ export default {
   },
 
   methods: {
+    /** A stored stamp in the reader's language, never the raw database value (item 13.8). */
+    stampText (v) { return formatStamp(v, this.$i18n.locale) },
+
     /**
      * The advisors who set a point aside, as the reader's language lists names — "A, B, C"
      * in English, "A, B und C" in German — with each name its own part so it can be bold.

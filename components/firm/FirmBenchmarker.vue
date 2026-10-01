@@ -27,7 +27,7 @@
         span.is-size-7.has-text-grey {{ summary.provisional ? $t('firmBenchmarker.inForce.provisional', { finalYear: summary.finalYear, firstProvisional: summary.provisionalYears[0], lastProvisional: summary.provisionalYears[1] }) : $t('firmBenchmarker.inForce.final') }}
         span.has-text-right {{ summary.counts.industries }}
         span.has-text-right {{ summary.counts.withBenchmarks }}
-        span.has-text-right {{ summary.counts.ratioRows.toLocaleString() }}
+        span.has-text-right {{ numUpTo(summary.counts.ratioRows, 0) }}
       p.is-size-7.has-text-grey.mt-2 {{ summary ? summary.source : '' }}
 
     .box
@@ -84,12 +84,15 @@
           tr(v-for="h in history" :key="h.id")
             td {{ $t('firmBenchmarker.history.version', { version: h.version }) }}
             td.is-size-7.has-text-grey {{ h.saved_by }}
-            td.is-size-7.has-text-grey {{ h.created_at }}
+            td.is-size-7.has-text-grey {{ stampText(h.created_at) }}
             td.has-text-right
               b-button(size="is-small" type="is-light" @click="restore(h.id)") {{ $t('firmBenchmarker.history.restore') }}
 </template>
 
 <script>
+import { formatStamp } from '~/utils/dateLocale'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
+
 /**
  * FirmBenchmarker — the mentor's Industry Benchmarks tab (item 4.70 stage 3, Brief P9).
  * The approved drawing is `design/mockups/benchmarker-hub-tab.html` (Mike, 2026-09-08:
@@ -105,6 +108,8 @@
  */
 export default {
   name: 'FirmBenchmarker',
+
+  mixins: [reportFormatMixin],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -130,6 +135,9 @@ export default {
   },
 
   methods: {
+    /** A stored stamp in the reader's language, never the raw database value (item 13.8). */
+    stampText (v) { return formatStamp(v, this.$i18n.locale) },
+
     /** The release in force and the upload history. */
     async load () {
       this.loading = true

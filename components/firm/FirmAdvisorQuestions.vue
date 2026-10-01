@@ -57,7 +57,7 @@ section.advisor-questions
           :label="$t('firmTeamProgress.detail.colAverage')"
           width="100"
         )
-          span(v-if="row.avgScore !== null") {{ row.avgScore }}%
+          span(v-if="row.avgScore !== null") {{ pctUpTo(row.avgScore / 100) }}
           span.has-text-grey(v-else) —
 
       h4.detail-heading.mt-5 {{ $t('firmTeamProgress.detail.sessions') }}
@@ -67,7 +67,7 @@ section.advisor-questions
           span.has-text-weight-semibold {{ sessionName(session) }}
           span.has-text-grey.is-size-7  · {{ formatDate(session.completedAt) }}
           span.has-text-grey.is-size-7(v-if="session.quizScore !== null")
-            |  · {{ session.quizScore }}%
+            |  · {{ pctUpTo(session.quizScore / 100) }}
         .questions
           span.q-chip(
             v-for="(question, qi) in session.questions"
@@ -80,9 +80,13 @@ section.advisor-questions
 
 <script>
 import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 export default {
   name: 'FirmAdvisorQuestions',
+
+  mixins: [reportFormatMixin],
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
@@ -205,13 +209,14 @@ export default {
     },
 
     /**
-     * Day-month-year, matching the team table and the advisor's own progress screen.
+     * Day-month-year in the reader's language, matching the team table and the advisor's
+     * own progress screen.
      *
      * @param {string|Date} dt - a completion timestamp.
      * @returns {string} e.g. "29 Jul 2026".
      */
     formatDate (dt) {
-      return new Date(dt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+      return fmtDate(dt, this.$i18n.locale)
     }
   }
 }

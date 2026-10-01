@@ -158,6 +158,7 @@ import TierNotConnected from '~/components/base/TierNotConnected.vue'
 import HubGuidePanel from '~/components/shared/HubGuidePanel.vue'
 import HubReadingCard from '~/components/shared/HubReadingCard.vue'
 import moderationMessage from '~/mixins/moderationMessage'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
 
 export default {
   name: 'MentorLogicLabReport',
@@ -379,8 +380,7 @@ export default {
     /** @param {string} iso @returns {string} */
     formatDate (iso) {
       if (!iso) { return '' }
-      const d = new Date(iso)
-      return isNaN(d.getTime()) ? String(iso) : d.toLocaleDateString()
+      return fmtDate(iso, this.$i18n.locale) || String(iso)
     }
   }
 }

@@ -96,3 +96,57 @@ describe('$d(date, "long") — the format the run line and the printed pack ask 
     expect(french.toLowerCase()).toContain('septembre')
   })
 })
+
+describe('formatDate / formatStamp — the hub screens\' dates (item 13.8)', () => {
+  const { formatDate, formatStamp, DATE_TIME } = require('../../utils/dateLocale')
+  const when = new Date(2026, 8, 7, 14, 5)
+
+  // 🔴 PINNED: Mike's ruling of 2026-10-01 — English is day first on a 24-hour clock, whatever
+  // the reader's browser is set to. ICU writes September "Sep" or "Sept" depending on version.
+  test('English is day first with a 24-hour clock', () => {
+    expect(formatDate(when, 'en', DATE_TIME)).toMatch(/^7 Sept? 2026, 14:05$/)
+    expect(formatDate(when, 'en')).toMatch(/^7 Sept? 2026$/)
+  })
+
+  test('another language writes its own form', () => {
+    expect(formatDate(when, 'de', DATE_TIME)).toMatch(/^7\. Sept?\.? 2026, 14:05$/)
+  })
+
+  test('a missing or unreadable date is nothing, never "Invalid Date"', () => {
+    expect(formatDate(null, 'en')).toBe('')
+    expect(formatDate('', 'en')).toBe('')
+    expect(formatDate('not a date', 'en')).toBe('')
+  })
+
+  test('a stored stamp shows a day as a day, and a moment with its time', () => {
+    expect(formatStamp('2026-09-07', 'en')).toMatch(/^7 Sept? 2026$/)
+    expect(formatStamp(when.toISOString(), 'en')).toMatch(/^7 Sept? 2026, \d{2}:\d{2}$/)
+  })
+
+  // GUARD. A date or number written with no locale follows the reader's BROWSER, so an English
+  // UAT tester sees nothing wrong while a German reader gets English. Named exceptions wait on
+  // other work, recorded on item 13.8: the Strategy Planner (the laptop's ground) and Meeting
+  // Review (untranslated as a whole screen).
+  test('no screen formats a date or number in the browser\'s language', () => {
+    const fs = require('fs')
+    const path = require('path')
+    const root = path.join(__dirname, '../..')
+    const WAITING = ['components/strategy/StrategyConceptSummary.vue', 'components/MeetingReview.vue', 'pages/strategy-planner.vue']
+    const bad = /toLocale(Date|Time)?String\(\s*(\)|undefined|\[\]|'en-(AU|US|NZ)')/
+    const offenders = []
+    const walk = (d) => {
+      fs.readdirSync(d, { withFileTypes: true }).forEach((e) => {
+        const p = path.join(d, e.name)
+        if (e.isDirectory()) { walk(p); return }
+        if (!/\.(vue|js)$/.test(e.name)) { return }
+        const rel = path.relative(root, p).split(path.sep).join('/')
+        if (WAITING.includes(rel)) { return }
+        fs.readFileSync(p, 'utf8').split(/\r?\n/).forEach((line, i) => {
+          if (bad.test(line)) { offenders.push(rel + ':' + (i + 1)) }
+        })
+      })
+    }
+    ;['components', 'pages', 'layouts', 'mixins'].forEach(d => walk(path.join(root, d)))
+    expect(offenders).toEqual([])
+  })
+})

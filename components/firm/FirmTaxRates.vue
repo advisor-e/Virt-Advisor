@@ -208,6 +208,8 @@
 </template>
 
 <script>
+import reportFormatMixin from '~/mixins/reportFormatMixin'
+
 /**
  * The Tax Rates tab — item 4.81, slice 3.
  *
@@ -241,6 +243,8 @@
  */
 export default {
   name: 'FirmTaxRates',
+
+  mixins: [reportFormatMixin],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -428,7 +432,7 @@ export default {
         // figures beside it. The whole table is one click away in the editor below.
         const bands = Array.isArray(v.bands) ? v.bands : []
         if (!bands.length) { return this.$t('firmTaxRates.notSet') }
-        const pct = r => `${Math.round(r * 1000) / 10}%`
+        const pct = r => this.pctUpTo(r)
         return this.$t('firmTaxRates.bandSummary', {
           count: bands.length,
           lowest: pct(bands[0].rate),
@@ -438,7 +442,7 @@ export default {
       if (v.rate === null || v.rate === undefined) { return this.$t('firmTaxRates.notSet') }
       // One decimal place, which is enough for every published rate and does not invent
       // precision the document did not carry.
-      return `${Math.round(v.rate * 1000) / 10}%`
+      return this.pctUpTo(v.rate)
     },
 
     /** A figure's document, date and page as one line, or '' for an app default. */

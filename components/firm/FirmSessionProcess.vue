@@ -56,7 +56,7 @@ section.fsp
         tbody
           tr(v-for="v in versions" :key="v.id")
             td {{ v.version }}
-            td {{ v.created_at || v.createdAt }}
+            td {{ stampText(v.created_at || v.createdAt) }}
             td.fsp-right
               b-button(size="is-small" :loading="saving" @click="restore(v.id)") {{ $t('sessionProcess.restore') }}
 </template>
@@ -87,6 +87,7 @@ section.fsp
  */
 import StrategyStepBuilder from '~/components/strategy/StrategyStepBuilder.vue'
 import { isPlaceableConcept } from '~/utils/strategyCards'
+import { formatStamp } from '~/utils/dateLocale'
 
 /** The four managing tiers, top first — the settled vocabulary, never abbreviated. */
 const TIERS = [
@@ -216,6 +217,9 @@ export default {
   },
 
   methods: {
+    /** A stored stamp in the reader's language, never the raw database value (item 13.8). */
+    stampText (v) { return formatStamp(v, this.$i18n.locale) },
+
     /**
      * The session in force for this tier, and the library to build one from.
      * @returns {Promise<void>}

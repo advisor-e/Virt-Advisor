@@ -39,6 +39,11 @@ describe('English is unchanged', () => {
     expect(f.signedPct100(20, 'en', 0)).toBe('+20%')
     expect(f.signedPct100(-40, 'en', 0)).toBe('-40%')
     expect(f.signedPct100(0, 'en', 0)).toBe('0%')
+    // numUpTo: scores and counts that are usually whole (slice 3)
+    expect(f.numUpTo(7, undefined, 'en')).toBe('7')
+    expect(f.numUpTo(7.5, undefined, 'en')).toBe('7.5')
+    expect(f.numUpTo(2814, 0, 'en')).toBe('2,814')
+    expect(f.numUpTo(185.5, 2, 'en')).toBe('185.5')
   })
 })
 
@@ -56,6 +61,8 @@ describe('🔴 German gets a decimal comma', () => {
     expect(norm(f.pctUpTo(0.8, undefined, 'de'))).toBe('80 %')
     expect(f.times(12.4, 'de', 0)).toBe('12×')
     expect(norm(f.signedPct100(20, 'de', 0))).toBe('+20 %')
+    expect(f.numUpTo(7.5, undefined, 'de')).toBe('7,5')
+    expect(f.numUpTo(2814, 0, 'de')).toBe('2.814')
   })
 
   test('the points unit is the one it is given, so a translation reaches it', () => {
@@ -68,7 +75,7 @@ describe('🔴 German gets a decimal comma', () => {
 })
 
 describe('no figure is shown as a dash, never as zero', () => {
-  test.each(['pct', 'pctUpTo', 'pct100', 'pts', 'signedPct', 'signedPct100', 'days', 'times', 'ratio2'])('%s', (name) => {
+  test.each(['pct', 'pctUpTo', 'pct100', 'pts', 'signedPct', 'signedPct100', 'days', 'times', 'ratio2', 'numUpTo'])('%s', (name) => {
     expect(f[name](null)).toBe(f.DASH)
     expect(f[name](NaN)).toBe(f.DASH)
   })

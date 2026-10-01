@@ -223,7 +223,7 @@
         "detail": "2026-09-29, in his own words: \"we have translation available and will extend it across all hub pages, all levels, going forward. In fact, you can list that as a required task to do\"."
       },
       "touches": "Every hub tab under FirmManagerHub.vue at the four tiers; locales/en.json; server/utils/uiTranslation.js; and Wordsmith's language: the New Zealand spelling rule in buildDraftMessages and the AMERICAN check in server/utils/wordsmith.js.",
-      "note": "NOT SCOPED. 10.1 and 10.2 already brought the manager screens and the hub's backend wording into translation. First job at scoping: list which hub pages and tiers still show English that bypasses it, and name how Wordsmith learns a firm's language and spelling. The impact test is unrun.",
+      "note": "NOT SCOPED. 10.1 and 10.2 already brought the manager screens and the hub's backend wording into translation. First job at scoping: list which hub pages and tiers still show English that bypasses it, and name how Wordsmith learns a firm's language and spelling. The impact test is unrun. FOUND 2026-10-01: the hub's template-import panel is English-only - FirmManagerHub.vue lines 359-397 (templates loaded, Version, saved, current, Imported) and the import toast near 2304.",
       "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
     },
     {
@@ -269,8 +269,8 @@
         "detail": "2026-09-30 - found walking the eight 13.6 screens in German on the running app. Filed on Mike's yes rather than fixed, because it needs one formatting rule chosen for every report."
       },
       "touches": "The per-report rounding helpers - round1, round0 and pct in MarginBreakevenReport.vue, BusinessPerformanceReport.vue and the other report screens; kf in DebtorDragReport.vue for the chart axis; mixins/currencyMixin.js, which already formats money by locale and is the natural home for one number formatter.",
-      "note": "SLICES 1 AND 2 BUILT 2026-10-01: every Model Library report and the Business Performance Report format through mixins/reportFormatMixin.js; three hardcoded '$' now use the firm's currency. German walk of 20 reports: 57 English decimals and 184 English-style '%' from code now 0; English byte-identical. Multi-step screens walked at step one only. LEFT: slice 3, the hub screens, plus on Mike's yes the seven dates shown in the browser's language (toLocaleString with no locale; fix with intlLocaleFor): AuditViewer, ManagerConsole, FirmDomainSupport, FirmLogicTables, MethodGuidePanel, SalesBlog, MeetingUnfinished. Walk each before and after.",
-      "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-01: PROCEED - slices 1 and 2 done, slice 3 (hub screens and the seven dates) next on the desktop.",
+      "note": "SLICES 1-3 BUILT 2026-10-01: every report, hub screen and adviser screen formats numbers through reportFormatMixin and dates through utils/dateLocale.js (Mike's ruling: English day first, 24-hour); guards in reportFormat.test.js and i18nDateFormats.test.js. German walks of 64 screens: every figure written by code now in the reader's form. LEFT, after the laptop releases its files: strategy-planner.vue's two times/dates, StrategyOwnerContrast's own pct, StrategyConceptSummary's time, FirmAiPrompts' raw timestamp. Meeting Review held back - item 8.7.",
+      "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-01: PROCEED - slices 1-3 done; only the four Strategy Planner and AI Prompts spots remain, after the laptop releases those files.",
       "activeOn": {
         "machine": "desktop",
         "since": "2026-10-01"
@@ -321,6 +321,48 @@
       "touches": "pages/strategy-planner.vue - the clientId watcher, which resets only modelPrints and the guided answers; sessionId, chosen and suggested are never cleared on a client change.",
       "note": "PROVED: 2 concepts ticked for Harbour Joinery stayed ticked after switching to Kinetic Planning. NOT PROVED: that an open session is written to under the new client - trace a save end to end first. Needs Mike's call on whether ticks should ever carry over, e.g. correcting a wrongly picked client.",
       "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.3",
+      "name": "First-load page code is 382 KB against the 300 KB limit",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - nobody sees it until a release gate refuses it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "CLAUDE.md caps first-load JS at 300 KB gzipped and the master team enforces it at the UAT and production gates; measured 2026-10-01 the shared code every page loads is 382 KB.",
+      "risk": "A release could be refused at the master team's gate with no warning from our side, since nothing in this repo measures it; every page also loads slower than the limit allows.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - measured while registering Datepicker and Progress (66e010c9); filed on Mike's yes."
+      },
+      "touches": "nuxt.config.js build settings, plugins/i18n.js (whether locales/en.json is bundled), plugins/buefy.js; the measurement method should match the master team's.",
+      "note": "Production build 2026-10-01, gzipped: runtime 3.1 + commons/app 57.3 + vendors~app 110.0 + app 211.7 = 382 KB before any page; /firm-manager adds 209 KB, /advisor totals 456 KB. Suspected cause, unproved: the 212 KB app chunk carries the English locale file. First job: confirm the master team's measuring method, then find what is in app.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "8.7",
+      "name": "The Meeting Review screen is almost entirely in English",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "components/MeetingReview.vue has one translated phrase in 757 lines, so an adviser working in another language reads the whole review in English.",
+      "risk": "An adviser outside English reads the review of their own client meeting - headings, the client-dispute notice, talk-time and dates - in a language that is not theirs.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found scoping 13.8 slice 3; held out of it and filed on Mike's yes."
+      },
+      "touches": "components/MeetingReview.vue (about 40 sentences, talk-time line 128-130, noticeDate line 480); locales/en.json; the laptop's 8.4 work in the same area.",
+      "note": "Wording moves to locales/en.json as written - no new words - and the numbers and date take 13.8's helpers (reportFormatMixin, formatDate). Coordinate with the laptop, which is building Meeting Review under 8.4; i18nDateFormats.test.js names this file as waiting until then.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

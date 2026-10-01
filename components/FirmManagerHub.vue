@@ -896,7 +896,7 @@ section.firm-manager-hub.section
                         tr(v-for="t in c.decisionTrace.templateScores.slice(0, 6)" :key="t.rank")
                           td {{ t.rank }}
                           td {{ t.title }}
-                          td {{ t.score }}
+                          td {{ numUpTo(t.score) }}
                           td.has-text-grey {{ humanizeReasons(t.matchReasons) }}
                 template(v-else)
                   p.is-size-7.has-text-grey {{ $t('decisionTrace.caseNoTrace') }}
@@ -1068,6 +1068,8 @@ import MentorLogicLabReport from '~/components/mentor/MentorLogicLabReport.vue'
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
 import traceReasonMixin from '~/mixins/traceReasonMixin'
 import moderationMessage from '~/mixins/moderationMessage'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 const { buildMoveRequest } = require('~/utils/distinctionMove')
 
@@ -1824,7 +1826,7 @@ export default {
   // FirmCompliance. Neither replaces the other.
   components: { FirmQuizzes, FirmDomainSupport, FirmLogicTables, FirmStaircase, FirmPropertyTaxRules, FirmForecastTrendThresholds, FirmSellDownLadder, FirmGrowthAspectQuestions, FirmWordsmith, FirmStrategyConcepts, FirmBenchmarker, FirmDepreciationRates, FirmTaxRates, CountryRateSchedules, FirmAiPrompts, FirmMeetingObservations, FirmSessionProcess, FirmOwnerFocusTasks, FirmClientCopyRequests, FirmCompliance, FirmOutcomeConsent, FirmTeamProgress, FirmDistinctionForm, FirmAdviserNetwork, FirmCurrency, FirmRegisterRetention, FirmDecisionLogic, FirmTemplateLibrary, MentorReview, MentorDistinctions, MentorTemplateCheck, MentorTemplateLibrary, MentorSemanticProfiles, MentorLogicLabReport, MentorAdoption, MentorModelChoices, MentorOutcomeLearning, TierNotConnected, SalesTeam, SalesLists },
 
-  mixins: [traceReasonMixin, moderationMessage],
+  mixins: [reportFormatMixin, traceReasonMixin, moderationMessage],
 
   props: {
     // Which tier is looking at this hub. Mike's ruling 2026-07-30: every tier is
@@ -2459,8 +2461,7 @@ export default {
       if (!iso) { return '' }
       const d = new Date(iso)
       if (Number.isNaN(d.getTime())) { return '' }
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-      return `${d.getDate()} ${months[d.getMonth()]}`
+      return fmtDate(d, this.$i18n.locale, { day: 'numeric', month: 'short' })
     },
 
     // ── Stage E — review a mentor update to a distinction the firm customised ────
@@ -2967,7 +2968,7 @@ export default {
     },
 
     formatDate (iso) {
-      return iso ? new Date(iso).toLocaleDateString() : ''
+      return fmtDate(iso, this.$i18n.locale)
     },
 
     /**
