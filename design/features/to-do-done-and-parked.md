@@ -379,6 +379,18 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.17 · Three options of the engine's briefing builder were never used, so their code never ran.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done).**
+
+- **What was done:** `buildClientContext` in `server/advisorEngine.js` lost `includeSummaries`,
+  `includeSectionDesc` and `logicTree`/`logicTrees` with the code behind them, the
+  `includeSummaries: false` at the Phase 3 caller, and the now-unused `formatLogicTreeForPrompt`
+  import. Summaries, section descriptions and trees still reach the AI on their other paths.
+- **What proves it:** the briefing text for both callers' option shapes, four client questions,
+  12 cases and 785,494 characters, captured before and after — identical byte for byte. Full
+  suite green on Node 14.15. **Not walked on the running app**, which the item's risk line asked
+  for: the AI's input is proven unchanged, which is what a walk would have shown.
+
 **46.1 · Stats NZ benchmarks had this year's provisional years typed in, so the next release would mislabel them.**
 ✅ **Closed 2026-10-01 by Mike ("done - yes"), the day he ruled on it.**
 

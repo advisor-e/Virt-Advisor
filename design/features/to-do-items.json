@@ -252,27 +252,6 @@
       }
     },
     {
-      "ref": "7.17",
-      "name": "Remove the three never-used options from the engine's briefing builder",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 1,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "buildClientContext accepts includeSummaries, includeSectionDesc and logicTree/logicTrees, but neither caller ever turns them on and no test does, so that code never runs.",
-      "risk": "Clutter, not a wrong answer: a reader assumes the client-mode briefing can carry topic summaries, section descriptions and logic trees, and it cannot. Removing it cuts code from the engine's main briefing builder, so trace every reference first and walk a client conversation on the running app afterwards.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-29 - found in the whole-brain read, confirmed at shutdown; filed on Mike's yes rather than fixed during shutdown."
-      },
-      "touches": "server/advisorEngine.js buildClientContext (~line 570) and its two callers (~3121, ~3737); tests/unit/reportModelSummaries.test.js, the only test that calls it.",
-      "note": "FOUND 2026-09-29. No behaviour change intended - the options are off at both call sites. Findings: design/AI-WHOLE-BRAIN-FINDINGS.md.",
-      "comment": "2026-09-29 - filed on Mike's yes at the desktop shutdown. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "13.8",
       "name": "Report figures keep English number formatting in other languages",
       "rankedByMike": false,

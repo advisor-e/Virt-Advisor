@@ -23,7 +23,7 @@ const { filterSummariesByQuery, getSummariesForTemplateNames, formatSummariesFor
 const { formatGrowthFundamentalsForPrompt, conversationHasGrowthStage } = require('../server/utils/growth')
 const { loadResolvedAspects, readScopeConfig: readGrowthAspectConfig } = require('../server/utils/growthAspects')
 const { formatReportModelsForPrompt } = require('../server/utils/reportModels')
-const { detectLogicTree, detectLogicTrees, formatLogicTreeForPrompt, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree, treeDescription } = require('../server/utils/logicTrees')
+const { detectLogicTree, detectLogicTrees, buildLearnReferenceText, walkLogicTree, effectiveTrees, isClientDeliveryLearnTree, treeDescription } = require('../server/utils/logicTrees')
 const { formatDomainSupportForPrompt, supportIdForLearnTree } = require('../server/utils/domainSupport')
 const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('../server/utils/firmContent')
 const { loadResolvedGuideOverrides } = require('../server/utils/methodGuideConfig')
@@ -566,17 +566,13 @@ Return ONLY the chosen question — no preamble, no explanation, no additional t
 }
 
 // ── Shared context builder for all client-mode AI calls ──
-// Centralises template/coaching/summary fetching so Phase 3 and post-rec
+// Centralises template/coaching fetching so Phase 3 and post-rec
 // don't duplicate the same logic independently.
 function buildClientContext (orgTemplateIds, searchQuery, options) {
   const {
     includeCoaching = true,
-    includeSummaries = false,
     includeGrowthStage = null,
-    includeSectionDesc = false,
     advisorProfile = null,
-    logicTree = null,
-    logicTrees = null,
     maxTemplates = 25,
     excludeSections = [],
     firmTemplates = null,
@@ -609,7 +605,6 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   // prose is hostile input under the governance rules, exactly like the coaching notes
   // above, and being a manager's words rather than an advisor's changes nothing.
   const firmContributionsText = formatContributionsForPrompt(firmContributions)
-  const sectionDescText = includeSectionDesc ? formatSectionDescriptionsForPrompt() : null
   const growthText = includeGrowthStage
     ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }], growthAspects)
     : null
@@ -617,43 +612,17 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
     ? `\n\nADVISOR PROFILE: ${fenceUntrusted(formatAdvisorProfile(advisorProfile))}`
     : ''
 
-  // Build summaries: keyword match + tree terminal-node templates (merged, de-duped, capped at 25)
-  let summariesText = null
-  if (includeSummaries) {
-    const querySummaries = filterSummariesByQuery(searchQuery, 12)
-    const treesArray = Array.isArray(logicTrees) ? logicTrees : (logicTree ? [logicTree] : [])
-    const treeTemplateNames = treesArray.flatMap(t => (t.nodes || []).filter(n => n.type === 'recommendation').flatMap(n => n.templates || []))
-    const treeSummaries = getSummariesForTemplateNames(treeTemplateNames)
-    const summaryMap = new Map()
-    for (const s of [...querySummaries, ...treeSummaries]) {
-      if (!summaryMap.has(s.name)) { summaryMap.set(s.name, s) }
-    }
-    const summariesToUse = Array.from(summaryMap.values()).slice(0, 25)
-    summariesText = summariesToUse.length > 0
-      ? `## Template Content Summaries (${summariesToUse.length} most relevant)\n\nFor Phase 3, these are your primary source for recommendation copy. Use this mapping when writing each template entry:\n- "Why this fits your client" → draw from the Purpose and When to use fields, tailored to this client's specific situation\n- "Why this suits you as the advisor" → draw from the Helps the advisor field, tailored to what the advisor stated about their confidence and strengths\nDo not copy word-for-word — adapt the language to the situation — but stay close to the intent of the source content. If no summary exists for a template, write the fields from the collected answers alone.\n\n` + formatSummariesForPrompt(summariesToUse)
-      : null
-  }
-
   // What each built calculation model serves (item 4.29). Platform content, unfenced by
   // design — see the note in server/utils/reportModels.js.
   const reportModelsText = formatReportModelsForPrompt()
-
-  // Logic trees — diagnostic pathways that led to this situation
-  const treesForPrompt = Array.isArray(logicTrees) ? logicTrees : (logicTree ? [logicTree] : [])
-  const logicTreeText = treesForPrompt.length > 0
-    ? treesForPrompt.map(t => formatLogicTreeForPrompt(t)).join('\n\n---\n\n')
-    : null
 
   return [
     `## Available Templates (${templatesToUse.length} most relevant)`,
     '',
     templatesText,
-    sectionDescText ? '\n---\n\n' + sectionDescText : '',
     firmCoachingText ? '\n---\n\n## Firm Coaching Notes — observations promoted from this firm\'s reviewed cases\n\n' + firmCoachingText : '',
     firmContributionsText ? '\n---\n\n## This Firm\'s Own Method — material this firm has put in force for its own advisors\n\n' + firmContributionsText : '',
     growthText ? '\n---\n\n' + growthText : '',
-    summariesText ? '\n---\n\n' + summariesText : '',
-    logicTreeText ? '\n---\n\n' + logicTreeText : '',
     // The ten built calculation models (item 4.29, Mike 2026-08-21). Until this, the
     // backend had never heard of them: the catalogue was read by ModelLibrary.vue alone,
     // so an advisor describing a cash problem could not be pointed at Debtor Drag.
@@ -3737,7 +3706,6 @@ async function handleQuery (rawBody, res, identity) {
     const domainSupportPhase3 = state.detectedDomain ? formatDomainSupportForPrompt(state.detectedDomain, firmDomainSupport) : null
 
     const contextMsg2 = buildClientContext(orgTemplateIds, collectedAnswers, {
-      includeSummaries: false,
       includeGrowthStage: state.growthStage && state.growthStage !== 'pending' ? state.growthStage : null,
       growthAspects: firmGrowthAspects,
       maxTemplates: 25,
