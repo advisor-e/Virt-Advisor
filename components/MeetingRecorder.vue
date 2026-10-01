@@ -28,6 +28,18 @@
         span.mrec-say {{ savedSay }}
         b-button(type="is-danger" size="is-small" :loading="busy" @click="stopAndDelete") {{ $t('meetingRecorder.stopAndDelete') }}
 
+      //- The parts row appears once there is a second part (Decision D); a meeting under 20
+      //- minutes looks exactly as it did before parts existed.
+      .mrec-parts(v-if="parts.length")
+        span.tag.is-rounded(v-for="p in parts" :key="p.n" :class="p.cls") {{ p.text }}
+        p.is-size-7.has-text-grey.mrec-why {{ $t('meetingRecorder.partsWhy') }}
+
+      //- Screen 2: a part that could not be turned into text shows now, while the client is
+      //- still in the room. Its audio is already gone (P8), so there is nothing to retry.
+      b-message.mt-3(v-for="f in failedParts" :key="'f' + f.n" type="is-warning" size="is-small")
+        p.has-text-weight-semibold {{ $t('meetingRecorder.partFailedHeading', f) }}
+        p.mt-1 {{ $t('meetingRecorder.partFailedBody') }}
+
       //- The alarm. P11: a failed recording fails loudly — a tidy page of nothing must
       //- never be what total failure looks like.
       b-message(v-if="interrupted" type="is-danger")
@@ -55,11 +67,17 @@
       p.has-text-weight-semibold {{ $t('meetingRecorder.finishingHeading') }}
       p.is-size-7.has-text-grey.mt-1 {{ $t('meetingRecorder.finishingBody') }}
       b-progress.mt-3(type="is-primary")
+      .mrec-parts(v-if="parts.length")
+        span.tag.is-rounded(v-for="p in parts" :key="p.n" :class="p.cls") {{ p.text }}
 
     .box(v-else-if="stage === 'done'")
       p.has-text-weight-semibold {{ $t('meetingRecorder.doneHeading') }}
       p.is-size-7.has-text-grey.mt-1(v-if="audioDeleted") {{ $t('meetingRecorder.doneAudioGone') }}
       b-message.mt-3(v-if="audioDeletionFailed" type="is-danger" size="is-small") {{ $t('meetingRecorder.deletionFailed') }}
+      //- Screen 4, Decision E: the parts that worked are the transcript; the gap is named.
+      b-message.mt-3(v-for="f in failedParts" :key="'m' + f.n" type="is-warning" size="is-small")
+        p.has-text-weight-semibold {{ $t('meetingRecorder.missingHeading', f) }}
+        p.mt-1 {{ $t('meetingRecorder.missingBody') }}
       b-message.mt-3(v-if="attributionConfident === false" type="is-warning" size="is-small") {{ $t('meetingRecorder.notConfident') }}
       //- Slice 3 replaced the "not built yet" note that stood here. This is the only route
       //- to the reports, so without it the screen they live on is unreachable.
@@ -111,18 +129,39 @@
  * wakeLock` — is touched only inside `mounted()` or a method a person triggers. Nothing is
  * read at the top level, in `data()`, in a computed or in `created()`.
  *
- * ⚠ THIS SLICE STOPS AT THE TRANSCRIPT. No report of either kind exists yet, which the "done"
- * panel says in an advisor's own words rather than leaving them to wonder.
+ * 🔴 A MEETING IS RECORDED IN 20-MINUTE PARTS (item 8.4, `design/mockups/meeting-review-long-
+ * recording.html`, approved 2026-10-01). OpenAI's speaker-labelling model refuses more than 1400
+ * seconds of audio, so a meeting sent whole past 23 min 20 s lost its transcript and its audio.
+ * Each part is its own segment on the server (`meetingSegments.js`, the strategy session's
+ * machinery), turned into text as it closes and joined at the end (Decisions A, B).
+ *
+ * 🔴 THE ADVISOR'S VOICE CLIP STAYS IN THIS BROWSER UNTIL PART 2 OPENS (Decision C, its privacy
+ * risk stated to Mike before he ruled). Part 1 opens with the consent line, so its first speaker
+ * is the advisor; only later parts need the clip to tell the advisor apart. A meeting that ends
+ * inside 20 minutes therefore never sends it anywhere, and it is dropped with the page.
  *
  * Vue 2 Options API, Pug, Buefy.
  */
 import MeetingConsentPanel from '~/components/MeetingConsentPanel.vue'
+import { describeParts, failedParts } from '~/utils/meetingParts'
 
 /** How often captured audio leaves the browser. Short enough that a crash costs seconds. */
 const CHUNK_MS = 15000
 
 /** How often the recorder asks the backend how transcription is going. */
 const POLL_MS = 4000
+
+/**
+ * Decision A: a part closes itself here and the next starts with no gap — under the model's
+ * 1400-second limit, as the strategy session's sections are (ROLL_SECONDS there).
+ */
+const ROLL_SECONDS = 20 * 60
+
+/** The advisor's voice clip: 2–10 seconds is OpenAI's documented range. */
+const CLIP_MS = 8000
+
+/** The tag colour for each part's state — Bulma's own, so nothing here is hand-rolled. */
+const PART_TAG = { recording: 'is-danger', working: 'is-warning is-light', ready: 'is-success is-light', failed: 'is-danger is-light' }
 
 export default {
   name: 'MeetingRecorder',
@@ -157,7 +196,12 @@ export default {
       interrupted: false,
       audioDeleted: false,
       audioDeletionFailed: false,
-      attributionConfident: null
+      attributionConfident: null,
+      /** The server's view of every part (`publicSegments`). */
+      segments: [],
+      /** The live part's number, and how long it has been recording. */
+      liveN: 0,
+      partSeconds: 0
     }
   },
 
@@ -176,6 +220,21 @@ export default {
 
     savedSay () {
       return this.$t('meetingRecorder.savedSay')
+    },
+
+    /** The parts row: empty until there is a second part (Decision D). */
+    parts () {
+      const key = { recording: 'partRecording', working: 'partWorking', ready: 'partReady', failed: 'partFailed' }
+      return describeParts(this.segments).map(p => ({
+        n: p.n,
+        cls: PART_TAG[p.status],
+        text: this.$t('meetingRecorder.' + key[p.status], p)
+      }))
+    },
+
+    /** Parts that could not be turned into text — warned of now, named as missing at the end. */
+    failedParts () {
+      return failedParts(this.segments)
     }
   },
 
@@ -230,10 +289,13 @@ export default {
           scenarioId: this.scenarioId || null,
           // The backend checks this against the firm's own register and refuses an id that is
           // not on it, so a wrong value fails loudly rather than attaching the wrong business.
-          clientId: this.clientId || null
+          clientId: this.clientId || null,
+          segmented: true,
+          parts: true
         })
         this.meetingId = started.meetingId
         this.retentionPhrase = started.retentionPhrase || this.retentionPhrase
+        await this.openPart()
       } catch (err) {
         this.busy = false
         this.teardownCapture()
@@ -241,26 +303,45 @@ export default {
         return
       }
 
-      this._seq = 0
       this.beginCapture()
+      this.captureVoiceClip()
       await this.holdWakeLock()
       this.startClock()
       this.stage = 'consent2'
       this.busy = false
     },
 
-    /** Start (or restart) the MediaRecorder over the open stream. */
+    /**
+     * Open the next part on the server, which closes — and starts transcribing — the one before.
+     * From part 2 on, the advisor's clip is sent first, so the part just closed is labelled by it.
+     */
+    async openPart () {
+      if (this.liveN) { await this.uploadVoiceClip() }
+      const opened = await this.call('POST', '/api/meeting/recordings/' + this.meetingId + '/segments', { label: 'part' })
+      this.liveN = opened.segment
+      this.segments = opened.segments || []
+      this._partStartedAt = Date.now()
+      this.partSeconds = 0
+    },
+
+    /** Start a MediaRecorder for the live part. A fresh one per part: its own file. */
     beginCapture () {
-      this._expectingStop = false
+      const n = this.liveN
+      let seq = 0
+      this._uploads = []
       const recorder = new MediaRecorder(this._stream)
 
       recorder.ondataavailable = (event) => {
-        if (event.data && event.data.size) { this.uploadChunk(event.data) }
+        if (event.data && event.data.size) {
+          seq += 1
+          this._uploads.push(this.uploadChunk(n, seq, event.data))
+        }
       }
       // A stop we did not ask for is the suspended-tab case. It raises the alarm rather than
       // ending quietly, because the advisor has to know the last minutes are missing.
+      // `stopCapture` replaces this handler before every stop it makes.
       recorder.onstop = () => {
-        if (!this._expectingStop && this.stage === 'recording') {
+        if (this.stage === 'recording') {
           this.interrupted = true
           this.stopClock()
         }
@@ -269,25 +350,83 @@ export default {
       this._recorder = recorder
     },
 
-    /** Send one captured piece. A failed chunk is reported, never swallowed. */
-    async uploadChunk (blob) {
-      if (!this.meetingId) { return }
-      this._seq += 1
+    /**
+     * Send one captured piece of part `n`. A failed chunk is reported, never swallowed. The server
+     * says when a part has passed 20 MB, or refuses a chunk that would overfill it; either way the
+     * meeting moves on to the next part.
+     */
+    async uploadChunk (n, seq, blob) {
       const form = new FormData()
-      form.append('seq', String(this._seq))
+      form.append('seq', String(seq))
       form.append('chunk', blob, 'chunk')
 
       try {
-        const res = await fetch('/api/meeting/recordings/' + this.meetingId + '/chunk', {
+        const res = await fetch('/api/meeting/recordings/' + this.meetingId + '/segments/' + n + '/chunk', {
           method: 'POST',
           headers: { Authorization: 'Bearer ' + this.apiToken },
           body: form
         })
-        if (!res.ok) { throw new Error(res.statusText) }
+        const body = await res.json().catch(() => ({}))
+        if (res.status === 409 || body.rollOver) { this.rollOver() }
+        if (!res.ok && res.status !== 409) { throw new Error(res.statusText) }
         this.chunkError = ''
       } catch (err) {
         this.chunkError = this.$t('meetingRecorder.errChunk')
       }
+    },
+
+    /** Decision A: close the live part and start the next, with no gap. */
+    async rollOver () {
+      if (this._rolling || this.stage !== 'recording' || this.interrupted) { return }
+      this._rolling = true
+      try {
+        await this.stopCapture()
+        await this.openPart()
+        this.beginCapture()
+      } catch (err) {
+        this.fatal = this.$t('meetingRecorder.errStart', { error: err.message })
+        this.teardownCapture()
+      } finally {
+        this._rolling = false
+      }
+    },
+
+    /** The advisor's first 8 seconds — the opening of the consent line — kept in this browser. */
+    captureVoiceClip () {
+      const pieces = []
+      const clip = new MediaRecorder(this._stream)
+      clip.ondataavailable = (event) => { if (event.data && event.data.size) { pieces.push(event.data) } }
+      clip.onstop = () => {
+        if (pieces.length) { this._clip = new Blob(pieces, { type: pieces[0].type || 'audio/webm' }) }
+      }
+      clip.start()
+      this._clipTimer = setTimeout(() => { if (clip.state !== 'inactive') { clip.stop() } }, CLIP_MS)
+    },
+
+    /** Send the clip once, when part 2 opens. Without it later parts are recorded as not confident. */
+    async uploadVoiceClip () {
+      const clip = this._clip
+      this._clip = null
+      if (!clip) { return }
+      const form = new FormData()
+      form.append('clip', clip, 'clip')
+      try {
+        await fetch('/api/meeting/recordings/' + this.meetingId + '/voice-reference', {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + this.apiToken },
+          body: form
+        })
+      } catch (err) {
+        // The server's rule then holds: a later part without the clip is never called confident.
+      }
+    },
+
+    /** Keep the parts row current while recording, once there is more than one part. */
+    async refreshParts () {
+      try {
+        const status = await this.call('GET', '/api/meeting/recordings/' + this.meetingId)
+        this.segments = status.segments || this.segments
+      } catch (err) { /* a failed poll is not a failed part; the next tick asks again */ }
     },
 
     /** Consent step two's "Yes — continue". */
@@ -303,7 +442,10 @@ export default {
       }
     },
 
-    /** Pick capture back up after an interruption, on the same meeting. */
+    /**
+     * Pick capture back up after an interruption, on the same meeting, as its next part. The
+     * server closes the part that stopped, which is transcribed as usual.
+     */
     async resumeRecording () {
       this.busy = true
       this.chunkError = ''
@@ -311,6 +453,7 @@ export default {
         if (!this._stream || !this._stream.active) {
           this._stream = await navigator.mediaDevices.getUserMedia({ audio: true })
         }
+        await this.openPart()
         this.beginCapture()
         await this.holdWakeLock()
         this.startClock()
@@ -325,14 +468,15 @@ export default {
     /**
      * End capture and start transcription.
      *
-     * The recorder is stopped and given a moment to flush its last chunk before the backend
-     * is told to assemble — otherwise the final seconds are lost between the two calls.
+     * The recorder is stopped and its last chunk waited for before the backend is told to
+     * finish — otherwise the final seconds are lost between the two calls. A clip never sent
+     * (a meeting inside 20 minutes) is dropped here, never uploaded.
      */
     async finishRecording () {
       this.busy = true
-      this.stopCapture()
       this.stopClock()
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await this.stopCapture()
+      this._clip = null
 
       try {
         await this.call('POST', '/api/meeting/recordings/' + this.meetingId + '/finish')
@@ -353,6 +497,7 @@ export default {
         this.audioDeleted = Boolean(status.audioDeleted)
         this.audioDeletionFailed = Boolean(status.audioDeletionFailed)
         this.attributionConfident = status.attributionConfident
+        this.segments = status.segments || this.segments
 
         if (status.state === 'done') { this.stage = 'done'; return }
         if (status.state === 'failed') { this.stage = 'failed'; return }
@@ -382,18 +527,28 @@ export default {
       }
     },
 
-    /** Stop the MediaRecorder without treating it as an interruption. */
+    /**
+     * Stop the live recorder without treating it as an interruption, and resolve once its last
+     * chunk has reached the server.
+     * @returns {Promise<void>}
+     */
     stopCapture () {
-      this._expectingStop = true
-      if (this._recorder && this._recorder.state !== 'inactive') {
-        try { this._recorder.stop() } catch (e) { /* already stopped */ }
-      }
+      const recorder = this._recorder
+      this._recorder = null
+      const sent = () => Promise.all(this._uploads || []).then(() => {}, () => {})
+      if (!recorder || recorder.state === 'inactive') { return sent() }
+      return new Promise((resolve) => {
+        recorder.onstop = () => { sent().then(resolve) }
+        try { recorder.stop() } catch (e) { resolve() }
+      })
     },
 
-    /** Stop capture and release every device this component opened. */
+    /** Stop capture and release every device this component opened. The clip goes with them. */
     teardownCapture () {
       this.stopCapture()
       this.stopClock()
+      if (this._clipTimer) { clearTimeout(this._clipTimer); this._clipTimer = null }
+      this._clip = null
       if (this._poll) { clearTimeout(this._poll); this._poll = null }
       if (this._stream) {
         this._stream.getTracks().forEach((t) => { try { t.stop() } catch (e) { /* gone */ } })
@@ -422,7 +577,12 @@ export default {
 
     startClock () {
       this.stopClock()
-      this._clock = setInterval(() => { this.elapsedSeconds += 1 }, 1000)
+      this._clock = setInterval(() => {
+        this.elapsedSeconds += 1
+        this.partSeconds = Math.floor((Date.now() - (this._partStartedAt || Date.now())) / 1000)
+        if (this.partSeconds >= ROLL_SECONDS) { this.rollOver() }
+        if (this.segments.length > 1 && this.elapsedSeconds % (POLL_MS / 1000) === 0) { this.refreshParts() }
+      }, 1000)
     },
 
     stopClock () {

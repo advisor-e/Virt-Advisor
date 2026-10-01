@@ -298,13 +298,19 @@ followed here. The name is written in exactly one place — `DIARIZING_MODEL` in
 `server/utils/transcriptionClient.js` — and the shape of every reply is validated rather than
 trusted, which is the only defence available while no dated pin exists. **Re-check periodically.**
 
-**Which speaker is the advisor is answered by P1, not by a voice sample.** The model will accept
-short reference recordings and name speakers from them. **This design deliberately does not use
-that.** A stored sample of an advisor's voice, held so that software can recognise them, is
-biometric data — special-category under UK and EU law, in the same tier as health records, and one
-more thing to guard and to destroy. It is also unnecessary, because **the advisor is the one who
-speaks the consent line and it is the first thing on the recording**. The legal foundation and the
-technical anchor are the same sentence. Per-speaker microphones were rejected separately: they work
+**Which speaker is the advisor: P1 for the first 20 minutes, the advisor's own voice clip after.**
+**The advisor is the one who speaks the consent line and it is the first thing on the recording**, so
+in part 1 the first speaker is the advisor — the legal foundation and the technical anchor are the
+same sentence. A meeting longer than 20 minutes is recorded in parts (below), and a later part has no
+consent line to anchor on: the client may speak first and every label would swap. So the browser
+keeps the **first 8 seconds of the consent line** — the advisor's voice, never the client's — and
+sends it, when part 2 opens, with each part. **Mike's ruling, 2026-10-01 (Decision C of
+[`../mockups/meeting-review-long-recording.html`](../mockups/meeting-review-long-recording.html)),
+given after the risk was stated to him:** a sample held so software can recognise a person is
+biometric data, special-category under UK and EU law. It lives only while the meeting's audio does
+and is destroyed with it; a meeting that ends inside 20 minutes never sends it anywhere. Measured the
+same day on a two-voice recording: labels right 34 of 34 with the clip and without it, and 252 of 252
+across a 40-minute meeting in two parts. Per-speaker microphones were rejected separately: they work
 only for in-person meetings and make the feature depend on hardware a firm must buy.
 
 **The consequence, and it constrains the consent wording.** Speaker labels are assigned per
@@ -340,18 +346,26 @@ place, which is another reason P4 is load-bearing.
 **Live capture was chosen over file upload, and the cost is recorded.** *(Mike's ruling,
 2026-09-01, against the recommendation on the day.)* Upload would have been materially simpler and
 robust to a sleeping laptop. Live capture was chosen and brings two things upload could not: the
-spoken consent of P1, and pieces saved as they arrive, so a crash loses only the last piece. **The
-pieces are stored, not transcribed:** the whole recording is transcribed once, when the meeting ends.
-Transcribing piece by piece is not built; it belongs to item 8.4's design. **The residual risk is the browser tab** — an operating system may
+spoken consent of P1, and pieces saved as they arrive, so a crash loses only the last piece. **The residual risk is the browser tab** — an operating system may
 throttle or suspend a backgrounded tab, and a screen lock mid-meeting is not a rare event. Hold a
 wake-lock, and treat "recording stopped unexpectedly" as an alarm, never a silent state.
 
-**Splitting at capture buys crash-safety (P10), not the length limit.** The diarizing model
-refuses more than **1400 seconds** of audio (23 min 20 s) whatever the file's size — proven
-2026-10-01 by sending it 40 minutes at 72.8 MB and at 18.2 MB, both refused on duration — and the
-final pass sends the whole recording as one file. So a meeting past 23 minutes 20 seconds is
-refused, and its audio is destroyed either way. OpenAI's 25 MB file limit would bite later, at about
-27 minutes. Item 8.4.
+**A meeting is recorded in 20-minute parts** (item 8.4,
+[`../mockups/meeting-review-long-recording.html`](../mockups/meeting-review-long-recording.html),
+approved by Mike 2026-10-01). The diarizing model refuses more than **1400 seconds** of audio
+(23 min 20 s) whatever the file's size — proven 2026-10-01 by sending it 40 minutes at 72.8 MB and
+at 18.2 MB, both refused on duration — and a meeting sent whole lost its transcript and its audio.
+So every 20 minutes, or 20 MB, a part closes and the next starts with no gap (A); each part is
+turned into text as it closes and its audio destroyed at once (B); from 20:00 the advisor sees the
+parts, and a part that failed is shown while the client is still there (D); at the end the parts
+join into one transcript on the meeting's own clock, the reports read it as before, and a part that
+failed is named by its minutes on the done panel and above both reports — never read across (E).
+It is the strategy session's segment machinery (`meetingSegments.js`), with the meeting marked
+`inParts` so no concept summary is written. **Measured 2026-10-01:** the refused 40-minute meeting,
+in two parts through this code and real OpenAI calls, came back with all 126 numbered points and
+every line labelled correctly. A word or two at a join may be garbled — one phrase at 20:00 in that
+run — and has not yet been measured on a real meeting. A recording started before this shipped
+still finishes through the old single-file pass.
 
 **Where the observation points are edited, and at which tiers.** They are content that shapes AI
 output, so the hub-page rule in `CLAUDE.md` applies: **the mentor tier gets the screen, and gets it
@@ -672,7 +686,7 @@ report belongs to the advisor and the name should say so before they open it.
 | Names for the two reports | Mike | ✅ **Settled 2026-09-01** — **Meeting Summary** (client) and **My Coaching Notes** (advisor); *Advisor Review* rejected, §5 Known state |
 | Consent wording, spoken and on screen | Mike | ✅ **Settled 2026-09-01** — spoken line, two-step screen, and the refusal path, in [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md). A lawyer's reading is suggested, never required (§4 item 2) |
 | The exception to the PII-to-LLM rule | Mike | ✅ **Settled 2026-09-01** — written into `CLAUDE.md`, named to this feature, four conditions, no precedent (§4 item 1) |
-| Speaker separation approach | Ours to propose, Mike to choose | ✅ **Settled 2026-09-01** — provider diarization, advisor anchored to the consent line, no voice sample (§3) |
+| Speaker separation approach | Ours to propose, Mike to choose | ✅ **Settled 2026-09-01; extended 2026-10-01** — provider diarization, advisor anchored to the consent line, and from part 2 of a long meeting the advisor's 8-second voice clip (§3, Decision C) |
 | Drawing check: verbal signature, or advisor confirms | Mike | ✅ **Settled 2026-09-01** — **both**: the verbal signature raises it and says it is guessing, the advisor confirms in one tap, and the stored finding is the confirmation, never the guess |
 | Minimum cohort size for manager aggregates | Ours to propose | ✅ **Settled 2026-09-01** — **5 advisors and 20 meetings**, never lowered to populate a screen; §5 trap 2 records the accepted cost |
 | Default transcript retention period | Mike | ✅ **Settled 2026-09-01** — **18 months**, as the platform default. It is spoken aloud to the client, so the line renders the firm's current figure and never a hardcoded one — [`../MEETING-CONSENT-WORDING.md`](../MEETING-CONSENT-WORDING.md) banner |

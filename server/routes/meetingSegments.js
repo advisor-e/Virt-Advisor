@@ -120,8 +120,9 @@ async function runSegmentTranscription (meetingId, n) {
     })
     store.updateSegment(meetingId, n, { state: 'done', attributionConfident: confident })
     // Slice 2: the concept's summary is written as soon as its words exist, so the advisor and
-    // client can approve it while the concept is fresh (screen 10).
-    runSegmentSummary(meetingId, n)
+    // client can approve it while the concept is fresh (screen 10). A meeting in parts has no
+    // concepts, and its Meeting Summary is written once, from the joined transcript.
+    if (!(store.readMeta(meetingId) || {}).inParts) { runSegmentSummary(meetingId, n) }
     // Screen 4, Decision D: the words are placed in their boxes now, during the session.
     runSegmentWords(meetingId, n)
   } catch (err) {
@@ -408,8 +409,10 @@ function settle (meetingId) {
         speakerCount: joined.speakerCount,
         attributionConfident: joined.attributionConfident,
         segmentCount: joined.segmentCount,
-        // Disclosed rather than hidden: which segments could not be turned into text.
-        missingSegments: joined.missingSegments
+        // Disclosed rather than hidden: which segments could not be turned into text, and the
+        // stretch of the meeting each one covered (Decision E of the long-recording drawing).
+        missingSegments: joined.missingSegments,
+        missingRanges: joined.missingRanges
       })
     }
     store.updateMeta(meetingId, transcribedAny
@@ -494,9 +497,10 @@ async function uploadVoiceReference (req, res) {
 /**
  * POST /api/meeting/recordings/:meetingId/segments  (advisor)
  *
- * The advisor pressed "Record this section" on a concept card, or a segment reached 25
- * minutes or 20 MB and the browser rolled it over as "part 2". Closes the live segment — which
- * starts its transcription — and opens the next.
+ * The advisor pressed "Record this section" on a concept card, or a segment reached 20
+ * minutes or 20 MB and the browser rolled it over as "part 2" — which is also how an ordinary
+ * meeting in parts moves on. Closes the live segment — which starts its transcription — and
+ * opens the next.
  *
  * @route POST /api/meeting/recordings/:meetingId/segments
  * @param {object} req.body - `{ conceptId?: string, label: string }`
@@ -514,6 +518,9 @@ async function openNextSegment (req, res) {
   // framework card, the framework's; none means the framing and agenda section. An imported
   // concept counts only where this meeting's own firm can see it (item 15.20).
   const conceptId = body.conceptId === undefined || body.conceptId === null ? null : body.conceptId
+  if (meta.inParts && conceptId !== null) {
+    return sendError(res, 400, 'UNKNOWN_CONCEPT', 'A meeting recorded in parts has no concepts')
+  }
   if (conceptId !== null && !(typeof conceptId === 'string' && (frameworks.getConcept(conceptId) || frameworks.getFramework(conceptId)))) {
     let record = null
     try { record = await importedConcepts.findVisible(meta.firmId, conceptId) } catch (err) {

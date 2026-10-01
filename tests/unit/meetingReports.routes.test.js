@@ -150,6 +150,22 @@ describe('who may read a report', () => {
     expect(res._status).toBe(200)
     expect(res._body.summary.covered).toBe('We met.')
     expect(res._body.coaching.findings).toHaveLength(2)
+    expect(res._body.missingRanges).toEqual([])
+  })
+
+  test('🔴 a meeting with a part that could not be turned into text says which minutes the reports could not read', () => {
+    // Decision E of the long-recording drawing (item 8.4): the reports must not read across a
+    // gap as if nothing were missing. A tester only sees this after a part has failed.
+    const meetingId = seedMeeting({ summary: A_SUMMARY })
+    store.writeTranscript(meetingId, {
+      segments: SEGMENTS,
+      text: '…',
+      attributionConfident: true,
+      missingRanges: [{ segment: 2, from: 1200, to: 2400 }]
+    })
+    const res = makeMockRes()
+    routes.getReports(makeReq({ params: { meetingId } }), res)
+    expect(res._body.missingRanges).toEqual([{ segment: 2, from: 1200, to: 2400 }])
   })
 })
 

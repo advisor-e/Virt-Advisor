@@ -183,6 +183,7 @@ function _chunkName (seq) {
  *   against April's meeting if both are known to be with the same business.
  * @param {number} owner.retentionMonths - the figure the advisor was shown and spoke aloud
  * @param {boolean} [owner.segmented] - a strategy session, recorded one concept at a time
+ * @param {boolean} [owner.inParts] - an ordinary meeting, segmented by the clock alone
  * @param {number} [owner.strategySessionId] - the planning session it records, already checked
  * @returns {{meetingId: string, meta: object}}
  */
@@ -209,6 +210,9 @@ function createMeeting (owner) {
     retentionMonths: (owner && owner.retentionMonths) || null,
     // A strategy session records in concept segments rather than as one file (item 8.4).
     segmented: Boolean(owner && owner.segmented),
+    // An ordinary meeting recorded in 20-minute parts rather than concepts (item 8.4,
+    // design/mockups/meeting-review-long-recording.html): no concept, no concept summary.
+    inParts: Boolean(owner && owner.segmented && owner.inParts),
     // The planning session whose box timeline places this recording's words (8.4, screen 4).
     // Checked by the route against the firm, client and advisor before it is written here.
     strategySessionId: (owner && owner.strategySessionId) || null,

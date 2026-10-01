@@ -127,6 +127,20 @@ describe('loading', () => {
     await flush()
     expect(wrapper.text()).toContain('could not reliably tell the two voices apart')
   })
+
+  it('🔴 names every stretch no report could read, above both reports — and says nothing for a whole meeting', async () => {
+    // Item 8.4, Decision E: a part that could not be turned into text must never be read across
+    // as if nothing were missing. A tester only sees this once a part has failed.
+    const gapped = mountScreen({ ...LOADED, missingRanges: [{ segment: 2, from: 1200, to: 2400 }, { segment: 4, from: 3600, to: 4032 }] })
+    await flush()
+    const ranges = JSON.stringify({ ranges: '20:00–40:00meetingReportsGap.listAnd60:00–67:12' })
+    expect(gapped.text()).toContain('meetingReportsGap.summary ' + ranges)
+    expect(gapped.text()).toContain('meetingReportsGap.coaching ' + ranges)
+
+    const whole = mountScreen(LOADED)
+    await flush()
+    expect(whole.text()).not.toContain('meetingReportsGap')
+  })
 })
 
 describe('🔴 the audio is gone, and the screen never pretends otherwise', () => {

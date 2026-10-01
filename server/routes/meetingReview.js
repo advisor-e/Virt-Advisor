@@ -273,7 +273,8 @@ function ownedMeeting (req, res) {
  * BEFORE they speak the consent line, because the line has to land inside the audio.
  *
  * @route POST /api/meeting/recordings
- * @param {object} req.body - `{ scenarioId?: string }`
+ * @param {object} req.body - `{ scenarioId?: string, clientId?: string, segmented?: true,
+ *   parts?: true (with segmented: an ordinary meeting in 20-minute parts), strategySessionId?: number }`
  * @returns {{meetingId: string, retentionMonths: number, retentionPhrase: string}}
  */
 async function startRecording (req, res) {
@@ -299,6 +300,14 @@ async function startRecording (req, res) {
     // 🔴 THE PLANNING SESSION IS CHECKED THE SAME WAY (item 8.4, screen 4). Its box timeline
     // decides which box this recording's words are offered under, so it must be this firm's,
     // this client's and this advisor's — the pairing Wordsmith refuses to guess (item 15.29).
+    // An ordinary meeting recorded in 20-minute parts (item 8.4, the long-recording drawing,
+    // approved 2026-10-01). It records no planning session: its parts belong to no concept.
+    const inParts = body.segmented === true && body.parts === true
+    if (inParts && body.strategySessionId !== undefined && body.strategySessionId !== null) {
+      sendError(res, 400, 'BAD_INPUT', 'A meeting recorded in parts is not a planning session.')
+      return
+    }
+
     let strategySessionId = null
     if (body.segmented === true && body.strategySessionId !== undefined && body.strategySessionId !== null) {
       // A malformed id is refused as not found, never as a server fault.
@@ -323,6 +332,7 @@ async function startRecording (req, res) {
       retentionMonths: resolved.months,
       // A strategy session records one concept at a time (item 8.4) — see meetingSegments.js.
       segmented: body.segmented === true,
+      inParts,
       strategySessionId
     })
     res.send(201, {
@@ -883,7 +893,8 @@ async function generateReports (req, res) {
  *
  * @route GET /api/meeting/recordings/:meetingId/reports
  * @returns {{state: string, error: (string|null), summary: (object|null),
- *   coaching: (object|null), attributionConfident: (boolean|null)}}
+ *   coaching: (object|null), attributionConfident: (boolean|null),
+ *   missingRanges: Array<{segment: number, from: number, to: (number|null)}>}}
  */
 function getReports (req, res) {
   const meta = ownedMeeting(req, res)
@@ -902,6 +913,10 @@ function getReports (req, res) {
     moderation: (job && job.moderation) || null,
     hasTranscript: Boolean(transcript),
     attributionConfident: transcript ? Boolean(transcript.attributionConfident) : null,
+    // A meeting recorded in parts or sections where one could not be turned into text: the
+    // stretches neither report could read, in seconds on the transcript's clock (Decision E of
+    // the long-recording drawing, for both recorders). Empty for a whole meeting.
+    missingRanges: (transcript && Array.isArray(transcript.missingRanges)) ? transcript.missingRanges : [],
     // 🔴 THE TRANSCRIPT COMES BACK HERE, AND ONLY HERE. `getRecording` deliberately refuses to
     // hand out transcript text; slice 2's note says reading it back is the reports' job. This
     // is that job: Mike's ruling of 2026-09-02 replaced the drawing's "Play this moment" with
