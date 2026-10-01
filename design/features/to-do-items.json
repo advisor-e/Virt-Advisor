@@ -313,6 +313,405 @@
       "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, locales/en.json, and the report tests that read English text.",
       "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words.",
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.4",
+      "name": "Correct eight stale claims in the AI's instructions and feature notes",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Eight sentences that every coding session reads as true no longer match the code, so a session can act on a rule or a status that stopped being real.",
+      "risk": "A session told a built feature is unbuilt may rebuild it; one told drift goes to the frozen ACTIONS.md files it where nobody looks. Each was checked against the code on 2026-10-01.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found in the digest-and-addendum review Mike asked for; filed on his yes. A defect we found, not a feature."
+      },
+      "touches": "CLAUDE.md lines 74, 239, 827 and 836; .claude/skills/master-export-upload/SKILL.md line 11; .claude/skills/firm-manager-edit-target/SKILL.md lines 6 and 95; .claude/commands/startup.md lines 213 and 219; design/features/logic-lab.md lines 31, 84, 88; design/features/meeting-review.md line 630; the memory index MEMORY.md.",
+      "note": "THE EIGHT: (1) CLAUDE.md:836 puts the audit gate in pre-commit - it runs at pre-push via scripts/audit-gate.js. (2) CLAUDE.md:74/239/827 send stack drift to ACTIONS.md - the target is to-do-items.json. (3) master-export-upload says not built - POST /api/mentor/templates/import exists. (4) firm-manager-edit-target points at ACTIONS.md. (5) startup.md: to-do.md is 205 lines not 850; the list has 11 items, not items[27]. (6) logic-lab.md says accept flow NOT BUILT - logicLabAccept.js and its route exist. (7) meeting-review.md:630 contradicts its 518-519. (8) check-source-workbooks-for-input-cells.md is missing from MEMORY.md.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.18",
+      "name": "Discover's instructions promise a coaching reference, a diagnostic tree and template summaries it does not receive",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "discover.txt tells the AI to draw on three things the engine never sends on the first turn, while its format demands a Best match every time - the conditions under which a model invents.",
+      "risk": "An advisor's first Discover answer is written without the material its instructions name, so its reasoning and How-it-works lines may be guessed. The prompt is authored content, so the wording is Mike's call, and the change needs the answer-quality bench to prove it helps.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found in the digest-and-addendum review Mike asked for; filed on his yes. A defect we found, not a feature."
+      },
+      "touches": "data/prompts/discover.txt lines 7, 8, 17 and 29; server/advisorEngine.js where Discover's context is built (about 4060-4352), the removed coaching rows (about 2197) and the six-message gate on template summaries (about 4118).",
+      "note": "THE THREE: (1) a coaching reference, line 7 - removed 2026-08-20. (2) a Diagnostic Logic Tree for the first clarifying question, lines 8 and 17 - no tree is sent on turn 1; later only client-delivery trees arrive, labelled Deep Dive. (3) template summaries for How it works, line 29 - loaded only after 6 history messages, so the first recommendation never has them. Fix either the promise or the delivery; which is the design decision.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.19",
+      "name": "Build a bench that scores the written answer the real advisory prompt produces",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": true,
+      "blocks": "7.20, 7.21, 7.22",
+      "waitingOn": "Us",
+      "why": "Nothing today scores the advisor's actual answer: Scenario Lab measures template ranking, and discover-lab uses its own prompt, not discover.txt. Without a bench, no prompt, context or model change can be proved better.",
+      "risk": "Every later AI improvement ships on hope. Real advisor transcripts in va_case_studies are personal data, so using them as seed questions needs anonymising and Mike's ruling; OpenAI-hosted evals are banned for real content by ZDR rule Z1.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - from the digest-and-addendum review he asked for; he asked for every suggestion to be recorded as a task."
+      },
+      "touches": "scripts/ (a new lab beside scenario-lab.js and discover-lab.js), the real prompt assembly in server/advisorEngine.js, data/prompts/*.txt, a question set and scoring rubric, and stored results per run.",
+      "note": "NEEDS: a question set with the elements a good answer must contain; a rubric (grounded, right template named, nothing invented, tone); a judge; results kept per run and tied to model and prompt version (7.23), never overwritten. Fold in discover-lab's own-prompt gap. Impact test at scoping.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.20",
+      "name": "Send the AI only the context the advisor's topic needs",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "All 20 calculation models (about 13,700 tokens) go into every client and Discover call whatever the topic; Learn sends all 71 templates and Plan all 40; the same topic guidance can arrive two or three times.",
+      "risk": "Large unfiltered context dilutes what matters, raises cost and slows answers. Filtering wrongly would hide a model the advisor needed, so it must be proved on the 7.19 bench. Prompt caching may cut cost further but ZDR rule Z10 must be checked first.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - the app-side digest from the review he asked for; he asked for every suggestion to be recorded as a task."
+      },
+      "touches": "server/utils/reportModels.js formatReportModelsForPrompt; server/advisorEngine.js context assembly (about 4060-4352, MODE_SECTIONS about 471); data/prompts/learn.txt fixed topic sections; templates.js list formatting; design/OPENAI-ZDR-CONSTRAINTS.md Z10.",
+      "note": "Measured 2026-10-01: first Discover turn about 24,000 tokens, worst case about 45,000; client about 25,000-34,000; Learn about 31,000-46,000. Each model's useWhen and answers already allow topic filtering. Waits on 7.19 for proof.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.21",
+      "name": "Earlier messages, including the AI's own recommendation, are cut to 2,000 characters each turn",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Every earlier message is trimmed to 2,000 characters before it goes back to the AI, and a full recommendation runs far longer, so a follow-up is answered without most of what was advised.",
+      "risk": "Follow-up answers may contradict or forget the recommendation. The limit is a safety check on what the browser sends, so the fix needs design - for example keeping the AI's replies on the server - not just a bigger number. How often it bites is unmeasured.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found in the digest-and-addendum review; filed on Mike's instruction to record every suggestion. A defect we found."
+      },
+      "touches": "server/utils/sanitiseInput.js lines 11 and 59-63; server/advisorEngine.js history replay; the 2-hour in-memory session store (about 376-413); a rolling conversation summary as the alternative to full replay.",
+      "note": "Confirmed in code 2026-10-01: MAX_FIELD 2000 applies to assistant turns too. Recommendation replies allow up to 2,500 tokens, roughly 10,000 characters. Measure on 7.19 before and after.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.22",
+      "name": "Test whether a stronger model should write the main advisory answer",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The advisor's main answer is written by gpt-4o-mini, the smallest model configured, chosen in April only for speed (commit 2af71fae). Wordsmith, compliance and research already use gpt-6-astra.",
+      "risk": "Likely the biggest single lever on answer quality, and a cost decision that is Mike's. It must be compared on the 7.19 bench, never guessed. Three call sites hard-code gpt-6-astra and bypass the role map, so the unused research and extract roles change nothing.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - from the review he asked for; he asked for every suggestion to be recorded as a task."
+      },
+      "touches": "config/integration.js role map (about 308-323); server/routes/economicAnalysis.js:66, server/routes/nextStepsDraft.js:46, server/utils/depreciationExtract.js:62 hard-coded models; scripts/quiz-lab.js:190 hard-coded gpt-4o.",
+      "note": "Waits on 7.19 for the comparison and on Mike for the cost call. The data-controls page lists gpt-6-astra as ZDR-eligible for Chat Completions and Responses.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.23",
+      "name": "Keep a record of every AI call: model, prompt version, tokens and time taken",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Token counts and timings go only to the server console, some calls record none, and nothing ties an answer to the prompt version or model that wrote it. Cost per firm or feature is unknown.",
+      "risk": "Nobody can say whether answers improved after a prompt change, what the AI costs, or which change caused a problem. The record must hold versions and counts, not client content, to stay inside the privacy rules.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - from the review he asked for; he asked for every suggestion to be recorded as a task."
+      },
+      "touches": "logAI in server/advisorEngine.js (about 839-845) and the same pattern in courseEngine.js, conceptSummary.js, wordsmith.js; config/db-schema.sql for a store; promptLoader.js for a prompt version; the intake, course and strategy calls that record no usage.",
+      "note": "Calls recording nothing today: intake (advisorEngine.js about 2856), course design and session, strategy planner pre-tick, primary-issue proposer, transcription. Rate limits are per IP in memory; behind the master app's proxy all users may share one IP unless TRUST_PROXY is set.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.24",
+      "name": "The advisor sees only three dots while Discover, Learn and Plan answers are written",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The answer is held back until fully written and checked, sometimes after a second full retry, and the screen shows only bouncing dots with no progress text and no time limit.",
+      "risk": "A long wait with no sign of progress reads as a frozen app. The hold-back is deliberate - a sent message cannot be taken back once the heading check fails (item 7.7) - so the fix is what the advisor sees while waiting, not removing the check.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
+      },
+      "touches": "server/advisorEngine.js hold-back (about 4307-4336) and the post-recommendation path (about 3128-3150); components/VirtualAdvisor.vue loading state (about 197-204); locales/en.json for any wording.",
+      "note": "Wording for any progress message is Mike's call. Also: the heading retry passes the narrative model but the provider seam swaps in the classify model (aiProvider.js about 145); both are gpt-4o-mini today.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.25",
+      "name": "The advisor profile reaches the main prompt unfenced and unmoderated",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 5,
+      "scoreReason": "security",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "In Discover, Learn and Plan the advisor's seven profile fields, up to 2,000 characters each, go into the prompt as plain text, while the client path fences them. Moderation never sees them.",
+      "risk": "Text typed into a profile can act as instructions to the AI on every later answer. CLAUDE.md requires user input in prompts to be wrapped in explicit delimiters.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
+      },
+      "touches": "server/advisorEngine.js formatAdvisorProfile (about 476) used unfenced in the main path (about 4120 and 4216) against the fenced use at about 612; typedTexts, which decides what is moderated.",
+      "note": "Confirmed in code 2026-10-01. Small and contained.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.26",
+      "name": "Several AI calls that write long output set no length limit",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Compliance checks, Wordsmith, the three meeting reports, screen translation and every Responses API call set no maximum output, so length and cost have no ceiling.",
+      "risk": "A runaway reply costs money and time; two of these run on gpt-6-astra. Their output is shape-checked afterwards, so this is cost and speed, not correctness.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
+      },
+      "touches": "server/utils/complianceCheck.js, conceptSummary.js, passageTidy.js, meetingReports.js, wordsmith.js, uiTranslation.js; server/routes/economicAnalysis.js, nextStepsDraft.js; countryScheduleRead.js, depreciationExtract.js.",
+      "note": "Set each limit from the longest valid output seen, not a guess.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "12.3",
+      "name": "The course tutor puts browser-sent history into the prompt unchecked",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 5,
+      "scoreReason": "security",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Course sessions add whatever conversation history the browser sends straight into the messages: roles are not checked, so a forged system message goes through, and there is no limit on count or length.",
+      "risk": "Anyone signed in could steer the course AI with injected instructions, or send very large prompts to gpt-4o at cost. Only user turns are moderated. The advisor path already forces roles to user or assistant.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
+      },
+      "touches": "server/courseEngine.js handleSession (about 620-680), the quiz's use of assistant turns (about 792-796), the 256 KB body limit (about 971); server/utils/sanitiseInput.js as the pattern to follow.",
+      "note": "Confirmed in code 2026-10-01: ...sessionHistory is spread into messages as sent. Small and contained.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "28.1",
+      "name": "Advisors cannot tell us an AI answer was wrong or useful",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "No user can rate, flag or correct a single AI answer. Case review grades templates used, not the answer's words, and Wordsmith's record of advisor edits is saved but never read.",
+      "risk": "The people best placed to judge answer quality have no way to report it, so bad answers go unseen and the 7.19 bench has no real-world signal. Where the feedback goes and who acts on it is a design decision for Mike.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - from the review he asked for; he asked for every suggestion to be recorded as a task."
+      },
+      "touches": "components/VirtualAdvisor.vue; a new route and store on the backend; server/utils/meetingAudioStore.js readWordsmithRecords, exported and never called; the mentor hub for reading the feedback.",
+      "note": "Wording of any control is Mike's call. Feedback must carry no client content beyond what the privacy rules allow.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "13.10",
+      "name": "Only the advisory chat tells the AI which language to write in",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 4,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Course Builder, meeting reports, concept summaries, Next Steps, economic analysis, Strategy Planner and the sales blog carry no language instruction, several say plain English, and no client language is stored anywhere.",
+      "risk": "A client or advisor working in another language receives AI-written documents in English. Whose language a client document follows - advisor's or client's - is Mike's decision. Overlaps 13.7, which covers Wordsmith's forced New Zealand English.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
+      },
+      "touches": "server/courseEngine.js, server/utils/meetingReports.js (about 195), conceptSummary.js (about 94), nextStepsDraft.js, economicAnalysis.js, strategyPlanner.js, salesBlogEngine.js; config/db-schema.sql for a client language; advisorEngine.js about 3702 as the pattern.",
+      "note": "Distinct from 13.6 and 13.9, which translate the app's own screen wording; this is the AI's written output.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "40.2",
+      "name": "The main advisory and course prompts cannot be seen or edited on any screen",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 3,
+      "scoreReason": "helps sell the package",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "The AI Prompts tab covers 11 prompts with version history, but client, discover, learn, plan and the two course prompts - the ones advisors meet most - live only in data/prompts files.",
+      "risk": "The instructions that shape most advisor answers can only be changed by a developer and carry no version, against the hub-page rule. Opening them to editing risks a manager breaking the format the engine relies on, so which tiers may edit is Mike's call.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - from the review he asked for; he asked for every suggestion to be recorded as a task."
+      },
+      "touches": "data/prompts/*.txt; server/utils/promptLoader.js; server/utils/aiPrompts.js and data/ai-prompts.json; the AI Prompts tab under components/FirmManagerHub.vue (check activeOn before starting).",
+      "note": "Even read-only, a mentor view with a version number would give 7.23 its prompt version.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.5",
+      "name": "Split the coding AI's rules into a short digest and an addendum of reasons",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "A coding session reads about 33,000 tokens before any work; CLAUDE.md alone is about 15,000, at least 27% of it story, and the start and end checklists are written out twice.",
+      "risk": "Rules buried in narrative get missed, and four rule clashes make some impossible to obey together - which question comes first, and the open-ended question at the end of startup. Every rule must survive the move; only the telling shrinks. Wording of the rules is Mike's.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - he asked whether a digest and addendum would help, then for every suggestion to be recorded as a task."
+      },
+      "touches": "CLAUDE.md; .claude/commands/startup.md and shutdown.md; design/WORKING-AGREEMENT.md; the memory files that repeat CLAUDE.md rules.",
+      "note": "MEASURE: tokens read before work (33,000 on 2026-10-01), rule clashes (4), places each rule is stated. A rule is stated once, with a link to its reason.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "14.5",
+      "name": "Give every feature Brief a one-screen current-state digest, with history moved out",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The largest Briefs read as dated diaries - Report Models carries 124 dates in about 46,000 tokens, Strategy Planner 199 - and 8 of 38 skip the template, so nobody can quickly see how a feature works now.",
+      "risk": "Sessions act on superseded sections, and Mike's Handbook pages are hard to read. Moving text must lose no ruling: the history files already exist for it.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - he asked whether a digest and addendum would help, then for every suggestion to be recorded as a task."
+      },
+      "touches": "design/features/*.md, starting with report-models.md, strategy-planner.md, meeting-review.md, sales-tracker.md; their -history.md files; scripts/new-feature.js template; scripts/build-handbook.js if a digest block is shown first.",
+      "note": "Largest first. A size cap on the current-state part is what stops it regrowing.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "14.6",
+      "name": "Check automatically that the notes' claims about what is built match the code",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "Tests already check design links and generated pages, but nothing checks a Brief's built or not-built claims, the code paths it cites, or any fact in CLAUDE.md - and two of five Briefs sampled were wrong on exactly that.",
+      "risk": "A hand-written digest will go stale the way the notes did; without a check, 14.5 and 22.5 decay again within weeks.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - from the review he asked for; he asked for every suggestion to be recorded as a task."
+      },
+      "touches": "tests/unit/ beside buildHandbook.test.js and designArtefacts.test.js; design/features/*.md; CLAUDE.md.",
+      "note": "Status claims need a checkable form - for example a status line naming the file that proves it - before a test can read them.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.6",
+      "name": "A second constitution file arrived with the speckit tools beside the Stack Constitution",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": ".specify/memory/constitution.md came in with ten speckit skills, and the speckit-constitution skill says it will create or update the project constitution - while CLAUDE.md's Stack Constitution may never be relaxed.",
+      "risk": "A session could treat the wrong file as the authority, or a skill could rewrite it. Not yet read, so this is a naming risk to check, not a confirmed clash.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
+      },
+      "touches": ".specify/memory/constitution.md; .claude/skills/speckit-*/SKILL.md, especially speckit-constitution; CLAUDE.md Stack Constitution.",
+      "note": "First job: read the file and compare it to CLAUDE.md.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.7",
+      "name": "Give the master team a short what-changed and what-to-test page with each release",
+      "rankedByMike": false,
+      "kind": "feature",
+      "score": 2,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Each release's notes run to about 300 lines of install steps, news, faults and questions, with no step-by-step list of what to test in UAT.",
+      "risk": "A long document is skimmed, so testers miss what changed. Whether the master team wants this, and in what shape, is Mike's to ask them.",
+      "askedBy": {
+        "who": "Mike",
+        "ours": false,
+        "detail": "2026-10-01 - from the review he asked for; he asked for every suggestion to be recorded as a task."
+      },
+      "touches": "design/RELEASE-NOTES-v*.md; design/WORKING-AGREEMENT.md Integration steps.",
+      "note": "Could be drawn from the closed items in each release rather than written by hand.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }
