@@ -33,7 +33,7 @@
       b-message(v-if="interrupted" type="is-danger")
         p.has-text-weight-semibold {{ $t('meetingRecorder.alarmHeading', { clock }) }}
         p.is-size-7.mt-1
-          | {{ $t('meetingRecorder.alarmBody', { saved: minutesSaved }) }}
+          | {{ $tc('meetingRecorder.alarmBody', minutesSaved, { n: minutesSaved }) }}
           | #[b {{ $t('meetingRecorder.alarmNothingAfter', { clock }) }}]
         .buttons.are-small.mt-3
           b-button(type="is-primary" :loading="busy" @click="resumeRecording") {{ $t('meetingRecorder.resume') }}
@@ -169,9 +169,9 @@ export default {
         String(total % 60).padStart(2, '0')
     },
 
+    /** Whole minutes captured — the alarm's sentence agrees with it ("1 minute was"). */
     minutesSaved () {
-      const mins = Math.floor(this.elapsedSeconds / 60)
-      return this.$tc('meetingRecorder.minutes', mins, { n: mins })
+      return Math.floor(this.elapsedSeconds / 60)
     },
 
     savedSay () {
