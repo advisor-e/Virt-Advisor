@@ -118,31 +118,6 @@
       "comment": "2026-09-24 - filed on Mike's yes, the moment the package was installed, as his ruling on 15.20 required."
     },
     {
-      "ref": "8.4",
-      "name": "Meetings longer than 23 minutes are refused by OpenAI and lose their audio",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Meeting Review's own recorder sends the whole meeting to OpenAI as one file, and the diarizing model refuses more than 1400 seconds of audio (23 min 20 s) whatever the file's size, so a normal client meeting will not transcribe.",
-      "risk": "The audio is deleted whether or not transcription worked, so an advisor who records an hour-long meeting ends with no transcript and no recording to retry. PROVEN 2026-10-01: a 40-minute two-voice recording sent through the same call runTranscription makes was refused at 72.8 MB and at 18.2 MB alike - 'audio duration 2387 seconds is longer than 1400 seconds which is the maximum for this model'. Neither saved OpenAI guide states that limit.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-24 - found while proving item O5 of the OpenAI working page. Mike said yes to filing it, and added the section-by-section option in the note."
-      },
-      "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; the Strategy Planner's Run session (pages/strategy-planner.vue, StrategyConceptCapture.vue, StrategyCaptureCard.vue) and its navigation timeline (strategySessionStore.js); item 8.3, since both need the same design work.",
-      "note": "PROCEED - MIKE'S CALL 2026-10-01. STRATEGY SESSIONS FIXED: every screen of strategy-session-recording.html built, sections split at 20 minutes (25 was over the model's limit); rulings in strategy-planner.md §9b. ORDINARY MEETINGS BUILT from meeting-review-long-recording.html (approved, 4ed01801): 20-minute parts, joined, a failed part named on the done panel and above both reports. WALKED 2026-10-01 in a built app, 41 minutes, a recorded two-voice meeting as the microphone: three parts, 129 of 129 points, 257 of 257 lines labelled right, no audio left; the walk found an empty Meeting Summary for a meeting in parts, fixed. Never yet run with real people. The 2026-09-28 note named 15.2's screen 2 as next.",
-      "comment": "2026-10-01 - Mike's call after the build: PROCEED, browser walk now. Filed 2026-09-24 on his yes, with his option recorded; designed together with 8.3.",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-25"
-      }
-    },
-    {
       "ref": "15.22",
       "name": "Seven Strategy Planner topics still need Mike's ruling before they can capture",
       "rankedByMike": false,

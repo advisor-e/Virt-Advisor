@@ -379,6 +379,29 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**8.4 · Meetings longer than 23 minutes were refused by OpenAI and lost their audio.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), after the browser walk.**
+
+- **What was found:** the diarizing model refuses more than **1400 seconds** of audio whatever the
+  file's size — proven 2026-10-01 by sending it 40 minutes at 72.8 MB and 18.2 MB, both refused —
+  so the item's "about 27 minutes" was wrong, and a meeting sent whole lost its transcript and audio.
+- **What was done:** strategy sessions record a concept at a time
+  ([`strategy-session-recording.html`](../mockups/strategy-session-recording.html)), each section
+  splitting at 20 minutes (his yes, 2026-10-01; the 25 first ruled was over the limit). Ordinary
+  meetings record in 20-minute parts, joined into one transcript, with the advisor's voice clip
+  sent from part 2 and a failed part named on the done panel and above both reports
+  ([`meeting-review-long-recording.html`](../mockups/meeting-review-long-recording.html), decisions
+  A–E and wording ruled, approved `4ed01801`). How it works now: `meeting-review.md`, `strategy-planner.md` §9b.
+- **What proves it:** the refused 40-minute meeting, through this code and real OpenAI calls, came
+  back with 126 of 126 points and 252 of 252 lines labelled right; then a 41-minute browser walk of
+  the built app — three parts, 129 of 129 points, 257 of 257 lines right, no audio left. The walk
+  found the Meeting Summary empty for a meeting in parts, fixed (`c5b7f230`). Tests:
+  `meetingSegments.routes.test.js`, `meetingRecorder.component.test.js`, `meetingParts.test.js`,
+  `meetingReports.routes.test.js`, `meetingReview.component.test.js`. Commits: `9cd34c7d`,
+  `10a369d3`, `c5b7f230`.
+- **Still to come, and UAT's:** a meeting with real people — never yet run. The parts row's spacing,
+  fixed after the walk, has not been seen on screen.
+
 **44.4 · The printed forecast read as a spreadsheet: no cover, no contents, no summary, and the research was pages of plain text.**
 ✅ **Closed 2026-09-30 by Mike ("yes" to marking it done), the day he asked for it.**
 
