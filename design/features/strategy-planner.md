@@ -1704,8 +1704,11 @@ Items **8.4** (recording, built) and **15.14** (Wordsmith, built second, after t
 **approved for build by Mike on 2026-09-28** — *"i approve the drawing to build"* — as committed in
 `976533c2`; every decision and label on it ruled one question at a time. Screen 11 was added and
 built the same day on his rulings without a separate approval, on his word. Screen 4 — words placed
-into the boxes, the AI's tidied wording (Decisions D and F, unruled) — is the **second build**, not
-built. How the old version of this block read is on the history page.
+into the boxes, the AI's tidied wording — is the **second build**, built 2026-10-01. **Decision D RULED
+(his yes, 2026-10-01):** each finished section's words show up under their boxes during the session,
+as soon as that section is turned into text, not held until the recording ends. **Decision F RULED
+(his yes, 2026-10-01):** a kept suggestion is added below whatever is already typed in the box, never
+replacing it. See "The words in their boxes" below. How the old version of this block read is on the history page.
 
 **How it works.** A strategy session is a Meeting Review meeting of type **"Strategy Session"**,
 recorded **one concept at a time**:
@@ -1715,7 +1718,8 @@ recorded **one concept at a time**:
   Meeting Review's own panel (record → speak → confirm). "Take a break" closes the live section;
   "End recording" finishes; "Stop and delete everything" destroys every section. A tab the system
   suspends raises Meeting Review's own red alarm, with "Resume recording".
-- **Size and silence.** A section rolls over to "part 2" at 25 minutes or 20 MB. After **3 minutes
+- **Size and silence.** A section rolls over to "part 2" at 20 minutes or 20 MB, inside both of
+  OpenAI's limits: 25 MB, and 1400 seconds of audio for the diarizing model. After **3 minutes
   quieter than a quarter of the advisor's own level** (measured on the consent line, in the
   browser, nothing sent) the recording pauses, in amber, and carries on at the first sound; the
   paused minutes are added back to later words' times. The countdown keeps counting.
@@ -1733,10 +1737,22 @@ recorded **one concept at a time**:
   `scope.timing`). Run session shows the timed agenda above the cards when a start time is set,
   and the countdown in the corner — red, with "Running N min behind", on an overrun.
 
+- **The words in their boxes (screen 4).** A recording started from the planner carries its
+  planning session, checked against firm, client and advisor. As each section is turned into
+  text, `boxPlacement.js` puts every row under the box of that section's own concept that was open
+  at its midpoint, by the box timeline and nothing else (Decision 11); anything else goes to the
+  card's tray. `passageTidy.js` then asks for the suggested wording in one call per section — its
+  instructions are `passage-tidy` on the Mentor Hub's AI Prompts tab, mentor only — and a failed
+  call leaves the passages under their boxes with no suggestion. Keep adds the wording below the
+  box's text (Decision F), saving any unsaved typing first, and records heard, suggested and kept
+  side by side (`seg-NNN-words.json`, which expires with the transcript). The box timeline's times
+  are read back as the UTC they were written, whatever the server's zone.
+
 **Code.** `server/routes/meetingSegments.js`, `server/utils/meetingSegments.js`,
 `server/utils/conceptSummary.js`, `meetingAudioStore.js`, `transcriptionClient.js`;
 `components/strategy/StrategySessionRecorder.vue`, `StrategyRunAgenda.vue`,
-`StrategyConceptSummary.vue`, `StrategyStepBuilder.vue`; `pages/strategy-planner.vue`.
+`StrategyConceptSummary.vue`, `StrategyStepBuilder.vue`; `pages/strategy-planner.vue`. Screen 4:
+`server/utils/boxPlacement.js`, `passageTidy.js`; `StrategyHeardPassages.vue`, `StrategyHeardTray.vue`.
 
 **Differences from the drawing, each deliberate:** the live card says "recording" (or "paused")
 rather than showing its own clock — the strip carries it; the agenda sits above the cards, not
@@ -1744,14 +1760,25 @@ beside them (a column beside them squeezed every card — Mike's first recording
 break here" follows every row, not only each step's foot; the finished banner shows only when
 every section was turned into text, as its approved words claim. Added while building, each on
 Mike's wording: "+ Start the next day here", "Take a break", "This summary couldn't be written." /
-"Write it again", and Meeting Review's alarm reused word for word.
+"Write it again", and Meeting Review's alarm reused word for word. **Screen 4's, named 2026-10-01:**
+times print in the app's own clock format ("2:21 pm"), not the drawing's 24-hour one, and once
+("Heard, 2:21 pm") when a passage starts and ends in the same minute; "Move to
+another box" opens the card's other boxes by their own headings; Edit turns the suggestion into a
+box and Keep keeps that; the tray's two buttons sit on each passage, not once for the tray; the
+**org chart** is offered no passage under its boxes — a role title and a name are one line each —
+so everything said on that card waits in the tray; "Words still waiting in boxes" shows only when
+some are; and "Speaker not identified:" was added beside "Client:" and "Advisor:" on Mike's word.
 
 **Proven, and not.** Walked on the laptop in a built app with real OpenAI calls: a test-tone
 microphone through record, break, resume and end, every piece of audio destroyed with logged
 proof; a test sound file through a real 3-minute pause and resume; and **Mike's own voice** — a
 word-perfect transcript, the advisor named by the clip throughout. **Not measured:** whether a
 first word is clipped after a pause, a two-person room, and real persistence (the laptop has no
-MySQL).
+MySQL). **Screen 4 walked 2026-10-01** on the laptop's build with a computer-voiced Porter's script
+and real OpenAI calls: **3 of 3** sentences said while a box was open landed under that box, **1 of
+1** said before any box went to the tray, and Keep added below the typed "Price-led" without
+touching it. Not measured: a two-person room (one voice, so every line read "Advisor:"), and real
+speech, which will need more tidying than the clean script did.
 
 Every ruling below is Mike's, 2026-09-28.
 
@@ -1791,9 +1818,11 @@ refusal to transcribe without it (`finishRecording`) still holds for each segmen
 line is also where the advisor's 8-second voice clip is taken.
 
 **A long segment splits itself (Decision E).** Mike's yes to: a concept segment closes by itself
-and carries on as "part 2" of the same card at **25 minutes or 20 MB, whichever comes first**.
-Size, because OpenAI's limit is 25 MB, and the 0.9 MB-a-minute rate was measured once, in one
-browser. The server already counts each recording's bytes as the pieces arrive (`meta.bytes`).
+and carries on as "part 2" of the same card at **20 minutes or 20 MB, whichever comes first**.
+Time, because the diarizing model refuses more than **1400 seconds** of audio — found 2026-10-01 by
+sending it 40 minutes, and stated in neither saved OpenAI guide — so on his yes that day the 25
+minutes he first ruled became 20. Size, because OpenAI's file limit is 25 MB, and the 0.9
+MB-a-minute rate was measured once, in one browser. The server already counts each recording's bytes as the pieces arrive (`meta.bytes`).
 He added, the same day: *"perhaps a small count-down time in the corner of the screen will help
 people stay focused??"* The planner then held no planned time per concept, and he answered what it
 counts from: *"the build section should have a time allowance next to each content in the agenda.

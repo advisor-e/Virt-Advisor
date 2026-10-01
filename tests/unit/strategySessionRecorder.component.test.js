@@ -10,8 +10,8 @@
  * and what these pin:
  *   - NOTHING RECORDS BEFORE THE ADVISOR PRESSES START, and consent is asked once, with the
  *     recording already running so the words land inside it (record → speak → confirm);
- *   - a session is opened as a SEGMENTED "Strategy Session" — a single-file recording would
- *     silently fail past 27 minutes;
+ *   - a session is opened as a SEGMENTED "Strategy Session" — a single-file recording fails
+ *     past 1400 seconds of audio, the diarizing model's limit;
  *   - pressing the next card CLOSES the live segment before opening the next, never two at once;
  *   - a long segment rolls over as the SAME concept's next part, so its summary and countdown
  *     follow it;
@@ -64,7 +64,7 @@ function reply (url, opts) {
 }
 
 function mount () {
-  return mountWithBuefy(StrategySessionRecorder, { propsData: { apiToken: 'tok', clientId: 'c1' } })
+  return mountWithBuefy(StrategySessionRecorder, { propsData: { apiToken: 'tok', clientId: 'c1', strategySessionId: 41 } })
 }
 
 beforeEach(() => {
@@ -101,7 +101,8 @@ test('"Start recording" opens a segmented Strategy Session and starts recording 
   w.vm.recordCard(PORTER)
   await w.vm.startFirst()
   const start = calls.find(c => c.url === '/api/meeting/recordings')
-  expect(start.body).toEqual({ scenarioId: 'strategy_session', clientId: 'c1', segmented: true })
+  // The planning session rides along so the server can place the words by its box timeline (screen 4).
+  expect(start.body).toEqual({ scenarioId: 'strategy_session', clientId: 'c1', segmented: true, strategySessionId: 41 })
   const open = calls.find(c => /\/segments$/.test(c.url))
   expect(open.body).toEqual({ conceptId: 'porters-5-forces', label: "Porter's 5 Forces" })
   expect(w.vm.stage).toBe('consent2')
@@ -156,6 +157,20 @@ test('a roll-over carries the SAME concept on as its next part, and its countdow
   expect(opens[1].body.label).toMatch(/strategyPlanner\.recording\.part/)
   expect(w.vm.live.part).toBe(2)
   expect(w.vm.live.startedAt).toBe(startedAt)
+})
+
+// OpenAI refuses more than 1400 seconds of audio from the diarizing model (sent 40 minutes,
+// 2026-10-01), and a section past it is lost with its audio. UAT never records that long.
+test('a section rolls over at 20 minutes of recorded audio, inside the model\'s 1400-second limit', async () => {
+  const w = mount()
+  await startSession(w)
+  const spy = jest.spyOn(w.vm, 'rollOver').mockImplementation(() => Promise.resolve())
+  w.vm.recordedSeconds = () => 20 * 60 - 1
+  jest.advanceTimersByTime(1000)
+  expect(spy).not.toHaveBeenCalled()
+  w.vm.recordedSeconds = () => 20 * 60
+  jest.advanceTimersByTime(1000)
+  expect(spy).toHaveBeenCalled()
 })
 
 test('a chunk the server says has passed the roll-over size rolls the segment over', async () => {

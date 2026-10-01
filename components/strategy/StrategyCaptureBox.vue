@@ -47,6 +47,8 @@
     @input="$emit('input-field', field, $event)"
     @input.native="$emit('typing-field', field, $event.target.value)"
   )
+  //- Whatever the layout hangs under this box — screen 4's recorded passages, on the grid.
+  slot
 </template>
 
 <script>

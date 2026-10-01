@@ -40,6 +40,7 @@ const COMPLIANCE = 'compliance-check' // item 4.83 slice 4 — all four tiers, l
 // reads the table it produces, and must be able to read what the machine was told.
 const SURVEY = 'country-schedule-survey'
 const PASS = 'country-schedule-pass'
+const TIDY = 'passage-tidy' // item 8.4 screen 4 — the mentor alone (default-is-mentor-alone, 2026-08-24)
 
 describe('the shipped prompts are the shape the design says they are', () => {
   test('both documents are present, by id', () => {
@@ -308,7 +309,7 @@ describe('listPrompts — what a screen is given', () => {
 
 describe('which documents a tier is shown', () => {
   test('the mentor gets every document', () => {
-    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(ap.promptsForTier('mentor').map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE, TIDY])
   })
 
   test('every tier below the mentor gets the client-facing documents ONLY', () => {
@@ -332,8 +333,8 @@ describe('which documents a tier is shown', () => {
   })
 
   test('asking for no tier at all returns everything, so the send path is unaffected', () => {
-    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
-    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE])
+    expect(ap.promptsForTier().map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE, TIDY])
+    expect(ap.listPrompts({}).map(p => p.id)).toEqual([CASHFLOW, SECURITY, REVIEW, HUB_READING, ECONOMIC, NEXT_STEPS, DEPRECIATION, SURVEY, PASS, COMPLIANCE, TIDY])
   })
 
   test('a prompt that declares no tiers is shown everywhere, not nowhere', () => {

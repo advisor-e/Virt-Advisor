@@ -723,3 +723,108 @@ describe('🔴 screen 11 on the server — pauses and silent sections (Decisions
     expect(two._status).toBe(404)
   })
 })
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// An ordinary meeting recorded in 20-minute parts (item 8.4, the long-recording drawing,
+// approved 2026-10-01). OpenAI refuses more than 1400 seconds of audio, so a meeting past
+// 23 min 20 s that is sent whole loses its transcript AND its audio — no tester records that
+// long. What these pin: the parts are joined into ONE transcript with no concept summaries
+// asked of a model, and a part that failed is disclosed by the minutes it covered (Decision E),
+// never closed up as if nothing were missing.
+describe('an ordinary meeting in parts', () => {
+  /** Answer the Nth transcription call with `replies[N]`, the last one repeating. */
+  function openaiSequence (replies) {
+    let call = 0
+    return jest.spyOn(https, 'request').mockImplementation((_o, onResponse) => ({
+      setTimeout () {},
+      on () {},
+      write () {},
+      destroy () {},
+      end () {
+        const [status, payload] = replies[Math.min(call, replies.length - 1)]
+        call += 1
+        setImmediate(() => onResponse({
+          statusCode: status,
+          async * [Symbol.asyncIterator] () { yield Buffer.from(payload) }
+        }))
+      }
+    }))
+  }
+
+  /** Open the next part through the route, give it audio, and set when it began. */
+  function recordPart (meetingId, startedAt) {
+    const res = makeRes()
+    seg.openNextSegment(req(meetingId, { body: { label: 'part' } }), res)
+    const n = res._body.segment
+    store.appendSegmentChunk(meetingId, n, 1, Buffer.from('AUDIO-' + n))
+    store.updateSegment(meetingId, n, { startedAt })
+    return n
+  }
+
+  async function startInParts (body) {
+    const res = makeRes()
+    await review.startRecording({ firmId: FIRM, advisorId: ADVISOR, body }, res)
+    return res
+  }
+
+  test('a recording started in parts is segmented, and marked as parts rather than concepts', async () => {
+    const res = await startInParts({ scenarioId: 'discovery', segmented: true, parts: true })
+    expect(res._status).toBe(201)
+    const meta = store.readMeta(res._body.meetingId)
+    expect(meta.segmented).toBe(true)
+    expect(meta.inParts).toBe(true)
+  })
+
+  test('a recording in parts cannot also claim a planning session', async () => {
+    const res = await startInParts({ segmented: true, parts: true, strategySessionId: 41 })
+    expect(res._status).toBe(400)
+  })
+
+  test('a part may not name a concept', async () => {
+    const started = await startInParts({ segmented: true, parts: true })
+    const res = makeRes()
+    seg.openNextSegment(req(started._body.meetingId, { body: { conceptId: 'porters-5-forces', label: 'part' } }), res)
+    expect(bodyOf(res).error.code).toBe('UNKNOWN_CONCEPT')
+  })
+
+  test('three parts join into one transcript, each part on the meeting\'s clock, and no concept summary is asked for', async () => {
+    openaiSequence([[200, GOOD]])
+    const id = (await startInParts({ segmented: true, parts: true }))._body.meetingId
+    store.writeVoiceReference(id, Buffer.from('VOICE'), 'audio/webm')
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordPart(id, '2026-10-01T09:00:00.000Z')
+    recordPart(id, '2026-10-01T09:20:00.000Z')
+    recordPart(id, '2026-10-01T09:40:00.000Z')
+    review.finishRecording(req(id), makeRes())
+    await drain()
+
+    const transcript = store.readTranscript(id)
+    expect(transcript.segments.map(r => r.start)).toEqual([0, 4, 1200, 1204, 2400, 2404])
+    expect(transcript.missingRanges).toEqual([])
+    expect(conceptSummary.generate).not.toHaveBeenCalled()
+    expect(store.readMeta(id).state).toBe('transcribed')
+  })
+
+  test('a part that failed is kept out and named by the minutes it covered; the parts that worked survive', async () => {
+    openaiSequence([[200, GOOD], [500, '{"error":"down"}'], [200, GOOD]])
+    const id = (await startInParts({ segmented: true, parts: true }))._body.meetingId
+    store.writeVoiceReference(id, Buffer.from('VOICE'), 'audio/webm')
+    store.updateMeta(id, { consentConfirmedAt: new Date().toISOString() })
+    recordPart(id, '2026-10-01T09:00:00.000Z')
+    await drain()
+    recordPart(id, '2026-10-01T09:20:00.000Z')
+    await drain()
+    recordPart(id, '2026-10-01T09:40:00.000Z')
+    await drain()
+    // The second part closed when the third opened, at the test's real time; pin it to the clock.
+    store.updateSegment(id, 2, { closedAt: '2026-10-01T09:40:00.000Z' })
+    review.finishRecording(req(id), makeRes())
+    await drain()
+
+    const transcript = store.readTranscript(id)
+    expect(transcript.missingSegments).toEqual([2])
+    expect(transcript.missingRanges).toEqual([{ segment: 2, from: 1200, to: 2400 }])
+    expect(transcript.segments.map(r => r.segment)).toEqual([1, 1, 3, 3])
+    expect(store.readMeta(id).state).toBe('transcribed')
+  })
+})

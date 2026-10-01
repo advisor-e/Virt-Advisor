@@ -42,18 +42,27 @@ function allSettled (segments) {
  * ⚠ A FAILED OR EMPTY SEGMENT CONTRIBUTES NO ROWS, and is counted so the reports can say so.
  * Its audio is already gone (P8); there is nothing to recover, only something to disclose.
  *
- * @param {Array<object>} segments - `meta.segments`, each `{n, conceptId, label, state, startedAt}`
+ * @param {Array<object>} segments - `meta.segments`, each `{n, conceptId, label, state, startedAt,
+ *   closedAt}`
  * @param {function(number): (object|null)} readText - one segment's stored transcript by number
  * @returns {{segments: Array<object>, text: string, speakerCount: number,
- *   attributionConfident: boolean, segmentCount: number, missingSegments: Array<number>}}
+ *   attributionConfident: boolean, segmentCount: number, missingSegments: Array<number>,
+ *   missingRanges: Array<{segment: number, from: number, to: (number|null)}>}} - `from` and `to`
+ *   are seconds on the same clock as the rows; `to` is null when the segment never closed
  */
 function joinTranscripts (segments, readText) {
   const rows = (Array.isArray(segments) ? segments : []).slice().sort((a, b) => a.n - b.n)
   const origin = rows.length ? Date.parse(rows[0].startedAt) : NaN
+  /** Seconds from the first segment's start, or null when either time is unreadable. */
+  const onClock = (iso) => {
+    const at = Date.parse(iso)
+    return (isFinite(at) && isFinite(origin)) ? Math.max(0, (at - origin) / 1000) : null
+  }
 
   const joined = []
   const texts = []
   const missing = []
+  const missingRanges = []
   let confident = true
   let transcribed = 0
   let speakerCount = 0
@@ -62,7 +71,11 @@ function joinTranscripts (segments, readText) {
   rows.forEach((seg) => {
     const text = seg.state === 'done' ? readText(seg.n) : null
     if (!text || !Array.isArray(text.segments)) {
-      if (seg.state !== 'empty') { missing.push(seg.n) }
+      if (seg.state !== 'empty') {
+        missing.push(seg.n)
+        // Which minutes the reports cannot read — what they disclose instead of quoting across.
+        missingRanges.push({ segment: seg.n, from: onClock(seg.startedAt) || 0, to: onClock(seg.closedAt) })
+      }
       return
     }
     transcribed += 1
@@ -95,7 +108,8 @@ function joinTranscripts (segments, readText) {
     // Sections turned into text, silent ones included — what decides whether the session
     // finished (Decision N), as distinct from how many rows it holds.
     transcribedSegments: transcribed,
-    missingSegments: missing
+    missingSegments: missing,
+    missingRanges
   }
 }
 
@@ -147,7 +161,10 @@ function publicSegments (meta) {
     // Slice 2: where the concept's summary has got to, and whether the client approved it —
     // what the finished banner's "Summaries still waiting for approval" counts.
     summaryState: s.summaryState || null,
-    summaryApproved: Boolean(s.summaryApprovedAt)
+    summaryApproved: Boolean(s.summaryApprovedAt),
+    // Screen 4: whether the section's words have been placed in their boxes, so the screen
+    // knows when to fetch them. The words themselves come only from GET .../words.
+    wordsState: s.wordsState || null
   }))
 }
 

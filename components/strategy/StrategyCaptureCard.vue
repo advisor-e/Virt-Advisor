@@ -118,6 +118,8 @@
           @blur="onBlur(field.key, $event)"
           @input.native="onTyping(field.key, $event.target.value)"
         )
+        //- Screen 4 of the recorded session: what was said while this box was open.
+        strategy-heard-passages(:concept-id="framework.conceptId || framework.id" :field-key="field.key")
 </template>
 
 <script>
@@ -143,12 +145,13 @@
  * the wire dozens of times.
  */
 import StrategyTeachingSlide from '~/components/strategy/StrategyTeachingSlide.vue'
+import StrategyHeardPassages from '~/components/strategy/StrategyHeardPassages.vue'
 import { conceptTitlesItself } from '~/components/strategy/concepts'
 
 export default {
   name: 'StrategyCaptureCard',
 
-  components: { StrategyTeachingSlide },
+  components: { StrategyTeachingSlide, StrategyHeardPassages },
 
   props: {
     /** A framework as `/api/strategy/frameworks` returns it, joined to its material. */

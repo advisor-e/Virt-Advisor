@@ -118,31 +118,6 @@
       "comment": "2026-09-24 - filed on Mike's yes, the moment the package was installed, as his ruling on 15.20 required."
     },
     {
-      "ref": "8.4",
-      "name": "Meetings longer than about 27 minutes are too big for OpenAI and lose their audio",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The end-of-meeting pass sends the whole recording to OpenAI as one file, OpenAI refuses files over 25 MB, and the browser records about 0.9 MB a minute, so a normal client meeting will not transcribe.",
-      "risk": "The audio is deleted whether or not transcription worked, so an advisor who records an hour-long meeting ends with no transcript and no recording to retry. Near-certain rather than proven: the 25 MB cap is OpenAI's stated limit and the rate was measured on 2026-09-24, but no 30-minute recording has been sent.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-24 - found while proving item O5 of the OpenAI working page. Mike said yes to filing it, and added the section-by-section option in the note."
-      },
-      "touches": "server/routes/meetingReview.js runTranscription; server/utils/transcriptionClient.js; server/utils/meetingAudioStore.js (MAX_MEETING_BYTES 400 MB); components/MeetingRecorder.vue; design/features/meeting-review.md; the Strategy Planner's Run session (pages/strategy-planner.vue, StrategyConceptCapture.vue, StrategyCaptureCard.vue) and its navigation timeline (strategySessionStore.js); item 8.3, since both need the same design work.",
-      "note": "PROCEED - ALL MIKE'S RULINGS OF 2026-09-28 ARE IN strategy-planner.md §9b. DRAWING APPROVED FOR BUILD 2026-09-28 (976533c2): design/mockups/strategy-session-recording.html. FIRST BUILD = screens 1, 2, 3 and 5-10: record in concept segments, timing, and each concept's summary approved by advisor and client (Decision J: only approved summaries reach the Meeting Summary); screen 4, Decision 11's tidy, comes second. FIRST BUILD COMPLETE 2026-09-28: slices 1-4, Run session included; differences named in §9b. MIKE'S CALL 2026-09-28: PROCEED. Screen 11 (pause after 3 minutes' silence) built and walked live the same day. Next: screen 4. Walked 2026-09-28 with Chrome's test-tone microphone and real OpenAI calls (b10854c5); never yet with a real person speaking. THEN 15.2's screen 2.",
-      "comment": "2026-09-25 - Mike's call: PROCEED - the drawing's six decisions next, asked one at a time. Filed 2026-09-24 on his yes, with his option recorded; design it together with 8.3.",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-09-25"
-      }
-    },
-    {
       "ref": "15.22",
       "name": "Seven Strategy Planner topics still need Mike's ruling before they can capture",
       "rankedByMike": false,
@@ -321,6 +296,27 @@
       "touches": "pages/strategy-planner.vue - the clientId watcher, which resets only modelPrints and the guided answers; sessionId, chosen and suggested are never cleared on a client change.",
       "note": "PROVED: 2 concepts ticked for Harbour Joinery stayed ticked after switching to Kinetic Planning. NOT PROVED: that an open session is written to under the new client - trace a save end to end first. Needs Mike's call on whether ticks should ever carry over, e.g. correcting a wrongly picked client.",
       "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "13.9",
+      "name": "Meeting reports and set-up screens cannot be translated",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The meeting reports screen and the meeting set-up screen type their English straight into the code, so an advisor reading in another language sees them in English.",
+      "risk": "Every other Meeting Review screen now translates - the recorder moved on 2026-10-01 - so these two stand out in another language. The reports screen's own comment still defends the typed English by saying the recorder does the same, which is no longer true.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - found building item 8.4's gap notice; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
+      },
+      "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, locales/en.json, and the report tests that read English text.",
+      "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
       "ref": "22.3",

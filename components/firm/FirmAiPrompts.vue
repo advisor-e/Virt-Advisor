@@ -25,7 +25,9 @@
         span.aip-cmeta {{ metaFor(p) }}
 
     template(v-if="activePrompt")
-      .notification.is-info.is-light.aip-intro
+      //- The line speaks of the cash flow model and says no feature uses it, which is true of
+      //- that document alone — above any other it told a manager a live prompt was unused.
+      .notification.is-info.is-light.aip-intro(v-if="activePrompt.id === 'cashflow-forecast'")
         p.is-size-7 {{ $t('firmAiPrompts.intro') }}
 
       //- ── What you can set — first on the page, deliberately ──

@@ -89,11 +89,12 @@ const MAX_MEETING_BYTES = 400 * 1024 * 1024
 
 // ── A strategy session, recorded in concept segments (item 8.4) ─────────────────────
 //
-// 🔴 WHY SEGMENTS. OpenAI refuses a file over 25 MB, about 27 minutes of browser audio, and
-// this store otherwise sends a meeting as ONE file. A planning session runs for hours. Mike's
-// rulings of 2026-09-28 (design/mockups/strategy-session-recording.html, approved for build):
-// one segment per concept, one consent per session, and a segment closes by itself at 25
-// minutes or 20 MB. The browser rolls over at SEGMENT_ROLL_BYTES; SEGMENT_MAX_BYTES is the
+// 🔴 WHY SEGMENTS. The diarizing model refuses more than 1400 seconds of audio (proven
+// 2026-10-01) and OpenAI any file over 25 MB, and this store otherwise sends a meeting as ONE
+// file. A planning session runs for hours. Mike's rulings of 2026-09-28
+// (design/mockups/strategy-session-recording.html, approved for build): one segment per
+// concept, one consent per session, and a segment closes by itself at 20 minutes (his yes of
+// 2026-10-01; first ruled 25, over the model's limit) or 20 MB. The browser rolls over at SEGMENT_ROLL_BYTES; SEGMENT_MAX_BYTES is the
 // server's own guard below OpenAI's limit, for a browser that did not.
 //
 // ⚠ Every segment file name starts with SEGMENT_PREFIX, so the deletions below can find them
@@ -182,6 +183,8 @@ function _chunkName (seq) {
  *   against April's meeting if both are known to be with the same business.
  * @param {number} owner.retentionMonths - the figure the advisor was shown and spoke aloud
  * @param {boolean} [owner.segmented] - a strategy session, recorded one concept at a time
+ * @param {boolean} [owner.inParts] - an ordinary meeting, segmented by the clock alone
+ * @param {number} [owner.strategySessionId] - the planning session it records, already checked
  * @returns {{meetingId: string, meta: object}}
  */
 function createMeeting (owner) {
@@ -207,6 +210,12 @@ function createMeeting (owner) {
     retentionMonths: (owner && owner.retentionMonths) || null,
     // A strategy session records in concept segments rather than as one file (item 8.4).
     segmented: Boolean(owner && owner.segmented),
+    // An ordinary meeting recorded in 20-minute parts rather than concepts (item 8.4,
+    // design/mockups/meeting-review-long-recording.html): no concept, no concept summary.
+    inParts: Boolean(owner && owner.segmented && owner.inParts),
+    // The planning session whose box timeline places this recording's words (8.4, screen 4).
+    // Checked by the route against the firm, client and advisor before it is written here.
+    strategySessionId: (owner && owner.strategySessionId) || null,
     segments: [],
     createdAt: new Date().toISOString(),
     // When audio last arrived. An unfinished recording's audio is held 7 working days from here
@@ -696,12 +705,15 @@ function _segmentTextName (n) { return _segmentStem(n) + '-text.json' }
 /** A segment's concept summary: `seg-003-summary.json` (item 8.4, slice 2). */
 function _segmentSummaryName (n) { return _segmentStem(n) + '-summary.json' }
 
+/** A segment's passages placed in their boxes: `seg-003-words.json` (item 8.4, screen 4). */
+function _segmentWordsName (n) { return _segmentStem(n) + '-words.json' }
+
 /**
- * Is this a segment's text or summary — anything `destroyTranscript` must take?
- * A concept summary is written from the client's own words, so it expires with them.
+ * Is this a segment's text, summary or placed words — anything `destroyTranscript` must take?
+ * Summaries and placed words quote the client's own words, so they expire with them.
  */
 function _isSegmentTextFile (name) {
-  return name.indexOf(SEGMENT_PREFIX) === 0 && /-(text|summary)\.json$/.test(name)
+  return name.indexOf(SEGMENT_PREFIX) === 0 && /-(text|summary|words)\.json$/.test(name)
 }
 
 /** The meeting, refusing one that is not a segmented session still recording. */
@@ -934,6 +946,26 @@ function readSegmentSummary (meetingId, n) {
 }
 
 /**
+ * Store one segment's placed passages — each with what was heard, the AI's suggested wording and
+ * what the advisor finally kept: Original | AI Suggestion | Final Approved Value (CLAUDE.md).
+ */
+function writeSegmentWords (meetingId, n, words) {
+  fs.writeFileSync(
+    path.join(_meetingDir(meetingId), _segmentWordsName(n)),
+    JSON.stringify(words, null, 2)
+  )
+}
+
+/** One segment's placed passages, or null when none have been written. */
+function readSegmentWords (meetingId, n) {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(_meetingDir(meetingId), _segmentWordsName(n)), 'utf8'))
+  } catch (_e) {
+    return null
+  }
+}
+
+/**
  * Wordsmith's record of each statement put in a box (item 15.14): the AI's draft, the client's
  * words it came from, the final wording and who agreed. It quotes the client, so it lives here
  * and dies with the transcript (`destroyTranscript`), as the concept summaries do — Mike's build
@@ -1011,6 +1043,8 @@ module.exports = {
   hasAudio,
   writeSegmentSummary,
   readSegmentSummary,
+  writeSegmentWords,
+  readSegmentWords,
   WORDSMITH_FILE,
   readWordsmithRecords,
   appendWordsmithRecord,

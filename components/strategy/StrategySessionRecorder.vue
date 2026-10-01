@@ -64,6 +64,9 @@
       //- "1 section", "1 minute" in the singular (Mike, 2026-09-28).
       b {{ $t('strategyPlanner.recording.finishedLead', { sections: $tc('strategyPlanner.recording.sectionsCount', segments.length, { count: segments.length }), minutes: $tc('strategyPlanner.recording.minutesCount', totalMinutes, { count: totalMinutes }) }) }}
       |  {{ $t('strategyPlanner.recording.finishedWaiting', { count: waitingForApproval }) }}
+      //- Screen 4: what the advisor can still sort after the client has left.
+      template(v-if="wordsWaiting")
+        |  {{ $t('strategyPlanner.recording.finishedWords', { count: wordsWaiting }) }}
     b-button.ml-2(size="is-small" type="is-primary" tag="a" :href="'/meeting-review?meeting=' + meetingId")
       | {{ $t('strategyPlanner.recording.reports') }}
 </template>
@@ -88,8 +91,10 @@
  * second recorder on the same microphone — the locked Node 14.15 runs no audio tools, so the
  * server cannot cut it. It is the ADVISOR's voice: the consent line is read by the advisor.
  *
- * ⚠ A SEGMENT ROLLS OVER TO "part 2" by itself at 25 minutes or when the server says it has
- * passed 20 MB (Decision E), so no file reaches OpenAI's 25 MB limit.
+ * ⚠ A SEGMENT ROLLS OVER TO "part 2" by itself at 20 minutes or when the server says it has
+ * passed 20 MB (Decision E), so no file reaches either of OpenAI's limits: 25 MB, and 1400
+ * seconds of audio for the diarizing model — the second found by sending it 40 minutes on
+ * 2026-10-01, and stated in neither saved OpenAI guide.
  *
  * ⚠ SSR: every browser API — `navigator.mediaDevices`, `MediaRecorder`, `navigator.wakeLock` —
  * is touched only from a click or `mounted()`.
@@ -101,8 +106,11 @@ import MeetingConsentPanel from '~/components/MeetingConsentPanel.vue'
 /** How often captured audio leaves the browser — Meeting Review's own figure. */
 const CHUNK_MS = 15000
 
-/** Decision E: a segment closes itself here, and carries on as "part 2". */
-const ROLL_SECONDS = 25 * 60
+/**
+ * Decision E: a segment closes itself here, and carries on as "part 2". 20 minutes, Mike's
+ * ruling of 2026-10-01: the 25 he first ruled is over the model's 1400-second limit.
+ */
+const ROLL_SECONDS = 20 * 60
 
 /** The advisor's voice clip: 2–10 seconds is OpenAI's documented range. */
 const CLIP_MS = 8000
@@ -134,7 +142,11 @@ export default {
     /** The caller's bearer token; the backend re-checks ownership on every call. */
     apiToken: { type: String, required: true },
     /** The client this session is with, from the firm's register; empty is allowed. */
-    clientId: { type: String, default: '' }
+    clientId: { type: String, default: '' },
+    /** The planning session whose box timeline places the words (screen 4); checked by the server. */
+    strategySessionId: { type: Number, default: null },
+    /** Screen 4: passages still waiting under boxes across this recording, from the page. */
+    wordsWaiting: { type: Number, default: 0 }
   },
 
   data () {
@@ -281,7 +293,8 @@ export default {
         const started = await this.call('POST', '/api/meeting/recordings', {
           scenarioId: 'strategy_session',
           clientId: this.clientId || null,
-          segmented: true
+          segmented: true,
+          strategySessionId: this.strategySessionId
         })
         this.meetingId = started.meetingId
         await this.openSegment(this.pendingCard, 1)
@@ -623,7 +636,8 @@ export default {
         }
       } catch (err) { /* a failed poll is not a failed recording; keep asking */ }
       const busy = this.stage === 'finishing' ||
-        this.segments.some(s => ['closed', 'transcribing'].includes(s.state) || s.summaryState === 'writing')
+        this.segments.some(s => ['closed', 'transcribing'].includes(s.state) || s.summaryState === 'writing' ||
+          s.wordsState === 'placing')
       // While recording, the clock asks every few seconds; afterwards this keeps asking until
       // every segment and summary has settled.
       if (this.meetingId && busy && this.stage !== 'recording') {

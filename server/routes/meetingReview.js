@@ -73,6 +73,7 @@ const { generateSummary, generateCoachingNotes } = require('../utils/meetingRepo
 // with, so March's agreed actions can be checked against April's transcript — and `getById`
 // is scoped to the firm, so an id from a body can never reach another firm's client.
 const clientStore = require('../utils/clientStore')
+const strategyStore = require('../utils/strategySessionStore')
 const followThrough = require('../utils/meetingFollowThrough')
 
 // formidable v2's parse() is callback-style, matching the wrapper in firmManager.js. The
@@ -272,7 +273,8 @@ function ownedMeeting (req, res) {
  * BEFORE they speak the consent line, because the line has to land inside the audio.
  *
  * @route POST /api/meeting/recordings
- * @param {object} req.body - `{ scenarioId?: string }`
+ * @param {object} req.body - `{ scenarioId?: string, clientId?: string, segmented?: true,
+ *   parts?: true (with segmented: an ordinary meeting in 20-minute parts), strategySessionId?: number }`
  * @returns {{meetingId: string, retentionMonths: number, retentionPhrase: string}}
  */
 async function startRecording (req, res) {
@@ -295,6 +297,30 @@ async function startRecording (req, res) {
       clientId = client.id
     }
 
+    // 🔴 THE PLANNING SESSION IS CHECKED THE SAME WAY (item 8.4, screen 4). Its box timeline
+    // decides which box this recording's words are offered under, so it must be this firm's,
+    // this client's and this advisor's — the pairing Wordsmith refuses to guess (item 15.29).
+    // An ordinary meeting recorded in 20-minute parts (item 8.4, the long-recording drawing,
+    // approved 2026-10-01). It records no planning session: its parts belong to no concept.
+    const inParts = body.segmented === true && body.parts === true
+    if (inParts && body.strategySessionId !== undefined && body.strategySessionId !== null) {
+      sendError(res, 400, 'BAD_INPUT', 'A meeting recorded in parts is not a planning session.')
+      return
+    }
+
+    let strategySessionId = null
+    if (body.segmented === true && body.strategySessionId !== undefined && body.strategySessionId !== null) {
+      // A malformed id is refused as not found, never as a server fault.
+      const session = await strategyStore.getSession(body.strategySessionId, req.firmId)
+        .catch((err) => { if (err.code === 'BAD_INPUT') { return null } throw err })
+      if (!session || !clientId || String(session.clientId) !== String(clientId) ||
+          String(session.advisorId) !== String(req.advisorId)) {
+        sendError(res, 404, 'NO_SUCH_SESSION', 'That planning session is not yours to record.')
+        return
+      }
+      strategySessionId = session.id
+    }
+
     const { meetingId, meta } = store.createMeeting({
       firmId: req.firmId,
       advisor: req.advisorId,
@@ -305,7 +331,9 @@ async function startRecording (req, res) {
       clientId,
       retentionMonths: resolved.months,
       // A strategy session records one concept at a time (item 8.4) — see meetingSegments.js.
-      segmented: body.segmented === true
+      segmented: body.segmented === true,
+      inParts,
+      strategySessionId
     })
     res.send(201, {
       meetingId,
@@ -751,8 +779,9 @@ async function runReports (meetingId, ctx) {
     const meta = store.readMeta(meetingId)
     // 🔴 DECISION J (item 8.4, Mike 2026-09-28): a strategy session's Meeting Summary is built
     // ONLY from the concept summaries the client approved — no model call, and no word the
-    // client never saw. A single-file meeting keeps its generated summary, unchanged.
-    const summary = (meta && meta.segmented)
+    // client never saw. A single-file meeting keeps its generated summary, unchanged — and so
+    // does a meeting recorded in 20-minute parts, which has no concepts to compose from.
+    const summary = (meta && meta.segmented && !meta.inParts)
       ? require('../utils/conceptSummary').composeMeetingSummary(
         meta.segments, n => store.readSegmentSummary(meetingId, n))
       : await generateSummary({
@@ -865,7 +894,8 @@ async function generateReports (req, res) {
  *
  * @route GET /api/meeting/recordings/:meetingId/reports
  * @returns {{state: string, error: (string|null), summary: (object|null),
- *   coaching: (object|null), attributionConfident: (boolean|null)}}
+ *   coaching: (object|null), attributionConfident: (boolean|null),
+ *   missingRanges: Array<{segment: number, from: number, to: (number|null)}>}}
  */
 function getReports (req, res) {
   const meta = ownedMeeting(req, res)
@@ -884,6 +914,10 @@ function getReports (req, res) {
     moderation: (job && job.moderation) || null,
     hasTranscript: Boolean(transcript),
     attributionConfident: transcript ? Boolean(transcript.attributionConfident) : null,
+    // A meeting recorded in parts or sections where one could not be turned into text: the
+    // stretches neither report could read, in seconds on the transcript's clock (Decision E of
+    // the long-recording drawing, for both recorders). Empty for a whole meeting.
+    missingRanges: (transcript && Array.isArray(transcript.missingRanges)) ? transcript.missingRanges : [],
     // 🔴 THE TRANSCRIPT COMES BACK HERE, AND ONLY HERE. `getRecording` deliberately refuses to
     // hand out transcript text; slice 2's note says reading it back is the reports' job. This
     // is that job: Mike's ruling of 2026-09-02 replaced the drawing's "Play this moment" with

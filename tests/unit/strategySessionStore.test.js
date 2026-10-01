@@ -675,6 +675,20 @@ last_opened_at: 'x'
       .toEqual({ domains: [], frameworks: [], steps: [], suggestion: null, edits: {}, timing: null })
   })
 
+  it('🔴 reads a timeline stamp back as the UTC it was written, whatever the server\'s zone', async () => {
+    // now() stores UTC digits with no zone; mysql2 rebuilds a DATETIME as a LOCAL Date.
+    // Unhandled, a New Zealand server reads every box 13 hours out and screen 4 files each
+    // passage under the wrong box. The Date below is what the driver hands back for the
+    // stored digits 2026-10-01 14:21:05.250 on a server in ANY zone.
+    const fromDriver = new Date(2026, 9, 1, 14, 21, 5, 250)
+    db.execute.mockResolvedValueOnce([[
+      { framework_id: 'porters-5-forces', field_key: 'suppliers', opened_at: fromDriver, closed_at: null }
+    ]])
+    const [entry] = await store.loadTimeline(7, FIRM)
+    expect(entry.openedAt).toBe('2026-10-01 14:21:05.250')
+    expect(entry.closedAt).toBeNull()
+  })
+
   it('reports a re-scope of a session this firm does not own as not done', async () => {
     db.execute.mockResolvedValueOnce([{ affectedRows: 0 }])
     expect(await store.setScope(7, FIRM, { frameworks: [] })).toBe(false)

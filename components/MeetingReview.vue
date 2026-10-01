@@ -70,6 +70,10 @@
         b-tag(v-else type="is-light" size="is-small") Draft — not sent
       p.is-size-7.has-text-grey.mb-4
         | Yours to edit. Nothing goes to your client until you send it.
+      //- Item 8.4, Decision E: a stretch of the meeting that could not be turned into text is
+      //- named, never read across. For the advisor only; it is not part of the client's copy.
+      b-message(v-if="missingSpans" type="is-warning" size="is-small")
+        | {{ $t('meetingReportsGap.summary', { ranges: missingSpans }) }}
 
       template(v-if="!editing")
         h5.mrev-h5 What we covered
@@ -113,6 +117,9 @@
         b-tag(type="is-light" size="is-small") Private to you
       p.is-size-7.has-text-grey.mb-4
         | Only you can see this. Nobody else can open it.
+
+      b-message(v-if="missingSpans" type="is-warning" size="is-small")
+        | {{ $t('meetingReportsGap.coaching', { ranges: missingSpans }) }}
 
       //- §5 trap 1. Degraded speaker separation must fail visibly: every figure below that
       //- depends on who spoke becomes a coin toss while still rendering as a confident number.
@@ -313,6 +320,7 @@
  */
 
 import moderationMessage from '~/mixins/moderationMessage'
+import { clockOf } from '~/utils/meetingParts'
 
 /** How much transcript to show either side of a citation. */
 const CONTEXT_SECONDS = 45
@@ -349,6 +357,8 @@ export default {
       /** The approved moderation message when a report was blocked (item 8.2), else ''. */
       blockedMessage: '',
       attributionConfident: null,
+      /** Stretches no report could read, in seconds (item 8.4, Decision E); empty when whole. */
+      missingRanges: [],
       /**
        * Screen E. A client's attached correction statements, and a release made under the
        * break-glass. Both default empty so a notices call that fails leaves the reports
@@ -393,6 +403,17 @@ export default {
       return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear()
     },
 
+    /**
+     * The missing stretches as the notices print them — "20:00–40:00 and 60:00–67:12" — on the
+     * same clock as the recorder's parts row. '' for a whole meeting, which shows no notice.
+     * @returns {string}
+     */
+    missingSpans () {
+      const spans = this.missingRanges.map(r => clockOf(r.from) + (r.to === null || r.to === undefined ? '' : '–' + clockOf(r.to)))
+      if (spans.length < 2) { return spans.join('') }
+      return spans.slice(0, -1).join(', ') + this.$t('meetingReportsGap.listAnd') + spans[spans.length - 1]
+    },
+
     /** The advisor's own words win over the generated ones once they have edited. */
     displayedCovered () {
       if (!this.summary) { return '' }
@@ -429,6 +450,7 @@ export default {
         this.error = data.error
         this.blockedMessage = this.moderationMessageFrom(data) || ''
         this.attributionConfident = data.attributionConfident
+        this.missingRanges = data.missingRanges || []
         this.summary = data.summary
         this.coaching = data.coaching
         this.segments = (data.transcript && data.transcript.segments) || []
