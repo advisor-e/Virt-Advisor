@@ -269,8 +269,8 @@
         "detail": "2026-09-30 - found walking the eight 13.6 screens in German on the running app. Filed on Mike's yes rather than fixed, because it needs one formatting rule chosen for every report."
       },
       "touches": "The per-report rounding helpers - round1, round0 and pct in MarginBreakevenReport.vue, BusinessPerformanceReport.vue and the other report screens; kf in DebtorDragReport.vue for the chart axis; mixins/currencyMixin.js, which already formats money by locale and is the natural home for one number formatter.",
-      "note": "FOUND 2026-09-30. Walk every report in German before and after; the 13.6 walk driver pattern is in .claude/skills/run-the-app.",
-      "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+      "note": "SLICE 1 BUILT 2026-10-01: all 13 Business Performance Report screens format through mixins/reportFormatMixin.js; walked in German, 56 English decimals and 114 misplaced 'k' figures now 0, English byte-identical. LEFT: slice 2, the other report screens (~75 local helpers - round1, round0, pct, kf, oneDp, percent - incl. base/DoughnutChart). Slice 3, the hub screens, plus on Mike's yes the seven dates shown in the browser's language (toLocaleString with no locale; fix with intlLocaleFor): AuditViewer, ManagerConsole, FirmDomainSupport, FirmLogicTables, MethodGuidePanel, SalesBlog, MeetingUnfinished. Walk each before and after.",
+      "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-01: PROCEED - slice 1 done, slices 2 and 3 remain."
     },
     {
       "ref": "15.31",

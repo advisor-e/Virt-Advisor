@@ -71,7 +71,7 @@ import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import BarPairChart from '~/components/base/BarPairChart.vue'
 import LineChart from '~/components/base/LineChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { days, pct100, pts } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 const TONE_BY_BAND = { good: '', warn: 'is-caution', crit: 'is-danger' }
 
@@ -80,7 +80,7 @@ export default {
 
   components: { DashboardReportPage, BarPairChart, LineChart },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -124,7 +124,6 @@ export default {
   },
 
   methods: {
-    days,
     /** @param {string} key @returns {object|null} */
     driver (key) { return this.cf.drivers.find(d => d.key === key) || null },
     /** @param {object|null} d @returns {string} the tile tint for a band, or the plain tint */
@@ -133,12 +132,12 @@ export default {
     /** A driver's figure in its own unit. @param {object} d @returns {string} */
     driverValue (d) {
       if (d.value === null || d.value === undefined) {
-        return d.key === 'salesGrowth' && d.movement !== null ? pts(d.movement).replace(' pts', '%') : '—'
+        return d.key === 'salesGrowth' && d.movement !== null ? this.signedPct100(d.movement) : '—'
       }
       if (d.unit === 'money') { return this.kMoney(d.value) }
-      if (d.unit === 'days') { return days(d.value) }
-      if (d.key === 'salesGrowth') { return (d.movement > 0 ? '+' : '') + pct100(d.movement) }
-      return pct100(d.value)
+      if (d.unit === 'days') { return this.days(d.value) }
+      if (d.key === 'salesGrowth') { return this.signedPct100(d.movement) }
+      return this.pct100(d.value)
     }
   }
 }

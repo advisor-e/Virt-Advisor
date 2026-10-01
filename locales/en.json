@@ -2556,6 +2556,7 @@
         "thisYear": "This year",
         "lastYear": "Last year",
         "days": "days",
+        "pts": "pts",
         "vsLastYear": "vs last year",
         "sameAsLastYear": "the same as last year",
         "slowerBy": "Slower by {n} days",

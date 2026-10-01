@@ -61,7 +61,7 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.optional.sensitivi
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import HBarChart from '~/components/base/HBarChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { pct } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /** The lever bars, brand navy down to sky in rank order. */
 const COLOURS = ['#002b64', '#0070c0', '#00b1e0', '#7fd3f1']
@@ -71,7 +71,7 @@ export default {
 
   components: { DashboardReportPage, HBarChart },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -102,11 +102,10 @@ export default {
   },
 
   methods: {
-    pct,
     /** "+$36.5K · +7.2%" beside each bar. @param {number} v */
     leverText (v) {
       const lever = this.sv.levers.find(l => l.delta === v)
-      const share = lever && lever.pctOfProfit !== null ? ' · +' + pct(lever.pctOfProfit, 1) : ''
+      const share = lever && lever.pctOfProfit !== null ? ' · +' + this.pct(lever.pctOfProfit, 1) : ''
       return '+' + this.kMoney(v) + share
     }
   }

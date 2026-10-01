@@ -81,7 +81,7 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.optional.salesVola
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import BandBarChart from '~/components/base/BandBarChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { pct, pct100 } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 const TONE_BY_BAND = { good: '', warn: 'is-caution', crit: 'is-danger' }
 
@@ -90,7 +90,7 @@ export default {
 
   components: { DashboardReportPage, BandBarChart },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -116,18 +116,16 @@ export default {
     highestRead () {
       const h = this.v.highest
       const l = this.v.lowest
-      const times = l && l.value > 0 ? (h.value / l.value).toFixed(1) : '—'
+      const times = l && l.value > 0 ? this.num(h.value / l.value, 1) : '—'
       return this.$t('report.dashboardReports.doc.optional.salesVolatility.highestRead', { times, more: this.kMoney(h.value - this.v.average) })
     },
     lowestRead () {
       const l = this.v.lowest
       const short = this.v.average - l.value
-      const sd = this.v.standardDeviation > 0 ? (short / this.v.standardDeviation).toFixed(1) + '×' : '—'
+      const sd = this.v.standardDeviation > 0 ? this.times(short / this.v.standardDeviation) : '—'
       return this.$t('report.dashboardReports.doc.optional.salesVolatility.lowestRead', { less: this.kMoney(short), sd })
     }
-  },
-
-  methods: { pct, pct100 }
+  }
 }
 </script>
 

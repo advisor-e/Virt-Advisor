@@ -65,7 +65,7 @@ import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import BarPairChart from '~/components/base/BarPairChart.vue'
 import DoughnutChart from '~/components/base/DoughnutChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { pct, times, ratio2, days } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 const COST_COLOURS = { costOfSales: '#002b64', wages: '#0070c0', operatingExpenses: '#00b1e0', depreciation: '#7fd3f1', interestPaid: '#3a3a3a' }
 
@@ -74,7 +74,7 @@ export default {
 
   components: { DashboardReportPage, BarPairChart, DoughnutChart },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -118,9 +118,7 @@ export default {
         colour: COST_COLOURS[s.key]
       }))
     }
-  },
-
-  methods: { pct, times, ratio2, days }
+  }
 }
 </script>
 

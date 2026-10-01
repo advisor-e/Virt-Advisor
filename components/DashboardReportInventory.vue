@@ -53,7 +53,7 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.section.inventory'
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import HBarChart from '~/components/base/HBarChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { times, days, pct } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 const { AGEING_BANDS } = require('~/utils/dashboardReportsSavedShape')
 
 const AGEING_COLOURS = ['#0070c0', '#0070c0', '#0070c0', '#ff9900', '#ff0000']
@@ -66,7 +66,7 @@ export default {
 
   components: { DashboardReportPage, HBarChart },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -99,9 +99,6 @@ export default {
   },
 
   methods: {
-    times,
-    days,
-    pct,
     change (v) {
       if (v === null || v === undefined) { return '' }
       return (v > 0 ? '▲ ' : '▼ ') + this.kMoney(Math.abs(v)) + ' ' + this.$t('report.dashboardReports.doc.vsLastYear')

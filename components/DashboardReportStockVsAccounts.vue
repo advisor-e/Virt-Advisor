@@ -62,7 +62,7 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.optional.stockVsAc
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import HBarChart from '~/components/base/HBarChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { pct, days } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /** How many groups a bar chart shows before the rest is one bar — what the page's height allows. */
 const MAX_BARS = 5
@@ -72,7 +72,7 @@ export default {
 
   components: { DashboardReportPage, HBarChart },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -86,18 +86,18 @@ export default {
     gapText () {
       const k = 'report.dashboardReports.doc.optional.stockVsAccounts.'
       if (this.sv.agrees) { return this.$t(k + 'agrees', { accounts: this.money(this.sv.accountsStock) }) }
-      return this.$t(k + 'gap', { accounts: this.money(this.sv.accountsStock), gap: this.money(Math.abs(this.sv.gap)), pct: pct(this.sv.gapPct === null ? null : Math.abs(this.sv.gapPct), 0) })
+      return this.$t(k + 'gap', { accounts: this.money(this.sv.accountsStock), gap: this.money(Math.abs(this.sv.gap)), pct: this.pct(this.sv.gapPct === null ? null : Math.abs(this.sv.gapPct), 0) })
     },
     categoryBars () { return this.bars(this.sv.categories) },
     locationBars () { return this.bars(this.sv.locations) },
     fundedText () {
       if (this.sv.daysFundedBySuppliers === null) { return '—' }
-      return this.$t('report.dashboardReports.doc.optional.stockVsAccounts.daysOf', { funded: days(this.sv.daysFundedBySuppliers), days: days(this.sv.stockDays) })
+      return this.$t('report.dashboardReports.doc.optional.stockVsAccounts.daysOf', { funded: this.days(this.sv.daysFundedBySuppliers), days: this.days(this.sv.stockDays) })
     },
     fundedRead () {
       const k = 'report.dashboardReports.doc.optional.stockVsAccounts.'
       if (this.sv.daysFundedBySuppliers === null) { return this.$t(k + 'daysFundedUnknown') }
-      const p = { stockDays: days(this.sv.stockDays), creditorDays: days(this.sv.creditorDays), carried: days(this.sv.daysCarried) }
+      const p = { stockDays: this.days(this.sv.stockDays), creditorDays: this.days(this.sv.creditorDays), carried: this.days(this.sv.daysCarried) }
       return this.$t(k + (this.sv.daysCarried > 0 ? 'daysFundedReadCarried' : 'daysFundedReadCovered'), p)
     }
   },
@@ -117,8 +117,7 @@ export default {
         out.push({ label: this.$t('report.dashboardReports.doc.optional.stockVsAccounts.otherGroups', { n: tail.length }), value: tail.reduce((t, g) => t + g.value, 0), colour: '#9dc2e8' })
       }
       return out
-    },
-    pct
+    }
   }
 }
 </script>

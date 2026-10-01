@@ -87,14 +87,14 @@ dashboard-report-page(:title="$t('report.dashboardReports.doc.profitLossTitle')"
 import DashboardReportPage from '~/components/DashboardReportPage.vue'
 import BarPairChart from '~/components/base/BarPairChart.vue'
 import currencyMixin from '~/mixins/currencyMixin'
-const { pct } = require('~/utils/reportFormat')
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 export default {
   name: 'DashboardReportProfitLoss',
 
   components: { DashboardReportPage, BarPairChart },
 
-  mixins: [currencyMixin],
+  mixins: [currencyMixin, reportFormatMixin],
 
   props: {
     number: { type: Number, required: true },
@@ -133,7 +133,6 @@ export default {
   },
 
   methods: {
-    pct,
     /** @param {number} v @returns {number|null} v as a share of revenue */
     share (v) { return this.c.revenue ? v / this.c.revenue : null }
   }
