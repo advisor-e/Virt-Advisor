@@ -9,25 +9,23 @@
 
 ---
 
-## 2026-10-01 (afternoon) · Desktop · branch `feat/firm-quiz-builder-ui`
+## 2026-10-01 (evening) · Desktop · branch `feat/firm-quiz-builder-ui`
 
-**Level with master after PR #151 merged (`f0f32188`); suite green: 683 suites / 14,755 tests
-on Node 14.15, audit PASS.** This shutdown's commit makes it 1 ahead.
+**Merged master (PR #152, 8.4 closed); 6 ahead, 0 behind; suite green 689 suites on Node 14.15.**
 
-**Closed today on Mike's word:** 46.1 (Stats NZ provisional years worked out from the file),
-7.17 (engine briefing builder's dead options; AI input proven byte-identical), 44.3 (bad
-debts built; deferred tax, leases, shipping terms kept as disclosures after the impact test).
-
-**13.8 slice 1 BUILT, Mike's call PROCEED, `activeOn` desktop.** The 13 Business Performance
-Report screens format through `mixins/reportFormatMixin.js`; German walk 170 wrong figures → 0,
-English byte-identical. Slices 2 (other report screens) and 3 (hub screens + seven
-browser-language dates) are next here.
+**13.8 CLOSED on Mike's word** — every report, hub and adviser screen writes numbers through
+`reportFormatMixin` and dates through `utils/dateLocale.js` (`formatDate`, `formatStamp`).
+Mike's ruling: English dates day first, 24-hour. Guards: `reportFormat.test.js` (no local `pct`),
+`i18nDateFormats.test.js` (no date or number without a locale; only Meeting Review excused, 13.9).
+Also fixed: `plugins/buefy.js` registers Datepicker and Progress (the Client Copy Request form had
+no date box). Filed: 22.3 (first-load JS 382 KB vs 300 KB). 8.7 deleted as 13.9's duplicate.
 
 ### FOR THE LAPTOP
 
-- **Merge `master` at startup** — PR #151 is on it, and your branch is 11 behind.
-- Shared files changed: `locales/en.json` (`report.dashboardReports.doc.pts`;
-  `firmBenchmarker.inForce.provisional` now takes years), `server/advisorEngine.js`
-  (`buildClientContext` options trimmed), `utils/reportFormat.js`, `utils/currencyFormat.js`
-  (`kMoney`). A screen must use `reportFormatMixin`, never require `utils/reportFormat`
-  directly — `reportFormat.test.js` fails if it does.
+- **Merge master** once this reaches it.
+- Your two heard-passage clocks (`StrategyHeardPassages.vue`, `StrategyHeardTray.vue`) now use
+  `formatDate` — the new guard caught them on merge. Use `formatDate`/`numUpTo`, never
+  `toLocaleString()` with no locale, or `i18nDateFormats.test.js` fails.
+- 13.9's note now carries Meeting Review's numbers-and-dates detail.
+- Shared files changed: `locales/en.json`, `utils/dateLocale.js`, `utils/reportFormat.js`,
+  `mixins/reportFormatMixin.js`, `components/FirmManagerHub.vue`, `pages/strategy-planner.vue`.

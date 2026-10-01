@@ -227,31 +227,6 @@
       }
     },
     {
-      "ref": "13.8",
-      "name": "Report figures keep English number formatting in other languages",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Decimals on the report screens keep an English point in every language - German reads '1.0×' and '3.0 Punkte' where a German reader expects '1,0×' - and the Debtor Drag chart's axis reads '134 $k'.",
-      "risk": "A figure a client reads can look wrong, or be misread as a thousands separator, on the screens that exist to be read with them. Money already formats through currencyMixin; the small figures do not, because each report rounds with its own helper (round1, round0, pct, kf).",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-30 - found walking the eight 13.6 screens in German on the running app. Filed on Mike's yes rather than fixed, because it needs one formatting rule chosen for every report."
-      },
-      "touches": "The per-report rounding helpers - round1, round0 and pct in MarginBreakevenReport.vue, BusinessPerformanceReport.vue and the other report screens; kf in DebtorDragReport.vue for the chart axis; mixins/currencyMixin.js, which already formats money by locale and is the natural home for one number formatter.",
-      "note": "SLICES 1-3 BUILT 2026-10-01: every report, hub screen and adviser screen formats numbers through reportFormatMixin and dates through utils/dateLocale.js (Mike's ruling: English day first, 24-hour); guards in reportFormat.test.js and i18nDateFormats.test.js. German walks of 64 screens: every figure written by code now in the reader's form. LEFT, after the laptop releases its files: strategy-planner.vue's two times/dates, StrategyOwnerContrast's own pct, StrategyConceptSummary's time, FirmAiPrompts' raw timestamp. Meeting Review held back - item 13.9.",
-      "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-01: PROCEED - slices 1-3 done; only the four Strategy Planner and AI Prompts spots remain, after the laptop releases those files.",
-      "activeOn": {
-        "machine": "desktop",
-        "since": "2026-10-01"
-      }
-    },
-    {
       "ref": "15.31",
       "name": "Suggest for this client gives a new client nothing, and ignores the intake questions",
       "rankedByMike": false,

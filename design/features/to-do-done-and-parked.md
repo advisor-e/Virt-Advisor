@@ -379,6 +379,20 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**13.8 · Report figures kept English number formatting in other languages.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was built.**
+
+- **What was done:** every report, manager hub screen and adviser screen writes numbers through
+  `mixins/reportFormatMixin.js` and dates through `utils/dateLocale.js` (`formatDate`,
+  `formatStamp`). His ruling of the same day: English dates are day first on a 24-hour clock.
+  Three hardcoded `$` now show the firm's currency.
+- **What proved it:** German walks of 64 screens on a production build, before and after —
+  every figure written by code in the reader's form, English unchanged except dates and one
+  grouped count. Two guards fail the build if it slips back: a screen keeping its own `pct`
+  (`reportFormat.test.js`) and a date or number written with no locale
+  (`i18nDateFormats.test.js`), which caught two new clocks in the laptop's 8.4 work on merge.
+- **Not covered here:** Meeting Review's screen, untranslated as a whole — item 13.9.
+
 **8.7 · The Meeting Review screen is almost entirely in English.**
 🗑 **Deleted 2026-10-01 by Mike ("yes") as a duplicate of 13.9.**
 
