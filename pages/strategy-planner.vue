@@ -428,6 +428,7 @@ import { getSavedReport } from '~/utils/clientReports'
 import { requestFromSaved, contrastFrom } from '~/utils/ownerExpectationsPrint'
 import { agendaGroups as groupsOfSteps } from '~/utils/agendaLayout'
 import firmBrand from '~/mixins/firmBrand'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
 const { REPORT_IMPORT_KEY } = require('~/utils/reportImport')
 const { MARKER_PREFIX, parseMarker, stampHolds } = require('~/utils/wordsmithMarker')
 
@@ -712,7 +713,7 @@ export default {
         const fieldKey = k.slice(MARKER_PREFIX.length)
         const marker = parseMarker(box[k])
         if (!stampHolds(marker, box[fieldKey])) { return }
-        const time = new Date(marker.approvedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        const time = fmtDate(marker.approvedAt, this.$i18n.locale, { hour: '2-digit', minute: '2-digit', hour12: false })
         out[fieldKey] = this.$t('strategyPlanner.wordsmith.stamp', { time })
       })
       return out
@@ -1257,10 +1258,7 @@ export default {
     /** @returns {string} the time on the stamp, or '' when it has nothing to show. */
     saveStampTime () {
       if (this.saveState !== 'saved' || !this.lastSavedAt) { return '' }
-      return this.lastSavedAt.toLocaleTimeString(this.$i18n.locale, {
-        hour: 'numeric',
-        minute: '2-digit'
-      })
+      return fmtDate(this.lastSavedAt, this.$i18n.locale, { hour: '2-digit', minute: '2-digit', hour12: false })
     }
   },
 

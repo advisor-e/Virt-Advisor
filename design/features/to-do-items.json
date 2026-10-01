@@ -244,7 +244,7 @@
         "detail": "2026-09-30 - found walking the eight 13.6 screens in German on the running app. Filed on Mike's yes rather than fixed, because it needs one formatting rule chosen for every report."
       },
       "touches": "The per-report rounding helpers - round1, round0 and pct in MarginBreakevenReport.vue, BusinessPerformanceReport.vue and the other report screens; kf in DebtorDragReport.vue for the chart axis; mixins/currencyMixin.js, which already formats money by locale and is the natural home for one number formatter.",
-      "note": "SLICES 1-3 BUILT 2026-10-01: every report, hub screen and adviser screen formats numbers through reportFormatMixin and dates through utils/dateLocale.js (Mike's ruling: English day first, 24-hour); guards in reportFormat.test.js and i18nDateFormats.test.js. German walks of 64 screens: every figure written by code now in the reader's form. LEFT, after the laptop releases its files: strategy-planner.vue's two times/dates, StrategyOwnerContrast's own pct, StrategyConceptSummary's time, FirmAiPrompts' raw timestamp. Meeting Review held back - item 8.7.",
+      "note": "SLICES 1-3 BUILT 2026-10-01: every report, hub screen and adviser screen formats numbers through reportFormatMixin and dates through utils/dateLocale.js (Mike's ruling: English day first, 24-hour); guards in reportFormat.test.js and i18nDateFormats.test.js. German walks of 64 screens: every figure written by code now in the reader's form. LEFT, after the laptop releases its files: strategy-planner.vue's two times/dates, StrategyOwnerContrast's own pct, StrategyConceptSummary's time, FirmAiPrompts' raw timestamp. Meeting Review held back - item 13.9.",
       "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-01: PROCEED - slices 1-3 done; only the four Strategy Planner and AI Prompts spots remain, after the laptop releases those files.",
       "activeOn": {
         "machine": "desktop",
@@ -315,7 +315,7 @@
         "detail": "2026-10-01 - found building item 8.4's gap notice; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
       "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, locales/en.json, and the report tests that read English text.",
-      "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words.",
+      "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words. Its numbers and dates need 13.8's helpers too - the talk-time % (lines 128-130) and the en-NZ date at line 480 (8.7, a duplicate, folded in 2026-10-01).",
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
@@ -337,27 +337,6 @@
       },
       "touches": "nuxt.config.js build settings, plugins/i18n.js (whether locales/en.json is bundled), plugins/buefy.js; the measurement method should match the master team's.",
       "note": "Production build 2026-10-01, gzipped: runtime 3.1 + commons/app 57.3 + vendors~app 110.0 + app 211.7 = 382 KB before any page; /firm-manager adds 209 KB, /advisor totals 456 KB. Suspected cause, unproved: the 212 KB app chunk carries the English locale file. First job: confirm the master team's measuring method, then find what is in app.",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "8.7",
-      "name": "The Meeting Review screen is almost entirely in English",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "components/MeetingReview.vue has one translated phrase in 757 lines, so an adviser working in another language reads the whole review in English.",
-      "risk": "An adviser outside English reads the review of their own client meeting - headings, the client-dispute notice, talk-time and dates - in a language that is not theirs.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found scoping 13.8 slice 3; held out of it and filed on Mike's yes."
-      },
-      "touches": "components/MeetingReview.vue (about 40 sentences, talk-time line 128-130, noticeDate line 480); locales/en.json; the laptop's 8.4 work in the same area.",
-      "note": "Wording moves to locales/en.json as written - no new words - and the numbers and date take 13.8's helpers (reportFormatMixin, formatDate). Coordinate with the laptop, which is building Meeting Review under 8.4; i18nDateFormats.test.js names this file as waiting until then.",
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]

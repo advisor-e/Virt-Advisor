@@ -379,6 +379,16 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**8.7 · The Meeting Review screen is almost entirely in English.**
+🗑 **Deleted 2026-10-01 by Mike ("yes") as a duplicate of 13.9.**
+
+- **Why:** the desktop filed it while scoping 13.8 slice 3, not knowing the laptop had filed 13.9 —
+  *Meeting reports and set-up screens cannot be translated* — the same morning, covering the same
+  `components/MeetingReview.vue`. One fault, one item.
+- **What carried over:** its one addition — the screen's numbers and dates need 13.8's helpers too
+  (the talk-time %, the en-NZ date at line 480) — is in 13.9's note. `i18nDateFormats.test.js`
+  names the file as waiting on 13.9.
+
 **8.4 · Meetings longer than 23 minutes were refused by OpenAI and lost their audio.**
 ✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), after the browser walk.**
 

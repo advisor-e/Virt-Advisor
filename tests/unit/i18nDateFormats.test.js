@@ -124,14 +124,13 @@ describe('formatDate / formatStamp — the hub screens\' dates (item 13.8)', () 
   })
 
   // GUARD. A date or number written with no locale follows the reader's BROWSER, so an English
-  // UAT tester sees nothing wrong while a German reader gets English. Named exceptions wait on
-  // other work, recorded on item 13.8: the Strategy Planner (the laptop's ground) and Meeting
-  // Review (untranslated as a whole screen).
+  // UAT tester sees nothing wrong while a German reader gets English. The one exception waits on
+  // other work: Meeting Review, untranslated as a whole screen, on item 13.9.
   test('no screen formats a date or number in the browser\'s language', () => {
     const fs = require('fs')
     const path = require('path')
     const root = path.join(__dirname, '../..')
-    const WAITING = ['components/strategy/StrategyConceptSummary.vue', 'components/MeetingReview.vue', 'pages/strategy-planner.vue']
+    const WAITING = ['components/MeetingReview.vue']
     const bad = /toLocale(Date|Time)?String\(\s*(\)|undefined|\[\]|'en-(AU|US|NZ)')/
     const offenders = []
     const walk = (d) => {
