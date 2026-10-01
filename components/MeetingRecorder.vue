@@ -5,9 +5,7 @@
 
   b-message(v-else-if="fatal" type="is-danger")
     p.has-text-weight-semibold {{ fatal }}
-    p.is-size-7.mt-2
-      | Nothing was recorded. This says so rather than showing an empty page, because a
-      |  meeting that failed and a meeting with nothing in it must never look the same.
+    p.is-size-7.mt-2 {{ $t('meetingRecorder.fatalNote') }}
 
   template(v-else)
     //- ── Consent, both steps ────────────────────────────────────────────
@@ -28,22 +26,21 @@
         span.mrec-blip
         span.mrec-clock {{ clock }}
         span.mrec-say {{ savedSay }}
-        b-button(type="is-danger" size="is-small" :loading="busy" @click="stopAndDelete") Stop and delete
+        b-button(type="is-danger" size="is-small" :loading="busy" @click="stopAndDelete") {{ $t('meetingRecorder.stopAndDelete') }}
 
       //- The alarm. P11: a failed recording fails loudly — a tidy page of nothing must
       //- never be what total failure looks like.
       b-message(v-if="interrupted" type="is-danger")
-        p.has-text-weight-semibold Recording stopped unexpectedly at {{ clock }}
+        p.has-text-weight-semibold {{ $t('meetingRecorder.alarmHeading', { clock }) }}
         p.is-size-7.mt-1
-          | Your screen locked or the browser tab was suspended. {{ minutesSaved }} were saved
-          |  and can still be transcribed. #[b Nothing after {{ clock }} was captured.]
+          | {{ $t('meetingRecorder.alarmBody', { saved: minutesSaved }) }}
+          | #[b {{ $t('meetingRecorder.alarmNothingAfter', { clock }) }}]
         .buttons.are-small.mt-3
-          b-button(type="is-primary" :loading="busy" @click="resumeRecording") Resume recording
-          b-button(type="is-light" :loading="busy" @click="finishRecording") Use what was captured
+          b-button(type="is-primary" :loading="busy" @click="resumeRecording") {{ $t('meetingRecorder.resume') }}
+          b-button(type="is-light" :loading="busy" @click="finishRecording") {{ $t('meetingRecorder.useCaptured') }}
 
-      h4.title.is-6.mt-4.mb-2 Your observation points
-      p.is-size-7.has-text-grey(v-if="!points.length")
-        | Your firm has not set anything for this kind of meeting yet.
+      h4.title.is-6.mt-4.mb-2 {{ $t('meetingRecorder.pointsHeading') }}
+      p.is-size-7.has-text-grey(v-if="!points.length") {{ $t('meetingRecorder.noPoints') }}
       .mrec-pt(v-for="p in points" :key="p.id")
         span.mrec-box
         span {{ p.text }}
@@ -51,50 +48,39 @@
       b-message.mt-4(v-if="chunkError" type="is-warning" size="is-small") {{ chunkError }}
 
       .buttons.mt-4(v-if="!interrupted")
-        b-button(type="is-primary" :loading="busy" @click="finishRecording") Finish meeting
+        b-button(type="is-primary" :loading="busy" @click="finishRecording") {{ $t('meetingRecorder.finish') }}
 
     //- ── Afterwards ─────────────────────────────────────────────────────
     .box(v-else-if="stage === 'finishing'")
-      p.has-text-weight-semibold Turning the recording into a transcript
-      p.is-size-7.has-text-grey.mt-1
-        | This takes a few minutes for a long meeting. The recording is deleted as soon as the
-        |  transcript exists — you can leave this page open.
+      p.has-text-weight-semibold {{ $t('meetingRecorder.finishingHeading') }}
+      p.is-size-7.has-text-grey.mt-1 {{ $t('meetingRecorder.finishingBody') }}
       b-progress.mt-3(type="is-primary")
 
     .box(v-else-if="stage === 'done'")
-      p.has-text-weight-semibold The transcript is made and the recording has been deleted.
-      p.is-size-7.has-text-grey.mt-1(v-if="audioDeleted")
-        | Nothing of the audio remains on the server.
-      b-message.mt-3(v-if="audioDeletionFailed" type="is-danger" size="is-small")
-        | Some of the audio could not be deleted. This has been reported — do not treat it as
-        |  gone.
-      b-message.mt-3(v-if="attributionConfident === false" type="is-warning" size="is-small")
-        | Only one voice could be told apart in this recording, so who said what is not
-        |  reliable. Your coaching notes will say so rather than guess.
+      p.has-text-weight-semibold {{ $t('meetingRecorder.doneHeading') }}
+      p.is-size-7.has-text-grey.mt-1(v-if="audioDeleted") {{ $t('meetingRecorder.doneAudioGone') }}
+      b-message.mt-3(v-if="audioDeletionFailed" type="is-danger" size="is-small") {{ $t('meetingRecorder.deletionFailed') }}
+      b-message.mt-3(v-if="attributionConfident === false" type="is-warning" size="is-small") {{ $t('meetingRecorder.notConfident') }}
       //- Slice 3 replaced the "not built yet" note that stood here. This is the only route
       //- to the reports, so without it the screen they live on is unreachable.
       //-
       //- 🔴 "Read my reports" IS MIKE'S WORDING — ruled 2026-09-07, and it is load-bearing.
       //- "My" carries P2 in a label: the reports belong to the advisor, and the screen says so
       //- before they open it, exactly as "My Coaching Notes" does. It was written for the build
-      //- on 2026-09-02 and flagged as ours until he ruled. Pinned by
-      //- tests/unit/meetingReview.component.test.js — do not reword it.
+      //- on 2026-09-02 and flagged as ours until he ruled. Pinned, as meetingRecorder.readReports
+      //- in locales/en.json, by tests/unit/meetingReview.component.test.js — do not reword it.
       .buttons.mt-3
         b-button(type="is-primary" tag="a" :href="`/meeting-review?meeting=${meetingId}`")
-          | Read my reports
+          | {{ $t('meetingRecorder.readReports') }}
 
     .box(v-else-if="stage === 'deleted'")
-      p.has-text-weight-semibold The recording has been deleted.
-      p.is-size-7.has-text-grey.mt-1
-        | Nothing was kept — neither the audio nor any transcript made from it. Your
-        |  observation points are still worth reading; the meeting can go ahead unrecorded.
+      p.has-text-weight-semibold {{ $t('meetingRecorder.deletedHeading') }}
+      p.is-size-7.has-text-grey.mt-1 {{ $t('meetingRecorder.deletedBody') }}
 
     .box(v-else-if="stage === 'failed'")
       b-message(type="is-danger")
-        p.has-text-weight-semibold The transcript could not be made.
-        p.is-size-7.mt-1
-          | The recording has been deleted anyway, because the promise made to your client was
-          |  that the audio would not be kept. Nothing of this meeting survives.
+        p.has-text-weight-semibold {{ $t('meetingRecorder.failedHeading') }}
+        p.is-size-7.mt-1 {{ $t('meetingRecorder.failedBody') }}
 </template>
 
 <script>
@@ -185,11 +171,11 @@ export default {
 
     minutesSaved () {
       const mins = Math.floor(this.elapsedSeconds / 60)
-      return mins === 1 ? '1 minute' : mins + ' minutes'
+      return this.$tc('meetingRecorder.minutes', mins, { n: mins })
     },
 
     savedSay () {
-      return 'Saved to this point. Your screen will not sleep while recording.'
+      return this.$t('meetingRecorder.savedSay')
     }
   },
 
@@ -216,7 +202,7 @@ export default {
         const data = await this.call('GET', '/api/meeting/consent')
         this.retentionPhrase = data.retentionPhrase || ''
       } catch (err) {
-        this.fatal = 'How long your firm keeps transcripts could not be read, so recording is unavailable: ' + err.message
+        this.fatal = this.$t('meetingRecorder.errRetention', { error: err.message })
       } finally {
         this.loading = false
       }
@@ -235,7 +221,7 @@ export default {
         this._stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       } catch (err) {
         this.busy = false
-        this.fatal = 'The microphone could not be opened, so nothing can be recorded: ' + err.message
+        this.fatal = this.$t('meetingRecorder.errMicrophone', { error: err.message })
         return
       }
 
@@ -251,7 +237,7 @@ export default {
       } catch (err) {
         this.busy = false
         this.teardownCapture()
-        this.fatal = 'The recording could not be started: ' + err.message
+        this.fatal = this.$t('meetingRecorder.errStart', { error: err.message })
         return
       }
 
@@ -300,7 +286,7 @@ export default {
         if (!res.ok) { throw new Error(res.statusText) }
         this.chunkError = ''
       } catch (err) {
-        this.chunkError = 'Part of the recording did not reach the server. Recording continues, but check the meeting is still saving.'
+        this.chunkError = this.$t('meetingRecorder.errChunk')
       }
     },
 
@@ -311,7 +297,7 @@ export default {
         await this.call('POST', '/api/meeting/recordings/' + this.meetingId + '/consent')
         this.stage = 'recording'
       } catch (err) {
-        this.fatal = 'That confirmation could not be recorded: ' + err.message
+        this.fatal = this.$t('meetingRecorder.errConfirm', { error: err.message })
       } finally {
         this.busy = false
       }
@@ -330,7 +316,7 @@ export default {
         this.startClock()
         this.interrupted = false
       } catch (err) {
-        this.chunkError = 'Recording could not be resumed: ' + err.message
+        this.chunkError = this.$t('meetingRecorder.errResume', { error: err.message })
       } finally {
         this.busy = false
       }
@@ -353,7 +339,7 @@ export default {
         this.stage = 'finishing'
         this.pollStatus()
       } catch (err) {
-        this.fatal = 'The transcript could not be started: ' + err.message
+        this.fatal = this.$t('meetingRecorder.errFinish', { error: err.message })
       } finally {
         this.busy = false
         this.releaseWakeLock()
@@ -390,7 +376,7 @@ export default {
         }
         this.stage = 'deleted'
       } catch (err) {
-        this.fatal = 'The recording could not be deleted: ' + err.message + ' — do not treat it as gone.'
+        this.fatal = this.$t('meetingRecorder.errDelete', { error: err.message })
       } finally {
         this.busy = false
       }

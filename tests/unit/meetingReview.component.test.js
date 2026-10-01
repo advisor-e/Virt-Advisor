@@ -318,8 +318,9 @@ describe('generating when there is nothing yet', () => {
 // the ONLY route to this screen, so a session rewording it casually would be changing the one
 // sentence that tells an advisor the notes are theirs.
 //
-// It is asserted against the recorder's source rather than by mounting it, because mounting
-// MeetingRecorder means standing up MediaRecorder and a wake-lock to check a noun.
+// It is asserted against the locale file and the recorder's source rather than by mounting
+// it, because mounting MeetingRecorder means standing up MediaRecorder and a wake-lock to
+// check a noun. The words moved into locales/en.json on 2026-10-01; the pin moved with them.
 describe('🔴 the approved label into this screen', () => {
   const fs = require('fs')
   const path = require('path')
@@ -327,7 +328,8 @@ describe('🔴 the approved label into this screen', () => {
   it('the recorder still says "Read my reports" — Mike\'s wording, 2026-09-07', () => {
     const source = fs.readFileSync(
       path.resolve(__dirname, '../../components/MeetingRecorder.vue'), 'utf8')
-    expect(source).toContain('Read my reports')
+    expect(require('../../locales/en.json').meetingRecorder.readReports).toBe('Read my reports')
+    expect(source).toContain("$t('meetingRecorder.readReports')")
   })
 })
 
