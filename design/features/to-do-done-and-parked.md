@@ -379,6 +379,27 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.26 · Several AI calls that write long output set no length limit.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was done:** thirteen ceilings, each sized from what its prompt asks for and well above
+  it, sent under the name the model accepts - `max_tokens` on gpt-4o-mini, `max_completion_tokens`
+  (chat) or `max_output_tokens` (Responses) on gpt-6-astra, whose hidden reasoning counts against
+  the limit. Compliance 8,000; concept summary 6,000; passage tidy 200 per passage (floor 1,500);
+  Meeting Summary 4,000; coaching 150 per point (floor 2,000); Wordsmith sort 4 per line + 200
+  (floor 1,000), style 1,000, draft 6,000; screen translation 8,000; economic analysis 16,000
+  (largest recorded run 5,710); Next Steps 8,000; country schedule survey 8,000, each pass 40,000.
+- **Mike's ruling:** the depreciation-schedule reader stays uncapped - a full IR265 read is
+  ~2,800 rows, near the model's maximum, so any ceiling cuts real readings.
+- **Found doing it, fixed and proven by live calls (`9d62d45e`):** the compliance check had been
+  refused on every call (temperature 0 on astra), and every sales blog had fallen back to the
+  template (max_tokens and temperature on astra).
+- **What proves it:** `tests/unit/aiOutputLimits.test.js`, 15 tests, failing on the old code -
+  including a guard that every ceiling exists, so a deleted one cannot pass as undefined. A live
+  compliance call answered inside its ceiling (346 tokens). Full suite green on Node 14.15. The
+  other ceilings are reasoned from their prompts, not measured; a hit fails safely as unreadable
+  or incomplete, never as a half answer.
+
 **22.4 · Eight stale claims in the AI's instructions and feature notes.**
 ✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
 

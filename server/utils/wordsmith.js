@@ -57,6 +57,14 @@ const DATA_FILE = path.resolve(__dirname, '../../data/wordsmith-statements.json'
 const ROLE_READ = 'report'
 const ROLE_WRITE = 'draft'
 
+// Output ceilings (item 7.26), well above what each step asks for. Sorting returns line
+// numbers (~3 tokens each); the style read is six short fields (~80); a draft is at most 120
+// words plus notes (~550), and the drafting model's hidden reasoning counts against its limit.
+const SORT_TOKENS_PER_LINE = 4
+const SORT_MIN_TOKENS = 1000
+const STYLE_MAX_TOKENS = 1000
+const DRAFT_MAX_COMPLETION_TOKENS = 6000
+
 /**
  * The style choices the model may pick from. Fixed in code, because `validateStyle` checks every
  * reply against them; the instruction each choice sends the model is content, in the data file's
@@ -537,10 +545,12 @@ function checkDraft (draft, ctx) {
 /**
  * One model call, logged with model, latency, tokens and result — never a word said.
  * `temperature` null sends none: the drafting role's model accepts only its default.
+ * `limit` is the output ceiling under the name the role's model accepts (item 7.26):
+ * `max_tokens` for the reading model, `max_completion_tokens` for the drafting one.
  */
-async function callModel (client, role, label, messages, spokenOrTyped, temperature) {
+async function callModel (client, role, label, messages, spokenOrTyped, temperature, limit) {
   const startedAt = Date.now()
-  const body = temperature === null ? { messages } : { messages, temperature }
+  const body = Object.assign(temperature === null ? { messages } : { messages, temperature }, limit)
   let completion
   try {
     completion = await client.chat.completions.create(body,
@@ -631,7 +641,8 @@ async function draftStatement (opts) {
   while (entry.attempts < 2) {
     entry.attempts += 1
     const messages = buildDraftMessages({ statement, quotes, purpose: opts.purpose, style: opts.style, settings: opts.settings, styleSettings: opts.styleSettings, modelElements: gaps.modelElements, retryIssues })
-    const checked = validateDraft(await callModel(opts.write, ROLE_WRITE, 'draft', messages, moderated, null), allowed)
+    const checked = validateDraft(await callModel(opts.write, ROLE_WRITE, 'draft', messages, moderated, null,
+      { max_completion_tokens: DRAFT_MAX_COMPLETION_TOKENS }), allowed)
     if (!checked.valid) {
       if (entry.draft) { break }
       retryIssues = checked.errors
@@ -694,7 +705,8 @@ async function run (args) {
     sorted = checkSorted(args.sorted)
   } else {
     const sort = validateSort(await callModel(read, ROLE_READ, 'sort',
-      buildSortMessages({ segments, statements }), spoken, 0), segments)
+      buildSortMessages({ segments, statements }), spoken, 0,
+      { max_tokens: Math.max(SORT_MIN_TOKENS, SORT_TOKENS_PER_LINE * segments.length + 200) }), segments)
     if (!sort.valid) { throw invalid('sort', sort.errors) }
     sorted = sort.sorted
     rejected = sort.rejected
@@ -703,7 +715,8 @@ async function run (args) {
   const style = args.settings
     ? validateStyle(args.settings)
     : validateStyle(await callModel(read, ROLE_READ, 'style',
-      buildStyleMessages({ purpose: args.purpose, style: args.style }), typed, 0))
+      buildStyleMessages({ purpose: args.purpose, style: args.style }), typed, 0,
+      { max_tokens: STYLE_MAX_TOKENS }))
   if (!style.valid) { throw invalid('style', style.errors) }
 
   const only = Array.isArray(args.only) && args.only.length ? args.only : null
@@ -736,6 +749,10 @@ async function run (args) {
 }
 
 module.exports = {
+  SORT_TOKENS_PER_LINE,
+  SORT_MIN_TOKENS,
+  STYLE_MAX_TOKENS,
+  DRAFT_MAX_COMPLETION_TOKENS,
   STATEMENT_NAMES,
   ALIGNMENT_CONCEPT_ID,
   SETTINGS,

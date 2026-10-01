@@ -71,6 +71,10 @@ const MAX_DOCUMENTS = 60
 /** Longest a single document name may be in the prompt. Names are a firm's own free text. */
 const MAX_NAME = 200
 
+// Output ceiling (item 7.26): eight points naming their covering documents, about 1,900 tokens
+// at most, plus the model's hidden reasoning, which counts against this limit.
+const MAX_COMPLETION_TOKENS = 8000
+
 /** Idle guard for the call, in milliseconds. A short structured answer needs no more. */
 const TIMEOUT_MS = 60000
 
@@ -255,7 +259,8 @@ async function runCheck (opts) {
     // refused every call that sent 0 (proven by a live call, 2026-10-01, item 7.26).
     const completion = await client.chat.completions.create(
       {
-        messages: [{ role: 'user', content: promptText }]
+        messages: [{ role: 'user', content: promptText }],
+        max_completion_tokens: MAX_COMPLETION_TOKENS
       },
       // Nothing a person typed: file names and the published points (item 8.2).
       { timeout: TIMEOUT_MS, personal: false, moderate: [] }
@@ -303,6 +308,7 @@ module.exports = {
   POINT_IDS,
   MAX_DOCUMENTS,
   MAX_NAME,
+  MAX_COMPLETION_TOKENS,
   namesOf,
   pointsBlock,
   documentsBlock,

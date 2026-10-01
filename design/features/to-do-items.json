@@ -462,27 +462,6 @@
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.26",
-      "name": "Several AI calls that write long output set no length limit",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Compliance checks, Wordsmith, the three meeting reports, screen translation and every Responses API call set no maximum output, so length and cost have no ceiling.",
-      "risk": "A runaway reply costs money and time; two of these run on gpt-6-astra. Their output is shape-checked afterwards, so this is cost and speed, not correctness.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
-      },
-      "touches": "server/utils/complianceCheck.js, conceptSummary.js, passageTidy.js, meetingReports.js, wordsmith.js, uiTranslation.js; server/routes/economicAnalysis.js, nextStepsDraft.js; countryScheduleRead.js, depreciationExtract.js.",
-      "note": "Set each limit from the longest valid output seen, not a guess.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "28.1",
       "name": "Advisors cannot tell us an AI answer was wrong or useful",
       "rankedByMike": false,
