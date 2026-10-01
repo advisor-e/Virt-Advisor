@@ -113,7 +113,7 @@ sometimes an error to fix.
 |---|---|---|---|
 | Domestic sales | Entered monthly, ex GST | Revenue in the month entered; GST added on top and collected with it. | ✅ IFRS 15.31, 38 — at a point in time, on the assumption goods are delivered in the month sold. |
 | Imported stock sold at home | The sell-down ladder | Revenue in the month each slice sells, at the price its age still commands. | ✅ IFRS 15.31. |
-| **Overseas sales** | Delivered 2 months after invoice | Revenue is booked in the **invoice** month; collection is counted from **delivery**. | ⚠ **IFRS 15.31, 38** — revenue follows the transfer of control, and physical possession is one of its indicators. On the default lag, revenue is recognised two months before the customer has the goods. Correct only where the terms pass control at shipment. |
+| **Overseas sales** | Delivered 2 months after invoice | Revenue is booked in the **invoice** month; collection is counted from **delivery**. | ⚠ **IFRS 15.31, 38** — revenue follows the transfer of control, and physical possession is one of its indicators. On the default lag, revenue is recognised two months before the customer has the goods. Correct only where the terms pass control at shipment. **Disclosed, not built — Mike, 2026-10-01 (item 44.3):** difference 4 of the Notes states it, and a client on special-purpose tax accounts books overseas sales at invoice too. An exporter selling on delivered terms is a new item if one ever needs it. |
 | **Debtor collection** | 10 / 55 / 30 / 5% over the month and the next three | Sales are collected on the profile. Whatever a profile, domestic or overseas, leaves uncollected is the **bad debt**: charged as an expense before GST in the month of the sale, taken off debtors with its GST, and its GST taken off the GST owed. A profile totalling 100% charges nothing. | ✅ **IFRS 9 5.5.1, 5.5.15** — the expected loss is recognised when the receivable is. **Fixed 2026-10-01 (item 44.3, Mike's design of 2026-09-30)**; until then an overseas shortfall sat in debtors for ever. ℹ GST bad-debt relief is taken in the month of sale, not when the debt is formally written off — a timing simplification, stated in difference 1 of the notes. A profile over 100% is refused. Pinned by `threeWayForecastStandards.test.js`. |
 | Opening debtors | From the opening balance sheet | Collected in full over the first four months, in the proportions of the profile; all in month 1 when customers pay in the month of sale. No bad debt is charged on them. | ℹ A timing assumption; no standard governs it. **Fixed 2026-09-30**: a same-month profile collected none of them, for all three years. |
 | Other income | Annual figure | Spread evenly over twelve months. | ℹ A timing assumption. |
@@ -153,7 +153,7 @@ sometimes an error to fix.
 | Assumption | Default | Treatment | Against the standards |
 |---|---|---|---|
 | Current tax | 28% | Each month's profit before tax × the rate; a loss joins a pool that relieves later profit. | ℹ Taxable profit is taken to equal accounting profit — no non-deductible expenses, no tax depreciation. |
-| **Deferred tax** | — | None. | ⚠ **IAS 12.15, 24, 34** — temporary differences (for example, accounting depreciation against tax depreciation) and unused losses carry deferred tax. The forecast recognises none, including no asset for its own loss pool. |
+| **Deferred tax** | — | None. | ⚠ **IAS 12.15, 24, 34** — temporary differences (for example, accounting depreciation against tax depreciation) and unused losses carry deferred tax. The forecast recognises none, including no asset for its own loss pool. **Disclosed, not built — Mike, 2026-10-01 (item 44.3):** difference 2 of the Notes states it, and special-purpose tax accounts carry no deferred tax either. |
 | Payments and refunds | Entered | Settle the tax balance in the months entered. | ✅ |
 
 ### 2.6 Shareholder current accounts
@@ -170,7 +170,7 @@ sometimes an error to fix.
 | Overheads | Annual figures | One-twelfth each month, paid the same or the following month by type. | ✅ Accrual basis. |
 | Paying suppliers | 0 / 90 / 10% over the month and the next two | Stock bought is paid on the profile, which must total 100%; the opening balance owed is paid over the first four months, or all in month 1 when suppliers are paid in the month they bill. | ℹ A timing assumption. **Fixed 2026-09-30**: a same-month profile paid none of the opening balance. |
 | ACC levies and insurance | Paid in the months entered | Expensed evenly; the difference sits in prepayments or accruals. | ✅ |
-| **Rent** | Annual figure | Expensed as paid. | ⚠ **IFRS 16.22** — a lessee recognises a right-of-use asset and a lease liability, unless the lease is short-term or of a low-value asset (IFRS 16.5-6). Most premises leases are neither. |
+| **Rent** | Annual figure | Expensed as paid. | ⚠ **IFRS 16.22** — a lessee recognises a right-of-use asset and a lease liability, unless the lease is short-term or of a low-value asset (IFRS 16.5-6). Most premises leases are neither. **Disclosed, not built — Mike, 2026-10-01 (item 44.3):** difference 3 of the Notes states it, and special-purpose tax accounts expense rent as paid, as the forecast does. |
 | Holiday pay and other employee entitlements | — | Not accrued; wages are expensed as paid. | ℹ Not modelled. |
 | Provisions | — | None. | ℹ IAS 37; the forecast models none. |
 
@@ -190,8 +190,8 @@ sometimes an error to fix.
 | Treatments recorded now | **44** (§1's 9 and §2's 35) |
 | Departures found | **9** |
 | Fixed | **5** — term loans' current portion, shareholder accounts gross (44.1); cash flow by activity and interest in financing (44.2), all 2026-09-30; bad debts (44.3), 2026-10-01 |
-| Re-read as a disclosure, not a departure | **1** — depreciation rates, which are the advisor's own |
-| Still open | **3**, on the live list as 44.3: deferred tax, leases and overseas shipping terms need facts the forecast does not yet ask for |
+| Re-read as a disclosure, not a departure | **4** — depreciation rates, which are the advisor's own; deferred tax, leases and overseas shipping terms (Mike, 2026-10-01, item 44.3), each stated in the Notes and each how special-purpose tax accounts already treat it |
+| Still open | **0** |
 
 ### 2.10 Sources
 

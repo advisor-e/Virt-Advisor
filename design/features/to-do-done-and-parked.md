@@ -379,6 +379,21 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**44.3 · The forecast needed three facts — deferred tax, leases, shipping terms — and bad debts.**
+✅ **Closed 2026-10-01 by Mike ("yes"): bad debts built; the other three kept as disclosures, not built.**
+
+- **Bad debts, built:** a collection profile's shortfall, local or overseas, is charged as a bad
+  debt in the month of the sale, with the P&L line, step 3 and the Notes in his approved wording
+  ([`THREE-WAY-FORECAST-BAD-DEBT-WORDING.md`](../THREE-WAY-FORECAST-BAD-DEBT-WORDING.md));
+  `9efbf064`, `1b8d26d2`, `e3686275`; walked on a production build.
+- **The other three, his ruling after the impact test at scoping:** every forecast's Notes
+  already disclose all three (differences 2-4), and most small New Zealand clients keep
+  special-purpose tax accounts, which expense rent, carry no deferred tax and book overseas sales
+  at invoice — so building them would have added three questions and moved the forecast *away*
+  from the client's own books. Recorded in `CALCULATION-ASSUMPTIONS.md` §2.1, §2.5, §2.7 and the
+  count in §2.9. **If an exporter selling on delivered terms ever needs it, shipping terms is a
+  new item.**
+
 **7.17 · Three options of the engine's briefing builder were never used, so their code never ran.**
 ✅ **Closed 2026-10-01 by Mike ("yes" to marking it done).**
 

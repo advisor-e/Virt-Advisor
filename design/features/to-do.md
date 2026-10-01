@@ -44,11 +44,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 7 | **13.7** Translation reaches every hub page at every level, going forward ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 8 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-30 |
 | 9 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 10 | **44.3** The forecast needs three facts: deferred tax, leases, shipping terms ⚠ *not yet ranked by Mike* | 3 | — | Us | **desktop**, since 2026-10-01 |
-| 11 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
-| 12 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 10 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
+| 11 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**Twelve live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Eleven live items. Four need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
