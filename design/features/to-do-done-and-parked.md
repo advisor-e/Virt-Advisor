@@ -379,6 +379,23 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**22.4 · Eight stale claims in the AI's instructions and feature notes.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was done, each checked against the code first:** `CLAUDE.md:74` names
+  `to-do-items.json` as where drift is logged; `CLAUDE.md` and `scripts/audit-gate.js` say the
+  audit gate runs at pre-push; the master-export-upload skill says it is built at the mentor tier
+  (`POST /api/mentor/templates/import`) and not at firm level; the firm-manager-edit-target skill
+  no longer sends work to the frozen `ACTIONS.md`; `startup.md` drops the 850-line and
+  `items[27]` figures; `logic-lab.md` says accept-and-push to distinctions is built;
+  `meeting-review.md` no longer lists two built pieces as outstanding; `MEMORY.md` indexes the
+  source-workbooks memory.
+- **Left on purpose:** `CLAUDE.md` 239 and 827 only point at `ACTIONS.md` as the history of two
+  past version fixes, which an archive is right for.
+- **Found doing it:** a stray, untracked `.claude/.claude/` folder from 2026-06-09 loaded four old
+  skill copies into every laptop session, one repeating a stale claim, beside settings
+  pre-approving `npx nuxi@latest init . --force`. Deleted on Mike's yes.
+
 **12.3 · The course tutor put browser-sent history into the prompt unchecked.**
 ✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
 

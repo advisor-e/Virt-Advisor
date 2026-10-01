@@ -8,7 +8,8 @@ description: >-
   "firm uploads their templates", "self-service export upload", "Stage 2 search_content" work, or
   any feature that accepts an uploaded config/data file from the browser. Keywords: file upload,
   schema validation, last-known-good, version history, per-firm storage, search_content.
-  STATUS: build-time guidance — the feature is not built yet (blocked on Firm Manager Auth).
+  STATUS: built at the mentor tier — POST /api/mentor/templates/import follows this procedure.
+  A firm-level upload is not built.
 ---
 
 # Master-export upload (secure)

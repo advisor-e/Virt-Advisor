@@ -315,27 +315,6 @@
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "22.4",
-      "name": "Correct eight stale claims in the AI's instructions and feature notes",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Eight sentences that every coding session reads as true no longer match the code, so a session can act on a rule or a status that stopped being real.",
-      "risk": "A session told a built feature is unbuilt may rebuild it; one told drift goes to the frozen ACTIONS.md files it where nobody looks. Each was checked against the code on 2026-10-01.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found in the digest-and-addendum review Mike asked for; filed on his yes. A defect we found, not a feature."
-      },
-      "touches": "CLAUDE.md lines 74, 239, 827 and 836; .claude/skills/master-export-upload/SKILL.md line 11; .claude/skills/firm-manager-edit-target/SKILL.md lines 6 and 95; .claude/commands/startup.md lines 213 and 219; design/features/logic-lab.md lines 31, 84, 88; design/features/meeting-review.md line 630; the memory index MEMORY.md.",
-      "note": "THE EIGHT: (1) CLAUDE.md:836 puts the audit gate in pre-commit - it runs at pre-push via scripts/audit-gate.js. (2) CLAUDE.md:74/239/827 send stack drift to ACTIONS.md - the target is to-do-items.json. (3) master-export-upload says not built - POST /api/mentor/templates/import exists. (4) firm-manager-edit-target points at ACTIONS.md. (5) startup.md: to-do.md is 205 lines not 850; the list has 11 items, not items[27]. (6) logic-lab.md says accept flow NOT BUILT - logicLabAccept.js and its route exist. (7) meeting-review.md:630 contradicts its 518-519. (8) check-source-workbooks-for-input-cells.md is missing from MEMORY.md.",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "7.18",
       "name": "Discover's instructions promise a coaching reference, a diagnostic tree and template summaries it does not receive",
       "rankedByMike": false,

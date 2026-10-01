@@ -28,8 +28,8 @@ suggestion the lab surfaces can be **accepted and pushed** into the configuratio
 so the manager who *"knows what they want, not sure how to get it"* is not left hunting through
 tabs.
 
-> ⚠ **That push flow is designed and NOT BUILT.** No code exists for it. Do not read the design
-> document as a description of the screen.
+> **Accept-and-push to the firm's distinctions is built** (`server/utils/logicLabAccept.js`,
+> `POST /api/firm-manager/logic-lab/accept`). The other pushes in the design document are not.
 
 **It is firm-local by nature.** What one firm accepted is that firm's record of its own thinking.
 It is not configuration to be inherited.
@@ -81,12 +81,12 @@ where the build and the mockup differ.
 | The screens | `components/firm/FirmLogicLab.vue`, `FirmDecisionLogic.vue`, `DecisionLogicDiagnostic.vue` |
 | Accepted-list storage | via `server/utils/firmOverlay.js`, key `logic-lab-accepted` |
 | The roll-up above it | `server/utils/mentorLogicLabReport.js` |
-| **Design record** | `design/LOGIC-LAB-ACCEPT-AND-PUSH.md` — **not built** |
+| **Design record** | `design/LOGIC-LAB-ACCEPT-AND-PUSH.md` — push to distinctions built; the other pushes not |
 | **Build vs mockup** | `design/LOGIC-LAB-BUILD-VS-MOCKUP.md` |
 
-**Traps.** The accepted list cannot join the cascading keys — see P1. And the push flow is
-designed, not built: anything that reads as though it exists is the design document, not the
-screen.
+**Traps.** The accepted list cannot join the cascading keys — see P1. Accept-and-push
+to the firm's distinctions is built; the other pushes in the design document are not, so read it
+as a design, not a description of the screen.
 
 **Known state.** Runs on the development file fallback like every other firm-editable block.
 
