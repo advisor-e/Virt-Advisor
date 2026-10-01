@@ -109,6 +109,21 @@ describe('templateHeadingCheck — what it deliberately leaves alone', () => {
     expect(found[0].name).toBe(hyphenated)
   })
 
+  it('reads a bold title with a spaced dash in it whole, not cut at that dash', () => {
+    // "Rubbish In - Rubbish Out" was read as "Rubbish In", and the answer bench scored a
+    // correct answer as naming a template that does not exist (2026-10-02).
+    const spaced = TEMPLATE_TITLES.find(t => / - /.test(t))
+    const found = check.namesUnderTemplateHeadings(answer(`**${spaced}**`, [`**${spaced}**`]))
+    expect(found.map(f => f.name)).toEqual([spaced, spaced])
+  })
+
+  it('never reads the advisor note it appends as a name the answer offered', () => {
+    // The bench counted these warning lines as phantom templates (2026-10-02).
+    const note = check.buildAdvisorNote([{ heading: 'also worth considering', name: MODEL.name, route: MODEL.route }])
+    const found = check.namesUnderTemplateHeadings(answer(`**${TEMPLATE}**`, []) + '\n' + note)
+    expect(found.map(f => f.name)).toEqual([TEMPLATE])
+  })
+
   it('ignores prose under a heading that is not a template heading', () => {
     const text = [
       '**How it works**',

@@ -1,0 +1,2772 @@
+{
+  "date": "2026-10-01T19:57:56.223Z",
+  "commit": "1adebe86",
+  "label": "718-after-1",
+  "damaged": null,
+  "narrativeModel": "gpt-4o-mini",
+  "judgeModel": "gpt-6-astra",
+  "prompts": {
+    "client": "c40cb7650c6b",
+    "discover": "4c7bebcaebea",
+    "checklist": "a815d9dd439b"
+  },
+  "minutes": 3.9,
+  "summary": {
+    "all": {
+      "cases": 51,
+      "codePassed": 39,
+      "codeApplied": 55,
+      "codeScore": 70.9,
+      "judgeMet": 248,
+      "judgePoints": 357,
+      "judgeScore": 69.5,
+      "unscored": 0,
+      "byCheck": {
+        "namesExist": {
+          "passed": 35,
+          "of": 51
+        },
+        "crisisFirst": {
+          "passed": 4,
+          "of": 4
+        }
+      },
+      "byPoint": {
+        "1": {
+          "passed": 15,
+          "of": 51
+        },
+        "2": {
+          "passed": 44,
+          "of": 51
+        },
+        "3": {
+          "passed": 32,
+          "of": 51
+        },
+        "4": {
+          "passed": 47,
+          "of": 51
+        },
+        "5": {
+          "passed": 12,
+          "of": 51
+        },
+        "6": {
+          "passed": 50,
+          "of": 51
+        },
+        "7": {
+          "passed": 48,
+          "of": 51
+        }
+      }
+    },
+    "byMode": {
+      "discover": {
+        "cases": 51,
+        "codePassed": 39,
+        "codeApplied": 55,
+        "codeScore": 70.9,
+        "judgeMet": 248,
+        "judgePoints": 357,
+        "judgeScore": 69.5,
+        "unscored": 0,
+        "byCheck": {
+          "namesExist": {
+            "passed": 35,
+            "of": 51
+          },
+          "crisisFirst": {
+            "passed": 4,
+            "of": 4
+          }
+        },
+        "byPoint": {
+          "1": {
+            "passed": 15,
+            "of": 51
+          },
+          "2": {
+            "passed": 44,
+            "of": 51
+          },
+          "3": {
+            "passed": 32,
+            "of": 51
+          },
+          "4": {
+            "passed": 47,
+            "of": 51
+          },
+          "5": {
+            "passed": 12,
+            "of": 51
+          },
+          "6": {
+            "passed": 50,
+            "of": 51
+          },
+          "7": {
+            "passed": 48,
+            "of": 51
+          }
+        }
+      }
+    }
+  },
+  "results": [
+    {
+      "key": "profit·margins/pricing",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It mentions shrinking margins but does not connect its advice to manufacturing or the client's unknown product costs and guessed prices."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the across-the-board price increase the client already tried."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated reasons align with break-even analysis, profitability levers, and improving input-data quality."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats profitability as a planning issue rather than presenting the non-crisis situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It identifies a preferred template but gives no concrete first action for the next client meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The headings and short explanations are easy for an advisor to scan, with no obscure client-facing language."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific figures, results, or facts; its numerical claims concern tutorial lengths, not the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Break-Even** — This template calculates the exact revenue level at which the business covers all fixed and variable costs and begins to generate profit, which is crucial for understanding margins.\n\n**How it works**  \nThe Break-Even template provides a clear, non-negotiable revenue target that the business must hit to be sustainable, removing ambiguity around minimum performance requirements. It's ideal for clients facing shrinking margins, as it also includes contribution margin analysis to highlight which products or services carry the most margin weight.\n\n**Also worth considering**  \n**8 Profit Levers** — This template breaks down the components of profitability into controllable levers, allowing the client to visualize incremental improvements for profit increases.\nA 16-minute tutorial video is available in Advisor-e to help you prepare.  \n**Rubbish in - Rubbish Out** — Although more focused on data management, this template ensures accurate financial reporting, critical for understanding costs and improving margin visibility.\nA 8-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "profit·CRISIS café liquidation",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": true,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses the fear of business failure but never connects its advice to the cafes, poor financial management, or missed upselling."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "The client had tried no substantive intervention, so the recommendations do not repeat failed efforts."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The tools are recommended for broadly matching purposes: insolvency options, downside assessment, liquidation valuation, and cash-position analysis."
+          },
+          {
+            "id": 4,
+            "met": false,
+            "reason": "It leads with receivership and liquidation rather than first assessing cash needs and options for keeping the cafes operating."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies a preparation tutorial and provides a concrete action and location for opening Quick Position."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and brief explanations make the recommendations easy for an advisor to scan and follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific figures or outcomes and grounds the financial-distress discussion in the stated fear of business failure."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Receivership vs Liquidation** — This template explains the difference between Receivership & Liquidation and offers options for businesses in severe hardship, addressing the client's fears of going under.\nA 6-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis client-facing delivery tool aids in showing clients their current financial position and available options. It helps to remove the stigma associated with receivership, enabling clients to let go and take immediate action to address their financial situation. It is essential for clients who are concerned about their survival.\n\n**Also worth considering**  \n**Worst Case Scenario** — This model allows you and your client to explore their business assumptions while assessing financial capacity in light of their fears.  \n**Quick & Worst** — It can help identify the immediate finance position and provide insights into liquidation valuation, crucial for supporting conversations with owners in crisis.\n\n**A model that fits**  \n**Quick Position** — This model provides a fast read on the business's current cash position and how long it can sustain operations without sales — open it at /quick-position.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "profit·cost blowout",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses generic wage and cash-flow concerns without connecting to restaurant operations, supplier price rises, poor portion control, or rosters mismatched to trade."
+          },
+          {
+            "id": 2,
+            "met": false,
+            "reason": "It suggests restructuring or adjusting staff without explaining how this would differ from the shift cuts that already failed."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "Debtor Protocols and Debtor Business Drag address payment collection, but no slow-payment problem was described to justify recommending them."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "The tone is measured and does not treat this non-crisis situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It describes tools but gives no concrete first step for the advisor to take at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the answer easy for an advisor to scan and understand."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It asserts no unsupported client figures or results and presents slow payments only as a possibility, not an established fact."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Wages Review** — This template will help analyze the total cost of the workforce and model the financial impacts of wage increases and restructures, which is crucial given the concerns about increased costs.\n\n**How it works**  \nThis structured wages cost analysis tool models base wages, on-costs, and tests the financial impacts of potential changes. It can help your client see the true cost of wages and make informed decisions about restructuring or adjusting team members in response to changing sales or cost conditions.\n\n**Also worth considering**  \n**Debtor Protocols** — While primarily about recovery procedures, it may help address broader cash flow issues as well.\nA 15-minute tutorial video is available in Advisor-e to help you prepare.  \n**8 Profit Levers** — A tool that can help identify areas to improve profitability through adjustments in costs and pricing.\nA 16-minute tutorial video is available in Advisor-e to help you prepare.\n\n**A model that fits**  \n**Debtor Business Drag** — This model will quantify how much of the sales are delayed due to slow payments, which may contribute to cash flow issues — open it at /debtor-drag.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "profit·plateau",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses profit drivers and gut-feel decisions but does not connect its advice to retail or the specific plateau in profit despite healthy revenue."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the sales promotions that increased turnover without improving profit."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes match the named tools: profit-driver analysis, competitive differentiation, and understanding growth stages."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It takes a measured improvement approach without suggesting an emergency or unnecessary survival measures."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It recommends templates but gives no concrete first action or exercise for the advisor to undertake at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the recommendations easy for an advisor to scan and understand."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not invent client-specific figures, results, or facts; its reference to gut-feel decisions reflects the supplied information."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**8 Profit Levers** — This template encourages clients to recognize the 'mini decisions' required to gain business and deliver profitably, making it a fundamental framework to identify business growth potential through incremental changes.\nA 16-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis template guides clients through their customer's journey, helping them understand critical factors that influence profitability. It focuses on identifying and optimizing various profit levers, enabling businesses to make data-driven decisions rather than relying on gut feelings.\n\n**Also worth considering**  \n**Profit Levers & Blue Ocean** — This template helps identify competition and differentiation points that can lead to enhanced profitability.\nA 13-minute tutorial video is available in Advisor-e to help you prepare.  \n**Growth Curve** — This provides a visual representation to understand the stages of growth and how to strategize for improvements.\nA 15-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "profit·undercharging",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It acknowledges pricing fears and competing on price, but treats the client as an advisory firm rather than the services business described."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "The client has tried nothing, so none of the recommendations repeats a failed attempt."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The pricing tools are recommended for setting and explaining prices, and positioning is linked to competing on value rather than price."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It maintains a measured tone appropriate to a non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists tools and their benefits without specifying a concrete first action for the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The short, clearly labelled sections are easy for an advisor to scan, and there is no jargon-heavy client script."
+          },
+          {
+            "id": 7,
+            "met": false,
+            "reason": "It assumes advisory services, firm partners, and existing time-based billing, none of which was supplied about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Pricing Tactics** — This framework helps firms define optimal charge-out rates and structure advisory service tiers, which is ideal for addressing fears around raising prices and competing effectively.\n\n**How it works**  \nThis tool allows firm partners to review their advisory pricing model, helping them transition from time-based billing to value-based pricing. It provides transparency on what is being charged and matches investments to the specific value and time committed at each level of advisory engagement, reducing the reliance on being the cheapest option.\n\n**Also worth considering**  \n**Advisory Pricing Model** — A tool for calculating and presenting the price of advisory services, which offers full transparency on objectives and allocated time.  \n**Mastering Positioning** — This framework helps advisors build trust and move beyond transactional service to a value-driven approach, valuable when addressing pricing fears.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "staff·performance/delegation",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "Addresses unclear roles and owner overload, but does not connect its advice to the building firm's industry."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "Does not recommend repeating the unsuccessful hiring of a second-in-command."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "Links the organisational review to role clarity and reporting lines, and the People Session to feedback and leadership."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "Treats the situation as an organisational improvement need without unnecessary crisis language."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "Recommends templates and describes their benefits, but gives no explicit first action for the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and straightforward explanations make the advice easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": false,
+            "reason": "Introduces high staff turnover as a problem even though no turnover information was provided."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Advance.6. Organisational Review & Org Chart** — This template focuses on mapping communication channels, defining cultural core values, and building formal Organizational Charts, which helps clarify roles and responsibilities within the team.\n\n**How it works**  \nThis template aims to establish clear reporting lines and KPIs, which is essential for addressing operational chaos and high staff turnover. It helps to clarify \"who is responsible for what,\" allowing the owner to delegate more effectively and reduce their personal workload.\n\n**Also worth considering**  \n**People Session** — This template explores the drivers of employee satisfaction and helps owners understand how to give effective feedback and adapt their leadership style for better team performance.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "staff·high turnover",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses retention, development and below-market pay, but does not connect its advice to the hospitality setting."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the unsuccessful one-off bonus; remuneration is suggested only as a broader discussion."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes of the people, remuneration and process templates match the reasons given for recommending them."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It takes a measured improvement-focused approach appropriate to a non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It identifies templates and preparation videos but does not specify a concrete first action for the next client meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and accessible language make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It uses the supplied client facts and frames other potential causes as possibilities rather than established facts."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Lite People** — This template explores the underlying drivers of employee satisfaction and addresses issues related to staff engagement, including feedback models and leadership styles that meet employee needs.\nA 4-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis template helps identify the factors contributing to employee dissatisfaction, such as the lack of a development path and below-market pay. It guides conversations around effective feedback delivery and examines leadership styles to better align with the client's workforce needs, aiming to improve retention and engagement.\n\n**Also worth considering**  \n**Remuneration & Incentives** — This template facilitates discussions about remuneration strategies that could help retain talent and encourage higher performance.\nA 13-minute tutorial video is available in Advisor-e to help you prepare.  \n**People vs. Process** — This template can help diagnose operational issues that may be affecting employee satisfaction, focusing on whether the problems lie with people or processes.\nA 16-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "staff·hiring",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It gives generic recruitment advice and describes a template for advisory and accounting firms without tailoring it to this trades business or its panic hiring and vague roles."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the client's unsuccessful use of a recruiter."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The named tools are described as hiring frameworks and recommended for recruitment structure and candidate assessment, consistent with those purposes."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats recruitment as a process improvement issue without creating unwarranted crisis urgency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists templates but gives no concrete first action the advisor could take at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and brief descriptions make it easy for an advisor to follow, with no obscure specialist language."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported figures, outcomes, or facts about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Hire Winners** — This template provides a structured hiring framework to help prevent costly hiring mistakes by assessing cultural fit, technical competence, and growth potential before making hiring decisions.\n\n**How it works**  \nThis template is designed for advisory firms and accounting practices preparing to recruit team members. It focuses on recruitment theory, leadership alignment, and a multi-stage vetting process to ensure candidates are a good fit for both the role and the company culture. It helps the advisor provide a disciplined, repeatable hiring process that can be used across various roles, addressing the challenges clients face with ineffective recruitment.\n\n**Also worth considering**  \n**FM Hire Winners** — A comprehensive recruitment and onboarding system that covers various aspects of hiring, ensuring candidates fit the firm's culture and structure.  \n**Hiring Winners** — Similar to Hire Winners, it offers a general hiring framework to assess potential employees effectively.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "staff·toxic culture",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses the office team's low morale, sour culture, missing shared values and leadership issues."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the pizza day or survey, instead focusing on organisational and leadership changes."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The organisational, leadership and people tools are each linked to relevant engagement, culture or leadership purposes."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats the situation as a non-crisis improvement task without unnecessary alarm."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It recommends templates but does not specify a concrete first action for the advisor's next client meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not invent client-specific figures, outcomes or facts."
+          }
+        ]
+      },
+      "answer": "**Best match**\n**Organisational Review** — This template focuses on improving team engagement and internal efficiencies by mapping communication channels, defining cultural core values, and establishing clear roles and responsibilities.\nA 9-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**\nThis template is useful for companies experiencing issues with team engagement, such as low morale and poor communication. It helps clarify responsibilities and fosters a positive social contract, allowing the team to collaborate more effectively and address the root causes of a sour culture.\n\n**Also worth considering**\n**Leadership Review** — This template encourages introspection and examines the leadership style, which can impact team morale and culture.\n**People Session** — This explores underlying drivers of employee satisfaction and helps adapt leadership styles to meet the team's needs.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "data-systems·unreliable numbers",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It acknowledges financial-data problems but does not connect its advice to retail, duplicate spreadsheet entry, or the lack of a single source of truth."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend buying accounting software again or otherwise repeat the client's unsuccessful attempt."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes fit the recommendations: data organisation first, dashboard analysis after data quality improves, and financial-management guidance."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It takes a calm improvement-focused approach appropriate to a non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It describes templates and preparation resources but does not specify a concrete first action for the next client meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make it easy for an advisor to scan, with a simple filing-cabinet analogy."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not invent client-specific figures, results, or facts beyond the reported financial-data difficulties."
+          }
+        ]
+      },
+      "answer": "It sounds like you're dealing with a situation where the client is struggling with their financial data and reporting processes. \n\n**Best match**\n**Rubbish in - Rubbish Out** — This template focuses on establishing clean financial data management by organizing the Chart of Accounts, which is crucial for improving trust in the numbers.\nA 8-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**\nThis template helps ensure the client gathers accurate data to measure the impact of business decisions effectively. It organizes financial data into Variable, Activity, and Fixed costs using a \"Filing Cabinet\" analogy. This process not only cleans up the client's books but also facilitates the production of accurate KPIs, thus enhancing decision-making capabilities.\n\n**Also worth considering**\n**Dashboard Discussions** — This framework evaluates financial ratios and helps clients understand operational decisions' impact on profitability, which can be effective after improving data quality.\nA 14-minute tutorial video is available in Advisor-e to help you prepare.\n**3 Pillars of Financial Management** — It provides practical steps for financial management, aiding the client in understanding their financial data better.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "data-systems·no reports",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It directly addresses the client's reliance on bank balances and lack of regular management reporting."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It recommends structured reporting and dashboards rather than repeating the annual tax-time P&L approach."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The reporting, dashboard and data-quality tools are each recommended for purposes consistent with their stated functions."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It proposes a measured transition to regular reporting without treating the situation as a crisis."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It describes resources but gives no concrete first action for the advisor to take at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported client-specific figures, results or facts."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Winning Management Reporting** — This template helps advisors address clients who struggle to understand the importance of structured management reporting and lack any formal reporting mechanisms.\n\n**How it works**  \nThis document explores why clients may not be excited about management reporting services and identifies five 'current states' that clients could be in, assisting them in moving toward a more structured approach. It provides a pathway for transitioning from a mindset focused only on bank balances to one that values regular reporting for informed decision-making.\n\n**Also worth considering**  \n**Dashboard Report** — A tool that introduces clients to management reporting, providing a graphical view of financial ratios, aiding in the discussion of financial management importance.  \n**Rubbish In - Rubbish Out** — Establishes how to correctly manage financial data so the client can better assess their business’s financial health.\nA 8-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "data-systems·manual double-entry",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses manual entry and integration problems but does not connect its advice to the client's wholesale business."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend adding another spreadsheet or repeating the failed approach."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "The cash-management focus of Demings Volatility is not clearly connected to fixing disconnected systems and duplicate entry."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It takes a measured improvement-focused approach without treating the situation as a crisis."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It describes templates and preparation videos but does not specify a concrete first step for the next client meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the recommendations scannable for an advisor, despite some specialist terminology."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It makes no definite claims about unprovided client figures or results; potential benefits and additional issues are framed conditionally."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**App Review** — This template is designed to shift advisors into a 'Total needs approach' instead of a 'Campaign approach' when discussing software application solutions, making it ideal for addressing data management issues.\nA 9-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThe App Review template allows you to evaluate software applications that could streamline the client's processes, reduce manual entry, and improve data accuracy. It guides the conversation towards understanding efficiency versus effectiveness, and positions you as a trusted advisor aiming to resolve their data inaccuracies and integration issues.\n\n**Also worth considering**  \n**Capacity, Capability, Opportunity** — This framework can help identify the legitimate constraints holding the business back, including technical and data management issues.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.  \n**Demings Volatility** — Although it focuses on cash management, it can help address data interpretation issues stemming from inconsistent financial reporting.\nA 6-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "data-systems·no KPIs",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses unclear financial metrics but does not connect its advice to a services business."
+          },
+          {
+            "id": 2,
+            "met": false,
+            "reason": "It recommends more templates without acknowledging the failed generic KPI template or explaining what would make this approach fit better."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes of dashboard review, financial data cleanup, and diagnosis match the reasons given for each template."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It prioritizes understanding performance without treating the non-crisis situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies Dashboard Discussions as the starting point, with a preparation tutorial and a guided review of dashboard reports."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The short, clearly labeled sections are easy for an advisor to scan, and the specialist terminology is appropriate for that reader."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client figures, results, or facts; the additional data-management and diagnosis options are presented as possibilities."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Dashboard Discussions** — This template helps to explore different performance and activity ratio reports, aiding clients in understanding the key financial metrics that influence their business.\nA 14-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis session guides clients through the financial dashboard's performance and activity ratio reports. It is particularly useful for those relying on assumptions rather than data and helps illuminate which key performance indicators are critical for understanding their business's financial health.\n\n**Also worth considering**  \n**Rubbish In - Rubbish Out** — This template establishes clean financial data management by correctly organizing the Chart of Accounts, ensuring the business gathers accurate data for informed decision-making.\nA 8-minute tutorial video is available in Advisor-e to help you prepare.  \n**Quick Fire Diagnosis** — This template quickly identifies whether a business is in distress or growth mode, helping to pinpoint major problem areas that need immediate attention.\nA 11-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "sales·weak pipeline",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "The answer gives generic sales-template descriptions without connecting them to this services business, flat sales, or missing lead follow-up."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the unsuccessful boosted social media posts."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes of Lite Sales, Sales & Marketing Review, and Customer Journey align with the reasons for recommending them."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It takes a measured improvement approach without suggesting a crisis or creating alarm."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It names a preferred template but does not specify a concrete first action for the advisor to take with the client."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and brief descriptions make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not invent figures, results, or facts about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Lite Sales** — This template guides clients to break down the customer's journey and identify decision points, ensuring their sales process matches their industry or product.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis section helps clients understand the foundational aspects of their sales process, focusing on logically structuring their approach to engage prospects effectively. It covers key sales training basics without overwhelming the client, allowing them to modify their sales tactics over time.\n\n**Also worth considering**  \n**Sales & Marketing Review** — This template provides a review framework for how clients attract attention to their products or services and convert that attention into actionable sales.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.  \n**Customer Journey** — This template maps the customer journey from awareness to purchase, helping identify where marketing or sales efforts may be breaking down.\nA 12-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "sales·no marketing",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It gives generic marketing guidance without referring to the trades business, word-of-mouth reliance, or lack of an online presence."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the unsuccessful flyer campaign."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes of the three templates align with the reasons given for considering them."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It takes a measured planning approach without suggesting a crisis or creating alarm."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It recommends templates but does not specify a concrete first action for the next client meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The headings and brief explanations are easy for an advisor to scan, with no confusing client-facing language."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not assert any unprovided figures, results, or facts about this client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Lite Marketing** — This template helps clients identify their target customer and articulate their value proposition, making it suitable for businesses needing foundational marketing strategies.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis section breaks marketing into key components, guiding clients through understanding who they want to reach, what they need to tell them, and how to effectively deliver that message. It is particularly beneficial for those with unclear messaging or undefined target customers, helping to lay the groundwork for a structured marketing approach.\n\n**Also worth considering**  \n**Customer Journey** — This template focuses on mapping out the sales journey from customer awareness to purchase, helping identify breakdowns in the process.\nA 12-minute tutorial video is available in Advisor-e to help you prepare.  \n**Sales & Marketing Review** — A comprehensive review that assesses the entire customer acquisition and retention journey, useful for clients with great products but poor sales outcomes.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "sales·low conversion",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It touches on structure, follow-up and closing comfort, but does not connect these to the retailer's enquiry-to-purchase problem."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the discounting the client already tried."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The tracker, process flowchart and sales psychology resource are each recommended for purposes consistent with their described functions."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It uses a calm, developmental approach appropriate to a non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists resources but gives no concrete first action for the advisor to take at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The short sections and straightforward descriptions are easy for an advisor to scan and understand."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client figures, outcomes or facts, and describes potential benefits rather than guaranteed results."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Sales Tracker Opt B** — This template helps support sales teams in tracking their activities, which can promote structure and accountability in the sales process.\n\n**How it works**  \nThis model is a more general approach to sales tracking that aids teams in monitoring their activities and performance. It encourages the team to identify opportunities, close sales, and follow up consistently, aligning their efforts with the organization's sales goals.\n\n**Also worth considering**  \n**Our Sales Process** — This page provides a flowchart to visualize the sales process and outline the next steps for each client opportunity.  \n**Sales Psychology (Basics)** — This page highlights the fundamentals of sales psychology that can help the team develop their sales skills and improve closing comfort.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "sales·lost major customers",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses account dependency and weak acquisition and retention, but does not connect the advice to manufacturing or the recent loss of two major customers."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the unsuccessful calls to win back lost customers."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes match the tools: customer concentration analysis, acquisition and retention review, and profitability improvement."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It recommends measured analysis and improvement without treating the non-crisis situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It describes and ranks templates but does not specify a concrete first action for the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and straightforward descriptions make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported figures, results, or facts about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Customer Reliance** — This template helps calculate the financial dependency on clients, enabling a deeper understanding of the business's reliance on major accounts and the risk associated with losing them.\n\n**How it works**  \nThis spreadsheet allows you to analyze how much of the business's sales come from a small number of clients, revealing the potential risk of over-reliance on these accounts. It's particularly beneficial when advising on strategies to mitigate client dependency and diversify the client base to stabilize revenue.\n\n**Also worth considering**  \n**Sales & Marketing Review** — This template reviews the entire customer acquisition and retention journey, identifying areas for improvement in attracting new customers and enhancing existing relationships.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.  \n**8 Profit Levers** — This template breaks down profitability into eight manageable levers, highlighting areas where incremental improvements can increase overall profit, including customer focus.\nA 16-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "forecasting·cash surprises",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses seasonal cash shortages and spending, but does not connect the advice to the client's hospitality industry."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It proposes budgeting and forward projections rather than repeating reactive bank-balance monitoring."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated reasons align with the tools' described purposes: budget tracking, cash-flow visibility and forward projections."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It recommends routine planning without treating this non-crisis situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It does not establish a clear first action for creating the missing forecast before using the recommended budget-versus-actual tool."
+          },
+          {
+            "id": 6,
+            "met": false,
+            "reason": "Calling Mid-Level Budget a template and then explicitly correcting that classification makes the recommendation confusing at a glance."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported client figures, results or factual claims."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Mid-Level Budget** — This template helps a business evaluate whether they are hitting their budget by tracking cash in and out on a month-by-month basis, which is particularly useful for businesses dealing with seasonal fluctuations.\n\n**How it works**  \nThe Mid-Level Budget model requires advisors to input a budget forecast alongside actual financials to clearly see variances on every line item. It breaks down cash into expected incoming and outgoing amounts, helping clients understand their financial position month by month, which can highlight when they need to rein in spending or prepare for lower cash flows.\n\n**Also worth considering**  \n**High-Level Budget** — This model tracks whether the business is hitting its budget but focuses purely on cash flow rather than profits, making it suitable for clients who require immediate cash insights.  \n**Forecasting** — This template assists clients in creating forward-looking revenue and cost projections over 12 months or more, giving them a better plan for managing seasonal income fluctuations.\n\n**A model that fits**  \n**3-Way Forecast Filter** — This will provide insights into how upcoming months affect cash flow and overall financial health — open it at /three-way-forecast  \n\n**Is that what you had in mind, or would you like me to look for something else?**\n\n---\n\n⚠️ **Mid-Level Budget** is a calculator in this app, not a template — open it at `/mid-level-budget`. There is no template of that name in the Advisor-e library."
+    },
+    {
+      "key": "forecasting·no budget",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "The High Level Budget recommendation directly addresses this SME’s lack of a budget, targets and a baseline for tracking performance."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It distinguishes the proposed structured budget, referenced throughout the year, from the unused numbers previously jotted on paper."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "It recommends the 3-Way Forecast Filter as an integrated forecasting model, while its correction identifies a calculator without establishing that forecasting capability."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats budgeting as routine planning rather than suggesting an unwarranted crisis."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It recommends tools and explains benefits but does not specify a concrete first budgeting step for the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the recommendations easy for an advisor to scan, with no jargon-heavy client script."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client figures, results or circumstances; the owner's personal needs are presented as a planning consideration, not an established fact."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**High Level Budget** — This model provides a top-down budgeting structure, establishing an overall revenue and cost framework for the business, which is perfect for clients who haven't set a formal budget.\n\n**How it works**  \nThis model allows you to create a simple financial plan without requiring deep accounting knowledge from the client, making it easier for them to understand and reference throughout the year. It sets a financial baseline that can be used to track performance and guide future conversations about financial health.\n\n**Also worth considering**  \n**Personal Budget** — This model maps the owner's household income requirements against the business's ability to generate those drawings, ensuring personal financial needs are factored into broader business planning.  \n**3-Way Forecast Filter** — This model provides a comprehensive view of the business’s financial position by linking profit & loss, balance sheet, and cash flow, valuable for assessing long-term financial sustainability.\n\n**Is that what you had in mind, or would you like me to look for something else?**\n\n---\n\n⚠️ **3-Way Forecast Filter** is a calculator in this app, not a template — open it at `/three-way-forecast`. There is no template of that name in the Advisor-e library."
+    },
+    {
+      "key": "forecasting·seasonal swings",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses seasonal income swings but does not connect the advice to tourism or the client's missing cash buffers and peak-season overcommitment."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the overdraft approach that already added interest costs."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes match the tools: analysing volatility, stress-testing adverse scenarios, and measuring delayed customer payments."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It frames the issue as planning and contingency preparation rather than an immediate crisis."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies the Volatility Report as the first choice and explicitly tells the advisor where to open it."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The headings and short explanations are easy to scan, and the language is understandable despite the corrected tool classification."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client figures or outcomes and describes slow payments as a tool's focus rather than an established client fact."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Volatility Report** — This template helps understand the monthly swings in income, showing whether fluctuations are normal or indicative of a deeper issue.\n\n**How it works**  \nThe Volatility Report assesses how much a business's sales vary from month to month and determines if these swings are part of the ordinary rhythm or if they signal a problem. It provides a visual representation of average monthly sales along with normal ranges, helping the advisor and client contextualize financial performance and plan for seasonal fluctuations.\n\n**Also worth considering**  \n**Worst Case Scenario** — This model helps stress-test the business against its worst plausible outcome, allowing for contingency planning during quieter months.\n\n**A model that fits**  \n**Debtor Business Drag** — This model quantifies how much sales are delayed, providing insights on cash flow issues linked to slow customer payments — open it at /debtor-drag.\n\n**Is that what you had in mind, or would you like me to look for something else?**\n\n---\n\n⚠️ **Volatility Report** is a calculator in this app, not a template — open it at `/volatility`. There is no template of that name in the Advisor-e library."
+    },
+    {
+      "key": "governance·accountability",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses the firm's partnership governance, decision-making structure and lack of accountability."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend simply restarting the weekly meetings the client already tried."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "Quality Decisions targets biases rather than missing ownership and follow-through, while the proposed Volatility Report use is not justified as a fit for this governance problem."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats the situation as a governance improvement issue without unnecessary crisis language."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists resources but does not specify a concrete first action for the advisor to take with the partners at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and brief explanations make the recommendations easy for an advisor to scan."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported figures, results or definite facts about the client."
+          }
+        ]
+      },
+      "answer": "I see, it sounds like you're dealing with governance and decision-making issues within the partnership. \n\n**Best match**\n**Quality Decisions** — This template addresses the common pitfalls in decision-making processes, helping establish frameworks that improve accountability and ensure robust decision-making.\n\n**How it works**\nThis template is focused on enhancing the quality of decision-making by equipping clients with the understanding of common psychological errors that can lead to poor conclusions, such as optimism bias and confirmation bias. It provides tools to create structured frameworks for testing assumptions and developing a reliable decision-making process, ultimately fostering accountability within the partnership.\n\n**Also worth considering**\n**Partner Accountability** — This template uses a points weighted matrix to hold partners accountable for their performance and conduct, effectively linking decision-making actions directly to financial outcomes.\nA 10-minute tutorial video is available in Advisor-e to help you prepare.\n\n**A model that fits**\n**Volatility Report** — This will help the client understand the consistency of their decision-making outcomes over time and if those outcomes are influenced by external factors — open it at /volatility.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "governance·decisions don't stick",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It mentions mixed roles and poor follow-through but does not address the family-business context or people quietly reversing agreements."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It proposes a structured team process rather than simply recommending another set of written rules."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "It presents decision-quality and problem-solving tools as ways to clarify decision rights without explaining how they establish authority or separate roles."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "Its measured tone fits a situation with no stated crisis."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It describes templates but gives no concrete first action for the advisor's next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The short, clearly labeled sections are easy for an advisor to scan, with no client-facing script requiring simpler wording."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client figures, outcomes, or definite facts; the reference to board discussions is framed as a possible application."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Team Bldg Problem Solving** — This template provides a structured framework to navigate complex team problems and ensures decisions are made methodically with accountability, which addresses the issue of mixed roles and lack of follow-through.\n\n**How it works**  \nThis template guides teams through a nine-step process to move from chaotic problem-solving towards structured decision-making. It covers establishing SMART objectives, brainstorming, evaluating options, and assigning accountability for actions to avoid the issues of unclear decision rights and mixed roles that you've described.\n\n**Also worth considering**  \n**FM Quality Decisions** — This template emphasizes the importance of robust decision-making frameworks and could help clarify roles during board discussions.  \n**Quality Decisions** — It highlights the need for a strong decision-making process and can help articulate clear roles and responsibilities in discussions.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "governance·no board structure",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses the growing SME’s owner-dependent decision-making, lack of a board, and missing formal reporting processes."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It recommends structured governance and formal reporting, rather than repeating the informal appointment of a friend as advisor."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The named tools are linked appropriately to board options, reporting schedules, and business processes."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats governance as a planned improvement without suggesting a crisis or creating undue alarm."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies Governance Introduction as the starting point for discussing board options and shared decision-making."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the recommendations easy for an advisor to follow, with accessible governance language."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported figures, results, or facts about the client; its growth and governance descriptions reflect the case."
+          }
+        ]
+      },
+      "answer": "**Best match**\n**Governance Introduction** — This template will help the client understand the advantages and disadvantages of forming an Advisory Board versus a Formal Board Structure, which is vital for improving governance in a growing business.\nA 8-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**\nThis template simplifies the transition into structured governance by outlining the essential components of establishing an Advisory Board, helping the business owner recognize the need for shared decision-making and formal reporting processes. It guides the conversation around enhancing governance practices to support their growth trajectory.\n\n**Also worth considering**\n**Management Reporting Annual Plan** — This could be useful for setting up a structured schedule for operational and strategic topics throughout the year.\n**People vs. Process** — This template helps identify the necessary business practices and processes to improve efficiency and governance.\nA 16-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "strategy·no direction",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "Addresses lost market position and strategic direction, but does not connect the advice to this client's tech industry."
+          },
+          {
+            "id": 2,
+            "met": false,
+            "reason": "Recommends another business plan without explaining how it would avoid the fate of the abandoned one-page plan."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated uses of competitive review, outcomes alignment, and business planning match the purposes of the named tools."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "Treats the situation as a strategic review rather than an emergency, consistent with the absence of a crisis."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "Names templates and tutorials but gives no concrete first activity for the advisor to undertake at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short descriptions make the recommendations easy for an advisor to scan and follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "Does not invent figures, results, or facts about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Orientation Part 2** — This document helps clients take a challenging review of their business, assessing their ability to cope with future threats and opportunities while clarifying their current competitive position.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis template covers complex strategic concepts like Porter's 5 Forces and the Revenue Streams, allowing clients to critically evaluate their business model and strategic orientation. It guides them in understanding future opportunities and threats, which is crucial for businesses feeling lost in their market position.\n\n**Also worth considering**  \n**Planning Outcomes Review** — This template focuses on business outcomes and ensures the planning framework is aligned with the business's goals and needs.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.  \n**4 Part Business Plan** — This comprehensive tool combines various elements to help define the strategic direction and operational tasks required for growth.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "strategy·lost edge",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses price competition and eroding margins but does not connect its advice to the client's retail industry."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It recommends finding distinct advantages rather than repeating the failed approach of copying a competitor."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated uses align with differentiation and profit strategy for Blue Ocean and experience-based differentiation for Porter's & Pine."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats the issue as a strategic challenge without implying an immediate crisis."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It recommends templates and preparation videos but does not specify a first activity for the next client meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and brief explanations make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific facts or figures and describes margin improvement as a possibility rather than a certainty."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Profit Levers & Blue Ocean** — This template helps clients identify their competition and differentiation points, which is crucial for businesses struggling to stand out and currently competing on price.\nA 13-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThe Profit Levers & Blue Ocean template guides the client through identifying unique competitive advantages and strategic differentiation opportunities. It explores various strategies to move away from price competition and develop a more distinct value proposition, which can ultimately improve margins and business viability.\n\n**Also worth considering**  \n**Porter's & Pine** — This template helps clients elevate their product into a premium experience, moving away from commoditization and price wars.\nA 11-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "strategy·growth stalled",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses stalled growth but omits the services context, founder bottleneck and exhausted business model, leaving the advice generic."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend hiring more salespeople or otherwise repeating the unsuccessful approach."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated uses match the tools: mapping growth stages, diagnosing problems and developing a plan."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It focuses on understanding the plateau and planning rather than treating the situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies the Growth Curve as the starting point and tells the advisor to map the client's current position and assess readiness for change."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The headings are easy to scan, and the main framework jargon is explained sufficiently for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported figures, results or factual claims about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**\n**Growth Curve** — This template is ideal for visually mapping the current stagnation in growth, helping the client recognize where they stand in their growth journey and identify potential next steps to overcome obstacles.\nA 15-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**\nThe Growth Curve serves as a foundational map of the Growth Fundamentals Framework, which helps clients contextualize their business journey. It outlines the 9 Growth Stages and provides insights into common pitfalls, such as the \"Devil's Toilet,\" where growth stalls. This template aids in aligning the client's understanding of their current position and assessing their desire for change, setting the stage for strategic planning and action.\n\n**Also worth considering**\n**Quick Fire Diagnosis** — This template helps quickly identify whether the business is in distress or growth mode and pinpoints major problem areas to address.\nA 11-minute tutorial video is available in Advisor-e to help you prepare.\n**4 Part Business Plan** — A detailed planning tool that combines various elements to help the client realign their strategy and outline actionable steps for recovery.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "strategy·new market",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses enthusiasm-led market entry but does not connect its advice to the client's manufacturing industry."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It proposes structured tools rather than repeating the informal chats already tried."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "It does not establish why an Earth Moving Hrs model suits a manufacturer's market-entry assessment or general financial-capacity analysis."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It takes an exploratory strategic approach without creating unwarranted crisis urgency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists tools and a link but does not specify a concrete first assessment activity for the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The headings and short explanations are easy for an advisor to scan, with no jargon-heavy client script."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It asserts no unsupported client figures, results, or facts; market disruption is described as a template use case rather than a client fact."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Advance.2 & 2B. Strategic Orientation (Part 1 & 2)** — This template explores high-level strategic frameworks to review the business model and helps challenge market assumptions.\n\n**How it works**  \nThese templates utilize tools like Porter's 5 Forces and the Blue Ocean Strategy to help the client rethink their fundamental value proposition. They are designed for clients facing market disruptions needing to understand their competitive positioning, making it ideal for discussions around entering a new market based on enthusiasm.\n\n**Also worth considering**  \n**Sales & Marketing Review** — This template will help the client evaluate how to attract attention and convert interest into action in their new market.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.\n\n**A model that fits**  \n**Earth Moving Hrs** — This model makes it easy for you and your client to calculate the Financial Capacity of their business and explore their business assumptions — open it at **/id-8171543327**.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "systems·chaotic process",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses chaos and bottlenecks but gives generic process advice without connecting it to the client's manufacturing operations."
+          },
+          {
+            "id": 2,
+            "met": false,
+            "reason": "It recommends documenting processes without explaining how this would differ from the procedures already written and ignored."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "Formal Risk Management is presented as ensuring all processes are documented and accountable, which overstates its risk-management purpose."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It proposes routine improvement work without treating this non-crisis situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists templates and preparation videos but does not specify a concrete first action for the next client meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The headings and short descriptions make the recommendations easy for an advisor to scan and follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not invent client-specific figures, results, or facts; potential improvements are described as possibilities."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**People vs. Process** — This template guides you through identifying business practices that need improvement and helps define the overarching systems philosophy to embark on an improvement process.\nA 16-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis template supports clients in examining their existing practices and protocols while providing a structured approach to documenting processes to avoid chaos. The facilitated discussion can reveal bottlenecks and responsibilities, enabling the client to establish standards and improve efficiency in their operations.\n\n**Also worth considering**  \n**Lite Process** — This template explores the philosophy of process improvement that may best serve the client and provides practical ways to develop flowcharts that clarify system components needing prioritized attention.\nA 6-minute tutorial video is available in Advisor-e to help you prepare.  \n**Formal Risk Management** — This template helps identify, classify, and determine actions for managing business risks, ensuring that all processes are documented and accountable.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "systems·owner bottleneck",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It discusses delegation generally but does not address the trades setting, job-by-job owner dependence, or missing checklists."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the owner's unsuccessful attempt to take time off."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "The tools' stated purposes concern mental segmentation, employee satisfaction, and growth, rather than establishing the missing delegation systems."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "Its measured, exploratory tone is appropriate for a non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It describes broad reviews but gives no clear first exercise or concrete step for the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short descriptions make the recommendations easy for an advisor to scan."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client figures or outcomes and presents possible overwhelm and tool benefits tentatively."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Control Matters** — This template helps business owners understand how they mentally segment their business and highlights areas where they may be feeling overwhelmed, which is crucial in recognizing their need for delegation and improved systems.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis session guides a review wherein the owner divides their business mentally; understanding this division is essential for problem-solving and for implementing more effective management structures. It is particularly suited for addressing issues of overwhelm and helping the owner gain clarity about their role and responsibilities.\n\n**Also worth considering**  \n**Lite People** — This section explores the drivers of employee satisfaction and how to give effective feedback, which could support building a more autonomous team.\nA 4-minute tutorial video is available in Advisor-e to help you prepare.  \n**Nine Growth Aspects** — This template encourages exploration of various aspects of business growth, including team focus, which may relate to delegation and ownership involvement.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "systems·no documentation",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "The advice is generic and does not address the services business’s tribal knowledge, inconsistent output, or slow onboarding."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend restarting the procedures folder the client already tried."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated reasons align with the tools’ purposes: people/process diagnosis, organisational structure, and business constraints."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It uses a calm improvement-focused tone appropriate to a non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It names frameworks and preparation videos but gives no concrete first step for the next client meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and brief, understandable descriptions make the recommendations easy for an advisor to scan."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It makes no unsupported claims about the client’s figures, results, or circumstances."
+          }
+        ]
+      },
+      "answer": "It sounds like you might need a framework to help diagnose and improve the efficiency of your operations and processes. \n\n**Best match**\n**People vs. Process** — This template helps identify whether operational issues are due to staff capabilities or procedural inefficiencies, facilitating a clearer understanding of where improvements can be made.\nA 16-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**\nThis framework distinguishes between problems related to people (knowledge, skills, and motivation) and those related to processes (like quality control and efficiency). It enables you to clarify where the bottleneck lies, thus preventing unfair blame and helping to develop actionable solutions.\n\n**Also worth considering**\n**Organisational Review** — This template focuses on analyzing communication and reporting channels, roles, and responsibilities to improve team engagement and operational efficiency.\nA 9-minute tutorial video is available in Advisor-e to help you prepare.\n**Capacity, Capability, Opportunity** — This framework helps dissect legitimate constraints holding a business back and can facilitate discussions about process improvement.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "valuation·what is it worth",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses the sale and offer assessment but does not relate the advice to the client's wholesale business."
+          },
+          {
+            "id": 2,
+            "met": false,
+            "reason": "It recommends another calculator without explaining what would differ from the online calculator the client already distrusted."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "Using normalized earnings and discounted future cash flows to assess business value matches the named model's purpose."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats the valuation as a normal sale-planning decision without creating unnecessary alarm."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It gives a concrete first step: open the named valuation calculator at /ebitda-dcf."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The short, labeled sections are easy for an advisor to scan, and the technical terms suit an advisor-facing explanation."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific figures, valuation results, or business facts."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**EBITDA & Discounted Cash Flow** — This model provides a thorough analysis of the business's worth by calculating its normalized earnings before interest, tax, and depreciation, as well as assessing future cash flows.\n\n**How it works**  \nThis model helps the advisor determine the enterprise value of the business by using historical performance data and projected cash flow. It includes a calculation of normalized EBITDA and applies a discount rate to evaluate what the future cash is worth in today’s terms. It’s particularly useful when considering offers to ensure that owners receive a fair value if they decide to sell.\n\n**A model that fits**  \n**EBITDA & Discounted Cash Flow** — This will help show the business's worth based on historical earnings and future projections. — open it at **/ebitda-dcf**.\n\n**Is that what you had in mind, or would you like me to look for something else?**\n\n---\n\n⚠️ **EBITDA & Discounted Cash Flow** is a calculator in this app, not a template — open it at `/ebitda-dcf`. There is no template of that name in the Advisor-e library."
+    },
+    {
+      "key": "valuation·partner buyout",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses the partner-buyout valuation dispute but does not tailor its advice to a professional firm."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It proposes structured information gathering rather than repeating the unsupported number-picking that caused the stand-off."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "Quick & Worst is justified by hypothetical escalation of the disagreement, not a liquidation need that would make the tool relevant."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "The tone is measured and does not declare a crisis; critical escalation is mentioned only conditionally."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies a first template and specifies the business context to gather before discussing valuation."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and straightforward explanations let the advisor follow the recommendations at a glance."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client figures or facts and presents possible benefits and escalation as possibilities, not certainties."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Indicative Value Questions** — This template assists in determining an indicative value, making it ideal for a situation where partners are at an impasse regarding the value of a buyout.\n\n**How it works**  \nThe Indicative Value Questions template is a client-facing delivery tool designed to gather essential context on the business's history, competitors, threats, opportunities, and key dependencies prior to a valuation. This allows advisors to orient the discussion and facilitate an informed conversation about the valuation, helping to mitigate emotional tensions by establishing a structured approach.\n\n**Also worth considering**  \n**Business Sale Assessment 1** — This template outlines the process of selling a business and provides insight into what to expect, which may help ease the discussions surrounding the buyout.  \n**Quick & Worst** — While this template primarily addresses liquidation, it might provide insights into the financial position if the partnership disagreement escalates to a critical level.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "valuation·is the offer fair",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses evaluating the buyer's offer but does not connect the advice to the client's manufacturing business."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not repeat the unsuccessful approach of asking a business acquaintance for a valuation."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "Receivership vs Liquidation is recommended for valuation and negotiation despite addressing insolvency options rather than assessing an ordinary sale offer."
+          },
+          {
+            "id": 4,
+            "met": false,
+            "reason": "It introduces severe hardship and insolvency options despite the explicit absence of a crisis."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies the Indicative Value Questions questionnaire as a first step the advisor could use to begin assessing value."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The headings and short explanations are easy to scan and use language an owner could understand."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific figures, valuation results, or facts; the hardship reference is conditional rather than asserted."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Business Sale Assessment 1** — This template describes the process of selling a business and gives business owners insight into what lies ahead, providing context for valuing their business.\n\n**How it works**  \nThis template serves as a foundational guide that helps owners understand the selling process. It outlines key considerations and factors that influence business valuation, which can assist the owner in evaluating the buyer's offer effectively.\n\n**Also worth considering**  \n**Indicative Value Questions** — This questionnaire helps determine an indicative value and serves as a valuable first step in the valuation process.  \n**Receivership vs Liquidation** — Offers insights into business value options in severe hardship situations, which might influence buyer negotiations.\nA 6-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "risk·customer concentration",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses the client's dominant-customer dependency and the risk of losing that customer."
+          },
+          {
+            "id": 2,
+            "met": false,
+            "reason": "It suggests diversification through a sales and marketing review without explaining how this would overcome the client's repeated failure to act."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "Debtor Business Drag addresses slow payments, which are not the same problem as customer concentration or losing a major customer."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It presents risk assessment calmly without treating the non-crisis situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists tools and their purposes but gives no explicit first step for the advisor's next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short descriptions make the recommendations easy for an advisor to scan and understand."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It supplies no invented client figures or definite outcomes; the payment discussion describes a tool rather than explicitly asserting that this client has overdue debtors."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Customer Reliance** — This template helps calculate the financial dependency on clients, particularly useful for assessing the risks associated with a dominant customer.\n\n**How it works**  \nThis spreadsheet allows you to analyze the share of revenue coming from major clients, highlighting the potential risk if one were to leave. It can reveal dependencies that can inform discussions around risk management and contingency planning.\n\n**Also worth considering**  \n**Sales & Marketing Review** — This could help in evaluating strategies to diversify client acquisition and reduce reliance on a single customer.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.  \n**Worst Case Scenario** — This model stress-tests the business against potential risks, such as the loss of a major client, aiding in understanding the impact of such an event.\n\n**A model that fits**  \n**Debtor Business Drag** — This model highlights the effect of slow-paying customers and helps quantify the impact of cash flow issues caused by reliance on a major client — open it at /debtor-drag.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "risk·key person",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses reliance on one technical individual and the absence of a backup plan, rather than offering generic business advice."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not simply recommend repeating the cross-training discussions that never led to action."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "Business Purchase Assessment 1 is stretched into addressing a technical-role succession problem without an identified purchase or management-transition need."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It encourages contingency preparation without treating the non-crisis situation as an immediate emergency."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies a first step: have the client complete the succession template's pre-meeting questions."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and straightforward explanations make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not assert unsupported figures, outcomes, or additional facts about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Succession Planning** — This framework helps navigate the process of succession planning for a client, which is crucial when a business relies heavily on a single individual without a backup plan.\nA 8-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis template begins with pre-meeting questions that the client completes before your first meeting. It guides you through the essential conversations needed to establish a succession plan, ensuring that the key knowledge and role within the business are managed effectively. It emphasizes the urgency and importance of preparing for contingencies.\n\n**Also worth considering**  \n**Business Purchase Assessment 1** — This can help assess the feasibility of purchasing or transitioning to new management, ensuring stability.  \n**Coping With Adversity** — While focused on personal resilience, it can provide the business owner with strategies to manage stress related to dependence on a single technical individual.\nA 15-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "risk·no contingency",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses insurance gaps and risk planning but does not connect its advice to the client's trades business."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It recommends reviewing risk and insurance exposure rather than repeating an unchanged policy renewal."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes of risk management, insurance assessment, and worst-case stress-testing match the reasons for recommending them."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It encourages preparation without treating this non-crisis situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists suitable tools but does not specify a first action for the advisor to take with the client at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and brief explanations make the recommendations easy for an advisor to scan and understand."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not invent client-specific figures, outcomes, or facts beyond the supplied insurance and risk-planning gaps."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Formal Risk Management** — This template walks your client through the procedure of identifying, classifying, and determining action steps to manage business risks, which fits the need for a comprehensive assessment of their insurance coverage and risk planning.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThe Formal Risk Management model simplifies the risk management process with a step-by-step guide, including establishing the context and utilizing a graphic 'Heat Map' of risks. This approach helps clients uncover potential gaps in their insurance coverage and prepares them for unforeseen events.\n\n**Also worth considering**  \n**Insurance** — This template allows the client's Insurance advisor to complete a 'Summary Position' view of the client's risk exposure, providing useful insights into their current insurance gaps.\n\n**A model that fits**  \n**Worst Case Scenario** — This model stress-tests the business against its worst plausible outcome, helping the client understand how to prepare for potential risks — open it at **/worst-case-scenario**.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "succession·owner exit no successor",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses an owner stepping back but does not connect its advice to a family farm or the uncertainty about the children taking over."
+          },
+          {
+            "id": 2,
+            "met": false,
+            "reason": "It encourages succession discussions without acknowledging the Christmas argument or explaining how another discussion would be handled differently."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "It presents a board-structure introduction as the main succession-planning tool without explaining how it resolves successor choice or family agreement."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats the transition as a planning issue rather than creating unwarranted crisis urgency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists templates and preparation videos but does not specify a first action to take with the owner at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The headings and short descriptions are easy for an advisor to scan, and no client-facing script relies on unexplained jargon."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not invent client-specific figures, events, or outcomes; its client references reflect the stated transition and emotional challenges."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Governance Introduction** — This template helps the client navigate the complexities of succession planning and the role of governance in transitioning leadership, which is essential for the owner looking to step back.\nA 8-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis template explains the advantages and disadvantages of establishing an Advisory Board versus a Formal Board Structure, providing the owner with insights into governance options that can facilitate the transition of leadership, ensuring their business continues successfully even as they step back. It aims to foster proactive discussions about succession planning and leadership continuity.\n\n**Also worth considering**  \n**Coping With Adversity** — This template can help the owner identify their coping styles related to the emotional challenges of letting go and transitioning leadership.\nA 15-minute tutorial video is available in Advisor-e to help you prepare.  \n**Capacity, Capability, Opportunity** — This framework can dissect the legitimate constraints around planning for succession and identify opportunities for the next generation.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "succession·family handover dispute",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It connects the recommendations to family-business succession, sibling competition, and the need for a fair ownership framework."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the unsuccessful equal split."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "It treats a partner-accountability matrix as a succession and ownership-fairness tool without explaining how accountability scores would support those decisions."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "Its measured tone fits a non-crisis situation and does not create unnecessary alarm."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists tools and preparation resources but does not specify a first action for the advisor to take at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make it easy for an advisor to follow, with no confusing client-facing script."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific figures, outcomes, or facts, and describes potential benefits tentatively."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Partner Accountability** — This template helps establish accountability and equity among partners, which can assist with determining a fair framework for succession and ownership decisions.\nA 10-minute tutorial video is available in Advisor-e to help you prepare.  \n\n**How it works**  \nThis template uses a 'points weighted matrix' to hold partners accountable in areas such as ethics, skills, motivation, and performance. This structured approach can help navigate the complexities around business succession and align the interests of the siblings looking to take over the business.  \n\n**Also worth considering**  \n**Quality Decisions** — This template highlights the importance of robust decision-making frameworks, which will be crucial for making thoughtful choices regarding succession.  \n**Capacity, Capability, Opportunity** — This framework can identify the underlying constraints and opportunities, making it easier to facilitate discussions about the business's future direction.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.  \n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "succession·owner identity",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses emotional attachment and missing leadership, but does not connect its advice to the client's professional practice."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It proposes reflection and succession preparation rather than simply setting another retirement date."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated reasons link succession planning to leadership transition, Control Matters to attachment, and sale assessment to exit preparation."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It takes a measured planning approach without creating alarm in this non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies Succession Planning as the first choice and client pre-meeting questions as a concrete starting step."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific figures, outcomes, or facts; the video durations are claims about resources, not the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Succession Planning** — This template provides a framework that helps navigate the process of succession planning, addressing emotional attachments and organizational structure necessary for a successful exit.\nA 8-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThe Succession Planning template includes 'pre-meeting' questions to be completed by the client, encouraging them to reflect on their emotional ties and the practical aspects of succession. It employs a 'planning metaphor' to visualize the logical process and timelines, guiding the conversation about letting go and the importance of establishing a second line of leadership.\n\n**Also worth considering**  \n**Control Matters** — This template guides a review of how the owner mentally segments their business, which is important when trying to tackle emotional attachments.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.  \n**Business Sale Assessment 1** — This document describes the selling process and gives insight into what the owner needs to think about when considering an exit.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "conflict·partner dispute",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses the two partners’ resentment, conflict and strained communication, rather than only generic business concerns."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It proposes structured resources for understanding and discussion, rather than simply repeating an unaided attempt to thrash things out."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated uses align with the tools: coping with frustration, structuring collaborative thinking and examining constraints."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats the conflict seriously without presenting this non-crisis situation as an emergency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It recommends resources but gives no concrete first step for the advisor to take with the partners at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The short, clearly headed sections and accessible explanations are easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific figures, results or facts, and describes potential benefits rather than guaranteed outcomes."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Coping With Adversity** — This template provides insight into different ways people cope with frustration or failure, enabling partners to better understand and support each other.\nA 15-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis resource helps partners identify and address underlying issues affecting their relationship. It offers strategies to promote a supportive environment and reduce tension, making it easier for them to communicate effectively. This can be especially beneficial for partners experiencing resentment and conflict.\n\n**Also worth considering**  \n**6 Hats Thinking** — This framework encourages collaborative thinking and helps teams avoid conflict while focusing on shared objectives.  \n**Capacity, Capability, Opportunity** — This framework could facilitate a discussion about the legitimate constraints holding back the partnership and foster collaboration.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "conflict·contribution imbalance",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses partnership resentment, contributions, equal drawings, and unclear roles rather than offering wholly generic advice."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It proposes a conversation rather than repeating the avoidance the partners already tried."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "The main recommendation stretches a coping-with-frustration template into a tool for resolving roles, contributions, and drawings without explaining that fit."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats the issue calmly as a relationship and accountability problem, without implying a crisis."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists templates and preparation videos but does not specify a concrete first action for the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and accessible language make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": false,
+            "reason": "It describes unequal contributions as established, although the advisor reported only one partner's perception."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Coping With Adversity** — This template provides insight into the different ways people cope with frustration or failure, enabling business partners to support each other and reduce stress.\nA 15-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis template can be used to address interpersonal conflicts like those arising between partners with unequal contributions and shared drawings. It helps facilitate a conversation around expectations, contributions, and roles, aiming to alleviate feelings of resentment and improve communication among partners.\n\n**Also worth considering**  \n**Partner Accountability** — This template holds partners accountable in various areas, which can assist in clarifying roles and expectations.\nA 10-minute tutorial video is available in Advisor-e to help you prepare.  \n**Organisational Review** — This review can help define individual responsibilities and improve clarity in team engagement and accountability.\nA 9-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "conflict·communication breakdown",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It explicitly addresses a family business with communication breakdowns, family friction and past grievances."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the heated family meeting."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "It recommends a farm succession tool for a communication conflict, although no farming or succession need was described."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "Its calm, exploratory tone is appropriate for a non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It describes the template's potential benefits but gives no concrete first step for the advisor's next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The short sections and straightforward wording are easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces an unsupported tool choice but does not assert new client facts, figures or guaranteed results."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Farm Succession Metaphor** — This visual presentation simplifies the steps of farm succession and addresses communication breakdowns among family members in businesses, making it a suitable match for your situation.\n\n**How it works**  \nThis template uses the metaphor of \"building a dream home\" to guide family businesses through the succession process. It helps reduce family friction by presenting logical steps for transitioning the business, which can lead to improved communication by framing discussions around shared goals rather than past grievances.\n\n**Also worth considering**  \nNo other templates directly address the specific family dynamics described in your scenario. \n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "eoy·compliance-to-value",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It directly addresses turning the completed-compliance EOY meeting into a broader advisory conversation for this SME."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It distinguishes the proposed structured discussion of future opportunities from last year's forms-only meeting."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The EOY, growth and working-capital tools are linked to meeting structure, growth opportunities and cash-flow management respectively."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It uses a measured, opportunity-focused tone appropriate to a non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It names tools and preparation videos but does not specify a concrete first step for conducting the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and straightforward descriptions make the recommendations easy for an advisor to scan and understand."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported figures, results or facts about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**E.O.Y Meeting** — This framework is designed to enhance the end-of-year meeting experience, allowing clients to recognize the additional value you can provide beyond core compliance services.\nA 9-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThe E.O.Y Meeting template supports structured conversations that not only review financial accounts but also facilitate discussions around future strategies, opportunities for improvement, and value-add advisory services. It ensures clients see the benefits of engaging in advisory discussions rather than just signing off on past results.\n\n**Also worth considering**  \n**Growth Fundamentals Framework Philosophy** — This could be useful for outlining opportunities for the client's business growth.  \n**Working Capital Cycle** — Great for discussing cash flow management and the importance of financial performance review.\nA 24-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "eoy·tax planning",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "The answer gives generic planning-tool advice without addressing the strong year, pre-year-end timing, or previously unexplored opportunities."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the previous approach of waiting until after year end."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated reasons for recommending each tool align with its described planning purpose."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "The tone is measured and does not create alarm in a non-crisis situation."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It describes tools and available tutorials but does not explicitly say what the advisor should do first."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short descriptions make the recommendations easy for an advisor to scan."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not invent figures, results, or facts about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**\n**Planning Outcomes Review** — This template helps ensure the planning framework is focused on the correct business outcomes and can facilitate a deeper planning conversation with your client.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**\nThe Planning Outcomes Review examines the four main planning domains: Business Model, Strategic Orientation, Organisational Function, and Sales & Marketing. It serves as a tool to both sell the planning session and ensure that you are aligned on the outcomes that matter most to the client's business going forward.\n\n**Also worth considering**\n**Lite Planning** — This tool helps align your client's income, risk, and work hours expectations to their business model, laying a foundation for understanding.\nA 11-minute tutorial video is available in Advisor-e to help you prepare.\n**Orientation Part 1** — This document explains the formal strategic planning process and could serve as a good pre-session resource for your client.\nA 13-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "eoy·annual review depth",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses the tax-formality problem but does not connect its recommendations to the client's services business."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It recommends presentation and planning tools rather than repeating the standard checklist that drew little engagement."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated uses of presentation decks, an outcomes review, a growth model and an annual meeting plan match their respective purposes."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It takes a calm, forward-looking approach appropriate to a non-crisis annual review."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists tools and benefits but does not specify a concrete first action for preparing or conducting the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the recommendations easy for an advisor to scan and understand."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported figures, results or factual claims about the client."
+          }
+        ]
+      },
+      "answer": "I can see you're looking to enhance the value of the annual review for your client. \n\n**Best match**  \n**EOY Presentation Decks (Frame, Agenda, V2, and Rural)** — This series of visual slide decks is designed to structure the end-of-year meeting in a way that smoothly transitions from reviewing historical accounts to discussing impactful business concepts.\n\n**How it works**  \nThis template helps your client visualize complex business concepts, such as where they sit on the Growth Curve and guides them to create actionable steps for the future. It helps in framing the conversation to move beyond just a tax formality and focuses on strategic planning and growth opportunities, fostering engagement and understanding.\n\n**Also worth considering**  \n**Planning Outcomes Review** — This document ensures the planning framework is focused on the correct business outcomes, examining strategic areas thoroughly.\nA 5-minute tutorial video is available in Advisor-e to help you prepare.  \n**Annual Board Plan** — This template arranges meeting topics strategically for the year, helping ensure that formal protocols are followed and no critical topics are overlooked.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "dd·buying a business",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses the proposed acquisition, financial valuation and purchase risks rather than offering generic business advice."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It proposes structured assessment models, which differ from the client's unstructured glance at the P&L."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The named assessment tools are recommended for acquisition valuation, financial returns and risk assessment, consistent with their stated purposes."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats the acquisition as a considered decision without introducing unwarranted crisis or urgency."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It recommends templates but gives no concrete first step for reviewing the target's accounts at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and brief explanations make it easy for an advisor to follow, with appropriate financial terminology."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific figures, findings or outcomes."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Business Sale Assessment Model** — This template provides a comprehensive financial modeling tool to calculate asset values, goodwill, payback periods, and return on investment (ROI) for a business sale or purchase.\n\n**How it works**  \nThe Business Sale Assessment Model helps assess the potential acquisition by grounding expectations in data. It breaks down fair market values and outlines the risks associated with purchasing a business, allowing your client to view what the business is truly worth and identify any pitfalls.\n\n**Also worth considering**  \n**Business Assessment Report** — This template is designed for evaluating a specific business acquisition focusing on the value, risks, and investment scenarios.  \n**Bizz Sale Assessment Model** — This template helps calculate a business's adjusted asset values, goodwill, and ROI.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "dd·assessing target risks",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses buying a competitor and the client's concerns about customer reliance and hidden risks."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It recommends analysis and stakeholder interviews rather than continuing to take the seller's word."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "It overstates the Customer Reliance spreadsheet's scope by suggesting sales concentration analysis can surface other hidden liabilities."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It treats the acquisition as a due-diligence exercise without implying a crisis."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It ranks tools but gives no concrete first action for the next meeting, such as requesting records or verifying seller claims."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and straightforward explanations make the recommendations easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It does not invent client figures or assert that any suspected dependency or liability actually exists."
+          }
+        ]
+      },
+      "answer": "**Best match**\n**Customer Reliance** — This template calculates the financial dependency on clients, which is critical for understanding risks related to customer reliance during a business acquisition.\n\n**How it works**\nThis spreadsheet allows you to assess the distribution of sales among different clients, highlighting any potential risks or dependencies that may not be immediately apparent. It's particularly valuable for due diligence when considering the purchase of a competitor, as it can surface concerns regarding over-dependence on a small number of clients and other hidden liabilities.\n\n**Also worth considering**\n**Key Interviews** — This template provides interview questions for staff, customers, and suppliers, which can uncover hidden insights and concerns that the financial numbers alone may not reveal.\n**Formal Risk Management** — This model helps identify and evaluate potential risks during the acquisition process, allowing you to develop strategies to manage them effectively.\nA 7-minute tutorial video is available in Advisor-e to help you prepare.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "dd·earn-out structuring",
+      "mode": "discover",
+      "checks": {
+        "namesExist": false,
+        "withinBudget": null,
+        "crisisFirst": null,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": true,
+            "reason": "It addresses a business acquisition, earn-out terms, and performance-based pricing, although its main recommendation is vendor-focused."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating the rejected flat-price proposal."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "The main recommendation is explicitly designed for vendors, but the client needs purchaser-side guidance on structuring an earn-out."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It discusses risks without suggesting a crisis or creating unnecessary alarm."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It names templates but gives no concrete first step for structuring the deal or discussing earn-out terms at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The short, clearly labelled sections and acquisition terminology are understandable to an advisor."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported figures, results, or facts about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Business Sale Assessment Report** — This template is designed for a vendor, providing insights into how a potential purchaser will view their business's value, risks, and future maintainable earnings.\n\n**How it works**  \nThis presentation template breaks down the fair market value and potential fragility of the business's ability to service the purchase price during economic declines. It outlines risks and helps the vendor prepare for negotiations regarding earn-out terms and performance-based pricing.\n\n**Also worth considering**  \n**Business Assessment Report** — This template is aimed at purchasers, assessing the risks and securing financing for a business they plan to buy.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "succession·CRISIS failing handover",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": true,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses financial distress but never connects the advice to the family farm or the threatened handover to the children."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It recommends immediate intervention rather than repeating the hope that a good season will fix the business."
+          },
+          {
+            "id": 3,
+            "met": false,
+            "reason": "The Debtor Business Drag explanation confuses delayed customer payments with delayed sales, misrepresenting the model's purpose."
+          },
+          {
+            "id": 4,
+            "met": true,
+            "reason": "It prioritizes immediate financial distress and insolvency options rather than succession planning."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies a first template and tells the advisor to use it to explain receivership, liquidation and the owner's options."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short explanations make the recommendations easy for an advisor to scan and follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client-specific figures or outcomes and presents slow payments as a possibility rather than an established client fact."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Receivership vs Liquidation** — This template addresses severe business hardship, explaining the differences between receivership and liquidation, which is crucial for the owner to understand given the current failing state of the business.\nA 6-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis template allows you to explain the current financial position, highlighting the options available to the owner, including the potential for creditor compromise. It emphasizes the importance of taking immediate action to prevent further decline and to manage the owner's emotional response to the situation.\n\n**Also worth considering**  \n**Worst Case Scenario** — Useful for calculating the financial capacity of the business and exploring assumptions.  \n**Quick & Worst** — Helps identify the immediate finance position related to trading cycles alongside a liquidation-based business review.\n\n**A model that fits**  \n**Debtor Business Drag** — This model shows how sales may be delayed due to slow payments, putting further pressure on cash flow — open it at **/debtor-drag**.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "forecasting·CRISIS cant pay bills",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": true,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses financial distress generally but does not mention hospitality or the client's specific exhausted funding options and unpaid bills."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "It does not recommend repeating family borrowing or seeking further bank credit."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The stated purposes align with the recommendations: insolvency options, cash-position assessment, and downside scenarios."
+          },
+          {
+            "id": 4,
+            "met": false,
+            "reason": "It leads with educational templates rather than urgent survival assessment or immediate professional insolvency support."
+          },
+          {
+            "id": 5,
+            "met": false,
+            "reason": "It lists resources but does not specify a concrete first action for the advisor's next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "Clear headings and short descriptions make the answer easy for an advisor to follow."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It introduces no unsupported figures, results, or facts about the client."
+          }
+        ]
+      },
+      "answer": "**Best match**  \n**Receivership vs Liquidation** — This template is designed to help clients understand their options in severe business hardship, including explaining the differences between receivership and liquidation.\nA 6-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**  \nThis template guides discussions with clients facing financial distress, helping them see their true position and immediate options. It aims to remove the stigma associated with insolvency, making it easier for them to take necessary action without feeling overwhelmed.\n\n**Also worth considering**  \n**Quick Position** — This model gives a fast read on the client's current cash position and how long they can last without sales.  \n**Worst Case Scenario** — This model helps clients explore the financial capacity of their business under dire conditions, examining scenarios like insolvency and liquidation.\n\n**A model that fits**  \n**Worst Case Scenario** — This model shows the financial implications of potential insolvency actions, presented through various scenarios — open it at /worst-case-scenario.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    },
+    {
+      "key": "profit·CRISIS shut down vs risk",
+      "mode": "discover",
+      "checks": {
+        "namesExist": true,
+        "withinBudget": null,
+        "crisisFirst": true,
+        "matchesTop": null,
+        "domainMatches": null
+      },
+      "judge": {
+        "ok": true,
+        "verdicts": [
+          {
+            "id": 1,
+            "met": false,
+            "reason": "It addresses possible liquidation but does not connect its advice to the cafes or their financial-management and service-quality problems."
+          },
+          {
+            "id": 2,
+            "met": true,
+            "reason": "The client had tried nothing, so none of the recommendations repeats an unsuccessful approach."
+          },
+          {
+            "id": 3,
+            "met": true,
+            "reason": "The named tools are linked to relevant purposes: insolvency options, worst-case financial assessment, and liquidation-based net worth."
+          },
+          {
+            "id": 4,
+            "met": false,
+            "reason": "It prioritizes explaining insolvency terminology rather than immediate financial triage and steps to preserve the business."
+          },
+          {
+            "id": 5,
+            "met": true,
+            "reason": "It identifies a first template, a preparation video, and an explanation of insolvency options the advisor can deliver at the next meeting."
+          },
+          {
+            "id": 6,
+            "met": true,
+            "reason": "The short, clearly labeled sections are easy to scan, and specialist insolvency terms are presented as concepts to explain."
+          },
+          {
+            "id": 7,
+            "met": true,
+            "reason": "It invents no client figures, outcomes, or additional facts about the client's circumstances."
+          }
+        ]
+      },
+      "answer": "**Best match**\n**Receivership vs Liquidation** — This template provides essential information about the options of receivership and liquidation, along with the Creditor Compromise Regime for businesses in severe hardship.\nA 6-minute tutorial video is available in Advisor-e to help you prepare.\n\n**How it works**\nThis template allows you to explain the differences between receivership and liquidation to help your client understand their position and the options available to them. It emphasizes removing the negative stigma often associated with these terms, empowering clients to take immediate action in crisis situations.\n\n**Also worth considering**\n**Worst Case Scenario** — This model helps you and your client to calculate financial capacity and explore business assumptions under dire circumstances.\n**Quick & Worst** — This offers tools to assess the immediate finance position and conduct a liquidation-based review of the business net worth.\n\n**Is that what you had in mind, or would you like me to look for something else?**"
+    }
+  ]
+}

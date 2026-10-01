@@ -256,7 +256,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "The Strategy Planner's Suggest button reads only the client's last two saved conversation summaries. A client with none gets no suggestion, and the Virtual Advisor's intake answers and the client_planning logic tree never reach it.",
       "risk": "The first strategy meeting with a new client, when guidance matters most, gets none: the advisor reads all 48 rows and ticks by hand. Linking the logic tree needs a map from its branches to Mike's deck concepts, which is his content to author.",
       "askedBy": {
@@ -331,9 +331,13 @@
         "ours": true,
         "detail": "2026-10-01 - found in the digest-and-addendum review Mike asked for; filed on his yes. A defect we found, not a feature."
       },
-      "touches": "data/prompts/discover.txt lines 7, 8, 17 and 29; server/advisorEngine.js where Discover's context is built (about 4060-4352), the removed coaching rows (about 2197) and the six-message gate on template summaries (about 4118).",
-      "note": "THE THREE: (1) a coaching reference, line 7 - removed 2026-08-20. (2) a Diagnostic Logic Tree for the first clarifying question, lines 8 and 17 - no tree is sent on turn 1; later only client-delivery trees arrive, labelled Deep Dive. (3) template summaries for How it works, line 29 - loaded only after 6 history messages, so the first recommendation never has them. Fix either the promise or the delivery; which is the design decision.",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+      "touches": "data/prompts/discover.txt lines 7, 8, 17 and 29.",
+      "note": "WHAT REMAINS: reword discover.txt so it stops promising a coaching reference (line 7, removed 2026-08-20) and a Diagnostic Logic Tree (lines 8 and 17, never sent on turn 1), and so line 29 no longer counts on template summaries the first answer does not have. The wording is Mike's. SETTLED 2026-10-02: sending summaries from Discover's first message gave no gain on the bench (point 3: 29 and 33 before, 31 and 30 after) and was taken out. Fixed on the way: summaries now reach the AI under master-library titles only, so it stops offering templates that do not exist. Runs: design/answer-bench-runs/*-718-*.json.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-02: PROCEED - only the discover.txt wording remains.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-10-02"
+      }
     },
     {
       "ref": "7.20",

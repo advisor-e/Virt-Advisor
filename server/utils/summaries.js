@@ -14,6 +14,8 @@ const { STOP_WORDS } = require('./stop-words')
 
 let _summaries = null
 let _sectionDescriptions = null
+// Every master-library template title, filled by withLibraryTitles on first load.
+const _libraryTitles = new Set()
 
 function loadSummaries () {
   if (_summaries) { return _summaries }
@@ -62,8 +64,64 @@ function loadSummaries () {
     console.error('[summaries] Failed to build purpose fallbacks from templates.json:', err.message)
   }
 
-  _summaries = rich
+  _summaries = withLibraryTitles(rich)
   return _summaries
+}
+
+/**
+ * Give every summary the master library titles it describes (item 7.18).
+ *
+ * content-summaries.json was extracted from a Google Doc, so 67 of its headings are the
+ * doc's own ("4 Part Business Plan", "Advance.6. Organisational Review & Org Chart") and
+ * match no template. The AI repeats whatever heading it is shown, so it offered advisors
+ * templates that do not exist. Only the library — data/templates.json, the master export —
+ * may name a template: a heading that is already a title keeps it; otherwise the titles come
+ * from the summary's page links and the alias map. A summary that reaches no title gets an
+ * empty list and is never shown to the AI as a template.
+ *
+ * @param {object[]} rich - the loaded summaries
+ * @returns {object[]} the same entries, each with `titles: string[]`
+ */
+function withLibraryTitles (rich) {
+  const known = _libraryTitles
+  const byPage = new Map()
+  try {
+    const all = JSON.parse(readFileSync(resolve(process.cwd(), 'data/templates.json'), 'utf8'))
+    for (const t of all) {
+      if (!t.title) { continue }
+      known.add(t.title)
+      if (t.page) { byPage.set(t.page, (byPage.get(t.page) || []).concat(t.title)) }
+    }
+  } catch (err) {
+    console.error('[summaries] Failed to read templates.json for library titles:', err.message)
+  }
+  const aliasTitles = {}
+  Object.keys(TEMPLATE_SUMMARY_ALIASES).forEach((title) => {
+    const target = TEMPLATE_SUMMARY_ALIASES[title]
+    if (known.has(title)) { aliasTitles[target] = (aliasTitles[target] || []).concat(title) }
+  })
+  return rich.map((s) => {
+    if (known.has(s.name)) { return { ...s, titles: [s.name] } }
+    const linked = [].concat(s.page || [], s.pages || []).flatMap(p => byPage.get(p) || [])
+    return { ...s, titles: [...new Set(linked.concat(aliasTitles[s.name] || []))] }
+  })
+}
+
+const MAX_ALSO_SHOWN = 4
+// Not "/" or ",": real titles contain both ("SWOT / PEST"). No title contains ";".
+const TITLE_SEPARATOR = '; '
+
+/**
+ * The heading is ONE title. The bench (2026-10-02) found the AI copying a joined heading
+ * ("E.O.Y Meeting | App Review | What's Applicable") as a single template name, so any other
+ * titles a shared summary covers go on their own line below it.
+ */
+function alsoDescribesLine (titles) {
+  const rest = titles.slice(1)
+  if (rest.length === 0) { return null }
+  const more = rest.length - MAX_ALSO_SHOWN
+  return 'Also describes the templates: ' + rest.slice(0, MAX_ALSO_SHOWN).join(TITLE_SEPARATOR) +
+    (more > 0 ? ` (and ${more} more)` : '')
 }
 
 /**
@@ -72,7 +130,8 @@ function loadSummaries () {
  */
 function filterSummariesByQuery (query, maxResults) {
   maxResults = maxResults || 15
-  const summaries = loadSummaries()
+  // Only summaries that name a library template — these feed the AI's prompt.
+  const summaries = loadSummaries().filter(s => s.titles.length > 0)
   const words = query.toLowerCase()
     .split(/\s+/)
     .filter(w => w.length > 3)
@@ -133,9 +192,12 @@ function formatSectionDescriptionsForPrompt () {
 }
 
 function formatSummariesForPrompt (summaries) {
-  if (!summaries || summaries.length === 0) { return '' }
-  return summaries.map((s) => {
-    const lines = [`**${s.name}** [${s.section}]`]
+  const titled = (summaries || []).filter(s => s.titles && s.titles.length > 0)
+  if (titled.length === 0) { return '' }
+  return titled.map((s) => {
+    const lines = [`**${s.titles[0]}** [${s.section}]`]
+    const also = alsoDescribesLine(s.titles)
+    if (also) { lines.push(also) }
     if (s.purpose) { lines.push(`Purpose: ${s.purpose}`) }
     if (s.indicators) { lines.push(`When to use: ${s.indicators}`) }
     if (s.helpsOwner) { lines.push(`Helps the owner: ${s.helpsOwner}`) }
@@ -302,16 +364,19 @@ function matchSummaryByTemplateName (summaries, templateName) {
  */
 function getSummariesForTemplateNames (templateNames) {
   const summaries = loadSummaries()
-  const seen = new Set()
-  const results = []
+  const byName = new Map()
   for (const name of templateNames) {
     const match = matchSummaryByTemplateName(summaries, name)
-    if (match && !seen.has(match.name)) {
-      seen.add(match.name)
-      results.push(match)
-    }
+    if (!match) { continue }
+    // A caller's name that IS a library title is what the AI is shown above the summary —
+    // not every title a shared summary covers. A logic-tree name that is not a title falls
+    // back to the summary's own library titles.
+    const hit = byName.get(match.name) || { ...match, titles: [] }
+    const add = _libraryTitles.has(name) ? [name] : match.titles
+    add.forEach((t) => { if (!hit.titles.includes(t)) { hit.titles.push(t) } })
+    byName.set(match.name, hit)
   }
-  return results
+  return [...byName.values()]
 }
 
 module.exports = {

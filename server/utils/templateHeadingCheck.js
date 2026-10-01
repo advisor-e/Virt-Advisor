@@ -66,6 +66,16 @@ const HEADING_LINE = /^\s*\*\*\s*([^*\n]+?)\s*\*\*\s*:?\s*$/
  */
 const NAME_LINE = /^\s*(?:[-*+]\s+|\d+\.\s+)?(.+?)\s+(?:—|–|-|:)\s+/
 
+/**
+ * A line that opens with a bold name, as discover.txt's format asks. The bold marks are
+ * the name's own boundary, so a title with a spaced dash in it ("Rubbish In - Rubbish Out")
+ * is read whole rather than cut at that dash (2026-10-02).
+ */
+const BOLD_NAME_LINE = /^\s*(?:[-*+]\s+|\d+\.\s+)?\*\*([^*\n]+?)\*\*/
+
+/** A line of the note buildAdvisorNote appends — it opens with the warning mark. */
+const ADVISOR_NOTE_LINE = /^\s*(?:[-*+]\s+)?⚠/
+
 /** Longer than this is a sentence, not a name. */
 const MAX_NAME = 80
 
@@ -96,8 +106,10 @@ function namesUnderTemplateHeadings (text) {
       continue
     }
     if (!heading || !line.trim()) { continue }
+    // buildAdvisorNote's own lines: a warning about a name, never a name offered.
+    if (ADVISOR_NOTE_LINE.test(line)) { continue }
 
-    const m = line.match(NAME_LINE)
+    const m = line.match(BOLD_NAME_LINE) || line.match(NAME_LINE)
     if (!m) { continue }
     const name = _bare(m[1])
     if (!name || name.length > MAX_NAME) { continue }
