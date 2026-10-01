@@ -9,25 +9,23 @@
 
 ---
 
-## 2026-10-01 · Laptop · branch `feat/advisor-progress`
+## 2026-10-01 (afternoon) · Laptop · branch `feat/advisor-progress`
 
-**Caught up with master (v0.14.0) at startup; 3 ahead, 0 behind after this commit; suite green:
-686 suites / 14,825 tests on Node 14.15.**
+**0 behind master (merged #151 at 16:00), pushed; PR #152 open into master, not merged.
+Suite green: 689 suites / 14,837 tests on Node 14.15.**
 
-**8.4 screen 4 BUILT and walked, Mike's call PROCEED.** Each recorded section's words now appear
-under the box open when they were said (clock only, `server/utils/boxPlacement.js`), with
-suggested wording (`passageTidy.js`, prompt `passage-tidy` on the Mentor AI Prompts tab); Keep
-adds below what is typed. Walked with a computer-voiced script and real OpenAI: 3/3 under the
-right box, 1/1 to the tray, typed text untouched. Never yet run with a real person or two voices.
-Rulings and differences: `strategy-planner.md` §9b.
-Also fixed on Mike's word: the box timeline read its times in the server's zone (13 h out on an
-NZ server); the AI Prompts tab's cash-flow line showed above every document.
+**8.4 CLOSED on Mike's word.** OpenAI's diarizing model refuses more than 1400 s of audio,
+whatever the file size (proven), so meetings now record in 20-minute parts: strategy sections
+split at 20 min, ordinary meetings in parts joined into one transcript, a failed part named on
+the done panel and above both reports. Browser-walked, 41 min: 257 of 257 lines labelled right.
+Drawing: `meeting-review-long-recording.html`; how it works: `meeting-review.md`.
+Mike ruled the advisor's voice clip extends to every recorded meeting (Decision C).
 
-**FOR THE DESKTOP:** merge master once this reaches it. Shared files changed: `locales/en.json`
-(`strategyPlanner.heard.*`, `recording.finishedWords`), `data/ai-prompts.json` (new
-`passage-tidy`), `components/firm/FirmAiPrompts.vue`, `pages/strategy-planner.vue`,
-`components/strategy/StrategyCaptureCard.vue`, `StrategyConceptCapture.vue`,
-`StrategyCaptureBox.vue` (a slot), `server/routes/strategyPlanner.js` (exports `unknownBoxes`),
-`server/routes/meetingReview.js`, `server/utils/strategySessionStore.js`.
+**13.9 filed:** the meeting reports and set-up screens still type their English in code.
 
-**Still in hand here:** 8.4 (proceed), 15.31 (Mike's try-out), 8.6.
+**FOR THE DESKTOP:** once #152 merges, merge master. Shared files changed: `locales/en.json`
+(`meetingRecorder.*`, `meetingReportsGap.*`), `components/MeetingRecorder.vue`,
+`components/MeetingReview.vue`, `server/routes/meetingReview.js`, `meetingSegments.js`,
+`server/utils/meetingAudioStore.js`, `utils/meetingParts.js` (new).
+
+**Still in hand here:** 8.6, 15.31 (Mike's try-out).

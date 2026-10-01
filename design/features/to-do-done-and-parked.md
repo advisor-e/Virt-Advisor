@@ -400,7 +400,7 @@ locked in the prompt. Either is fine; deciding by accident is not.
   `meetingReports.routes.test.js`, `meetingReview.component.test.js`. Commits: `9cd34c7d`,
   `10a369d3`, `c5b7f230`.
 - **Still to come, and UAT's:** a meeting with real people — never yet run. The parts row's spacing,
-  fixed after the walk, has not been seen on screen.
+  fixed after the walk, was seen on screen at shutdown with the parts stood in.
 
 **44.3 · The forecast needed three facts — deferred tax, leases, shipping terms — and bad debts.**
 ✅ **Closed 2026-10-01 by Mike ("yes"): bad debts built; the other three kept as disclosures, not built.**
