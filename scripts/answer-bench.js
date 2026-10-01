@@ -237,11 +237,16 @@ async function pool (jobs) {
 
 const fingerprint = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex').slice(0, 12)
 
+// The machine's own calendar day. toISOString() is UTC, which named New Zealand morning runs
+// as the day before (2026-10-02); the exact UTC timestamp still goes inside the file.
+const localDay = (d = new Date()) =>
+  [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
+
 ;(async () => {
   // Checked before a single call is paid for: a run is never overwritten.
   const commit = execSync('git rev-parse --short HEAD').toString().trim()
   const dir = path.join(REPO, 'design/answer-bench-runs')
-  const file = path.join(dir, `${new Date().toISOString().slice(0, 10)}-${commit}-${LABEL}.json`)
+  const file = path.join(dir, `${localDay()}-${commit}-${LABEL}.json`)
   if (fs.existsSync(file)) {
     console.error('answer-bench: ' + path.relative(REPO, file) + ' already exists — use --label to name this run')
     process.exit(1)
