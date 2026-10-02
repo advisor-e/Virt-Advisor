@@ -11,7 +11,8 @@
 
 ## 2026-10-02 (afternoon) · Laptop · branch `feat/advisor-progress`
 
-**16 ahead, 0 behind master after this commit — all of it in open PR #153 (title renamed to list 7.18 and 7.24).
+**PR #153 merged into master as `b4e9ccb3` on 2026-10-02 — every commit of today's work is on master.
+This branch is 1 ahead after this commit: this note.
 Suite green: 694 suites / 15,079 tests on Node 14.15.**
 
 **7.18 done.** Credit restored; Mike's approved Discover wording is in `discover.txt`, measured
