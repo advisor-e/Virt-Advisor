@@ -1041,7 +1041,9 @@ export default {
                 key: visit.conceptId + '::' + f.key,
                 // `columnHead` names the side where one heading spans two columns;
                 // `tableTitle` his section, where row names recur across them (15.22).
-                label: [f.tableTitle, f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
+                label: f.labelKey
+                  ? this.$t(f.labelKey)
+                  : [f.tableTitle, f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
                 value: (this.entries[visit.conceptId + '::' + f.key] || '').trim()
               }))
         })
@@ -1961,7 +1963,9 @@ export default {
       const visit = this.conceptVisits.find(v => v.conceptId === conceptId)
       return ((visit && visit.capture && visit.capture.fields) || []).map(f => ({
         key: f.key,
-        label: [f.tableTitle, f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.label || f.key
+        label: f.labelKey
+          ? this.$t(f.labelKey)
+          : [f.tableTitle, f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.label || f.key
       }))
     },
 

@@ -849,6 +849,11 @@ above the lines, because a run of example rows now stays whole on its column
 eight section tables, all three columns the client's as his p26 asks, each table titled with his
 "Section N" so recurring row names stay distinct on screen, in the plan and in Meeting Review;
 a cell he ruled across columns is one box;
+**Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix and Senge's Circles of
+Causality** are teaching only — his deck gives them no table — and each takes one **Notes** box
+beneath his drawing, printed in the client's plan (`captureNotes`, Mike's ruling 2026-10-02,
+[`strategy-capture-teaching-notes.html`](../mockups/strategy-capture-teaching-notes.html)); "Notes"
+is the one word on it that is ours, and it is a locale string;
 **SWOT Notes** belongs to the `swot-pest` framework, not to any of the 46 concepts.
 
 🔴 **AND THAT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A

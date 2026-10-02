@@ -443,6 +443,9 @@ const SMALL_COMPARISON_GRID = 'small-comparison-grid'
 /** A concept whose capture is a Report Model run inside the card (item 15.23). */
 const MODEL_FORM = 'report-model'
 
+/** A teaching-only concept's single notes box (item 15.22, ruling 6). */
+const NOTES_FORM = 'notes'
+
 /*
  * REPORT_IMPORT_KEY (required above, shared with the screen) is the one session entry a card
  * that brings in a report may save: that the advisor brought it in (item 15.13, Decision D —
@@ -683,6 +686,30 @@ function captureForConcept (concept) {
   if (concept && concept.model) {
     return { supplied: true, form: MODEL_FORM, model: concept.model, fields: [] }
   }
+  // 🔴 A TEACHING-ONLY CONCEPT TAKES ONE NOTES BOX — Mike's ruling 6 of item 15.22, approved
+  // 2026-10-02 (design/mockups/strategy-capture-teaching-notes.html). His deck gives these no
+  // table, so the box carries no guide text and the one word that is ours, its label, is a
+  // locale key for the screens; `label` is the same word for the server's own readers
+  // (Meeting Review places spoken passages by label).
+  if (concept && concept.captureNotes) {
+    return {
+      supplied: true,
+      form: NOTES_FORM,
+      tableForms: [],
+      tableNotes: [],
+      fields: [{
+        key: 'notes',
+        row: 0,
+        column: 0,
+        columnLabel: '',
+        rowLabel: '',
+        example: '',
+        label: 'Notes',
+        labelKey: 'strategyPlanner.capture.notesLabel'
+      }],
+      importReport: null
+    }
+  }
   if (!concept || !concept.captureTemplate) {
     return {
       supplied: false,
@@ -802,6 +829,7 @@ module.exports = {
   PARALLEL_PROMPT_PAIR,
   SMALL_COMPARISON_GRID,
   MODEL_FORM,
+  NOTES_FORM,
   REPORT_IMPORT_KEY,
   TEMPLATE_ALIASES
 }

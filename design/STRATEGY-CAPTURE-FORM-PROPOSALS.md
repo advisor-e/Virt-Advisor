@@ -176,6 +176,10 @@ Scripts — 10 boxes, his five worked rows shown above them. 35 → 36 concepts 
 his eight sections, read off S&M pp27–30 — 58 boxes, his doughnut answers as guide text. 36 → 37
 concepts capture.
 
+**Built 2026-10-02 on ruling 6:** Boston Model, Technology Points, Sigmoid Curve, Risk Reward
+Matrix and Senge's Circles of Causality stay teaching only and each take one notes box, printed in
+the client's plan. 37 → 42 of 48 concepts capture something.
+
 **Not built, and why:**
 - **Sales Process Review's Sales Flowchart** — held by ruling 2.
 - **Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles** — no

@@ -6544,7 +6544,8 @@
     "capture": {
       "noTableMeasured": "There is no fill-in table for this concept yet. Talk it through and record it in your own notes.",
       "teachingNotDrawn": "The diagram from the slide is not on this screen yet — present it from the deck.",
-      "yourExample": "your example"
+      "yourExample": "your example",
+      "notesLabel": "Notes"
     },
     "orgChart": {
       "addRole": "+ Add a role",

@@ -191,10 +191,11 @@ section.scc2
           span.scc2-egtext {{ text }}
           span.scc2-egtag {{ $t('strategyPlanner.capture.yourExample') }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
+          //- A teaching-only topic's notes box carries our one word as a locale key (15.22).
           label.scc2-field-label(
-            v-if="field.rowLabel"
+            v-if="field.rowLabel || field.labelKey"
             :for="inputId(field)"
-          ) {{ field.rowLabel }}
+          ) {{ field.labelKey ? $t(field.labelKey) : field.rowLabel }}
 
           //- 🔴 THE SAME VOICE BAR THE ADVISOR ALREADY USES — Mike, 2026-09-19:
           //- "check the 'i have a client with a problem...' section - i want app user
@@ -927,6 +928,9 @@ export default {
      * @returns {number}
      */
     rowsFor (field) {
+      // A notes box is the whole of the topic's capture, drawn as a page of room (15.22) —
+      // before the blocks' rule, which would size it by an example it does not have.
+      if (this.capture.form === 'notes') { return 8 }
       if (this.rowsByKey[field.key]) { return this.rowsByKey[field.key] }
       // A section table's box is a third of the card wide (Landing Page Review, 15.22), so
       // his longer doughnut answers were cut off at the full-width height.

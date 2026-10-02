@@ -63,8 +63,9 @@ describe('the capture tables are Mike\'s own, and every concept that names one f
 
 describe('a concept with no measured template is told so, never given a borrowed table', () => {
   test('the unmeasured concepts return supplied:false with a reason', () => {
-    // A concept that RUNS A MODEL captures through it (item 15.23) and is covered below.
-    const unmeasured = concepts.filter(c => !c.captureTemplate && !c.model)
+    // A concept that RUNS A MODEL captures through it (item 15.23), and a teaching-only one
+    // takes a notes box (15.22, ruling 6); both are covered below.
+    const unmeasured = concepts.filter(c => !c.captureTemplate && !c.model && !c.captureNotes)
     unmeasured.forEach((c) => {
       const result = forms.captureForConcept(c)
       expect(result.supplied).toBe(false)
@@ -85,6 +86,23 @@ describe('a concept with no measured template is told so, never given a borrowed
       const getConcept = id => concepts.find(x => x.id === id) || null
       expect(forms.hasCaptureField(c.id, 'o1.name', getConcept)).toBe(false)
       expect(forms.hasCaptureField(c.id, 'anything', getConcept)).toBe(false)
+    })
+  })
+
+  test('🔴 a teaching-only topic takes one notes box, and the save guard admits it alone — 15.22 ruling 6', () => {
+    // Mike, 2026-10-02: "yes but a page for notes is a good idea". One box per topic, no
+    // guide text (his deck gives these no example), and nothing else the guard will accept.
+    const withNotes = concepts.filter(c => c.captureNotes)
+    expect(withNotes.map(c => c.id).sort()).toEqual(['boston-model', 'risk-reward-matrix',
+      'senges-circles-of-causality', 'sigmoid-curve', 'technology-points'])
+    const getConcept = id => concepts.find(x => x.id === id) || null
+    withNotes.forEach((c) => {
+      const result = forms.captureForConcept(c)
+      expect(result.supplied).toBe(true)
+      expect(result.form).toBe(forms.NOTES_FORM)
+      expect(result.fields.map(f => [f.key, f.example])).toEqual([['notes', '']])
+      expect(forms.hasCaptureField(c.id, 'notes', getConcept)).toBe(true)
+      expect(forms.hasCaptureField(c.id, 't0r1c1', getConcept)).toBe(false)
     })
   })
 
@@ -867,7 +885,7 @@ describe('Landing Page Review captures every cell of his eight sections', () => 
     expect(new Set(labels).size).toBe(labels.length)
   })
 
-  test('his two notes above Section 1 are shown, never boxes', () => {
+  test('his two notes above Section 1 are shown, never boxes, and are his words', () => {
     expect(capture.tableNotes[0]).toHaveLength(2)
     expect(capture.fields.some(f => /Arrival Assumption|First 7 secs/.test(f.example + f.rowLabel))).toBe(false)
   })
