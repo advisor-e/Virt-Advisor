@@ -58,7 +58,10 @@ const WORD_SHAPES = [...QUESTION_SHEETS, ...NAMED_ROW_GRIDS]
  * A card of TWO forms, each part naming its own — item 15.28. Its shape is asserted in its
  * own test below, because neither of the three shapes' rules fits the whole of it.
  */
-const PART_CARDS = ['Alignment Statements']
+const PART_CARDS = ['Alignment Statements',
+  // Eight section tables, two to a page (item 15.22); its shape is asserted in
+  // strategyCaptureForms.test.js, where his boxes are counted off these tables.
+  'Designing Your Landing Page']
 
 /** The pages a reader entry reads, in order, whichever way the entry names them. */
 const pagesOf = p => (p.parts ? p.parts.map(part => part.page) : (p.pages || [p.page]))

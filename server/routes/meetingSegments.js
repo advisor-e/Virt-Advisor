@@ -228,7 +228,8 @@ const wordsJobs = new Map()
 
 /** The label a box shows on its own card, from any of the three places a box can come from. */
 function labelOfField (f) {
-  return [f.rowLabel, f.columnLabel, f.label]
+  // `tableTitle` first: Landing Page Review's row names recur in five sections (15.22).
+  return [f.tableTitle, f.rowLabel, f.columnLabel, f.label]
     .map(l => (typeof l === 'string' ? l.trim() : ''))
     .filter(Boolean)
     .join(' · ')

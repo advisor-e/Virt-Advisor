@@ -36,7 +36,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | # | Item | Score | Blocks | Waiting on | Active on |
 | --- | --- | --- | --- | --- | --- |
 | 1 | **15.21** The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes ⚠ *not yet ranked by Mike* | 3 | — | Outside | — |
-| 2 | **15.22** Six Strategy Planner topics and Sales Process Review's flowchart need Mike's ruling to capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-10-02 |
+| 2 | **15.22** Five Strategy Planner topics and Sales Process Review's flowchart need Mike's ruling to capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-10-02 |
 | 3 | **13.6** Translations mistake business words ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 4 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 5 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-30 |

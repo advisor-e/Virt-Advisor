@@ -891,9 +891,9 @@
       "conceptSummary": "This framework defines the reader’s logic and the landing page logic, to help you define the sequence of text, graphics & widgets.",
       "helpsClientTo": "Build an effective landing page to convert more of your marketing leads into sales opportunity.",
       "teachingForm": "grouped-table",
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Designing Your Landing Page",
+      "captureFormBasis": "measured"
     },
     {
       "id": "sparketing-friction-review",

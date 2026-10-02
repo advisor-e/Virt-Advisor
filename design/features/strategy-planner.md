@@ -844,6 +844,11 @@ concept, the owner's sales process to their customers — with all five of his w
 above the lines, because a run of example rows now stays whole on its column
 (`bandExamples`, [`strategy-capture-tension-point-scripts.html`](../mockups/strategy-capture-tension-point-scripts.html));
 **Sales Flowchart**, its other table, is still held by Mike;
+**(Inbound) Landing Page Review** captures from its own deck pages (S&M pp27–30, item 15.22,
+[`strategy-capture-landing-page-review.html`](../mockups/strategy-capture-landing-page-review.html)) —
+eight section tables, all three columns the client's as his p26 asks, each table titled with his
+"Section N" so recurring row names stay distinct on screen, in the plan and in Meeting Review;
+a cell he ruled across columns is one box;
 **SWOT Notes** belongs to the `swot-pest` framework, not to any of the 46 concepts.
 
 🔴 **AND THAT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A

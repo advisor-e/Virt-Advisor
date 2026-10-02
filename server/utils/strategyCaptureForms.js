@@ -630,6 +630,11 @@ function fieldsOfTable (table, tableIndex, form) {
         fields[fields.length - 1].bandExamples = pendingExamples[c]
         delete pendingExamples[c]
       }
+      // A box ruled across the columns beside it — Landing Page Review's Graphics Table
+      // (item 15.22) — is one box as wide as his cell, never one plus empty strips.
+      let span = 1
+      while (row.cells[c + span] && row.cells[c + span].across) { span++ }
+      if (span > 1) { fields[fields.length - 1].span = span }
     })
   })
 
@@ -726,7 +731,12 @@ function captureForConcept (concept) {
   const fields = []
   const tableForms = template.tables.map(table => table.form || concept.captureForm || '')
   template.tables.forEach((table, i) => {
-    fieldsOfTable(table, i, tableForms[i]).forEach(f => fields.push(f))
+    fieldsOfTable(table, i, tableForms[i]).forEach((f) => {
+      // His "Section N", where one card holds several tables whose row names recur —
+      // Landing Page Review's Title appears in five sections (item 15.22).
+      if (table.title) { f.tableTitle = table.title }
+      fields.push(f)
+    })
   })
 
   return {
@@ -735,6 +745,8 @@ function captureForConcept (concept) {
     file: template.file,
     form: concept.captureForm || '',
     tableForms,
+    // His notes above a table, one list per table — shown, never boxes.
+    tableNotes: template.tables.map(table => table.notes || []),
     fields,
     // The saved report this card may bring in above its own boxes (item 15.13), or null.
     importReport: concept.importReport || null

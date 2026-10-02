@@ -98,7 +98,7 @@
     },
     {
       "ref": "15.22",
-      "name": "Six Strategy Planner topics and Sales Process Review's flowchart need Mike's ruling to capture",
+      "name": "Five Strategy Planner topics and Sales Process Review's flowchart need Mike's ruling to capture",
       "rankedByMike": false,
       "kind": "feature",
       "score": 3,
@@ -106,7 +106,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Six of the 48 concepts still teach and capture nothing: (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
+      "why": "Five of the 48 concepts still teach and capture nothing, all with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
       "risk": "An advisor running these topics has nowhere to record what the client said, so it does not reach the plan or the next session. Choosing a form for them is Mike's decision (census section 4), so nothing moves until he rules.",
       "askedBy": {
         "who": "Mike",
@@ -114,8 +114,8 @@
         "detail": "2026-09-24 - closing 15.16: \"build as many as you can with what you have - we can pick up the rest later\", and on Sales Process Review, \"move forward without it for now - we can pick it up later\". Filed on his yes at shutdown the same day."
       },
       "touches": "design/STRATEGY-CAPTURE-FORM-PROPOSALS.md sections 2 and 5-6, where each proposal and the reason it was not built are recorded; data/strategy-frameworks.json captureForm on the seven; scripts/read-deck-capture-tables.js if a deck page is read.",
-      "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - BUILT 2026-10-02 into Tension Point Scripts (p50), all five of his examples shown; its Sales Flowchart (p47) is still held, and the reader gives it 3-7 boxes where his page has 15 steps. (2) Landing Page Review - pp27-30 are a finished worked example with no blank copy; which column is the client's is his call. (3) The five with no capture page are proposed as teaching only, because any box label would be written by us.",
-      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown. MIKE'S CALL 2026-10-02: PROCEED - Tension Point Scripts built (design/mockups/strategy-capture-tension-point-scripts.html); the Sales Flowchart, Landing Page Review and the five teaching-only rulings remain.",
+      "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - BUILT 2026-10-02 into Tension Point Scripts (p50), all five of his examples shown; its Sales Flowchart (p47) is still held, and the reader gives it 3-7 boxes where his page has 15 steps. (2) Landing Page Review - BUILT 2026-10-02 from pp27-30, all three columns the client's, 58 boxes. (3) The five with no capture page are proposed as teaching only, because any box label would be written by us.",
+      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown. MIKE'S CALL 2026-10-02: PROCEED - Tension Point Scripts and Landing Page Review built (design/mockups/strategy-capture-tension-point-scripts.html, strategy-capture-landing-page-review.html); the Sales Flowchart and the five teaching-only rulings remain.",
       "activeOn": {
         "machine": "laptop",
         "since": "2026-10-02"
