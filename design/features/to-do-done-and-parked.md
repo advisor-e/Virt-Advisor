@@ -392,6 +392,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.18 · Discover's instructions promised a coaching reference, a diagnostic tree and template
+summaries it does not receive.** ✅ **Closed 2026-10-02 by Mike ("yes" to marking it done).**
+
+- **What was done:** `data/prompts/discover.txt` now promises only what the engine sends - the
+  template list, this firm's own coaching notes and method, and the calculation models. A vague
+  search asks one question; "How it works" draws on the template's purpose and its summary where
+  one is provided. His wording, approved 2026-10-02:
+  [`DISCOVER-WORDING-7.18.md`](../DISCOVER-WORDING-7.18.md).
+- **Fixed on the way:** template summaries reach the AI under master-library titles only
+  (`e5f53061`). Sending them from Discover's first message was measured, gave no gain, and was
+  taken out.
+- **What proves it:** the answer bench, Discover only, against the two runs the wording file named.
+  Point 3, "Reasons match the tools": 29 and 33 before, 32 and 29 after - within the 4-point spread
+  between two identical runs, so not worse, and kept. Names real 49, 50 before and 48, 51 after;
+  crisis first 4/4 throughout; the second run passed all 55 code checks. The before runs predate
+  `e5f53061`, so they were not made back to back; with no score moving, nothing turns on it. Runs:
+  `design/answer-bench-runs/*-718-*.json`.
+- **The gain is accuracy, not a score:** the AI is no longer told to use material it never gets.
+
 **7.19 · Build a bench that scores the written answer the real advisory prompt produces.**
 ✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
 

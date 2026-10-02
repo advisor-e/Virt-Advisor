@@ -61,6 +61,15 @@ calculator, not a template. `server/utils/templateHeadingCheck.js`. A name is re
 bold marks, so a title with a spaced dash in it survives, and the app's own warning note is never
 read as a name.
 
+**A template named nearly right reaches the advisor in the library's own spelling**
+(`useLibraryTitles`, 2026-10-02). Under the two template headings, a bold name that is a near
+miss of a real title — punctuation, a plural, or a number written as a digit, so "9 Growth
+Aspects" is **Nine Growth Aspects** — is replaced with the title before display, the video
+sentence and the record. No extra AI call. Left as written: invented names, anything in the model
+block, and a calculator name on a line carrying its own page path (4.33's pairing). Each swap is
+logged on the server. Measured on the eight saved 7.18 runs: 24 near misses became 1, an unbolded
+name in brackets.
+
 ⚠ **That check recognises a model by its EXACT catalogue name or route.** Measured 2026-09-17
 against the shipped catalogues, the three "model named but no page path" cases are three
 different things, not one:

@@ -37,7 +37,7 @@ const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { logUnverifiedQuotes, appendCorrectionNote } = require('../server/utils/fabricationWatch')
 const { resolveRecommendedTemplatesWithSource, stripTemplateMarker, TEMPLATE_MARK_OPEN } = require('../server/utils/tierLookup')
 const { resolveModelChoiceWithSource, stripModelMarker, MODEL_MARK_OPEN } = require('../server/utils/modelChoiceScan')
-const { checkTemplateHeadings, buildRetryInstruction, buildAdvisorNote } = require('../server/utils/templateHeadingCheck')
+const { checkTemplateHeadings, buildRetryInstruction, buildAdvisorNote, useLibraryTitles } = require('../server/utils/templateHeadingCheck')
 const { logVASession, logModelChoice } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
@@ -4346,7 +4346,13 @@ async function handleQuery (rawBody, res, identity) {
         const corrected = mode === 'discover'
           ? await correctTemplateHeadings(_mainBuffer, _mainMessages, model)
           : { answer: _mainBuffer, unresolved: [] }
-        const answer = corrected.answer
+        // A template named nearly right reaches the advisor in the library's own spelling,
+        // before the video injector, so its tutorial sentence finds the real title too.
+        const titled = mode === 'discover' ? useLibraryTitles(corrected.answer) : { text: corrected.answer, renamed: [] }
+        if (titled.renamed.length) {
+          console.log('[advisor] library titles: ' + titled.renamed.map(r => `"${r.from}" -> "${r.to}"`).join(', '))
+        }
+        const answer = titled.text
         // Tier 2: watch for invented quoted wording — a hit appends the
         // approved correction note (a streamed reply can't be unprinted).
         const _mainFlagged = logUnverifiedQuotes(mode, answer, _mainMessages)

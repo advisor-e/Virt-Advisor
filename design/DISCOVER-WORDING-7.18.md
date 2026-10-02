@@ -1,7 +1,8 @@
 # Discover's instructions — wording for item 7.18
 
-**Status: DRAFT, for Mike's approval.** Nothing in `data/prompts/discover.txt` changes until he
-approves the words below exactly as written.
+**Status: APPROVED by Mike 2026-10-02 and applied to `data/prompts/discover.txt` the same day.**
+Measured as below and kept; the scores are on the closure of 7.18 in
+[`features/to-do-done-and-parked.md`](features/to-do-done-and-parked.md).
 
 **Why.** Discover's instructions tell the AI to draw on a coaching reference and a Diagnostic
 Logic Tree it never receives, and to write "How it works" from template summaries its first

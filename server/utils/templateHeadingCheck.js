@@ -196,6 +196,49 @@ function buildRetryInstruction (offenders) {
 }
 
 /**
+ * Put the library's own spelling on a template the AI named nearly right.
+ *
+ * `nearestTemplateTitle` already knew "High-Level Budget" is the template "High Level
+ * Budget", but only used that to stop the name being flagged — the advisor still read the
+ * AI's spelling and searched Advisor-e for it. Measured 2026-10-02: one to five such names
+ * in every 51 Discover answers, "9 Growth Aspects" for "Nine Growth Aspects" among them.
+ *
+ * Only the bold name that opens a line under a template heading is changed. The same name
+ * in the model block is the calculator, used correctly, and keeps its own spelling.
+ *
+ * ⚠ A name that is also a calculator, on a line that sends the advisor to that
+ * calculator's page, is left as written: there the AI means the calculator, and relabelling
+ * it as a template would hide the fault `checkTemplateHeadings` and the video injector's
+ * `looksLikeCalculatorReference` exist to catch. Same pairing, item 4.33.
+ *
+ * @param {string} text - the answer as the advisor would read it (markers stripped)
+ * @returns {{text: string, renamed: Array<{from: string, to: string}>}}
+ */
+function useLibraryTitles (text) {
+  if (typeof text !== 'string' || !text) { return { text, renamed: [] } }
+  const renamed = []
+  let heading = null
+  const lines = text.split('\n').map((line) => {
+    const asHeading = line.match(HEADING_LINE)
+    if (asHeading) {
+      heading = TEMPLATE_HEADINGS.includes(_bare(asHeading[1]).toLowerCase())
+      return line
+    }
+    if (!heading || ADVISOR_NOTE_LINE.test(line)) { return line }
+    const m = line.match(BOLD_NAME_LINE)
+    const name = m && _bare(m[1])
+    if (!name || isKnownTemplate(name)) { return line }
+    const title = nearestTemplateTitle(name)
+    if (!title) { return line }
+    const route = resolveModelToken(name)
+    if (route && line.includes(route)) { return line }
+    if (!renamed.some(r => r.from === name)) { renamed.push({ from: name, to: title }) }
+    return line.replace('**' + m[1] + '**', () => '**' + title + '**')
+  })
+  return { text: lines.join('\n'), renamed }
+}
+
+/**
  * The note the advisor reads when the AI has ignored the correction twice.
  *
  * 🔴 WORDING APPROVED BY MIKE, 2026-09-16. It is load-bearing: it is the only thing
@@ -223,5 +266,6 @@ module.exports = {
   namesUnderTemplateHeadings,
   buildRetryInstruction,
   buildAdvisorNote,
+  useLibraryTitles,
   TEMPLATE_HEADINGS
 }

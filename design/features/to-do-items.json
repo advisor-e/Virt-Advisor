@@ -315,31 +315,6 @@
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.18",
-      "name": "Discover's instructions promise a coaching reference, a diagnostic tree and template summaries it does not receive",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "discover.txt tells the AI to draw on three things the engine never sends on the first turn, while its format demands a Best match every time - the conditions under which a model invents.",
-      "risk": "An advisor's first Discover answer is written without the material its instructions name, so its reasoning and How-it-works lines may be guessed. The prompt is authored content, so the wording is Mike's call, and the change needs the answer-quality bench to prove it helps.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found in the digest-and-addendum review Mike asked for; filed on his yes. A defect we found, not a feature."
-      },
-      "touches": "data/prompts/discover.txt lines 7, 8, 17 and 29.",
-      "note": "WHAT REMAINS: put Mike's APPROVED wording (2026-10-02, design/DISCOVER-WORDING-7.18.md) into discover.txt and measure it - two bench runs against 29 and 33 on point 3; reverted if worse. Blocked: OpenAI refused every call with insufficient_quota on 2026-10-02, so it waits on Mike restoring the account's credit. SETTLED 2026-10-02: sending summaries from Discover's first message gave no gain on the bench (point 3: 29 and 33 before, 31 and 30 after) and was taken out. Fixed on the way: summaries now reach the AI under master-library titles only, so it stops offering templates that do not exist. Runs: design/answer-bench-runs/*-718-*.json.",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-02: PROCEED - only the discover.txt wording remains.",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-10-02"
-      }
-    },
-    {
       "ref": "7.20",
       "name": "Send the AI only the context the advisor's topic needs",
       "rankedByMike": false,
@@ -631,6 +606,27 @@
       },
       "touches": "server/utils/summaries.js withLibraryTitles; server/utils/tierLookup.js isKnownTemplate and nearestTemplateTitle; server/utils/templateLibrary.js, which resolves the library per scope; their callers in server/advisorEngine.js and server/courseEngine.js.",
       "note": "Needs a design first: the summaries load once for the whole app, while the library resolves per firm. Measure: a test that renames a template in an uploaded library and proves the AI is shown the new title.",
+      "comment": "2026-10-02 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.30",
+      "name": "About one Discover answer in 51 names a template that does not exist",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "Each Discover bench run on 2026-10-02 had one invented name, such as \"Management Reporting Basics\". The checks act only on calculators and near misses, so it reaches the advisor as written.",
+      "risk": "The advisor goes to Advisor-e for a template that is not there, possibly in front of the client. What should happen instead is Mike's call: ask the AI once more (a wait of seconds, as the 7.7 retry costs), drop the name, or add a note under it.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-02 - found in the bench runs that proved the library-spelling fix; filed on Mike's yes. A defect we found."
+      },
+      "touches": "server/utils/templateHeadingCheck.js checkTemplateHeadings and its retry instruction; correctTemplateHeadings in server/advisorEngine.js; tests/unit/templateHeadingCheck.test.js, whose 'leaves an unrecognised name alone' test pins today's deliberate behaviour and would change with it.",
+      "note": "Deliberately narrow today (item 7.7): the check reads AI prose, and a wider net could fire on a misread heading. Measure: the answer bench's namesExist check, counting invented names only - the two answers per run that ask a clarifying question and name nothing fail that check by design and are not this fault. Runs: design/answer-bench-runs/2026-10-02-fafce7d6-library-titles-*.json.",
       "comment": "2026-10-02 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
