@@ -771,7 +771,7 @@ describe('the named-field stack — his name, his worked example, one box', () =
 // answer is refused or a question is gone.
 describe('his worked example rides on a column, never becomes a box', () => {
   const captureOf = id => forms.captureForConcept(concepts.find(c => c.id === id))
-  const examplesOf = capture => capture.fields.filter(f => f.bandExample)
+  const examplesOf = capture => capture.fields.filter(f => f.bandExamples)
 
   test('Insights Summary and Progression of Economic Value carry every example he wrote', () => {
     const insights = captureOf('review-internal-insights-data')
@@ -819,6 +819,22 @@ describe('his worked example rides on a column, never becomes a box', () => {
       .filter(c => examplesOf(forms.captureForConcept(c)).length)
       .map(c => c.id)
       .sort()
-    expect(withExamples).toEqual(['progression-of-economic-value', 'review-internal-insights-data'])
+    expect(withExamples).toEqual([
+      'progression-of-economic-value', 'review-internal-insights-data', 'sales-process-review'])
+  })
+
+  test('a run of his worked rows is kept whole, each on its own column', () => {
+    // Tension Point Scripts writes five worked rows before its lines (item 15.22, approved
+    // 2026-10-02). Keeping only the first dropped four of his answers without a trace.
+    const rows = captureTables.templates['Tension Point Scripts'].tables[0].rows
+    const worked = rows.filter((r, i) => i > 0 && r.cells.every(c => c.text && !c.blank))
+    const capture = captureOf('sales-process-review')
+    const carried = examplesOf(capture)
+    expect(carried.map(f => f.column)).toEqual([0, 1])
+    carried.forEach((f) => {
+      expect(f.bandExamples).toEqual(worked.map(r => r.cells[f.column].text))
+    })
+    // His five blank lines, two boxes each: the examples add none.
+    expect(capture.fields.length).toBe(rows.filter(r => r.cells.every(c => c.blank)).length * 2)
   })
 })

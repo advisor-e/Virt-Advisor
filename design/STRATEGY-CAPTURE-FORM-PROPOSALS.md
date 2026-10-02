@@ -169,8 +169,11 @@ one list of eight. Each list now sits under its own column, and the printed plan
 on every line — *"Our 'Upstream' Revenue Opportunities · Our Thoughts to Support These Ideas"*,
 his two headings joined, no word of ours.
 
+**Built 2026-10-02 on rulings 2a and 2b:** Sales Process Review captures into Tension Point
+Scripts — 10 boxes, his five worked rows shown above them. 35 → 36 concepts capture.
+
 **Not built, and why:**
-- **Sales Process Review** — held by ruling 2.
+- **Sales Process Review's Sales Flowchart** — held by ruling 2.
 - **(Inbound) Landing Page Review** — his pages are a finished worked example with no blank
   copy; turning it into a form needs his ruling on which column is the client's.
 - **Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles** — no
@@ -183,4 +186,6 @@ his two headings joined, no word of ours.
 | 1 | Market Diffusion Theory, Product Life Cycle | ✅ **Yes** — both capture into Curve & Cycle Notes (p29), one table serving both | 2026-09-24 |
 | 2 | Sales Process Review | ⏸ **Held** — *"confusion exists over the clients sales process - move forward without it for now - we can pick it up later"*. Taken to cover both sheets, Sales Flowchart and Tension Point Scripts. | 2026-09-24 |
 | 3 | Vertical Integration, Horizontal Integration, Revenue Streams, E. Deming's Volatility Theory | ✅ **Yes** — carried by 15.16, their tables read off his slides (SO2 pp24, 34, 37) by the deck-page route Branding uses, not drawn over the slide as 15.11 proposed | 2026-09-24 |
+| 2a | Sales Process Review — Tension Point Scripts | ✅ **Yes** — captures into his Tension Point Scripts table (S&M p50): the client's tension points, each with its scripted response. Put to him after the code was read and the concept confirmed **client-facing** — the owner's own sales process to their customers, not the advisor's to a client (concept `helpsClientTo`, deck pp43–50, both tables' worked examples). The Sales Flowchart half stays held under ruling 2. | 2026-10-02 |
+| 2b | Tension Point Scripts — his five worked examples | ✅ **Yes** — all five of his worked tension points and scripted responses show above the boxes as greyed *your example* lines, drawn as a mockup for his approval first. As read on 2026-10-02 the reader kept only the first (the phone enquiry) and dropped the other four, because 15.18's rule keeps one example row under a heading. | 2026-10-02 |
 | 4 | Every proposal in §2 not ruled above | **Build** — *"build as many as you can with what you have - we can pick up the rest later"*, given after rulings 1 and 3. Read as authority to build the proposals as drafted wherever his material supplies the table; anything that cannot be built from his material is reported back, not invented. | 2026-09-24 |

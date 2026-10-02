@@ -98,7 +98,7 @@
     },
     {
       "ref": "15.22",
-      "name": "Seven Strategy Planner topics still need Mike's ruling before they can capture",
+      "name": "Six Strategy Planner topics and Sales Process Review's flowchart need Mike's ruling to capture",
       "rankedByMike": false,
       "kind": "feature",
       "score": 3,
@@ -106,7 +106,7 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Seven of the 48 concepts still teach and capture nothing: Sales Process Review, (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
+      "why": "Six of the 48 concepts still teach and capture nothing: (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
       "risk": "An advisor running these topics has nowhere to record what the client said, so it does not reach the plan or the next session. Choosing a form for them is Mike's decision (census section 4), so nothing moves until he rules.",
       "askedBy": {
         "who": "Mike",
@@ -114,8 +114,12 @@
         "detail": "2026-09-24 - closing 15.16: \"build as many as you can with what you have - we can pick up the rest later\", and on Sales Process Review, \"move forward without it for now - we can pick it up later\". Filed on his yes at shutdown the same day."
       },
       "touches": "design/STRATEGY-CAPTURE-FORM-PROPOSALS.md sections 2 and 5-6, where each proposal and the reason it was not built are recorded; data/strategy-frameworks.json captureForm on the seven; scripts/read-deck-capture-tables.js if a deck page is read.",
-      "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - his Sales Flowchart (p47) and Tension Point Scripts (p50) are both its tables; held because of confusion over the client's sales process, and the Sales Flowchart template reads as 5 boxes where his page has 15 steps. (2) Landing Page Review - pp27-30 are a finished worked example with no blank copy; which column is the client's is his call. (3) The five with no capture page are proposed as teaching only, because any box label would be written by us.",
-      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown, so the remainder of 15.16 has a place on the list."
+      "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - BUILT 2026-10-02 into Tension Point Scripts (p50), all five of his examples shown; its Sales Flowchart (p47) is still held, and the reader gives it 3-7 boxes where his page has 15 steps. (2) Landing Page Review - pp27-30 are a finished worked example with no blank copy; which column is the client's is his call. (3) The five with no capture page are proposed as teaching only, because any box label would be written by us.",
+      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown. MIKE'S CALL 2026-10-02: PROCEED - Tension Point Scripts built (design/mockups/strategy-capture-tension-point-scripts.html); the Sales Flowchart, Landing Page Review and the five teaching-only rulings remain.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-10-02"
+      }
     },
     {
       "ref": "13.6",
@@ -251,27 +255,7 @@
       "note": "Measured 2026-10-01: first Discover turn about 24,000 tokens, worst case about 45,000; client about 25,000-34,000; Learn about 31,000-46,000. Each model's useWhen and answers already allow topic filtering. Prove it on the answer bench (7.19, built 2026-10-01): a before and an after run, back to back. The client recommendation receives the advisor profile twice (the brief's note and the context block); removing one copy is part of this item, measured on the bench.",
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
-    {
-      "ref": "7.21",
-      "name": "Earlier messages, including the AI's own recommendation, are cut to 2,000 characters each turn",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Every earlier message is trimmed to 2,000 characters before it goes back to the AI, and a full recommendation runs far longer, so a follow-up is answered without most of what was advised.",
-      "risk": "Follow-up answers may contradict or forget the recommendation. The limit is a safety check on what the browser sends, so the fix needs design - for example keeping the AI's replies on the server - not just a bigger number. How often it bites is unmeasured.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found in the digest-and-addendum review; filed on Mike's instruction to record every suggestion. A defect we found."
-      },
-      "touches": "server/utils/sanitiseInput.js lines 11 and 59-63; server/advisorEngine.js history replay; the 2-hour in-memory session store (about 376-413); a rolling conversation summary as the alternative to full replay.",
-      "note": "Confirmed in code 2026-10-01: MAX_FIELD 2000 applies to assistant turns too. Recommendation replies allow up to 2,500 tokens, roughly 10,000 characters. Measure on the answer bench (7.19, built 2026-10-01): a before and an after run, back to back.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
+
     {
       "ref": "7.22",
       "name": "Test whether a stronger model should write the main advisory answer",
@@ -462,27 +446,6 @@
       "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.27",
-      "name": "Every advisor may share one usage limit, because the backend sees only the Nuxt server's address",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The advisor chat allows 30 requests a minute and courses 15, counted per address. Every request reaches the backend through the Nuxt server, so unless TRUST_PROXY is on, all users share one count.",
-      "risk": "In production a busy firm would see \"Rate limit exceeded\" once the whole deployment passes 30 advisor messages in a minute. UAT, with a few testers, would never show it. Whether TRUST_PROXY is set in UAT or production is the master team's to say.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found checking a sentence moved out of 7.23; filed on Mike's yes. A defect we found."
-      },
-      "touches": "server/utils/rateLimit.js clientIp; its callers in server/advisorEngine.js (30), server/courseEngine.js (15), server/routes/mentor.js, outcomeLearning.js, promptCheck.js; server-middleware/advisor.js and course.js, which forward from the Nuxt server; firmAuth, which already knows the signed-in advisor.",
-      "note": "Likely fix: count per signed-in advisor rather than per address. Needs a small design first. Not proven in a deployed environment.",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "7.28",
       "name": "In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool",
       "rankedByMike": false,
@@ -586,6 +549,27 @@
       "touches": "normalise in server/utils/meetingReports.js and every caller: Meeting Review's quote verification, Wordsmith's checkDraft and the Wordsmith Lab.",
       "note": "MEASURE FIRST, on non-English transcripts: does it ever let a wrong word through? Any change must not loosen Meeting Review's checks. Wordsmith's invented-name check already reads accented letters (wordsOf, 13.7).",
       "comment": "2026-10-02 - filed on Mike's yes at shutdown. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.33",
+      "name": "A planner session holding a removed concept can never be saved again",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Mike",
+      "why": "putScope refuses any id it no longer knows, so a session saved before a concept was removed fails every save, and the advisor cannot untick a concept the screen no longer shows.",
+      "risk": "The advisor sees 'did not save' on every change with no way out, and the scope count overshoots ('52 of 50 included'). Today: sessions saved before 15.17 removed eight ids on 2026-09-23 - 47 of 192 dev sessions. Later: any concept removed, possibly a firm's imported one (15.20, unchecked).",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-02 - found walking Tension Point Scripts (15.22) on session 79; filed on Mike's yes."
+      },
+      "touches": "server/routes/strategyPlanner.js putScope (the UNKNOWN_FRAMEWORK guard); pages/strategy-planner.vue saveScope and session load; components/strategy/StrategyScopeMenu.vue includedOf count.",
+      "note": "NEEDS MIKE FIRST: when a session holds a concept that no longer exists, is it dropped quietly or is the advisor told which one was taken out - and if told, in what words. Then check whether UAT holds any such session, and whether a firm can delete an imported concept.",
+      "comment": "2026-10-02 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

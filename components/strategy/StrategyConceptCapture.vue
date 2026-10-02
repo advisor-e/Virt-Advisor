@@ -137,9 +137,10 @@ section.scc2
       tbody
         //- His worked example under his headings, shown and never typed into — item 15.18,
         //- design/mockups/strategy-capture-worked-example.html, approved 2026-10-02.
-        tr.scc2-eg-row(v-if="gridExamples.some(text => text)")
+        //- A run of them is one row each — Tension Point Scripts has five (item 15.22).
+        tr.scc2-eg-row(v-for="(exampleRow, r) in gridExampleRows" :key="'egr' + r")
           td.scc2-attr(v-if="gridHasRowNames") &nbsp;
-          td.scc2-eg(v-for="(text, i) in gridExamples" :key="'eg' + i")
+          td.scc2-eg(v-for="(text, i) in exampleRow" :key="'eg' + r + '-' + i")
             template(v-if="text")
               span.scc2-egtext {{ text }}
               span.scc2-egtag {{ $t('strategyPlanner.capture.yourExample') }}
@@ -176,8 +177,8 @@ section.scc2
         p.scc2-block-label(v-if="block.label")
           | {{ block.label }}
           span.scc2-stamp(v-if="stampOf(block)") {{ stampOf(block) }}
-        p.scc2-eg(v-if="exampleOf(block)")
-          span.scc2-egtext {{ exampleOf(block) }}
+        p.scc2-eg(v-for="(text, i) in examplesOf(block)" :key="block.key + '-eg' + i")
+          span.scc2-egtext {{ text }}
           span.scc2-egtag {{ $t('strategyPlanner.capture.yourExample') }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
           label.scc2-field-label(
@@ -694,14 +695,16 @@ export default {
     },
 
     /**
-     * His worked example for each grid column, in `gridColumns` order — '' where a column
-     * has none. Carried on the column's first box as `bandExample` (item 15.18).
+     * His worked examples as rows of the grid, each row in `gridColumns` order — '' where a
+     * column has none. Carried on the column's first box as `bandExamples` (items 15.18, 15.22).
      *
-     * @returns {string[]}
+     * @returns {string[][]}
      */
-    gridExamples () {
-      return this.gridColumns.map(col =>
-        (this.visitFields.find(f => f.column === col.column && f.bandExample) || {}).bandExample || '')
+    gridExampleRows () {
+      const perColumn = this.gridColumns.map(col =>
+        (this.visitFields.find(f => f.column === col.column && f.bandExamples) || {}).bandExamples || [])
+      const depth = Math.max(0, ...perColumn.map(list => list.length))
+      return Array.from({ length: depth }, (_, r) => perColumn.map(list => list[r] || ''))
     },
 
     /**
@@ -785,13 +788,14 @@ export default {
     },
 
     /**
-     * His worked example for a block — shown above its lines, never typed into (item 15.18).
-     * @param {{fields: Array<{bandExample: string=}>}} block
-     * @returns {string} the example, or '' where his table gives none
+     * His worked examples for a block — shown above its lines, never typed into (items
+     * 15.18, 15.22).
+     * @param {{fields: Array<{bandExamples: string[]=}>}} block
+     * @returns {string[]} the examples, empty where his table gives none
      */
-    exampleOf (block) {
-      const field = (block.fields || []).find(f => f.bandExample)
-      return field ? field.bandExample : ''
+    examplesOf (block) {
+      const field = (block.fields || []).find(f => f.bandExamples)
+      return field ? field.bandExamples : []
     },
 
     /**

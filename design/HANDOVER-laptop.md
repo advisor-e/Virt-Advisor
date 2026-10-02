@@ -9,23 +9,24 @@
 
 ---
 
-## 2026-10-02 (afternoon) · Laptop · branch `feat/advisor-progress`
+## 2026-10-02 (evening) · Laptop · branch `feat/advisor-progress`
 
-**16 ahead, 0 behind master after this commit — all of it in open PR #153 (title renamed to list 7.18 and 7.24).
-Suite green: 694 suites / 15,079 tests on Node 14.15.**
+**6 ahead of master after this commit, 0 behind; suite green 695 suites / 15,075 tests on Node 14.15.**
+7.27's two commits are pushed; the rest go up with this note.
 
-**7.18 done.** Credit restored; Mike's approved Discover wording is in `discover.txt`, measured
-(point 3: 32 and 29 against 29 and 33) and kept. On the way: a template named nearly right
-("High-Level Budget", "9 Growth Aspects") now reaches the advisor in the library's spelling —
-`useLibraryTitles`, no extra AI call; near misses 3 and 1 per run → 0 and 0. **7.30 filed:**
-about one Discover answer in 51 still names a template that does not exist.
+**7.27 done.** Usage limits count each signed-in person within their firm, not the network address
+(`server/utils/rateLimit.js`); limits unchanged. Measured: 10 of 40 refused → 0.
 
-**15.32 done.** A Strategy Planner session is written only under its own client: switching
-client starts the screen clean, and the server refuses a session/client mismatch on every write.
+**7.21 done.** A client-chat follow-up sends the AI its own full reply from the server's copy
+(`server/utils/followUpReplies.js`); a session opens only for the firm and advisor who started it.
+Measured: 51 of 51 bench recommendations were cut, all now reach the AI whole.
+Both are principles P11 and P12 in `advisory-engine.md`.
 
-**FOR THE DESKTOP:** shared files changed — `pages/strategy-planner.vue` (the clientId watcher,
-`reopenSession`, every session write; not the time stamps you changed), `server/routes/strategyPlanner.js`,
-`server/utils/tierLookup.js` (number words in `_shape`), `server/utils/templateHeadingCheck.js`,
-`server/advisorEngine.js` (one call in the Discover path). Every session write now needs `clientId`.
+**FOR THE DESKTOP:**
+
+- Shared file changed: `server/advisorEngine.js` — the session store (`sessionCreate`, `sessionSave`
+  now take an owner), the start of `handleQuery`, and two lines where replies are sent.
+- `tests/unit/promptCheck.routes.test.js` now varies the manager, not the address.
+- `design/features/README.md` row 7 carries two new design files.
 
 **Still in hand here:** 8.6 and 15.31, both waiting on Mike.

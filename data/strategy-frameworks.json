@@ -989,9 +989,9 @@
       "conceptSummary": "These templates encourage a review of the sales process from both customer and salesperson perspectives.",
       "helpsClientTo": "Know what to say and when to ‘say it’ to help a customer choose to do business with you.",
       "teachingForm": null,
-      "captureForm": null,
-      "captureTemplate": null,
-      "captureFormBasis": "unmeasured"
+      "captureForm": "named-rows-staged-columns",
+      "captureTemplate": "Tension Point Scripts",
+      "captureFormBasis": "measured"
     },
     {
       "id": "drafting-tender-proposals",

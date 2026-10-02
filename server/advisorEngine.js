@@ -29,6 +29,7 @@ const { loadFirmDomainSupport, loadFirmLogicTrees, readForSession } = require('.
 const { loadResolvedGuideOverrides } = require('../server/utils/methodGuideConfig')
 const { formatEngagementTypeForPrompt, GUIDES } = require('../server/utils/methodGuides')
 const { sanitiseInput } = require('../server/utils/sanitiseInput')
+const { rememberReply, restoreFullReplies, sessionOwnerKey } = require('../server/utils/followUpReplies')
 const { nameForLanguageCode } = require('../server/utils/languageName')
 const { fenceUntrusted } = require('../server/utils/promptSafety')
 const { sendError } = require('../server/utils/sendError')
@@ -377,10 +378,20 @@ const checkAdvisorLimit = createLimiter(30)
 const SESSION_TTL_MS = 2 * 60 * 60 * 1000 // 2 hours
 const sessionStore = new Map()
 
-function sessionCreate () {
+// Each entry records its owner (sessionOwnerKey) — item 7.21. Once a session holds the AI's
+// advice about a client, finding it by its id alone is not enough: a session owned by someone
+// else is treated as no session at all, and is never read or overwritten by this caller.
+function sessionCreate (owner) {
   const id = crypto.randomBytes(16).toString('hex')
-  sessionStore.set(id, { state: null, lastActivity: Date.now() })
+  sessionStore.set(id, { state: null, replies: [], owner, lastActivity: Date.now() })
   return id
+}
+
+/** May this caller use the session id they sent? An unknown id may be claimed, as before. */
+function sessionUsableBy (id, owner) {
+  if (!id) { return false }
+  const entry = sessionStore.get(id)
+  return !entry || entry.owner === owner
 }
 
 function sessionGet (id) {
@@ -395,14 +406,28 @@ function sessionGet (id) {
   return entry.state
 }
 
-function sessionSave (id, state) {
+function sessionSave (id, state, owner) {
   const entry = sessionStore.get(id)
   if (entry) {
+    if (entry.owner !== owner) { return }
     entry.state = state
     entry.lastActivity = Date.now()
   } else {
-    sessionStore.set(id, { state, lastActivity: Date.now() })
+    sessionStore.set(id, { state, replies: [], owner, lastActivity: Date.now() })
   }
+}
+
+/** The AI's replies kept for this session, oldest first; none when there is no session. */
+function sessionReplies (id) {
+  const entry = id ? sessionStore.get(id) : null
+  return entry ? entry.replies : []
+}
+
+/** Keep a reply exactly as the advisor received it, so a follow-up can see it whole (7.21). */
+function sessionRememberReply (id, owner, text) {
+  const entry = id ? sessionStore.get(id) : null
+  if (!entry || entry.owner !== owner) { return }
+  entry.replies = rememberReply(entry.replies, text)
 }
 
 setInterval(() => {
@@ -2098,12 +2123,19 @@ async function handleQuery (rawBody, res, identity) {
     query,
     mode,
     orgTemplateIds,
-    conversationHistory,
+    conversationHistory: browserHistory,
     advisorProfile,
     language,
     clientId,
     sessionId: incomingSessionId
   } = sanitised
+
+  // Item 7.21 — the client chat's session belongs to the advisor who started it, and the AI's
+  // own replies kept in it replace the browser's cut copies before anything reads the history.
+  // Another caller's session id counts as no session: nothing is read from it or written to it.
+  const sessionOwner = sessionOwnerKey(identity)
+  const ownSessionId = mode === 'client' && sessionUsableBy(incomingSessionId, sessionOwner) ? incomingSessionId : null
+  const conversationHistory = restoreFullReplies(browserHistory, sessionReplies(ownSessionId))
   // NOTE: there is no case-summaries field to read — it and the frontend that
   // sent it were removed 2026-08-03. Past cases come from loadPromptCases, on the
   // verified identity. A `caseSummaries` key in the body is now an unknown key:
@@ -2270,7 +2302,7 @@ async function handleQuery (rawBody, res, identity) {
   // AI is only called for Phase 3 recommendation.
   // ─────────────────────────────────────────────────────────────────
   if (mode === 'client') {
-    let sessionId = incomingSessionId
+    let sessionId = ownSessionId
     const storedState = sessionGet(sessionId)
 
     const state = Object.assign({
@@ -2497,7 +2529,7 @@ async function handleQuery (rawBody, res, identity) {
     // that one question is live (item 4.87 T022a, drawing 4) — the screen had no way
     // to know which question it was answering before this.
     const sendQuestion = (text, _state, field) => {
-      if (sessionId) { sessionSave(sessionId, state) }
+      if (sessionId) { sessionSave(sessionId, state, sessionOwner) }
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
@@ -2525,8 +2557,8 @@ async function handleQuery (rawBody, res, identity) {
 
     // ── INIT: create session, return opening question and session ID ──
     if (query === '__init__') {
-      sessionId = sessionCreate()
-      sessionSave(sessionId, state)
+      sessionId = sessionCreate(sessionOwner)
+      sessionSave(sessionId, state, sessionOwner)
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
@@ -2897,7 +2929,7 @@ async function handleQuery (rawBody, res, identity) {
       // and the only AI call in the product that left no trace when it worked.
       logAI('intake', NARRATIVE_MODEL(), _t0intake, _intakeOk, null, _intakeStream)
       res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
-      if (sessionId) { sessionSave(sessionId, state) }
+      if (sessionId) { sessionSave(sessionId, state, sessionOwner) }
       if (!res.writableEnded) { res.end() }
       return
     }
@@ -3180,11 +3212,12 @@ async function handleQuery (rawBody, res, identity) {
             const visible = stripModelMarker(stripTemplateMarker(_postBuffer))
             const processed = appendCorrectionNote(injectVideoInfo(visible, orgTemplateIds, firmTemplates), _postFlagged, _postBuffer, _postMessages)
             res.write('data: ' + JSON.stringify({ type: 'delta', text: processed }) + '\n\n')
+            sessionRememberReply(sessionId, sessionOwner, processed)
             // Item 7.5: what this reply did about calculation models. The models block
             // reaches this path as well as Phase 3, so a model named here is a model
             // an advisor was sent to and must be recorded the same way.
             noteModelChoice(_postBuffer, 'conversation', state.detectedDomain, sessionId)
-            if (sessionId) { sessionSave(sessionId, state) }
+            if (sessionId) { sessionSave(sessionId, state, sessionOwner) }
             res.write('data: ' + JSON.stringify({ type: 'done' }) + '\n\n')
           }
         }
@@ -4045,6 +4078,7 @@ async function handleQuery (rawBody, res, identity) {
           if (processed !== visible) {
             res.write('data: ' + JSON.stringify({ type: 'replace', text: processed }) + '\n\n')
           }
+          sessionRememberReply(sessionId, sessionOwner, processed)
           // The AI's own declaration when it made one; the prose scan only as a fallback.
           // `source` is recorded because the AI obeys the declaration instruction only
           // sometimes, and both paths return a plausible list — so a fallback is otherwise
@@ -4068,7 +4102,7 @@ async function handleQuery (rawBody, res, identity) {
         }
       }
       _p3Ok = true
-      if (sessionId) { sessionSave(sessionId, state) }
+      if (sessionId) { sessionSave(sessionId, state, sessionOwner) }
     } catch (streamErr) {
       console.error('[advisor] Phase 3 stream error:', streamErr.message, '| type:', streamErr.constructor.name, '| status:', streamErr.status ?? 'none', '| code:', streamErr.code ?? 'none')
       if (streamErr.error) { console.error('[advisor] Phase 3 OpenAI error detail:', JSON.stringify(streamErr.error)) }
@@ -4390,6 +4424,7 @@ async function handleQuery (rawBody, res, identity) {
 module.exports.writeBlocked = writeBlocked
 module.exports.blockedAtTheDoor = blockedAtTheDoor
 module.exports._setTurnCheckClient = _setTurnCheckClient
+module.exports._sessions = { sessionCreate, sessionUsableBy, sessionGet, sessionSave, sessionReplies, sessionRememberReply }
 module.exports.correctTemplateHeadings = correctTemplateHeadings
 module.exports.buildDomainConfirmationMessage = buildDomainConfirmationMessage
 module.exports._isValidConfirmation = _isValidConfirmation

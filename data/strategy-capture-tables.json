@@ -3884,13 +3884,16 @@
                   "text": "Send thankyou email 2 weeks later and check they're still happy"
                 },
                 {
-                  "text": "testing 1"
+                  "text": "",
+                  "blank": true
                 },
                 {
-                  "text": "testing 2"
+                  "text": "",
+                  "blank": true
                 },
                 {
-                  "text": "testing 3"
+                  "text": "",
+                  "blank": true
                 }
               ]
             }

@@ -14,10 +14,10 @@
  *      is the assertion: the module requires no overlay, no database and no writer.
  *   3. THE PASTED TEXT NEVER REACHES A LOG. It routinely contains real client data.
  *
- * ⚠ EACH REQUEST BELOW COMES FROM A DIFFERENT ADDRESS. The limiter is module-level and
- * fixed-window, so a shared IP would make later tests fail on request eleven for reasons
- * that have nothing to do with what they assert. The limit itself is tested on its own
- * address, deliberately.
+ * ⚠ EACH REQUEST BELOW COMES FROM A DIFFERENT MANAGER. The limiter is module-level,
+ * fixed-window and counts per signed-in person (item 7.27), so one shared manager would
+ * make later tests fail on request eleven for reasons that have nothing to do with what
+ * they assert. The limit itself is tested on one manager of its own, deliberately.
  */
 
 // The review calls a model. Mocked so the suite never reaches the network, never
@@ -31,7 +31,7 @@ const route = require('../../server/routes/promptCheck')
 const { MAX_CHARACTERS } = require('../../server/utils/promptContribution')
 const { OPEN } = require('../../server/utils/promptSafety')
 
-let ipCounter = 0
+let managerCounter = 0
 
 function makeMockRes () {
   return {
@@ -50,24 +50,24 @@ function errorBody (res) {
 }
 
 /**
- * A manager request from an address of its own.
+ * A request from a manager of its own, all behind the one Nuxt address.
  * @param {object} body
- * @param {string} [ip] - pin the address to exercise the limiter
+ * @param {string} [email] - pin the manager to exercise the limiter
  */
-function makeReq (body, ip) {
-  ipCounter++
+function makeReq (body, email) {
+  managerCounter++
   return {
     body,
     firmId: 'firm-42',
-    userEmail: 'manager@example.com',
+    userEmail: email || ('manager' + managerCounter + '@example.com'),
     headers: {},
-    socket: { remoteAddress: ip || ('10.0.0.' + ipCounter) }
+    socket: { remoteAddress: '10.0.0.5' }
   }
 }
 
-async function call (body, ip) {
+async function call (body, email) {
   const res = makeMockRes()
-  await route.check(makeReq(body, ip), res)
+  await route.check(makeReq(body, email), res)
   return res
 }
 
@@ -273,12 +273,12 @@ describe('a request that is actually malformed', () => {
 })
 
 describe('the limiter', () => {
-  it('stops the eleventh check in a minute from one address', async () => {
-    const ip = '172.31.255.1'
+  it('stops the eleventh check in a minute from one manager', async () => {
+    const email = 'limited.manager@example.com'
     for (let i = 0; i < 10; i++) {
-      expect((await call({ text: 'fine' }, ip))._status).toBe(200)
+      expect((await call({ text: 'fine' }, email))._status).toBe(200)
     }
-    const res = await call({ text: 'fine' }, ip)
+    const res = await call({ text: 'fine' }, email)
     expect(res._status).toBe(429)
   })
 })

@@ -281,6 +281,19 @@ sentence works**: the guide it names is carried into the topic pickers, so "yes"
 Verified against the live model; see
 [`../LEARN-SCOPE-HONESTY.md`](../LEARN-SCOPE-HONESTY.md).
 
+**P11 · A conversation belongs to the advisor who started it, and a follow-up sees the AI's own
+advice whole.** The history comes from the browser and every message in it is cut to 2,000
+characters, because a caller could have written it. The server keeps the last 10 replies it sent
+and restores a cut reply only where its own copy begins with what the browser sent — so nothing
+the AI did not write can be lengthened. Another advisor's session id counts as no session. After
+two hours idle or a restart, a follow-up falls back to the cut copy.
+[`../FOLLOW-UP-FULL-REPLIES.md`](../FOLLOW-UP-FULL-REPLIES.md)
+
+**P12 · Usage limits count each signed-in person.** The chat allows 30 requests a minute, courses
+15, and three manager screens 6, 6 and 10 — per advisor within their firm, never per address,
+because every request reaches the backend from the Nuxt server.
+[`../RATE-LIMIT-PER-ADVISOR.md`](../RATE-LIMIT-PER-ADVISOR.md)
+
 ---
 
 ## 3. Design considerations

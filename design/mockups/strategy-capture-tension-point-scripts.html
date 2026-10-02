@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tension Point Scripts</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+  .tbl { margin: 0 0 40px; }
+  h2 { color: var(--ink); font-size: 21px; margin: 0 0 2px; }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  table.bg { width: 100%; border-collapse: collapse; margin: 0 0 14px; table-layout: fixed; }
+  table.bg th {
+    text-align: left; background: var(--wash); color: var(--ink); font-size: 13.5px;
+    padding: 9px 12px; border: 1px solid var(--line); border-bottom: 2px solid var(--accent);
+    vertical-align: top;
+  }
+  table.bg td { border: 1px solid var(--line); padding: 7px 10px; vertical-align: middle; }
+  .ln { display: inline-block; width: 22px; color: var(--eg); font-size: 11.5px; }
+  .box {
+    display: inline-block; width: calc(100% - 26px); height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+  }
+  td.eg { background: #fafcfe; }
+  .egtext { color: var(--eg); font-size: 12.5px; font-style: italic; }
+  .egtag {
+    display: inline-block; margin-left: 8px; font-size: 9.5px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--eg);
+    border-radius: 3px; padding: 1px 5px; vertical-align: 2px;
+  }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 26px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .bad { border-left-color: #c0392b; background: #fdf3f2; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --ink: #cfe0f5; --body: #c4d2e3; --line: #2c3f57; --wash: #16243a; --accent: #4ea3e6; --eg: #8fa3bd; --bg: #0e1828; }
+    :root:not([data-theme="light"]) td.eg { background: #132034; }
+    :root:not([data-theme="light"]) .box { background: #101c2e; }
+    :root:not([data-theme="light"]) .bad { background: #2a1717; }
+  }
+  @media (max-width: 720px) {
+    table.bg, table.bg thead, table.bg tbody, table.bg th, table.bg td, table.bg tr { display: block; }
+    table.bg th { border-bottom: 1px solid var(--line); }
+    .box { width: 100%; }
+    .ln { width: auto; margin-right: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Strategy Planner &middot; item 15.22 &middot; Sales Process Review</p>
+  <h1>Tension Point Scripts</h1>
+  <p class="lede">
+    <b>Sales Process Review records the client's answers in your Tension Point Scripts table</b>
+    (Sales &amp; Marketing deck p50) &mdash; your ruling of 2 October 2026. Every heading and example
+    below is read from your own Word template; nothing on this page was written by us. A drawing for
+    approval before anything is built.
+  </p>
+
+  <div class="note bad">
+    <h3>What the table reader gives today</h3>
+    <ul>
+      <li><b>10 boxes where your document rules 10</b> &mdash; five lines, a tension point and its
+        scripted response on each. The count is right.</li>
+      <li><b>1 of your 5 worked examples</b> would show &mdash; the phone enquiry. The rule built for
+        item 15.18 keeps <i>one</i> example row under a heading; your other four rows are dropped
+        without a word.</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>What this drawing does</h3>
+    <ul>
+      <li><b>All five of your examples show</b>, greyed and tagged <b>your example</b>, above the
+        empty lines &mdash; shown, never typed into, exactly as the worked-example drawing you
+        approved on 2 October draws them.</li>
+      <li><b>Each tension point sits beside its script</b>, as in your Word table, using the same
+        two-column grid Progression of Economic Value already uses. With no row names in your table,
+        there is no name column.</li>
+      <li><b>The client's own answers go in the five empty lines.</b> Nothing from your examples is
+        saved as the client's text.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+<section class="tbl">
+  <h2>Sales Process Review</h2>
+  <p class="src">Tension Point Scripts &middot; 5 worked examples &middot; <b>10 boxes to fill in</b></p>
+<table class="bg"><thead><tr><th>Known Tension Point</th><th>Scripted Response</th></tr></thead><tbody>
+<tr><td class="eg"><span class="egtext">Customer Phones in with an enquiry after reading newspaper advert'</span><span class="egtag">your example</span></td><td class="eg"><span class="egtext">&ldquo;Welcome to ABC Ltd, You&rsquo;re speaking with _____(name)</span><span class="egtag">your example</span></td></tr>
+<tr><td class="eg"><span class="egtext">A customer enters the shop.</span><span class="egtag">your example</span></td><td class="eg"><span class="egtext">&ldquo;Hi there, are you happy just looking or is there anything I can do to help?&rdquo;</span><span class="egtag">your example</span></td></tr>
+<tr><td class="eg"><span class="egtext">Customer begins to engage with a product (tries it on, picks it up etc)</span><span class="egtag">your example</span></td><td class="eg"><span class="egtext">&ldquo;I see you&rsquo;ve found one of our popular items, (The colour suits you)Have you been searching for this product for long?&rdquo;</span><span class="egtag">your example</span></td></tr>
+<tr><td class="eg"><span class="egtext">The customer asks for a discount.</span><span class="egtag">your example</span></td><td class="eg"><span class="egtext">&ldquo;We&rsquo;re not normally in the habit of offering discounts because we tend to put our most competitive price on the ticket. I&rsquo;ll check with (my boss / the computer) for you but please don&rsquo;t be offended if the answer is no.&rdquo;</span><span class="egtag">your example</span></td></tr>
+<tr><td class="eg"><span class="egtext">The customer complains about price increases.</span><span class="egtag">your example</span></td><td class="eg"><span class="egtext">&ldquo;You have every right to feel frustrated; it&rsquo;s exactly how WE felt when we made the decision to adjust our prices. But like you, we&rsquo;re getting hit from all sides; - we have to be fair to you, - but we also have to be fair to the business.</span><span class="egtag">your example</span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+</section>
+
+</div>
+</body>
+</html>

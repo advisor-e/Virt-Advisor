@@ -1,10 +1,18 @@
 'use strict'
 
-// Fixed-window per-IP rate limiter for Nuxt server middleware.
+// Fixed-window rate limiter for the Restify routes that call the AI.
 // Single-process only — for clustered or multi-process deployments, replace with a Redis-backed solution.
 
-// By default we key on the real TCP peer (req.socket.remoteAddress) and IGNORE
-// X-Forwarded-For, because that header is client-controlled: trusting it lets an
+// Counted per signed-in person, not per address (item 7.27). Every browser request
+// reaches the backend through the Nuxt server, so the socket address is the same
+// for everybody — and even a real browser address is shared by a whole office.
+// Every limited route runs firmAuth first, so the verified identity is already on
+// the request; nothing from the body or a header is trusted for the key.
+// Design: design/RATE-LIMIT-PER-ADVISOR.md
+
+// The address is the last resort, used only when a request carries no identity.
+// By default it is the real TCP peer (req.socket.remoteAddress) and X-Forwarded-For
+// is IGNORED, because that header is client-controlled: trusting it lets an
 // attacker rotate a spoofed value to land every request in a fresh window and
 // bypass the limit entirely. Only when TRUST_PROXY is explicitly set (the app
 // sits behind a reverse proxy that OVERWRITES the client's XFF) do we read the
@@ -21,19 +29,34 @@ function clientIp (req) {
   return forwarded || socketIp
 }
 
+/**
+ * The window a request is counted in: the advisor within their firm, else the
+ * email within the firm (manager and mentor sign-ins can carry no advisor id),
+ * else the address. The firm is part of the key so one advisor id in two firms
+ * never shares a count; JSON keeps a ':' inside an id from colliding two keys.
+ *
+ * @param {object} req - a request firmAuth may have attached identity to
+ * @returns {string}
+ */
+function limitKey (req) {
+  if (req.firmId && req.advisorId) { return JSON.stringify(['advisor', req.firmId, req.advisorId]) }
+  if (req.firmId && req.userEmail) { return JSON.stringify(['email', req.firmId, req.userEmail]) }
+  return JSON.stringify(['address', clientIp(req)])
+}
+
 function createLimiter (maxPerMinute) {
   const windows = new Map()
   const windowMs = 60000
 
   return function limited (req, res) {
-    const ip = clientIp(req)
+    const key = limitKey(req)
 
     const now = Date.now()
-    let slot = windows.get(ip)
+    let slot = windows.get(key)
 
     if (!slot || now - slot.start >= windowMs) {
       slot = { start: now, count: 0 }
-      windows.set(ip, slot)
+      windows.set(key, slot)
     }
 
     slot.count++
