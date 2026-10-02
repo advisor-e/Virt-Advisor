@@ -23,6 +23,12 @@ const captureTables = require('../../data/strategy-capture-tables.json')
 /** Concepts that name a fill-in template, whatever it resolves to. */
 const withTemplate = concepts.filter(c => c.captureTemplate)
 
+/**
+ * A line Mike ruled: a blank cell, or the first line carrying his printed "Enter your
+ * thoughts here" instruction — a box since his ruling of 2026-10-02 (item 15.18).
+ */
+const isRuledLine = c => Boolean(c.blank || forms.isInstructionLine(c))
+
 describe('the capture tables are Mike\'s own, and every concept that names one finds it', () => {
   test('every concept naming a template resolves it, or is a known gap', () => {
     const unresolved = withTemplate
@@ -266,9 +272,9 @@ describe('a column that Mike named reaches the box beneath it', () => {
   test('the banded grid is untouched — a heading beside a ruled line is still content', () => {
     // The rule that reads his corner cells must not undo the 2026-09-19 fix, which is
     // the opposite case: Blue Ocean's "1, Enter your thoughts here…" sits beside a ruled
-    // line and is his placeholder, not a heading. Counted from his workbook.
+    // line and is his instruction on a line, not a heading. Counted from his workbook.
     const ruledLines = name => forms.resolveTemplate(name).tables
-      .reduce((n, t) => n + t.rows.reduce((m, r) => m + r.cells.filter(c => c.blank).length, 0), 0)
+      .reduce((n, t) => n + t.rows.reduce((m, r) => m + r.cells.filter(isRuledLine).length, 0), 0)
 
     expect(captureOf('blue-ocean-strategy').fields.length).toBe(ruledLines('Blue Ocean Fronts'))
     expect(captureOf('porters-5-forces').fields.length).toBe(ruledLines("Porter's 5 Forces"))
@@ -305,7 +311,7 @@ describe('a column that Mike named reaches the box beneath it', () => {
     // 14 off Blue Ocean. Those counts are the reason the gap rule is narrow, and this is
     // what catches a later session widening it.
     const ruled = name => forms.resolveTemplate(name).tables
-      .reduce((n, t) => n + t.rows.reduce((m, r) => m + r.cells.filter(c => c.blank).length, 0), 0)
+      .reduce((n, t) => n + t.rows.reduce((m, r) => m + r.cells.filter(isRuledLine).length, 0), 0)
 
     expect(captureOf('porters-5-forces').fields.length).toBe(ruled("Porter's 5 Forces"))
     expect(captureOf('the-8-profit-levers').fields.length).toBe(ruled('Profit Levers (1)'))
@@ -332,18 +338,19 @@ describe('a ruled line is a box, and a heading is never one', () => {
   // expectation with it. UAT cannot catch either — a form with one box missing, or one
   // box too many, looks perfectly reasonable to anybody who has not counted his page.
 
-  /** Every cell Mike ruled as a blank line, across a template's grids. */
+  /** Every line Mike ruled, across a template's grids. */
   const ruledLinesIn = (templateName) => {
     const tpl = forms.resolveTemplate(templateName)
     return tpl.tables.reduce(
-      (n, t) => n + t.rows.reduce((m, r) => m + r.cells.filter(c => c.blank).length, 0), 0)
+      (n, t) => n + t.rows.reduce((m, r) => m + r.cells.filter(isRuledLine).length, 0), 0)
   }
 
   const captureOf = id => forms.captureForConcept(concepts.find(c => c.id === id))
 
   test('Blue Ocean offers a box for every line Mike ruled — a heading beside a line lost one', () => {
     // His row 1 is "1, Enter your thoughts here…" beside a ruled line. Read as a
-    // heading row, the whole row was skipped and the line went with it.
+    // heading row, the whole row was skipped and the line went with it. Since 2026-10-02
+    // the instruction's own line is a box too (Mike's ruling, item 15.18): 16.
     const capture = captureOf('blue-ocean-strategy')
     expect(capture.fields.length).toBe(ruledLinesIn('Blue Ocean Fronts'))
   })
@@ -380,7 +387,7 @@ describe('a ruled line is a box, and a heading is never one', () => {
         const tables = forms.resolveTemplate(c.captureTemplate).tables
         const bandedAt = tables.map((t, i) => i).filter(i => capture.tableForms[i] === 'banded-grid')
         const want = bandedAt.reduce((n, i) =>
-          n + tables[i].rows.reduce((m, r) => m + r.cells.filter(x => x.blank).length, 0), 0)
+          n + tables[i].rows.reduce((m, r) => m + r.cells.filter(isRuledLine).length, 0), 0)
         const got = capture.fields.filter(f => bandedAt.some(i => f.key.startsWith('t' + i + 'r'))).length
         return got === want ? null : `${c.id}: ${got} boxes, workbook rules ${want} lines`
       })
@@ -786,10 +793,22 @@ describe('his worked example rides on a column, never becomes a box', () => {
   })
 
   test('the box count is unchanged by it, so the save guard admits exactly what it did', () => {
-    // 12 ruled lines on Insights Summary; Progression of Economic Value's count is left
-    // to its own placeholder fault and is pinned only as unchanged here.
+    // 12 ruled lines on Insights Summary; 21 on Progression of Economic Value, its first
+    // being his "1 Enter your thoughts here..." line (Mike's ruling, 2026-10-02).
     expect(captureOf('review-internal-insights-data').fields.length).toBe(12)
-    expect(captureOf('progression-of-economic-value').fields.length).toBe(20)
+    expect(captureOf('progression-of-economic-value').fields.length).toBe(21)
+  })
+
+  test('his "Enter your thoughts here" line is a box with his words in it, and labels nothing else', () => {
+    // Read as words it gave the line no box and became the label of the box beside it,
+    // which on the grid layout put that row's boxes under the wrong headings.
+    ['progression-of-economic-value', 'blue-ocean-strategy'].forEach((id) => {
+      const fields = captureOf(id).fields
+      const line = fields.filter(f => /Enter your thoughts here/.test(f.example))
+      expect(line).toHaveLength(1)
+      expect(line[0].column).toBe(0)
+      expect(fields.filter(f => /Enter your thoughts here/.test(f.rowLabel))).toEqual([])
+    })
   })
 
   test('a row his page marks as a heading is his question, never an example', () => {

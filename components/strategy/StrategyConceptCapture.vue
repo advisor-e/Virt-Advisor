@@ -132,13 +132,13 @@ section.scc2
     table.scc2-tdg
       thead
         tr
-          th.scc2-attr &nbsp;
+          th.scc2-attr(v-if="gridHasRowNames") &nbsp;
           th(v-for="col in gridColumns" :key="'h' + col.column") {{ col.label }}
       tbody
         //- His worked example under his headings, shown and never typed into — item 15.18,
         //- design/mockups/strategy-capture-worked-example.html, approved 2026-10-02.
         tr.scc2-eg-row(v-if="gridExamples.some(text => text)")
-          td.scc2-attr &nbsp;
+          td.scc2-attr(v-if="gridHasRowNames") &nbsp;
           td.scc2-eg(v-for="(text, i) in gridExamples" :key="'eg' + i")
             template(v-if="text")
               span.scc2-egtext {{ text }}
@@ -146,7 +146,7 @@ section.scc2
         template(v-for="group in gridRows")
           tr(v-for="(line, i) in group.lines" :key="line.key")
             //- His attribute name spans its own lines rather than repeating on each.
-            td.scc2-attr(v-if="i === 0" :rowspan="group.lines.length") {{ group.label }}
+            td.scc2-attr(v-if="gridHasRowNames && i === 0" :rowspan="group.lines.length") {{ group.label }}
             td(v-for="field in line.cells" :key="field.key")
               strategy-capture-box(
                 :field="field"
@@ -682,6 +682,15 @@ export default {
         }
       })
       return seen.sort((a, b) => a.column - b.column)
+    },
+
+    /**
+     * Does any row of the grid carry his name for it? Progression of Economic Value names
+     * none, so its name column would be an empty strip the approved drawing does not have.
+     * @returns {boolean}
+     */
+    gridHasRowNames () {
+      return this.gridRows.some(group => group.label)
     },
 
     /**
