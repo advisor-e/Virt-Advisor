@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landing Page Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+  .tbl { margin: 0 0 40px; }
+  h2 { color: var(--ink); font-size: 21px; margin: 0 0 2px; }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  table.bg { width: 100%; border-collapse: collapse; margin: 0 0 14px; table-layout: fixed; }
+  table.bg th {
+    text-align: left; background: var(--wash); color: var(--ink); font-size: 13.5px;
+    padding: 9px 12px; border: 1px solid var(--line); border-bottom: 2px solid var(--accent);
+    vertical-align: top;
+  }
+  table.bg td { border: 1px solid var(--line); padding: 7px 10px; vertical-align: middle; }
+  .ln { display: inline-block; width: 22px; color: var(--eg); font-size: 11.5px; }
+  .box {
+    display: inline-block; width: calc(100% - 26px); height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+  }
+  td.eg { background: #fafcfe; }
+  .egtext { color: var(--eg); font-size: 12.5px; font-style: italic; }
+  .egtag {
+    display: inline-block; margin-left: 8px; font-size: 9.5px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--eg);
+    border-radius: 3px; padding: 1px 5px; vertical-align: 2px;
+  }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 26px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .bad { border-left-color: #c0392b; background: #fdf3f2; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --ink: #cfe0f5; --body: #c4d2e3; --line: #2c3f57; --wash: #16243a; --accent: #4ea3e6; --eg: #8fa3bd; --bg: #0e1828; }
+    :root:not([data-theme="light"]) td.eg { background: #132034; }
+    :root:not([data-theme="light"]) .box { background: #101c2e; }
+    :root:not([data-theme="light"]) .bad { background: #2a1717; }
+  }
+  @media (max-width: 720px) {
+    table.bg, table.bg thead, table.bg tbody, table.bg th, table.bg td, table.bg tr { display: block; }
+    table.bg th { border-bottom: 1px solid var(--line); }
+    .box { width: 100%; }
+    .ln { width: auto; margin-right: 6px; }
+  }
+  td.nm { width: 150px; font-weight: 700; color: var(--ink); font-size: 13px; background: var(--wash); vertical-align: top; }
+  .gbox { display: block; min-height: 54px; border: 1px solid var(--line); border-radius: 5px; background: #fdfefe; padding: 6px 9px; font-size: 12.5px; font-style: italic; color: var(--eg); }
+  .secnote { color: var(--eg); font-size: 12.5px; margin: -6px 0 12px; }
+  h3.sec { color: var(--ink); font-size: 16px; margin: 18px 0 8px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .gbox { background: #101c2e; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Strategy Planner &middot; item 15.22 &middot; (Inbound) Landing Page Review</p>
+  <h1>Landing Page Review</h1>
+  <p class="lede">
+    <b>Drawn as recommended: the client fills in all three columns on every row</b>, because your
+    page 26 tells them to write <i>&ldquo;what you believe your target customer is thinking, and the
+    &lsquo;logic&rsquo; of what you were hoping to achieve. From there, you can then add the words and
+    images.&rdquo;</i> Every section, row name and grey answer below is read from your Sales &amp;
+    Marketing deck, pages 27&ndash;30; nothing on this page was written by us. A drawing to judge,
+    not yet a proposal you have approved.
+  </p>
+
+  <div class="note">
+    <h3>The count, read off your pages</h3>
+    <ul>
+      <li><b>8 sections, 20 rows, 58 boxes.</b> Section 5's <i>Graphics Table</i> is one
+        instruction across all three columns on your page, so it is one box, not three.</li>
+      <li>Each box carries your doughnut answer as grey guide text that clears when the client types &mdash;
+        the rule your other prompt sheets already follow.</li>
+      <li><b>The <i>Widget</i> row appears 3 times</b> &mdash; Section 1, Section 4, Section 7 &mdash; with
+        the same words each time on your pages.</li>
+      <li>Your two notes under Section 1 are shown as notes, never boxes.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+<section class="tbl">
+<h3 class="sec">Section 1</h3>
+<p class="secnote">Arrival Assumption: Reader arrived as a result or clicking a link from an outbound article/ advert placed in Facebook or LinkedIn. <span class="egtag">his note, shown</span></p>
+<p class="secnote">First 7 secs - Have I arrived on the right page? (Is Logo and Colour consistent with advert etc) and does the page look professional/ appealing? <span class="egtag">his note, shown</span></p>
+<table class="bg"><thead><tr><th style="width:150px"></th><th>Readers Logic</th><th>Landing Page Logic</th><th>Marketing Statement</th></tr></thead><tbody>
+<tr><td class="nm">Title</td><td><span class="gbox">What can you do for me?</span></td><td><span class="gbox">Grab attention with 1 big promise and attractive graphics that depict customer success.</span></td><td><span class="gbox">Lose Weight As You Eat Doughnuts!</span></td></tr>
+<tr><td class="nm">Subtitle</td><td><span class="gbox">What did you just promise? Did I read that right??</span></td><td><span class="gbox">Support the promise with a ‘tiny’ bit of expansion</span></td><td><span class="gbox">You’ve never had so much fun losing weight before...</span></td></tr>
+<tr><td class="nm">Text Body</td><td><span class="gbox">Sounds good but what exactly will this do for me?</span></td><td><span class="gbox">‘Spell Out’ the promise so it creates ‘theatre in their mind’</span></td><td><span class="gbox">Build muscle, burn fat and sleep longer with our revolutionary protein doughnuts.</span></td></tr>
+<tr><td class="nm">Widget</td><td><span class="gbox">I’ve seen enough, what do I do now?</span></td><td><span class="gbox">Call to Action (CTA) button - take them to 1st stage in our sales process</span></td><td><span class="gbox">Call to Action (CTA) button - linking to ‘free taste test’ - give their name, cell ph number &amp; address.</span></td></tr>
+</tbody></table>
+<h3 class="sec">Section 2</h3>
+<table class="bg"><thead><tr><th style="width:150px"></th><th>Readers Logic</th><th>Landing Page Logic</th><th>Marketing Statement</th></tr></thead><tbody>
+<tr><td class="nm">Text Body</td><td><span class="gbox">I’m Not Convinced Yet - Tell me how you accomplish your promise</span></td><td><span class="gbox">Summarise how we accomplish our promise</span></td><td><span class="gbox">We combine the finest whey isolate protein powder with organic buttermilk and Mongolian coconut husk to deliver a mouth watering doughnut that looks like a doughnut; feels like a doughnut in your mouth, but works to stimulate your Hippocampus and adrenal gonads to build muscle while you sleep!</span></td></tr>
+<tr><td class="nm">Text &amp; Graphics</td><td><span class="gbox">How can I believe you</span></td><td><span class="gbox">Show them 3 things to support what we just said.</span></td><td><span class="gbox">Picture 1 - Organic Ingredients - text to explain Picture 2 - Yummy Doughnut - text to explain Picture 3 - Muscle bound guy, Attractive girl. - text to explain how results may vary.</span></td></tr>
+</tbody></table>
+<h3 class="sec">Section 3</h3>
+<table class="bg"><thead><tr><th style="width:150px"></th><th>Readers Logic</th><th>Landing Page Logic</th><th>Marketing Statement</th></tr></thead><tbody>
+<tr><td class="nm">Title</td><td><span class="gbox">Prove it!</span></td><td><span class="gbox">Let us show it to you.</span></td><td><span class="gbox">See For Yourself!</span></td></tr>
+<tr><td class="nm">Video</td><td><span class="gbox">Okay this sounds good, but what would all of this look like in action?</span></td><td><span class="gbox">Allow the reader to have a visual example of what we do to deliver on our promise.</span></td><td><span class="gbox">Show our facilities Show the lab technicians doing yoga Show us carrying the ingredients through the Mongolian mountains Show us blending the mixture late into the night Show customers eating our doughnut and bursting with energy Show our customers getting promoted after eating our doughnuts (What we want them to Know, Feel, Do about our product)</span></td></tr>
+</tbody></table>
+<h3 class="sec">Section 4</h3>
+<table class="bg"><thead><tr><th style="width:150px"></th><th>Readers Logic</th><th>Landing Page Logic</th><th>Marketing Statement</th></tr></thead><tbody>
+<tr><td class="nm">Title</td><td><span class="gbox">Alright, I’m getting convinced, but how would I get started?</span></td><td><span class="gbox">Here’s what we want you to do...</span></td><td><span class="gbox">3 Steps to Your Weight Loss Success!</span></td></tr>
+<tr><td class="nm">Subtitle</td><td><span class="gbox">What do I need to do, in sequence</span></td><td><span class="gbox">Sequence suggests movement, we want you to act now</span></td><td><span class="gbox">Step 1. Weigh yourself - picture 1 Step 2. Decide how much weight you want to lose - picture 2 Step 3. Sign up for our free taste test</span></td></tr>
+<tr><td class="nm">Widget</td><td><span class="gbox">I’ve seen enough, what do I do now?</span></td><td><span class="gbox">Call to Action (CTA) button - take them to 1st stage in our sales process</span></td><td><span class="gbox">Call to Action (CTA) button - linking to ‘free taste test’ - give their name, cell ph number &amp; address.</span></td></tr>
+</tbody></table>
+<h3 class="sec">Section 5</h3>
+<table class="bg"><thead><tr><th style="width:150px"></th><th>Readers Logic</th><th>Landing Page Logic</th><th>Marketing Statement</th></tr></thead><tbody>
+<tr><td class="nm">Title</td><td><span class="gbox">I’m still not convinced, Who are these guys? Do they have any credibility?</span></td><td><span class="gbox">Give background info on the team and provide assurance that we know what we’re talking about.</span></td><td><span class="gbox">Meet The ‘Dream Team’</span></td></tr>
+<tr><td class="nm">Subtitle</td><td><span class="gbox">Will these guys be around in future?</span></td><td><span class="gbox">Tell them what makes us so committed - why we won’t give up on our promise to help them.</span></td><td><span class="gbox">Our mission is to change the way people see food and sleep, forever!</span></td></tr>
+<tr><td class="nm">Text Body</td><td><span class="gbox">What makes them ‘so special’?</span></td><td><span class="gbox">Tell them what makes us special</span></td><td><span class="gbox">Bill discovered the secret formula when trekking through the Mongolian mountains, it was shared with him by the village chief after he fell, trying to save a kitten in a tree...</span></td></tr>
+<tr><td class="nm">Graphics Table</td><td colspan="3"><span class="gbox">Show the team member photo, state their role, blurb and contact details - in a table format.</span></td></tr>
+</tbody></table>
+<h3 class="sec">Section 6</h3>
+<table class="bg"><thead><tr><th style="width:150px"></th><th>Readers Logic</th><th>Landing Page Logic</th><th>Marketing Statement</th></tr></thead><tbody>
+<tr><td class="nm">Title</td><td><span class="gbox">How good is it? - Who else has it worked for?</span></td><td><span class="gbox">Provide Social Proof</span></td><td><span class="gbox">Don’t just take our word for it, here’s what others have to say...</span></td></tr>
+<tr><td class="nm">Testimonial Graphics</td><td><span class="gbox">Let me see them, learn their story.</span></td><td><span class="gbox">Show them our success stories are people just like them.</span></td><td><span class="gbox">Name - Photo Their Problem/ backstory Their Journey Their result What they now enjoy</span></td></tr>
+<tr><td class="nm">Subtitle</td><td><span class="gbox">Will it work for me too?</span></td><td><span class="gbox">Explain the results are regular and WHY it works.</span></td><td><span class="gbox">Anyone can enjoy rapid weight loss using our doughnuts because we help you match your body type to our product options with our exclusive 21 point optical assessment checklist.</span></td></tr>
+</tbody></table>
+<h3 class="sec">Section 7</h3>
+<table class="bg"><thead><tr><th style="width:150px"></th><th>Readers Logic</th><th>Landing Page Logic</th><th>Marketing Statement</th></tr></thead><tbody>
+<tr><td class="nm">Widget</td><td><span class="gbox">I’ve seen enough, what do I do now?</span></td><td><span class="gbox">Call to Action (CTA) button - take them to 1st stage in our sales process</span></td><td><span class="gbox">Call to Action (CTA) button - linking to ‘free taste test’ - give their name, cell ph number &amp; address.</span></td></tr>
+</tbody></table>
+<h3 class="sec">Section 8</h3>
+<table class="bg"><thead><tr><th style="width:150px"></th><th>Readers Logic</th><th>Landing Page Logic</th><th>Marketing Statement</th></tr></thead><tbody>
+<tr><td class="nm">Footer</td><td><span class="gbox">How do I get hold if you if I need to?</span></td><td><span class="gbox">How you can get hold of us if you have any other questions / provide social media backlinks</span></td><td><span class="gbox">Company Entity Name, Phone Number, address, email, social media icons</span></td></tr>
+</tbody></table>
+</section>
+
+</div>
+</body>
+</html>
