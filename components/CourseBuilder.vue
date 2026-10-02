@@ -307,7 +307,7 @@
           .ov-session-status
             template(v-if="activeCourse.progress[i].status === 'complete'")
               span.ov-badge.ov-badge-done
-                | ✓{{ activeCourse.progress[i].quizScore !== null ? ' ' + activeCourse.progress[i].quizScore + '%' : '' }}
+                | ✓{{ activeCourse.progress[i].quizScore !== null ? ' ' + pctUpTo(activeCourse.progress[i].quizScore / 100) : '' }}
               button.btn-review-quiz(
                 v-if="activeCourse.progress[i].quizResults && activeCourse.progress[i].quizResults.length"
                 @click="viewQuizReview(i)"
@@ -381,7 +381,7 @@
       //- Quiz complete — results summary
       .quiz-results(v-if="quizComplete")
         .results-score-circle(:class="quizPassed ? 'score-pass' : 'score-needs-work'")
-          span.score-number {{ overallScore === null ? '—' : overallScore + '%' }}
+          span.score-number {{ overallScore === null ? '—' : pctUpTo(overallScore / 100) }}
           span.score-label {{ quizUngraded ? $t('courseBuilder.results.notGraded') : (quizPassed ? $t('courseBuilder.results.passed') : $t('courseBuilder.results.keepGoing')) }}
         p.results-verdict(v-if="quizUngraded") {{ $t('courseBuilder.results.ungradedVerdict') }}
         p.results-verdict(v-else-if="quizPassed") {{ $t('courseBuilder.results.passedVerdict') }}
@@ -389,7 +389,7 @@
         .results-breakdown
           .result-row(v-for="(r, i) in quizResults" :key="i")
             span.q-num {{ $t('courseBuilder.results.questionNumber', { n: i + 1 }) }}
-            span.q-result-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : r.score + '%' }}
+            span.q-result-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : pctUpTo(r.score / 100) }}
             p.q-feedback-brief {{ feedbackText(r).slice(0, 80) }}{{ feedbackText(r).length > 80 ? '...' : '' }}
         button.btn-continue-course(@click="completeSession")
           | {{ hasMoreSessions ? $t('courseBuilder.results.continue', { n: activeSessionIndex + 2 }) : $t('courseBuilder.results.complete') }}
@@ -404,7 +404,7 @@
         .review-q-row(v-for="(r, i) in reviewResults" :key="i")
           .review-q-meta
             span.review-q-num {{ $t('courseBuilder.results.questionNumber', { n: i + 1 }) }}
-            span.review-q-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : r.score + '%' }}
+            span.review-q-score(:class="r.ungraded ? 'score-na-text' : (r.passed ? 'score-pass-text' : 'score-fail-text')") {{ r.ungraded ? '—' : pctUpTo(r.score / 100) }}
             span.review-badge(:class="r.ungraded ? 'badge-ungraded' : (r.passed ? 'badge-pass' : 'badge-fail')") {{ r.ungraded ? $t('courseBuilder.quiz.notGraded') : (r.passed ? $t('courseBuilder.quiz.good') : $t('courseBuilder.quiz.reviewThis')) }}
           p.review-q-text {{ r.question }}
           //- Where the question came from. Older saved results carry no
@@ -435,7 +435,7 @@
           span.stat-number {{ completedSessionCount }}
           span.stat-label {{ $t('courseBuilder.complete.sessions') }}
         .comp-stat
-          span.stat-number {{ averageScore }}%
+          span.stat-number {{ pctUpTo(averageScore / 100) }}
           span.stat-label {{ $t('courseBuilder.complete.average') }}
       .completion-sessions
         .comp-session-row(v-for="(s, i) in activeCourse.outline.sessions" :key="i")
@@ -444,7 +444,7 @@
             span.comp-session-title {{ s.title }}
           .comp-session-score(v-if="activeCourse.progress && activeCourse.progress[i] && activeCourse.progress[i].quizScore !== null")
             span(:class="activeCourse.progress[i].quizScore >= 70 ? 'score-pass-text' : 'score-fail-text'")
-              | {{ activeCourse.progress[i].quizScore }}%
+              | {{ pctUpTo(activeCourse.progress[i].quizScore / 100) }}
       .completion-actions
         button.btn-download-cert(@click="openCertificate") {{ $t('courseBuilder.complete.download') }}
         button.btn-return-menu(@click="$emit('exit')") {{ $t('courseBuilder.complete.returnMenu') }}
@@ -465,7 +465,7 @@
             span.cert-stat-num {{ completedSessionCount }}
             span.cert-stat-label {{ $t('courseBuilder.certificate.sessions') }}
           .cert-stat-item
-            span.cert-stat-num {{ averageScore }}%
+            span.cert-stat-num {{ pctUpTo(averageScore / 100) }}
             span.cert-stat-label {{ $t('courseBuilder.certificate.average') }}
         .cert-actions
           button.btn-cert-print(@click="printCertificate") {{ $t('courseBuilder.certificate.print') }}
@@ -487,6 +487,7 @@ import moderationMessage from '~/mixins/moderationMessage'
 import { intlLocaleFor } from '~/utils/dateLocale'
 import { BCP47_MAP } from '~/mixins/speechMixin'
 import { listCourses, listSharedCourses, copySharedCourse, createCourse, updateCourse, deleteCourse, migrateLegacyCourses } from '~/utils/courses'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 const _md = new MarkdownIt({ html: false, linkify: true, typographer: true })
 // Same security call as the locked VirtualAdvisor pipeline (CB-05): AI output
@@ -508,7 +509,7 @@ export default {
 
   components: { VoiceInputBar, SpeechStatusLine, CourseMessage },
 
-  mixins: [moderationMessage],
+  mixins: [reportFormatMixin, moderationMessage],
 
   props: {
     advisorId: { type: String, default: 'local-advisor' },

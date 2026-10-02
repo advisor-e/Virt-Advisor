@@ -173,6 +173,7 @@
  * only browser access is the token read inside `mounted()`.
  */
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 const TOKEN_KEY = 'advisor_e_token'
 
@@ -189,7 +190,7 @@ const TEXT_FIELDS = [
 export default {
   name: 'SalesCoi',
 
-  mixins: [currencyMixin],
+  mixins: [reportFormatMixin, currencyMixin],
 
   data () {
     return {
@@ -293,7 +294,7 @@ export default {
      */
     rateText (part, whole) {
       if (!whole) { return '—' }
-      return Math.round((part / whole) * 1000) / 10 + '%'
+      return this.pctUpTo(part / whole)
     },
 
     /**

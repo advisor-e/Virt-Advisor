@@ -53,6 +53,8 @@
 </template>
 
 <script>
+import { intlLocaleFor } from '~/utils/dateLocale'
+
 /**
  * Template Library — the Mentor Hub tab where the master template export is
  * uploaded (SEARCH-CONTENT-CASCADE-PLAN.md Phase 1; wording approved by Mike
@@ -131,7 +133,7 @@ export default {
       const d = new Date(iso)
       return isNaN(d.getTime())
         ? ''
-        : d.toLocaleDateString(this.$i18n.locale, { day: 'numeric', month: 'short', year: 'numeric' })
+        : d.toLocaleDateString(intlLocaleFor(this.$i18n.locale), { day: 'numeric', month: 'short', year: 'numeric' })
     },
 
     async load () {

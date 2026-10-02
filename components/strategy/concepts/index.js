@@ -32,6 +32,10 @@ export const CONCEPT_GRAPHICS = {
     () => import(
       /* webpackChunkName: 'concept-the-8-profit-levers' */
       '~/components/strategy/concepts/The8ProfitLevers.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-the-8-profit-levers-sheet2' */
+      '~/components/strategy/concepts/The8ProfitLeversSheet2.vue'
     )
   ],
   'vertical-integration': [
@@ -68,6 +72,10 @@ export const CONCEPT_GRAPHICS = {
     () => import(
       /* webpackChunkName: 'concept-progression-of-economic-value' */
       '~/components/strategy/concepts/ProgressionOfEconomicValue.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-progression-of-economic-value-sheet2' */
+      '~/components/strategy/concepts/ProgressionOfEconomicValueSheet2.vue'
     )
   ],
   'horizontal-integration': [
@@ -110,6 +118,10 @@ export const CONCEPT_GRAPHICS = {
     () => import(
       /* webpackChunkName: 'concept-a-i-d-c-r-a-advertisement-framework' */
       '~/components/strategy/concepts/AIDCRAAdvertisementFramework.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-a-i-d-c-r-a-advertisement-framework-sheet2' */
+      '~/components/strategy/concepts/AIDCRAAdvertisementFrameworkSheet2.vue'
     )
   ],
   pricing: [
@@ -158,18 +170,50 @@ export const CONCEPT_GRAPHICS = {
     () => import(
       /* webpackChunkName: 'concept-digital-funnel-storyboard' */
       '~/components/strategy/concepts/DigitalFunnelStoryboard.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-digital-funnel-storyboard-sheet2' */
+      '~/components/strategy/concepts/DigitalFunnelStoryboardSheet2.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-digital-funnel-storyboard-sheet3' */
+      '~/components/strategy/concepts/DigitalFunnelStoryboardSheet3.vue'
     )
   ],
   'outbound-messaging-plan': [
     () => import(
       /* webpackChunkName: 'concept-outbound-messaging-plan' */
       '~/components/strategy/concepts/OutboundMessagingPlan.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-outbound-messaging-plan-sheet2' */
+      '~/components/strategy/concepts/OutboundMessagingPlanSheet2.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-outbound-messaging-plan-sheet3' */
+      '~/components/strategy/concepts/OutboundMessagingPlanSheet3.vue'
     )
   ],
   'inbound-landing-page-review': [
     () => import(
       /* webpackChunkName: 'concept-inbound-landing-page-review' */
       '~/components/strategy/concepts/InboundLandingPageReview.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-inbound-landing-page-review-sheet2' */
+      '~/components/strategy/concepts/InboundLandingPageReviewSheet2.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-inbound-landing-page-review-sheet3' */
+      '~/components/strategy/concepts/InboundLandingPageReviewSheet3.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-inbound-landing-page-review-sheet4' */
+      '~/components/strategy/concepts/InboundLandingPageReviewSheet4.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-inbound-landing-page-review-sheet5' */
+      '~/components/strategy/concepts/InboundLandingPageReviewSheet5.vue'
     )
   ],
   'sparketing-friction-review': [
@@ -200,6 +244,26 @@ export const CONCEPT_GRAPHICS = {
     () => import(
       /* webpackChunkName: 'concept-sales-process-review' */
       '~/components/strategy/concepts/SalesProcessReview.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-sales-process-review-sheet2' */
+      '~/components/strategy/concepts/SalesProcessReviewSheet2.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-sales-process-review-sheet3' */
+      '~/components/strategy/concepts/SalesProcessReviewSheet3.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-sales-process-review-sheet4' */
+      '~/components/strategy/concepts/SalesProcessReviewSheet4.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-sales-process-review-sheet5' */
+      '~/components/strategy/concepts/SalesProcessReviewSheet5.vue'
+    ),
+    () => import(
+      /* webpackChunkName: 'concept-sales-process-review-sheet6' */
+      '~/components/strategy/concepts/SalesProcessReviewSheet6.vue'
     )
   ],
   'porters-5-forces': [

@@ -24,6 +24,8 @@
 </template>
 
 <script>
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+
 /**
  * StrategyHeardTray — what was said while none of this card's boxes was open, at the card's foot.
  *
@@ -65,8 +67,7 @@ export default {
     key (p) { return p.n + ':' + p.id },
 
     clock (iso) {
-      const at = new Date(iso)
-      return isNaN(at.getTime()) ? '' : at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      return fmtDate(iso, this.$i18n.locale, { hour: '2-digit', minute: '2-digit', hour12: false })
     },
 
     /**

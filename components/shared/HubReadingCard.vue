@@ -30,6 +30,8 @@
 </template>
 
 <script>
+import { formatDate as fmtDate, DATE_TIME } from '~/utils/dateLocale'
+
 /**
  * HubReadingCard — "What this is telling you": the model's reading of the numbers on a
  * hub page, made on the button and kept with the counts it was read from.
@@ -77,16 +79,12 @@ export default {
   methods: {
     /** @param {string} iso @returns {string} */
     dateWords (iso) {
-      const d = new Date(iso)
-      if (Number.isNaN(d.getTime())) { return '' }
-      return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+      return fmtDate(iso, this.$i18n.locale)
     },
 
     /** @param {string} iso @returns {string} */
     dateTimeWords (iso) {
-      const d = new Date(iso)
-      if (Number.isNaN(d.getTime())) { return '' }
-      return this.dateWords(iso) + ', ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+      return fmtDate(iso, this.$i18n.locale, DATE_TIME)
     }
   }
 }

@@ -238,6 +238,7 @@ import ProvenanceBadge from '~/components/base/ProvenanceBadge'
 import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 const { initialDials, copyDials } = require('~/utils/ebitdaDcfSavedShape')
 
@@ -266,7 +267,7 @@ export default {
 
   components: { HeroStrip, HeroFigure, ProvenanceBadge, ClientChangedBadge, StaleBanner, SampleNotice },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute],
 
   props: {
     /**
@@ -383,7 +384,7 @@ export default {
         })
       }
       text += ' ' + this.$t('report.ebitdaDcf.coach.terminalNote', {
-        mult: this.dcf.exitMultiple,
+        mult: this.num(this.dcf.exitMultiple, Number.isInteger(this.dcf.exitMultiple) ? 0 : 1),
         share: this.pct(r.valuation.terminalShare || 0)
       })
       return text
@@ -442,13 +443,10 @@ export default {
       if (fig && fig[idx] && typeof fig[idx].value === 'number') { return fig[idx].value }
       return this.result ? null : 0
     },
-    // money() comes from currencyMixin (firm currency + locale).
+    // money() comes from currencyMixin, pct() from reportFormatMixin — both in the reader's
+    // language.
     /** @param {number} n - e.g. 0.9258 @returns {string} share price, e.g. "$0.93" */
     price (n) { return this.money2(n) },
-    /** @param {number} f - fraction @returns {string} e.g. "53.7%" */
-    pct (f) {
-      return (Math.round(f * 1000) / 10).toFixed(1) + '%'
-    },
     /** @param {number} n @returns {string} e.g. "572k" */
     kShort (n) {
       return Math.round(n / 1000) + 'k'

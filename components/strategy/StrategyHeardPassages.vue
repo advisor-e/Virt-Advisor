@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+
 /**
  * StrategyHeardPassages — what was said while one capture box was open, under that box.
  *
@@ -94,8 +96,7 @@ export default {
 
     /** A wall-clock time as the concept summary prints one. */
     clock (iso) {
-      const at = new Date(iso)
-      return isNaN(at.getTime()) ? '' : at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      return fmtDate(iso, this.$i18n.locale, { hour: '2-digit', minute: '2-digit', hour12: false })
     },
 
     /** "Heard, 2:21 pm–2:23 pm", or the time once when both fall in the same minute (Mike, 2026-10-01). */

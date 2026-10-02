@@ -29,6 +29,22 @@ describe('English is unchanged', () => {
     expect(f.times(5.23, 'en')).toBe('5.2×')
     expect(f.ratio2(0.38, 'en')).toBe('0.38')
   })
+
+  test('slice 2\'s options write what each screen wrote before', () => {
+    // pctUpTo: the bands that read "80%", never "80.0%" (Stock Purchasing, Mid-Level Budget)
+    expect(f.pctUpTo(0.8, undefined, 'en')).toBe('80%')
+    expect(f.pctUpTo(0.401, undefined, 'en')).toBe('40.1%')
+    expect(f.pctUpTo(0.08625, 2, 'en')).toBe('8.63%')
+    expect(f.times(12, 'en', 0)).toBe('12×')
+    expect(f.signedPct100(20, 'en', 0)).toBe('+20%')
+    expect(f.signedPct100(-40, 'en', 0)).toBe('-40%')
+    expect(f.signedPct100(0, 'en', 0)).toBe('0%')
+    // numUpTo: scores and counts that are usually whole (slice 3)
+    expect(f.numUpTo(7, undefined, 'en')).toBe('7')
+    expect(f.numUpTo(7.5, undefined, 'en')).toBe('7.5')
+    expect(f.numUpTo(2814, 0, 'en')).toBe('2,814')
+    expect(f.numUpTo(185.5, 2, 'en')).toBe('185.5')
+  })
 })
 
 describe('🔴 German gets a decimal comma', () => {
@@ -41,6 +57,12 @@ describe('🔴 German gets a decimal comma', () => {
     expect(f.times(1.6, 'de')).toBe('1,6×')
     expect(f.ratio2(1.09, 'de')).toBe('1,09')
     expect(f.days(1234, 'de')).toBe('1.234')
+    expect(norm(f.pctUpTo(0.401, undefined, 'de'))).toBe('40,1 %')
+    expect(norm(f.pctUpTo(0.8, undefined, 'de'))).toBe('80 %')
+    expect(f.times(12.4, 'de', 0)).toBe('12×')
+    expect(norm(f.signedPct100(20, 'de', 0))).toBe('+20 %')
+    expect(f.numUpTo(7.5, undefined, 'de')).toBe('7,5')
+    expect(f.numUpTo(2814, 0, 'de')).toBe('2.814')
   })
 
   test('the points unit is the one it is given, so a translation reaches it', () => {
@@ -53,7 +75,7 @@ describe('🔴 German gets a decimal comma', () => {
 })
 
 describe('no figure is shown as a dash, never as zero', () => {
-  test.each(['pct', 'pct100', 'pts', 'signedPct', 'signedPct100', 'days', 'times', 'ratio2'])('%s', (name) => {
+  test.each(['pct', 'pctUpTo', 'pct100', 'pts', 'signedPct', 'signedPct100', 'days', 'times', 'ratio2', 'numUpTo'])('%s', (name) => {
     expect(f[name](null)).toBe(f.DASH)
     expect(f[name](NaN)).toBe(f.DASH)
   })
@@ -80,6 +102,29 @@ describe('🔴 GUARD: a screen reaches these through the mixin, which passes the
         if (e.isDirectory()) { walk(p); return }
         if (e.name.endsWith('.vue') && /require\(['"]~\/utils\/reportFormat['"]\)/.test(fs.readFileSync(p, 'utf8'))) {
           offenders.push(path.relative(dir, p))
+        }
+      })
+    }
+    walk(dir)
+    expect(offenders).toEqual([])
+  })
+
+  test('no component that mixes it in keeps a method of the same name', () => {
+    // In Vue 2 a component's own method silently beats the mixin's, so a screen with its
+    // own `pct` goes on writing English with the mixin present and nothing looking wrong —
+    // the trap slice 2 removed from five report screens (item 13.8).
+    const NAMES = Object.keys(require('../../mixins/reportFormatMixin').default.methods)
+    const own = new RegExp('^\\s{2,6}(' + NAMES.join('|') + ')\\s*\\(', 'm')
+    const dir = path.join(__dirname, '../../components')
+    const offenders = []
+    const walk = (d) => {
+      fs.readdirSync(d, { withFileTypes: true }).forEach((e) => {
+        const p = path.join(d, e.name)
+        if (e.isDirectory()) { walk(p); return }
+        if (!e.name.endsWith('.vue')) { return }
+        const src = fs.readFileSync(p, 'utf8')
+        if (src.includes('import reportFormatMixin from') && own.test(src)) {
+          offenders.push(path.relative(dir, p) + ': ' + src.match(own)[1])
         }
       })
     }

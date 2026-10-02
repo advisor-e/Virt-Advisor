@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "15.18",
-      "name": "The advisor never sees the worked answer Mike wrote on a ruled table",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Where one of his tables has ruled writing lines, only the blank cells become boxes, so the example row he wrote to show what a good answer looks like is dropped. The advisor gets his headings and empty boxes.",
-      "risk": "The app is inconsistent with itself, which is the part that will confuse whoever picks this up: on the deck-page sheets his examples DO arrive as grey guide text inside the box, and strategyDeckCaptureTables.test.js insists they must. It waits on Mike because Insights Summary has THREE blank rows under each heading and ONE example - which box carries it, or whether it sits above them all, is a design decision that ends up in a client's document.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-23 - filed on his yes at shutdown, after wiring Insights Summary made it visible for the first time. He was offered the fix and chose to have it designed rather than guessed."
-      },
-      "touches": "fieldsOfTable in server/utils/strategyCaptureForms.js, where `isCapture` is `cell.blank` once a grid has ruled lines and the example row is therefore never a field; the `example` property every other form already carries; components/strategy/StrategyCaptureBox.vue, which renders it as guide text.",
-      "note": "NOT A REGRESSION. It has always behaved this way and only became visible on 2026-09-23, when Insights Summary became the first banded grid WITH a worked example to reach a screen - Porter's and Blue Ocean go heading straight to ruled lines and have no example to lose. AFFECTS THE BANDED GRIDS ONLY. The prompt-answer sheets are unaffected: with no ruled line every cell is a field, so his example is already the box's own guide text.",
-      "comment": "2026-09-23 - found by reading what an advisor would actually see after the heading fix landed, not by any test failing. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "15.21",
       "name": "The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes",
       "rankedByMike": false,
@@ -181,27 +160,6 @@
       "comment": "2026-09-28 - filed on Mike's yes at startup, rather than fixed, because the fix is machine-wide."
     },
     {
-      "ref": "13.7",
-      "name": "Translation reaches every hub page at every level, going forward",
-      "rankedByMike": false,
-      "kind": "feature",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Translation is available, but each hub page has had to be brought into it one at a time. Mike wants it extended across all hub pages and all four levels, and every new page built translatable from the start.",
-      "risk": "A manager working in another language meets English on any hub page that was missed. Wordsmith is the first live case: it tells the AI to write New Zealand English and its code treats American spelling as an error, so a firm writing American English would have correct spelling flagged as a mistake.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-29, in his own words: \"we have translation available and will extend it across all hub pages, all levels, going forward. In fact, you can list that as a required task to do\"."
-      },
-      "touches": "Every hub tab under FirmManagerHub.vue at the four tiers; locales/en.json; server/utils/uiTranslation.js; and Wordsmith's language: the New Zealand spelling rule in buildDraftMessages and the AMERICAN check in server/utils/wordsmith.js.",
-      "note": "NOT SCOPED. 10.1 and 10.2 already brought the manager screens and the hub's backend wording into translation. First job at scoping: list which hub pages and tiers still show English that bypasses it, and name how Wordsmith learns a firm's language and spelling. The impact test is unrun.",
-      "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "8.6",
       "name": "After a recorded strategy session the next meeting's coaching notes check nothing from it",
       "rankedByMike": false,
@@ -225,27 +183,6 @@
         "machine": "laptop",
         "since": "2026-09-30"
       }
-    },
-    {
-      "ref": "13.8",
-      "name": "Report figures keep English number formatting in other languages",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Decimals on the report screens keep an English point in every language - German reads '1.0×' and '3.0 Punkte' where a German reader expects '1,0×' - and the Debtor Drag chart's axis reads '134 $k'.",
-      "risk": "A figure a client reads can look wrong, or be misread as a thousands separator, on the screens that exist to be read with them. Money already formats through currencyMixin; the small figures do not, because each report rounds with its own helper (round1, round0, pct, kf).",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-30 - found walking the eight 13.6 screens in German on the running app. Filed on Mike's yes rather than fixed, because it needs one formatting rule chosen for every report."
-      },
-      "touches": "The per-report rounding helpers - round1, round0 and pct in MarginBreakevenReport.vue, BusinessPerformanceReport.vue and the other report screens; kf in DebtorDragReport.vue for the chart axis; mixins/currencyMixin.js, which already formats money by locale and is the natural home for one number formatter.",
-      "note": "SLICE 1 BUILT 2026-10-01: all 13 Business Performance Report screens format through mixins/reportFormatMixin.js; walked in German, 56 English decimals and 114 misplaced 'k' figures now 0, English byte-identical. LEFT: slice 2, the other report screens (~75 local helpers - round1, round0, pct, kf, oneDp, percent - incl. base/DoughnutChart). Slice 3, the hub screens, plus on Mike's yes the seven dates shown in the browser's language (toLocaleString with no locale; fix with intlLocaleFor): AuditViewer, ManagerConsole, FirmDomainSupport, FirmLogicTables, MethodGuidePanel, SalesBlog, MeetingUnfinished. Walk each before and after.",
-      "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-01: PROCEED - slice 1 done, slices 2 and 3 remain."
     },
     {
       "ref": "15.31",
@@ -283,14 +220,14 @@
       "blocks": null,
       "waitingOn": "Us",
       "why": "The meeting reports screen and the meeting set-up screen type their English straight into the code, so an advisor reading in another language sees them in English.",
-      "risk": "Every other Meeting Review screen now translates - the recorder moved on 2026-10-01 - so these two stand out in another language. The reports screen's own comment still defends the typed English by saying the recorder does the same, which is no longer true.",
+      "risk": "The recorder component moved on 2026-10-01, but the recording PAGE around it did not: pages/meeting-record.vue still types 30 phrases, including the not-yet-available-at-your-firm gate and its legal-obligations wording, which takes the same care as the pinned consent wording. These are the only pages in the app with typed English (2026-10-02). The reports screen's own comment still defends the typed English by saying the recorder does the same, which is no longer true.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-10-01 - found building item 8.4's gap notice; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
-      "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, locales/en.json, and the report tests that read English text.",
-      "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words.",
+      "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, the three page files pages/meeting-record.vue (30 typed phrases), pages/meeting-review.vue (7) and pages/meeting-preset.vue (4), locales/en.json, and the report tests that read English text.",
+      "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words. Its numbers and dates need 13.8's helpers too - the talk-time % (lines 128-130) and the en-NZ date at line 480 (8.7, a duplicate, folded in 2026-10-01).",
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
@@ -607,6 +544,48 @@
       "touches": "server/utils/templateHeadingCheck.js checkTemplateHeadings and its retry instruction; correctTemplateHeadings in server/advisorEngine.js; tests/unit/templateHeadingCheck.test.js, whose 'leaves an unrecognised name alone' test pins today's deliberate behaviour and would change with it.",
       "note": "Deliberately narrow today (item 7.7): the check reads AI prose, and a wider net could fire on a misread heading. Measure: the answer bench's namesExist check, counting invented names only - the two answers per run that ask a clarifying question and name nothing fail that check by design and are not this fault. Runs: design/answer-bench-runs/2026-10-02-fafce7d6-library-titles-*.json.",
       "comment": "2026-10-02 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.3",
+      "name": "First-load page code is 382 KB against the 300 KB limit",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - nobody sees it until a release gate refuses it",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "CLAUDE.md caps first-load JS at 300 KB gzipped and the master team enforces it at the UAT and production gates; measured 2026-10-01 the shared code every page loads is 382 KB.",
+      "risk": "A release could be refused at the master team's gate with no warning from our side, since nothing in this repo measures it; every page also loads slower than the limit allows.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-01 - measured while registering Datepicker and Progress (66e010c9); filed on Mike's yes."
+      },
+      "touches": "nuxt.config.js build settings, plugins/i18n.js (whether locales/en.json is bundled), plugins/buefy.js; the measurement method should match the master team's.",
+      "note": "Production build 2026-10-01, gzipped: runtime 3.1 + commons/app 57.3 + vendors~app 110.0 + app 211.7 = 382 KB before any page; /firm-manager adds 209 KB, /advisor totals 456 KB. Suspected cause, unproved: the 212 KB app chunk carries the English locale file. First job: confirm the master team's measuring method, then find what is in app.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "13.11",
+      "name": "Text comparison drops accented letters, so a check could miss a changed word",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - unproved harm, in languages other than English",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "normalise() in server/utils/meetingReports.js keeps a-z, 0-9 and apostrophes only, so \"Gäste\" becomes \"g ste\" and two words differing only in an accented letter compare equal.",
+      "risk": "Meeting Review's quote check and Wordsmith's must-keep check could pass a draft that changed an accented word. Not seen to happen; both sides are stripped alike, so a true quote still matches.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-02 - found while making Wordsmith's checks work in other languages (13.7); filed on Mike's yes at shutdown."
+      },
+      "touches": "normalise in server/utils/meetingReports.js and every caller: Meeting Review's quote verification, Wordsmith's checkDraft and the Wordsmith Lab.",
+      "note": "MEASURE FIRST, on non-English transcripts: does it ever let a wrong word through? Any change must not loosen Meeting Review's checks. Wordsmith's invented-name check already reads accented letters (wordsOf, 13.7).",
+      "comment": "2026-10-02 - filed on Mike's yes at shutdown. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

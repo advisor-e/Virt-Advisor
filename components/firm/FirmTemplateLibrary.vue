@@ -106,6 +106,7 @@
  * call judges `res.ok`; failures use the standard error envelope.
  */
 import FirmTemplateContents from '~/components/firm/FirmTemplateContents.vue'
+import { intlLocaleFor } from '~/utils/dateLocale'
 
 export default {
   name: 'FirmTemplateLibrary',
@@ -179,7 +180,7 @@ export default {
       const d = new Date(iso)
       return isNaN(d.getTime())
         ? ''
-        : d.toLocaleDateString(this.$i18n.locale, { day: 'numeric', month: 'short', year: 'numeric' })
+        : d.toLocaleDateString(intlLocaleFor(this.$i18n.locale), { day: 'numeric', month: 'short', year: 'numeric' })
     },
 
     async load () {

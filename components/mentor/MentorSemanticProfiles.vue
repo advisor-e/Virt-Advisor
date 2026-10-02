@@ -214,6 +214,7 @@
  * already reaches scoring through Advisory Distinctions, which every tier has.
  */
 import HubGuidePanel from '~/components/shared/HubGuidePanel.vue'
+import { intlLocaleFor } from '~/utils/dateLocale'
 
 export default {
   name: 'MentorSemanticProfiles',
@@ -420,7 +421,7 @@ export default {
       const d = new Date(iso)
       return isNaN(d.getTime())
         ? ''
-        : d.toLocaleDateString(this.$i18n.locale, { day: 'numeric', month: 'short', year: 'numeric' })
+        : d.toLocaleDateString(intlLocaleFor(this.$i18n.locale), { day: 'numeric', month: 'short', year: 'numeric' })
     },
 
     /**

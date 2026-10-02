@@ -214,6 +214,7 @@ section.decision-logic
 
 <script>
 import DecisionLogicDiagnostic from '~/components/firm/DecisionLogicDiagnostic.vue'
+import { num } from '~/utils/currencyFormat'
 // `require`, matching FirmManagerHub — distinctionMove is CommonJS, and this is
 // the import form already proven through this project's webpack build.
 const { buildMoveRequest, buildCopyRequest } = require('~/utils/distinctionMove')
@@ -303,7 +304,7 @@ export default {
      * @returns {string}
      */
     marginLabel () {
-      return Number(this.measured.averageTopTwoMargin || 0).toFixed(1)
+      return num(Number(this.measured.averageTopTwoMargin || 0), this.$i18n.locale, 1)
     },
 
     nearMissRows () { return this.nearMisses.rows || [] },

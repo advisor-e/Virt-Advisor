@@ -253,6 +253,7 @@ section.firm-staircase
  * so the Hub reads as one screen rather than six dialects.
  */
 import FirmStaircaseStepForm from '~/components/firm/FirmStaircaseStepForm.vue'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
 const { buildStaircaseRows, buildStepEdit } = require('~/utils/staircaseRows')
 const { blockTone } = require('~/utils/brandTokens')
 
@@ -696,7 +697,7 @@ export default {
     },
 
     formatDate (iso) {
-      return iso ? new Date(iso).toLocaleDateString() : ''
+      return fmtDate(iso, this.$i18n.locale)
     },
 
     capitalise (s) {

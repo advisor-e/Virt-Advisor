@@ -39,6 +39,7 @@ function factory (propsData) {
     localVue,
     propsData: propsData || {},
     mocks: {
+      $i18n: { locale: 'en' },
       $t: (k, p) => (p && p.firm ? k + ':' + p.firm : (p && p.country ? k + ':' + p.country : k)),
       $buefy: { toast: { open: jest.fn() } }
     }

@@ -246,9 +246,12 @@
  * `locales/en.json` (item 10.1).
  */
 import { scheduleUnreadSentence } from '~/utils/scheduleUnreadWords'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 export default {
   name: 'DepreciationDocumentReview',
+
+  mixins: [reportFormatMixin],
 
   props: {
     /** The pending document record, as `server/utils/depreciationProposals.js` stores it. */
@@ -507,7 +510,7 @@ export default {
      */
     percentText (rate) {
       if (rate === null || rate === undefined) { return '—' }
-      return (Math.round(rate * 1000) / 10) + '%'
+      return this.pctUpTo(rate)
     },
 
     /**

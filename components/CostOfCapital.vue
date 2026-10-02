@@ -296,6 +296,7 @@ import StaleBanner from '~/components/base/StaleBanner'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import savedReport from '~/mixins/savedReport'
 
@@ -351,7 +352,7 @@ export default {
 
   components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ClientChangedBadge },
 
-  mixins: [currencyMixin, reportRecompute, savedReport],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -500,19 +501,8 @@ export default {
   },
 
   methods: {
-    /**
-     * Format a decimal fraction as a percentage, e.g. 0.061627 → "6.16%".
-     * Not currency, so it does not belong in currencyMixin; `num` there still owns the
-     * grouping and the reader's language.
-     * @param {number} v - the fraction
-     * @param {number} [dp=2] - decimal places
-     * @returns {string}
-     */
-    pct (v, dp) {
-      const places = (dp === undefined || dp === null) ? 2 : dp
-      const n = Number(v)
-      return this.num((Number.isFinite(n) ? n : 0) * 100, places) + '%'
-    },
+    // pct(v, dp) comes from reportFormatMixin: the reader's language writes the "%" as well
+    // as the digits ("6,16 %"), which `num(...) + '%'` here could not.
 
     /**
      * Write one cell of a helper series. Uses `$set` because a direct index assignment

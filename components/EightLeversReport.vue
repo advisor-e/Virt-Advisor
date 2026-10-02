@@ -35,7 +35,7 @@
       )
       hero-figure(
         :label="$t('report.eightLevers.profitPct')"
-        :value="pct(current.profitPct)"
+        :value="pct0(current.profitPct)"
       )
       hero-figure(
         :label="$t('report.eightLevers.customers')"
@@ -167,7 +167,7 @@
         .lev-labour
           .lev-lstat.lev-gap
             .lev-slabel {{ $t('report.eightLevers.labourGap') }}
-            .lev-sval(:class="labourGapPct > 0.05 ? 'bad' : 'ok'") {{ pct(labourGapPct) }}
+            .lev-sval(:class="labourGapPct > 0.05 ? 'bad' : 'ok'") {{ pct0(labourGapPct) }}
           .lev-lstat(v-for="s in labourStats" :key="s.k")
             .lev-slabel {{ $t('report.eightLevers.labour.' + s.k) }}
             .lev-sval {{ s.v }}
@@ -207,6 +207,7 @@
  */
 import ReportHeader from '~/components/base/ReportHeader.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import StaleBanner from '~/components/base/StaleBanner.vue'
 import HeroStrip from '~/components/base/HeroStrip.vue'
@@ -241,7 +242,7 @@ export default {
 
   components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, ClientChangedBadge },
 
-  mixins: [currencyMixin, reportRecompute, savedReport],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -300,7 +301,7 @@ export default {
         { k: 'prospects', v: this.round0(c.prospects) },
         { k: 'customers', v: this.round0(c.customers) },
         { k: 'spend', v: this.money(c.averageSpend) },
-        { k: 'frequency', v: this.round1(c.averageFrequency) + '×' },
+        { k: 'frequency', v: this.times(c.averageFrequency || 0) },
         { k: 'revenue', v: this.money(c.revenue) }
       ]
     },
@@ -310,12 +311,13 @@ export default {
       const b = this.broad
       if (!b) { return [] }
       const m = this.money
-      const p = this.pct
+      const p = this.pct0
       const r0 = this.round0
+      const x = v => this.times(v || 0)
       return [
         { k: 'customers', cur: r0(b.current.customers), b: r0(b.optionB.customers), c: r0(b.optionC.customers) },
         { k: 'spend', cur: m(b.current.averageSpend), b: m(b.optionB.averageSpend), c: m(b.optionC.averageSpend) },
-        { k: 'frequency', cur: this.round1(b.current.averageFrequency) + '×', b: this.round1(b.optionB.averageFrequency) + '×', c: this.round1(b.optionC.averageFrequency) + '×' },
+        { k: 'frequency', cur: x(b.current.averageFrequency), b: x(b.optionB.averageFrequency), c: x(b.optionC.averageFrequency) },
         { k: 'revenue', cur: m(b.current.revenue), b: m(b.optionB.revenue), c: m(b.optionC.revenue) },
         { k: 'margin', cur: p(b.current.marginPct), b: p(b.optionB.marginPct), c: p(b.optionC.marginPct) },
         { k: 'expenses', cur: m(b.current.totalExpenses), b: m(b.optionB.totalExpenses), c: m(b.optionC.totalExpenses) }
@@ -328,9 +330,9 @@ export default {
       const l = this.data.calculations.labour
       return [
         { k: 'chargeOut', v: this.money(l.hourlyChargeOutRate) },
-        { k: 'payRate', v: '$' + Number(l.hourlyPayRate || 0).toFixed(2) },
-        { k: 'targetMargin', v: this.pct(l.targetLabourMarginPct) },
-        { k: 'actualMargin', v: this.pct(l.adjustedLabourMarginPct) },
+        { k: 'payRate', v: this.money2(l.hourlyPayRate || 0) },
+        { k: 'targetMargin', v: this.pct0(l.targetLabourMarginPct) },
+        { k: 'actualMargin', v: this.pct0(l.adjustedLabourMarginPct) },
         { k: 'weeksLost', v: this.round1(l.effectiveWeeksLost) },
         { k: 'labourRevenue', v: this.money(l.estimatedLabourRevenue) }
       ]
@@ -350,20 +352,21 @@ export default {
   mounted () { this.recompute() },
 
   methods: {
-    // money() + signedMoney() come from currencyMixin (firm currency + locale).
-    pct (n) { return Math.round((n || 0) * 100) + '%' },
-    round0 (n) { return Math.round(n || 0).toLocaleString('en-US') },
-    round1 (n) { return (Math.round((n || 0) * 10) / 10).toFixed(1) },
+    // money() / money2() / num() come from currencyMixin, pct() / times() from
+    // reportFormatMixin — all in the reader's language.
+    pct0 (n) { return this.pct(n || 0, 0) },
+    round0 (n) { return this.num(Math.round(n || 0)) },
+    round1 (n) { return this.num(n || 0, 1) },
 
     fmtField (fld) {
       const v = this.f[fld.k]
       if (fld.fmt === 'money') { return this.money(v) }
       if (fld.fmt === 'money2') { return this.money2(v) }
-      if (fld.fmt === 'pct') { return v + '%' }
-      if (fld.fmt === 'x') { return this.round1(v) + '×' }
-      if (fld.fmt === 'hours') { return v + ' hrs' }
-      if (fld.fmt === 'weeks') { return this.round1(v) + ' wks' }
-      if (fld.fmt === 'days') { return v + ' days' }
+      if (fld.fmt === 'pct') { return this.pctUpTo(v / 100) }
+      if (fld.fmt === 'x') { return this.times(v) }
+      if (fld.fmt === 'hours') { return this.$t('report.eightLevers.unit.hours', { n: v }) }
+      if (fld.fmt === 'weeks') { return this.$t('report.eightLevers.unit.weeks', { n: this.round1(v) }) }
+      if (fld.fmt === 'days') { return this.$t('report.eightLevers.unit.days', { n: v }) }
       return this.round0(v)
     },
 

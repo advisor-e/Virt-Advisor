@@ -19,7 +19,7 @@
 const { sendError } = require('../utils/sendError')
 const { devFallbackAllowed } = require('../utils/dbFailure')
 const wc = require('../utils/wordsmithContent')
-const { STATEMENT_NAMES } = require('../utils/wordsmith')
+const { STATEMENT_NAMES, SPELLINGS } = require('../utils/wordsmith')
 
 /** The limits the screen stops its boxes at, so a box never accepts what a save refuses. */
 const LIMITS = {
@@ -299,6 +299,48 @@ async function keepMineValue (req, res) {
   })
 }
 
+/**
+ * Choose English spelling for this tier and those below: one value for all five statements
+ * (Mike, 2026-10-02, item 13.7).
+ *
+ * 🔴 A CHOICE IS KEPT EVEN WHEN IT MATCHES THE LEVEL ABOVE — unlike a word limit. With two values,
+ * dropping it would leave a firm that chose New Zealand silently following its group to US, which
+ * is the case the approved drawing (`wordsmith-spelling.html`) shows protected. Only "Use theirs"
+ * goes back to following.
+ * @route PUT /api/firm-manager/wordsmith/spelling
+ * @param {object} req.body - `{ value: 'nz'|'us' }`
+ */
+async function editSpelling (req, res) {
+  await act(req, res, false, (state, above, { body }) => {
+    if (!SPELLINGS.includes(body.value)) { return { status: 400, code: 'INVALID_VALUE', message: 'Spelling is New Zealand or US' } }
+    state.spelling = body.value
+    state.spellingBaseline = above.spelling
+  })
+}
+
+/**
+ * Drop this tier's spelling and use the level above's — "Use theirs".
+ * @route POST /api/firm-manager/wordsmith/spelling/use-inherited
+ */
+async function useInheritedSpelling (req, res) {
+  await act(req, res, false, (state) => {
+    if (state.spelling === undefined) { return notEdited }
+    state.spelling = undefined
+    state.spellingBaseline = undefined
+  })
+}
+
+/**
+ * Keep this tier's spelling and stop offering the level above's, until it changes again.
+ * @route POST /api/firm-manager/wordsmith/spelling/keep-mine
+ */
+async function keepMineSpelling (req, res) {
+  await act(req, res, false, (state, above) => {
+    if (state.spelling === undefined) { return notEdited }
+    state.spellingBaseline = above.spelling
+  })
+}
+
 /** The inherited style option with this id, or undefined. */
 const styleOption = (above, id) => above.style.flatMap(r => r.options).find(o => o.id === id)
 
@@ -396,6 +438,9 @@ module.exports = {
   editValue,
   useInheritedValue,
   keepMineValue,
+  editSpelling,
+  useInheritedSpelling,
+  keepMineSpelling,
   editStyle,
   useInheritedStyle,
   keepMineStyle,

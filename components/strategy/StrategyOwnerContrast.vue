@@ -27,10 +27,10 @@
       tr(v-for="task in contrast.tasks" :key="task.name")
         td {{ task.name }}
         template(v-for="(cell, i) in task.cells")
-          td.soc-n(:key="'n' + i") {{ cell ? pct(cell.now) : '' }}
+          td.soc-n(:key="'n' + i") {{ cell ? pct(Number(cell.now) || 0, 0) : '' }}
           //- Green where the owner's focus is more than their now, red where it is less —
           //- one of the two touches Mike approved on the drawing, 2026-09-25.
-          td.soc-n(:key="'f' + i" :class="shift(cell)") {{ cell ? pct(cell.focus) : '' }}
+          td.soc-n(:key="'f' + i" :class="shift(cell)") {{ cell ? pct(Number(cell.focus) || 0, 0) : '' }}
 
   p.soc-strip
     b {{ $t('report.ownerExpectations.contrast.mustReach') }}
@@ -39,6 +39,7 @@
 
 <script>
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /**
  * StrategyOwnerContrast — the Business Owner Expectations page of a client's strategy plan
@@ -53,7 +54,7 @@ import currencyMixin from '~/mixins/currencyMixin'
 export default {
   name: 'StrategyOwnerContrast',
 
-  mixins: [currencyMixin],
+  mixins: [reportFormatMixin, currencyMixin],
 
   props: {
     /** The table, from `contrastFrom()`: `{ years, owners, tasks, revenue }`. */
@@ -98,11 +99,6 @@ export default {
         hours: this.num(Number(s.weeklyHours) || 0, 0),
         weeks: this.num(Number(s.leaveWeeks) || 0, 0)
       })
-    },
-
-    /** A decimal share as a whole percentage. */
-    pct (v) {
-      return Math.round((Number(v) || 0) * 100) + '%'
     },
 
     /** Up, down or level against the owner's own "now". */

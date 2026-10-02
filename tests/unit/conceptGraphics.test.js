@@ -208,8 +208,9 @@ describe('the firm frame is on every drawing, identically', () => {
     // 32 drawings until 2026-09-23; then Our Session Objective (1) and
     // Collaborative Thinking (2 sheets); 2026-09-26 Alignment Statements (6 sheets,
     // item 15.28) and Our Session Objective's agenda on a sheet of its own (item 15.26);
-    // 2026-09-28 Cultural Core Values (item 15.17).
-    expect(svgs).toBe(43)
+    // 2026-09-28 Cultural Core Values (item 15.17); 2026-10-02 the sixteen second
+    // teaching pages, awaiting Mike's approval (item 15.18).
+    expect(svgs).toBe(59)
     BARS.forEach(([cls]) => expect(cls + ':' + counts[cls]).toBe(cls + ':' + svgs))
   })
 

@@ -57,7 +57,7 @@
                 :entered-label="$t('report.quickPosition.confirm.entered')"
               )
             output
-              | {{ money(inputs[f.key]) }} × {{ inputs[f.key + 'Factor'] }}%
+              | {{ money(inputs[f.key]) }} × {{ pctUpTo(inputs[f.key + 'Factor'] / 100) }}
               client-changed-badge(v-if="isClientChanged(f.key + 'Factor')" :label="$t('clientReports.saved.badge')")
           input(type="range" min="0" max="100" step="5" v-model.number="inputs[f.key + 'Factor']")
       //- R11: creditors/wagesDue shape the result but had no on-screen presence — shown
@@ -137,14 +137,14 @@
             label
               | {{ $t('report.quickPosition.aside.grossMargin') }}
               client-changed-badge(v-if="isClientChanged('grossMarginPct')" :label="$t('clientReports.saved.badge')")
-            output {{ inputs.grossMarginPct }}%
+            output {{ pctUpTo(inputs.grossMarginPct / 100) }}
           input(type="range" min="5" max="80" step="1" v-model.number="inputs.grossMarginPct")
         .field
           .row
             label
               | {{ $t('report.quickPosition.aside.discount') }}
               client-changed-badge(v-if="isClientChanged('discountPct')" :label="$t('clientReports.saved.badge')")
-            output {{ inputs.discountPct }}%
+            output {{ pctUpTo(inputs.discountPct / 100) }}
           input(type="range" min="0" max="30" step="1" v-model.number="inputs.discountPct")
 
     section.results(v-if="result")
@@ -175,9 +175,9 @@
         table.mini
           tr
             td {{ $t('report.quickPosition.discount.today') }}
-            td {{ inputs.grossMarginPct }}%
+            td {{ pctUpTo(inputs.grossMarginPct / 100) }}
           tr
-            td {{ $t('report.quickPosition.discount.after', { d: inputs.discountPct + '%' }) }}
+            td {{ $t('report.quickPosition.discount.after', { d: pctUpTo(inputs.discountPct / 100) }) }}
             td {{ result.newGrossMarginPct === null ? '—' : pct(result.newGrossMarginPct) }}
           tr.total
             td {{ $t('report.quickPosition.discount.extra') }}
@@ -233,6 +233,7 @@ import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 const { SAMPLE_FIGURES, initialState } = require('~/utils/quickPositionSavedShape')
 
@@ -256,7 +257,7 @@ export default {
 
   components: { HeroStrip, HeroFigure, ProvenanceBadge, ClientChangedBadge, StaleBanner, SampleNotice },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute],
 
   props: {
     /**
@@ -347,7 +348,7 @@ export default {
       })
       if (this.inputs.discountPct > 0 && r.salesIncreaseToMaintainGM !== null) {
         text += ' ' + this.$t('report.quickPosition.coach.discountTrap', {
-          d: this.inputs.discountPct + '%',
+          d: this.pctUpTo(this.inputs.discountPct / 100),
           up: this.pct(r.salesIncreaseToMaintainGM)
         })
       }
@@ -406,13 +407,11 @@ export default {
       // state-change: { inputs, sources, serviceBusiness, expenseLines } — a copy, never the live objects
       this.$emit('state-change', this.copyState(this))
     },
-    /** @param {number} f - fraction @returns {string} e.g. "27.8%" */
-    pct (f) {
-      return (Math.round(f * 1000) / 10).toFixed(1) + '%'
-    },
-    /** @param {number} n */
+    // pct() / pctUpTo() come from reportFormatMixin, num() from currencyMixin — the reader's
+    // language.
+    /** @param {number} n @returns {string} months to one place, e.g. "4.5" */
     oneDp (n) {
-      return (Math.round(n * 10) / 10).toFixed(1)
+      return this.num(n, 1)
     },
     /** @param {number|null} m */
     monthsText (m) {

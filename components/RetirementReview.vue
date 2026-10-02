@@ -282,7 +282,7 @@
                 td.r.rr-num {{ money(data.tax.combinedTax) }}
               tr.rr-total
                 td {{ $t('report.retirementReview.position.averageRate') }}
-                td.r.rr-num {{ pct(data.tax.averageRate) }}
+                td.r.rr-num {{ pct(Number(data.tax.averageRate || 0), 2) }}
           p.rr-note {{ $t('report.retirementReview.position.taxHelp', { country: data.country, taxYear: data.taxYearLabel }) }}
 
         .rr-nav
@@ -506,6 +506,7 @@ import HeroFigure from '~/components/base/HeroFigure'
 import StaleBanner from '~/components/base/StaleBanner'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
 /** The three mortgage types the model accepts — `MORTGAGE_TYPES` in the maths module. */
@@ -552,7 +553,7 @@ export default {
 
   components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute],
 
   data () {
     return {
@@ -978,11 +979,6 @@ export default {
     /** A display percentage to the decimal the model expects. */
     rate (pct) {
       return Number(pct || 0) / 100
-    },
-
-    /** A decimal rate as a percentage, for display. */
-    pct (value) {
-      return (Number(value || 0) * 100).toFixed(2) + '%'
     },
 
     /**

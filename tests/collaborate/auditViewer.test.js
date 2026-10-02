@@ -31,7 +31,7 @@ function factory (propsData) {
   return mount(AuditViewer, {
     localVue,
     propsData: propsData || {},
-    mocks: { $t: (k, p) => (p ? k + ':' + JSON.stringify(p) : k) }
+    mocks: { $i18n: { locale: 'en' }, $t: (k, p) => (p ? k + ':' + JSON.stringify(p) : k) }
   })
 }
 

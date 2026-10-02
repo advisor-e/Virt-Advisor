@@ -60,6 +60,8 @@ section.mg-panel
 
 <script>
 import MethodGuideSection from '~/components/firm/MethodGuideSection.vue'
+import { formatDate as fmtDate, DATE_TIME } from '~/utils/dateLocale'
+import { num } from '~/utils/currencyFormat'
 
 /**
  * The opened method guide on the Domain Support tab (to-do item 4.16 F).
@@ -137,7 +139,7 @@ export default {
 
     /** How much of the guide reaches the AI, stated plainly rather than implied. */
     charCount () {
-      return this.content ? JSON.stringify(this.content).length.toLocaleString() : '0'
+      return num(this.content ? JSON.stringify(this.content).length : 0, this.$i18n.locale)
     }
   },
 
@@ -251,8 +253,7 @@ export default {
 
     formatDate (value) {
       if (!value) { return '' }
-      const d = new Date(value)
-      return isNaN(d.getTime()) ? String(value) : d.toLocaleString()
+      return fmtDate(value, this.$i18n.locale, DATE_TIME) || String(value)
     },
 
     /**

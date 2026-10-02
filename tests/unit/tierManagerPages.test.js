@@ -30,6 +30,7 @@
 import { shallowMount } from '@vue/test-utils'
 import GlobalGroupManagerPage from '../../pages/global-group-manager.vue'
 import GroupManagerPage from '../../pages/group-manager.vue'
+import { englishMocks } from '../helpers/mountComponent'
 
 // The hub is stubbed by shallowMount; this records the props it was handed.
 const HubStub = {
@@ -53,7 +54,8 @@ async function mountPage (Page, { hostname }) {
   window.location = { hostname }
 
   const wrapper = shallowMount(Page, {
-    stubs: { FirmManagerHub: HubStub, 'b-loading': true }
+    stubs: { FirmManagerHub: HubStub, 'b-loading': true },
+    mocks: englishMocks()
   })
   await wrapper.vm.$nextTick()
   return wrapper

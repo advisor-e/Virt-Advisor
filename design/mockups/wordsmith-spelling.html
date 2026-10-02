@@ -1,0 +1,218 @@
+<title>Wordsmith English Spelling</title>
+<style>
+  /* Layout: one reading column; two hub-tab drawings side by side (stacking on a phone), then the wording table. */
+  :root {
+    --navy:#002b64; --ink:#2f3540; --grey:#6b7686; --line:#dfe4eb; --paper:#ffffff; --ground:#f4f6f9;
+    --green:#1f7a45; --green-bg:#eefaf2; --green-line:#8fd1ab;
+    --amber:#9a4a06; --amber-bg:#fff8ee; --amber-line:#f0c48a;
+    --slate:#4f5f75; --slate-bg:#f1f4f8; --slate-line:#c3cfdd;
+    --key:#0a5ea8; --key-bg:#eaf3fc;
+    --ui:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --navy:#9cc2f0; --ink:#dde3ec; --grey:#9aa5b5; --line:#2e3746; --paper:#1a2130; --ground:#121823;
+      --green:#7fd6a3; --green-bg:#16271f; --green-line:#2f5f45;
+      --amber:#f3bd7a; --amber-bg:#2a2115; --amber-line:#6a4a22;
+      --slate:#b3c0d2; --slate-bg:#1d2533; --slate-line:#3a4659;
+      --key:#8cc0f5; --key-bg:#17263a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --navy:#9cc2f0; --ink:#dde3ec; --grey:#9aa5b5; --line:#2e3746; --paper:#1a2130; --ground:#121823;
+    --green:#7fd6a3; --green-bg:#16271f; --green-line:#2f5f45;
+    --amber:#f3bd7a; --amber-bg:#2a2115; --amber-line:#6a4a22;
+    --slate:#b3c0d2; --slate-bg:#1d2533; --slate-line:#3a4659;
+    --key:#8cc0f5; --key-bg:#17263a;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink); font:15px/1.6 var(--ui); }
+  .wrap { max-width:980px; margin:0 auto; padding-block:2.2rem 5rem; padding-inline:16px; display:flex; flex-direction:column; gap:2.4rem; }
+  h1 { font-size:1.55rem; margin:0 0 0.35rem; color:var(--navy); text-wrap:balance; }
+  h2 { font-size:1.12rem; margin:0 0 0.3rem; color:var(--navy); text-wrap:balance; }
+  .lede, .sub { color:var(--grey); font-size:0.9rem; margin:0; max-width:65ch; }
+  .sub { margin-bottom:1rem; }
+  code { font-family:var(--mono); font-size:0.82rem; }
+
+  .banner { background:var(--amber-bg); border:1px solid var(--amber-line); border-radius:6px; padding:0.85rem 1rem; font-size:0.86rem; }
+  .banner strong { color:var(--amber); }
+  .banner p { margin:0; } .banner p + p { margin-top:0.4rem; }
+
+  .tierline { display:flex; flex-wrap:wrap; gap:0.35rem; align-items:center; font-size:0.8rem; margin:0 0 1rem; }
+  .tierline .t { border:1px solid var(--slate-line); background:var(--paper); border-radius:4px; padding:0.15rem 0.5rem; color:var(--navy); font-weight:600; }
+  .tierline .arrow { color:var(--grey); }
+
+  .screens { display:grid; grid-template-columns:repeat(auto-fit, minmax(330px, 1fr)); gap:1.1rem; }
+  .screen { min-width:0; background:var(--paper); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .screen > header { padding:0.55rem 0.9rem; border-bottom:1px solid var(--line); background:var(--slate-bg); font-size:0.78rem; color:var(--slate); }
+  .screen > header b { color:var(--navy); }
+  .body { padding:0.9rem; display:flex; flex-direction:column; gap:0.75rem; font-size:0.86rem; }
+
+  .chips { display:flex; flex-wrap:wrap; gap:0.35rem; }
+  .chip { border:1px solid var(--line); border-radius:999px; padding:0.15rem 0.65rem; font-size:0.78rem; color:var(--slate); background:var(--paper); }
+  .chip em { font-style:normal; color:var(--grey); margin-left:0.3rem; }
+  .chip.on { border-color:var(--key); color:var(--key); background:var(--key-bg); font-weight:600; }
+
+  .label { font-weight:700; color:var(--navy); font-size:0.84rem; }
+  .label span { font-weight:400; color:var(--grey); }
+  .new { outline:2px dashed var(--green-line); outline-offset:6px; border-radius:6px; }
+  .newtag { display:inline-block; font-size:0.64rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--green); border:1px solid var(--green-line); background:var(--green-bg); border-radius:3px; padding:0 0.35rem; margin-left:0.4rem; vertical-align:middle; }
+
+  .choice { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+  .opt { border:1px solid var(--line); border-radius:6px; padding:0.5rem 0.65rem; display:flex; gap:0.5rem; align-items:flex-start; }
+  .opt .dot { flex:0 0 auto; width:0.9rem; height:0.9rem; border-radius:50%; border:2px solid var(--slate-line); margin-top:0.2rem; }
+  .opt.on { border-color:var(--key); background:var(--key-bg); }
+  .opt.on .dot { border-color:var(--key); background:radial-gradient(circle, var(--key) 45%, transparent 50%); }
+  .opt b { display:block; color:var(--ink); font-size:0.84rem; }
+  .opt small { color:var(--grey); font-size:0.76rem; }
+  .src { font-size:0.76rem; color:var(--grey); }
+  .changed { background:var(--amber-bg); border:1px solid var(--amber-line); border-radius:6px; padding:0.5rem 0.65rem; font-size:0.8rem; display:flex; flex-direction:column; gap:0.45rem; }
+  .btns { display:flex; gap:0.4rem; flex-wrap:wrap; }
+  .btn { border:1px solid var(--slate-line); background:var(--paper); color:var(--ink); border-radius:4px; padding:0.15rem 0.6rem; font-size:0.78rem; }
+  .btn.primary { border-color:var(--key); color:var(--key); }
+  .muted { color:var(--grey); font-size:0.8rem; }
+  .faint { opacity:0.55; }
+
+  .tablebox { overflow-x:auto; background:var(--paper); border:1px solid var(--line); border-radius:8px; }
+  table { border-collapse:collapse; width:100%; min-width:600px; font-size:0.86rem; }
+  th, td { text-align:left; padding:0.6rem 0.85rem; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:0.72rem; letter-spacing:0.07em; text-transform:uppercase; color:var(--grey); font-weight:700; }
+  tr:last-child td { border-bottom:0; }
+  td.where { color:var(--slate); white-space:nowrap; }
+  td.words { color:var(--ink); }
+  .prop { font-size:0.64rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--amber); border:1px solid var(--amber-line); border-radius:3px; padding:0 0.3rem; margin-left:0.35rem; white-space:nowrap; }
+
+  .facts { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:0.9rem; }
+  .fact { min-width:0; border-radius:7px; padding:0.85rem 1rem; font-size:0.86rem; border:1px solid var(--slate-line); background:var(--slate-bg); }
+  .fact h3 { margin:0 0 0.35rem; font-size:0.92rem; color:var(--navy); }
+  .fact ul { margin:0; padding-left:1.1rem; }
+  .fact li + li { margin-top:0.3rem; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Wordsmith: English spelling</h1>
+    <p class="lede">Item 13.7. Mike's ruling, 2026-10-02: each firm chooses whether Wordsmith spells English the New
+      Zealand way or the US way, starting as New Zealand. It only matters when the client spoke English. In any other
+      language Wordsmith writes in that language and checks no spelling.</p>
+  </header>
+
+  <div class="banner">
+    <p><strong>Approved by Mike, 2026-10-02</strong>, with one change he approved the same day: the two sentences that said "your firm" now read correctly at every level ("Your own choice."; "...so you still use {yours}.").</p>
+    <p>The outlined block is the only new thing on the screen. Everything around it is the Wordsmith tab as it is today.</p>
+  </div>
+
+  <section>
+    <h2>Who sets it</h2>
+    <p class="sub">The same as every other Wordsmith setting. The mentor sets the starting value, and each level below
+      may keep it or choose for itself. A choice passes down until someone below changes it.</p>
+    <div class="tierline">
+      <span class="t">Mentor: New Zealand</span><span class="arrow">→</span>
+      <span class="t">Global group manager</span><span class="arrow">→</span>
+      <span class="t">Group manager</span><span class="arrow">→</span>
+      <span class="t">Firm manager</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Where it goes: the top of Style wording</h2>
+    <p class="sub">Spelling applies to all five statements, so it sits under the <b>Style wording</b> chip, above the
+      sentence length, formality, jargon and voice wording, rather than inside one statement.</p>
+
+    <div class="screens">
+      <article class="screen">
+        <header><b>Mentor Hub</b> · Wordsmith tab · Style wording</header>
+        <div class="body">
+          <div class="chips">
+            <span class="chip">Vision <em>3</em></span><span class="chip">Purpose <em>3</em></span><span class="chip">Values <em>3</em></span>
+            <span class="chip">Mission <em>2</em></span><span class="chip">Strategy <em>3</em></span><span class="chip on">Style wording <em>10</em></span>
+          </div>
+
+          <div class="new">
+            <div class="label">English spelling<span> · used when the client spoke English</span><span class="newtag">New</span></div>
+            <div class="choice" style="margin-top:0.45rem">
+              <div class="opt on"><span class="dot"></span><div><b>New Zealand</b><small>recognise, colour, organisation</small></div></div>
+              <div class="opt"><span class="dot"></span><div><b>US</b><small>recognize, color, organization</small></div></div>
+            </div>
+          </div>
+
+          <div class="label faint">Sentence length<span> · what the AI is told for each choice; the choices themselves are fixed</span></div>
+          <div class="muted faint">short · Short sentences, twelve words or fewer each.</div>
+        </div>
+      </article>
+
+      <article class="screen">
+        <header><b>Firm Manager Hub</b> · after a group manager chose US</header>
+        <div class="body">
+          <div class="chips">
+            <span class="chip">Vision <em>3</em></span><span class="chip">Purpose <em>3</em></span><span class="chip">Values <em>3</em></span>
+            <span class="chip">Mission <em>2</em></span><span class="chip">Strategy <em>3</em></span><span class="chip on">Style wording <em>10</em></span>
+          </div>
+
+          <div class="new">
+            <div class="label">English spelling<span> · used when the client spoke English</span><span class="newtag">New</span></div>
+            <div class="choice" style="margin-top:0.45rem">
+              <div class="opt on"><span class="dot"></span><div><b>New Zealand</b><small>recognise, colour, organisation</small></div></div>
+              <div class="opt"><span class="dot"></span><div><b>US</b><small>recognize, color, organization</small></div></div>
+            </div>
+            <div class="src" style="margin-top:0.4rem">Your own choice.</div>
+            <div class="changed" style="margin-top:0.5rem">
+              <span>The level above you now uses <b>US</b>. You chose New Zealand, so you still use New Zealand.</span>
+              <div class="btns"><span class="btn primary">Use theirs</span><span class="btn">Keep mine</span></div>
+            </div>
+          </div>
+
+          <div class="label faint">Sentence length<span> · what the AI is told for each choice; the choices themselves are fixed</span></div>
+          <div class="muted faint">short · Short sentences, twelve words or fewer each.</div>
+        </div>
+      </article>
+    </div>
+    <p class="muted" style="margin-top:0.7rem">"Use theirs" and "Keep mine" are the hub's existing buttons and wording, as on
+      every other Wordsmith row. A firm that never chose sees no notice: it simply follows the level above.</p>
+  </section>
+
+  <section>
+    <h2>The words</h2>
+    <p class="sub">Every new word on the screen, and the one line the AI is told. All approved by Mike, 2026-10-02.</p>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Where</th><th>Words</th></tr></thead>
+        <tbody>
+          <tr><td class="where">Label</td><td class="words">English spelling <span class="prop">Approved</span></td></tr>
+          <tr><td class="where">Hint beside it</td><td class="words">used when the client spoke English <span class="prop">Approved</span></td></tr>
+          <tr><td class="where">First choice</td><td class="words">New Zealand · <i>recognise, colour, organisation</i> <span class="prop">Approved</span></td></tr>
+          <tr><td class="where">Second choice</td><td class="words">US · <i>recognize, color, organization</i> <span class="prop">Approved</span></td></tr>
+          <tr><td class="where">Under the choice</td><td class="words">Your own choice. / Set by the level above you. <span class="prop">Approved</span></td></tr>
+          <tr><td class="where">Notice when the level above changes</td><td class="words">The level above you now uses {choice}. You chose {yours}, so you still use {yours}. <span class="prop">Approved</span></td></tr>
+          <tr><td class="where">Told to the AI · New Zealand</td><td class="words">Write in New Zealand English spelling (recognise, organisation, colour). <i class="muted">(today's line, unchanged)</i></td></tr>
+          <tr><td class="where">Told to the AI · US</td><td class="words">Write in US English spelling (recognize, organization, color). <span class="prop">Approved</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>What changes behind the screen</h2>
+    <div class="facts">
+      <div class="fact">
+        <h3>The spelling check follows the choice</h3>
+        <ul>
+          <li>New Zealand: as today, a US spelling such as "color" is flagged and the draft is retried once.</li>
+          <li>US: the same list read the other way round, so "colour" is flagged instead.</li>
+          <li>Any other language: no spelling check, as built today.</li>
+        </ul>
+      </div>
+      <div class="fact">
+        <h3>What stays fixed</h3>
+        <ul>
+          <li>Two choices only, New Zealand and US. Adding a third is a new decision.</li>
+          <li>The language itself always follows what the client spoke. This setting never makes Wordsmith write English to a client who spoke German.</li>
+          <li>A rewrite uses the spelling in force when it runs.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>

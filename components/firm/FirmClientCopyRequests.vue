@@ -56,7 +56,7 @@
         //- week late is already a week into its allowance, and a clock that started today
         //- would hide exactly the lateness this screen exists to show.
         b-field(:label="$t('firmClientCopyRequests.form.whenAsked')" label-position="on-border")
-          b-datepicker(v-model="form.receivedAt" :max-date="today" :placeholder="$t('firmClientCopyRequests.form.pickDate')")
+          b-datepicker(v-model="form.receivedAt" :locale="dateLocale" :max-date="today" :placeholder="$t('firmClientCopyRequests.form.pickDate')")
         p.is-size-7.has-text-grey.mb-4 {{ $t('firmClientCopyRequests.form.clockHint') }}
 
         b-field(:label="$t('firmClientCopyRequests.form.noteLabel')" label-position="on-border")
@@ -124,6 +124,7 @@
  */
 import ClientCopyRequestDetail from '../shared/ClientCopyRequestDetail.vue'
 import copyDeadlineWords from '../../mixins/copyDeadlineWords'
+import { intlLocaleFor } from '~/utils/dateLocale'
 
 export default {
   name: 'FirmClientCopyRequests',
@@ -160,6 +161,9 @@ export default {
   },
 
   computed: {
+    /** The date box writes its date in the reader's language, not the browser's (item 13.8). */
+    dateLocale () { return intlLocaleFor(this.$i18n.locale) },
+
     /** @returns {string} the response time in words — "20 working days" */
     phrase () {
       return this.deadlineWords(this.deadline)

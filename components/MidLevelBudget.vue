@@ -338,6 +338,7 @@ import HeroStrip from '~/components/base/HeroStrip'
 import HeroFigure from '~/components/base/HeroFigure'
 import StaleBanner from '~/components/base/StaleBanner'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
 const { financialYearStart } = require('~/utils/financialYearStart')
@@ -383,7 +384,7 @@ export default {
 
   components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute],
 
   data () {
     return {
@@ -722,10 +723,10 @@ export default {
      *
      * Rounded to one decimal and trimmed, because the advisor typed whole numbers and a
      * warning that reads 4.9999% invites them to hunt a rounding error that is not there.
+     * Written in the reader's language by `pctUpTo` (item 13.8).
      */
     percentShort (fraction) {
-      const pct = Math.round(Math.abs(fraction) * 1000) / 10
-      return (Number.isInteger(pct) ? pct : pct.toFixed(1)) + '%'
+      return this.pctUpTo(Math.abs(fraction))
     },
 
     /** One timing share, held as the whole percentage the advisor typed. */
