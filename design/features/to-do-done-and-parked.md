@@ -109,6 +109,19 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**7.24 · The advisor sees only three dots while Discover, Learn and Plan answers are written.**
+⏸ **Parked 2026-10-02 by Mike** — his yes to parking it on the impact test's result.
+
+- **Where it stood:** measured on the answer bench that morning, a Discover answer takes a median
+  3.2 seconds, 1 in 10 over 9, the longest 25; about 15% get a heading correction adding 7 to 13
+  seconds. A stalled call is not endless: every OpenAI call has a 60-second inactivity limit,
+  after which the advisor gets a Retry button. Learn and Plan waits were not measured.
+- **Why parked:** the gain is how a wait feels, which no bench or count can measure.
+- **Fixed on the way:** the heading correction now runs on the narrative client, not the classify
+  one, so it cannot silently use a different model from the answer it corrects.
+- **What un-parks it:** Mike noticing the wait himself. Scoping then starts from his wording for
+  a progress line.
+
 **15.15 · Devil's Advocate - challenging optimistic thinking in the room.** ⏸ **Parked 2026-09-29 by
 Mike** — in his words, *"Im having a re-think on the devils advicate feature - lets mark it as
 'parked' for now."*

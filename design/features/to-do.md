@@ -51,16 +51,16 @@ repository sees; the two never both appear, and the build stops if they would.
 | 14 | **7.21** Earlier messages, including the AI's own recommendation, are cut to 2,000 characters each turn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 15 | **7.22** Test whether a stronger model should write the main advisory answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 16 | **7.23** Keep a record of every AI call: model, prompt version, tokens and time taken ⚠ *not yet ranked by Mike* | 2 | — | Outside | — |
-| 17 | **7.24** The advisor sees only three dots while Discover, Learn and Plan answers are written ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 18 | **28.1** Advisors cannot tell us an AI answer was wrong or useful ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 19 | **13.10** Only the advisory chat tells the AI which language to write in ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 20 | **40.2** The main advisory and course prompts cannot be seen or edited on any screen ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 21 | **22.5** Split the coding AI's rules into a short digest and an addendum of reasons ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 22 | **14.5** Give every feature Brief a one-screen current-state digest, with history moved out ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 23 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 24 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 25 | **7.27** Every advisor may share one usage limit, because the backend sees only the Nuxt server's address ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 26 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 17 | **28.1** Advisors cannot tell us an AI answer was wrong or useful ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 18 | **13.10** Only the advisory chat tells the AI which language to write in ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 19 | **40.2** The main advisory and course prompts cannot be seen or edited on any screen ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 20 | **22.5** Split the coding AI's rules into a short digest and an addendum of reasons ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 21 | **14.5** Give every feature Brief a one-screen current-state digest, with history moved out ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 22 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 23 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 24 | **7.27** Every advisor may share one usage limit, because the backend sees only the Nuxt server's address ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 25 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 26 | **7.29** Template descriptions and the name check read the seed library, not each firm's uploaded library ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
 **26 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->

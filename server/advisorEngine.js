@@ -896,7 +896,10 @@ async function correctTemplateHeadings (answer, sourceMessages, model) {
 
   const _t0 = Date.now()
   try {
-    const response = await getOpenAI().chat.completions.create({
+    // The narrative client, like the answer it corrects: the seam puts its role's own model
+    // in place of `model`, so the classify client would quietly rewrite the answer on the
+    // classify model the day the two roles' models differ (found on item 7.24, 2026-10-02).
+    const response = await getNarrativeAI().chat.completions.create({
       model,
       max_tokens: 2500,
       messages: [

@@ -332,7 +332,7 @@
         "detail": "2026-10-01 - found in the digest-and-addendum review Mike asked for; filed on his yes. A defect we found, not a feature."
       },
       "touches": "data/prompts/discover.txt lines 7, 8, 17 and 29.",
-      "note": "WHAT REMAINS: reword discover.txt so it stops promising a coaching reference (line 7, removed 2026-08-20) and a Diagnostic Logic Tree (lines 8 and 17, never sent on turn 1), and so line 29 no longer counts on template summaries the first answer does not have. The wording is Mike's. SETTLED 2026-10-02: sending summaries from Discover's first message gave no gain on the bench (point 3: 29 and 33 before, 31 and 30 after) and was taken out. Fixed on the way: summaries now reach the AI under master-library titles only, so it stops offering templates that do not exist. Runs: design/answer-bench-runs/*-718-*.json.",
+      "note": "WHAT REMAINS: put Mike's APPROVED wording (2026-10-02, design/DISCOVER-WORDING-7.18.md) into discover.txt and measure it - two bench runs against 29 and 33 on point 3; reverted if worse. Blocked: OpenAI refused every call with insufficient_quota on 2026-10-02, so it waits on Mike restoring the account's credit. SETTLED 2026-10-02: sending summaries from Discover's first message gave no gain on the bench (point 3: 29 and 33 before, 31 and 30 after) and was taken out. Fixed on the way: summaries now reach the AI under master-library titles only, so it stops offering templates that do not exist. Runs: design/answer-bench-runs/*-718-*.json.",
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-02: PROCEED - only the discover.txt wording remains.",
       "activeOn": {
         "machine": "laptop",
@@ -424,27 +424,6 @@
       "comment": "2026-10-01 - MIKE'S CALL: ask the master team about their logs before designing a table; question drafted for him to send. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.24",
-      "name": "The advisor sees only three dots while Discover, Learn and Plan answers are written",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 4,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The answer is held back until fully written and checked, sometimes after a second full retry, and the screen shows only bouncing dots with no progress text and no time limit.",
-      "risk": "A long wait with no sign of progress reads as a frozen app. The hold-back is deliberate - a sent message cannot be taken back once the heading check fails (item 7.7) - so the fix is what the advisor sees while waiting, not removing the check.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found in the review Mike asked for; filed on his instruction to record every suggestion. A defect we found."
-      },
-      "touches": "server/advisorEngine.js hold-back (about 4307-4336) and the post-recommendation path (about 3128-3150); components/VirtualAdvisor.vue loading state (about 197-204); locales/en.json for any wording.",
-      "note": "Wording for any progress message is Mike's call. Also: the heading retry passes the narrative model but the provider seam swaps in the classify model (aiProvider.js about 145); both are gpt-4o-mini today.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "28.1",
       "name": "Advisors cannot tell us an AI answer was wrong or useful",
       "rankedByMike": false,
@@ -462,8 +441,8 @@
         "detail": "2026-10-01 - from the review he asked for; he asked for every suggestion to be recorded as a task."
       },
       "touches": "components/VirtualAdvisor.vue; a new route and store on the backend; server/utils/meetingAudioStore.js readWordsmithRecords, exported and never called; the mentor hub for reading the feedback.",
-      "note": "Wording of any control is Mike's call. Feedback must carry no client content beyond what the privacy rules allow.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+      "note": "RULED 2026-10-02: a flagged answer is read in full only by the advisor's own firm manager, on the firm's hub page; the mentor sees the count of flags per screen (Discover, Learn, Plan, client chat), never the words. IMPACT TEST: kept only if, within a month of UAT, at least one flag leads to a fix not otherwise found. NEXT: Mike's wording for the control, then a mockup for his approval before any build.",
+      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it. MIKE'S RULING 2026-10-02: who reads a flag (see note)."
     },
     {
       "ref": "13.10",
@@ -632,6 +611,27 @@
       "touches": "server/advisorEngine.js urgencyDirective (about 1496-1511) and the Phase 3 display set; the resolver's ranking when distress is read; design/SCENARIO-LAB-REPORT.md crisis cases 2, 49, 50, 51; scripts/answer-bench-score.js CRISIS_TOOLS.",
       "note": "Evidence: answer bench baseline 2026-10-01 - client chat led with a survival tool in 0 of 4 crisis cases, Discover in 4 of 4. Scenario Lab read distress correctly in all 4, yet ranked Customer Journey, Farm Succession, Forecasting and Cafe first. Measure any change with a before and after bench run.",
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.29",
+      "name": "Template descriptions and the name check read the seed library, not each firm's uploaded library",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "robustness",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The live library is resolved through the cascade (firm, group, global, platform upload), but summaries.js titles each description, and tierLookup's isKnownTemplate checks names, against data/templates.json, the committed seed.",
+      "risk": "Harmless today: the seed and the latest master export were identical on 2026-10-02 (291 titles each). Once a tier uploads an export that renames a template, descriptions reach the AI under the old title and it names a template that does not exist - the fault fixed on 7.18, back by a side door.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-02 - found at shutdown, checking the 7.18 names fix against the advisory-engine Brief; filed on Mike's yes. A defect we found."
+      },
+      "touches": "server/utils/summaries.js withLibraryTitles; server/utils/tierLookup.js isKnownTemplate and nearestTemplateTitle; server/utils/templateLibrary.js, which resolves the library per scope; their callers in server/advisorEngine.js and server/courseEngine.js.",
+      "note": "Needs a design first: the summaries load once for the whole app, while the library resolves per firm. Measure: a test that renames a template in an uploaded library and proves the AI is shown the new title.",
+      "comment": "2026-10-02 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

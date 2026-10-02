@@ -48,6 +48,13 @@ test('🔴 the repair reaches the AI — marked personal, naming only the adviso
   expect(out.answer).toBe('A corrected answer.')
 })
 
+test('the repair runs on the narrative role that wrote the answer, not the classify role', async () => {
+  // The seam swaps in its role's own model, so the role decides which model rewrites the answer.
+  mockCreate.mockResolvedValue({ choices: [{ message: { content: 'A corrected answer.' } }], usage: {} })
+  await correctTemplateHeadings(WRONG, SOURCE, 'gpt-4o-mini')
+  expect(mockCreate.mock.calls[0][1].feature).toBe('narrative')
+})
+
 test('a failed repair still keeps the first answer and names what was wrong', async () => {
   jest.spyOn(console, 'error').mockImplementation(() => {})
   mockCreate.mockRejectedValue(new Error('down'))

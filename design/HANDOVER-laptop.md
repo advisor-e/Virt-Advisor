@@ -9,23 +9,23 @@
 
 ---
 
-## 2026-10-01 (evening) · Laptop · branch `feat/advisor-progress`
+## 2026-10-02 · Laptop · branch `feat/advisor-progress`
 
-**0 behind master, 10 ahead after this commit — a pull request is due at next startup.
-Suite green: 693 suites / 15,056 tests on Node 14.15.**
+**0 behind master, 13 ahead after this commit — all of it in open PR #153.
+Suite green: 694 suites / 15,054 tests on Node 14.15.**
 
-**The digest-and-addendum review** Mike asked for filed 18 items. Done and closed today:
-7.25 (advisor profile fenced and moderated), 12.3 (course history cleaned), 22.4 (stale
-claims), 22.6, 7.26 (output ceilings; depreciation reader uncapped on his ruling), and
-**7.19 — the answer bench** (`scripts/answer-bench.js`, checklist approved, proven by two
-damaged runs). Found and fixed on the way: the compliance check and every sales blog had
-been refused by OpenAI on every call. Filed: 7.27 (shared usage limit), 7.28 (crisis tools).
-7.23 waits on the master team's answer about logs — Mike has the question to send.
+Worked the review's items in Mike's order. **7.18:** template descriptions now reach the AI
+under master-library titles (they had been offering templates that do not exist); sending
+them from Discover's first message was measured, gave no gain, and was taken out. Mike
+approved new Discover wording ([`DISCOVER-WORDING-7.18.md`](DISCOVER-WORDING-7.18.md)) —
+**NOT yet applied: OpenAI refused every call with `insufficient_quota` this afternoon.** Mike
+restores the credit; then apply the wording and run two Discover bench runs against 29/33 on
+point 3. **7.24** parked; its heading correction now runs on the narrative client. **28.1**
+waits on Mike's words for four pieces of text, then a mockup. **7.29** filed. Bench: names
+read whole, warning notes skipped, files dated by local day.
 
-**FOR THE DESKTOP:** shared files changed — `server/advisorEngine.js` (profile helper),
-`server/courseEngine.js`, `server/utils/wordsmith.js`, `meetingReports.js`,
-`complianceCheck.js`, `salesBlogEngine.js`, `uiTranslation.js`, `CLAUDE.md`,
-`.claude/commands/startup.md`. Item numbers: the desktop's 22.3 is the bundle-size item;
-this machine's stale-claims item became 22.4.
+**FOR THE DESKTOP:** shared files changed — `server/advisorEngine.js` (one line in
+`correctTemplateHeadings`), `server/utils/summaries.js`, `server/utils/templateHeadingCheck.js`,
+`design/features/advisory-engine.md`.
 
-**Still in hand here:** 8.6, 15.31 (untouched today).
+**Still in hand here:** 7.18, 8.6, 15.31 (8.6 and 15.31 untouched today).
