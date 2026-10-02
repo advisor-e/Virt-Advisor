@@ -56,12 +56,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 19 | **14.5** Give every feature Brief a one-screen current-state digest, with history moved out ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 20 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 21 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 22 | **7.27** Every advisor may share one usage limit, because the backend sees only the Nuxt server's address ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-10-02 |
-| 23 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 24 | **7.29** Template descriptions and the name check read the seed library, not each firm's uploaded library ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 25 | **7.30** About one Discover answer in 51 names a template that does not exist ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 22 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 23 | **7.29** Template descriptions and the name check read the seed library, not each firm's uploaded library ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 24 | **7.30** About one Discover answer in 51 names a template that does not exist ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 
-**25 live items. Fourteen need Mike.** If this list passes about twenty, something is wrong.
+**24 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

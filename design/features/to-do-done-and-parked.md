@@ -392,6 +392,22 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.27 · Every advisor shared one usage limit, because the backend sees only the Nuxt server's
+address.** ✅ **Closed 2026-10-02 by Mike ("done").**
+
+- **What it really was:** proved before the fix - five advisors in three firms, 8 messages each
+  in one minute, had 10 of 40 refused under the chat's 30-a-minute limit. It held in every
+  deployment: with `TRUST_PROXY` on, one office still shares one address.
+- **What was done:** `server/utils/rateLimit.js` counts each signed-in person within their firm -
+  the advisor, else the email - and falls back to the address only for a request with no
+  sign-in. The limits (30, 15, 6, 6, 10) and the five callers are unchanged. Design, approved
+  2026-10-02: [`RATE-LIMIT-PER-ADVISOR.md`](../RATE-LIMIT-PER-ADVISOR.md).
+- **What proves it:** 6 new tests in `rateLimit.test.js`, the five-advisor run among them (0 of 40
+  refused); full suite 15,085 green. `promptCheck.routes.test.js` had dodged the old shared count
+  with a fresh address per request; it now uses a fresh manager.
+- **Not checked here:** real load in UAT. `.env.example` and `UAT-LOAD-PACK.md` now say
+  `TRUST_PROXY` no longer matters for signed-in limits.
+
 **15.32 · Changing client in the Strategy Planner kept the previous client's ticks and suggestion
 - and wrote into their session.** ✅ **Closed 2026-10-02 by Mike ("yes" to marking it done).**
 

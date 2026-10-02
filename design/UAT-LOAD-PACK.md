@@ -128,7 +128,7 @@ else. That is deliberate: exposing the app to a network is always something some
 |---|---|---|
 | `HOST` / `PORT` | `::1` / `3000` | The frontend must answer other machines (`0.0.0.0` for all interfaces) |
 | `BACKEND_HOST` / `BACKEND_PORT` | `127.0.0.1` / `4000` | The backend runs on a different host from the frontend |
-| `TRUST_PROXY` | unset | The app sits behind a reverse proxy or load balancer |
+| `TRUST_PROXY` | unset | Not needed for rate limits, which count each signed-in person separately. It affects only a request with no sign-in, counted by address: set it only behind a proxy that overwrites `X-Forwarded-For` |
 
 ⚠ **`HOST` and `PORT` were silently ignored before this release.** `nuxt.config.js` set both
 explicitly, and Nuxt merges that file over the defaults its own `HOST`/`PORT` lookup produces —

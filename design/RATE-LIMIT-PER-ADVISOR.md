@@ -1,6 +1,7 @@
 # Each advisor gets their own usage limit — design for item 7.27
 
-> For Mike's approval. Nothing here is built yet.
+> Approved by Mike 2026-10-02 and built the same day. The five-advisor run below now refuses 0
+> of 40, pinned in `tests/unit/rateLimit.test.js`.
 
 ## The impact test
 
