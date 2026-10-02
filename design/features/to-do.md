@@ -57,9 +57,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 20 | **7.30** About one Discover answer in 51 names a template that does not exist ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 | 21 | **22.3** First-load page code is 382 KB against the 300 KB limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 22 | **13.11** Text comparison drops accented letters, so a check could miss a changed word ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 23 | **15.33** A planner session holding a removed concept can never be saved again ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 23 | **15.33** A planner session holding a removed concept can never be saved again ⚠ *not yet ranked by Mike* | 3 | — | Us | **laptop**, since 2026-10-02 |
 
-**23 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
+**23 live items. Twelve need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
