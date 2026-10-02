@@ -107,6 +107,31 @@
 
     //- The style wording: reworded only, never switched off or added (screen 7).
     template(v-if="selected === STYLE")
+      //- English spelling, one choice for all five statements — design/mockups/wordsmith-spelling.html,
+      //- approved by Mike 2026-10-02 (item 13.7).
+      .fws-spelling(v-if="spelling")
+        p.label.is-small
+          | {{ $t('wordsmith.hub.spelling.label') }}
+          span.has-text-weight-normal.has-text-grey  · {{ $t('wordsmith.hub.spelling.hint') }}
+        .fws-choices
+          button.fws-opt(
+            v-for="v in SPELLINGS"
+            :key="v"
+            type="button"
+            :class="{ 'is-on': spelling.value === v }"
+            :aria-pressed="spelling.value === v ? 'true' : 'false'"
+            :disabled="busy"
+            @click="chooseSpelling(v)")
+            b {{ $t('wordsmith.hub.spelling.' + v) }}
+            small {{ $t('wordsmith.hub.spelling.' + v + 'Example') }}
+        p.is-size-7.has-text-grey.mt-1(v-if="spelling.hasAbove")
+          | {{ spelling.source === 'edited-here' ? $t('wordsmith.hub.spelling.own') : $t('wordsmith.hub.spelling.inherited') }}
+        .fws-changed(v-if="spelling.changedAbove")
+          p.is-size-7 {{ $t('wordsmith.hub.spelling.changedAbove', { choice: spellingName(spelling.above), yours: spellingName(spelling.value) }) }}
+          //- The level above's change is offered, never applied (tier-cascade.md P3).
+          b-button(size="is-small" type="is-primary" :loading="busy" @click="send('POST', 'spelling/use-inherited', {}, true)") {{ $t('growthAspectQuestions.buttons.useTheirs') }}
+          b-button(size="is-small" type="is-light" :loading="busy" @click="send('POST', 'spelling/keep-mine', {}, true)") {{ $t('growthAspectQuestions.buttons.keepMine') }}
+
       template(v-for="row in style")
         p.label.is-small.mt-3(:key="row.key + '-label'")
           | {{ $t('wordsmith.hub.settingNames.' + row.key) }}
@@ -148,6 +173,9 @@ const BASE = '/api/firm-manager/wordsmith'
 
 /** The chip that shows the style wording rather than a statement. */
 const STYLE = '__style__'
+
+/** The two English spellings, in the drawing's order; the backend refuses any other. */
+const SPELLINGS = ['nz', 'us']
 
 /** The rows a tier switched off, each with Switch back on — Growth Aspect Questions' block. */
 const SwitchedOff = {
@@ -202,12 +230,15 @@ export default {
   data () {
     return {
       STYLE,
+      SPELLINGS,
       loading: true,
       busy: false,
       error: '',
       /** The five as the backend resolved them for this tier — see wordsmithContent.resolveDetailed. */
       statements: [],
       style: [],
+      /** `{ value, source, hasAbove, changedAbove, above? }` — wordsmithContent.resolveDetailed. */
+      spelling: null,
       limits: { maxDefinition: 600, maxQuestion: 300, maxRule: 800, maxInstruction: 400, minWords: 10, maxWords: 120 },
       selected: '',
       /** A row being added: `{ part, text, basis? }`, or null. */
@@ -254,6 +285,7 @@ export default {
     apply (data) {
       this.statements = data.statements || []
       this.style = data.style || []
+      this.spelling = data.spelling || null
       if (data.limits) { this.limits = data.limits }
       if (this.selected !== STYLE && !this.statements.some(s => s.name === this.selected)) {
         this.selected = this.statements.length ? this.statements[0].name : ''
@@ -280,6 +312,21 @@ export default {
     wordLimitLine (s) {
       const key = s.name === 'Values' ? 'wordsmith.hub.wordLimitLinePlural' : 'wordsmith.hub.wordLimitLine'
       return this.$t(key, { name: s.name, n: s.maxWords.value })
+    },
+
+    /**
+     * Choose a spelling. Pressing the one already in use sends nothing: a press must never quietly
+     * turn an inherited spelling into this level's own, which would stop it following above.
+     * @param {string} value - `nz` or `us`
+     */
+    chooseSpelling (value) {
+      if (this.spelling.value === value) { return }
+      this.send('PUT', 'spelling', { value }, true)
+    },
+
+    /** @param {string} value @returns {string} the spelling's name on screen */
+    spellingName (value) {
+      return this.$t('wordsmith.hub.spelling.' + (value === 'us' ? 'us' : 'nz'))
     },
 
     /**
@@ -360,5 +407,15 @@ export default {
 .fws-chip em { font-style: normal; color: #7a8ba0; }
 .fws-add { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.45rem 0.25rem; }
 .fws-grow { flex: 1; min-width: 0; }
+.fws-spelling { margin-bottom: 1rem; }
+.fws-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 0.5rem; margin-top: 0.4rem; }
+.fws-opt {
+  display: flex; flex-direction: column; align-items: flex-start; text-align: left;
+  border: 1px solid #dfe6ee; border-radius: 6px; background: #fff; padding: 0.5rem 0.75rem; cursor: pointer;
+}
+.fws-opt small { color: #7a8ba0; }
+.fws-opt.is-on { border-color: #0070c0; box-shadow: 0 0 0 1px #0070c0; }
+.fws-changed { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.5rem; padding: 0.5rem 0.65rem; border: 1px solid #f0c48a; border-radius: 6px; background: #fff8ee; }
+.fws-changed p { flex-basis: 100%; }
 .fws >>> .fws-off { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.45rem 0.25rem; border-bottom: 1px solid #f0f3f7; }
 </style>

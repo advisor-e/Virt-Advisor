@@ -211,7 +211,7 @@ async function startRun (req, res) {
     }
     const settings = settingsFrom(body, base.result)
     if (!settings.ok) { return sendError(res, 400, 'BAD_SETTINGS', 'Choose each setting from its list.') }
-    args = { purpose: base.result.purpose, style: base.result.style, settings: settings.value, sorted: base.result.sorted }
+    args = { purpose: base.result.purpose, style: base.result.style, settings: settings.value, sorted: base.result.sorted, language: base.result.language }
   } else {
     const purpose = typedText(body.purpose)
     const style = typedText(body.style)
@@ -236,7 +236,8 @@ async function startRun (req, res) {
     consentConfirmed: true,
     segments,
     statements: content.statements,
-    styleSettings: content.styleSettings
+    styleSettings: content.styleSettings,
+    spelling: content.spelling
   }, args), meta.meetingId)
   res.send(202, { runId: run.runId, runNumber: run.runNumber })
 }
@@ -271,10 +272,14 @@ async function rewriteStatement (req, res) {
     segments,
     statements: content.statements,
     styleSettings: content.styleSettings,
+    // The spelling in force when the rewrite runs, as the approved drawing says.
+    spelling: content.spelling,
     purpose: base.result.purpose,
     style: base.result.style,
     settings: base.result.settings,
     sorted: base.result.sorted,
+    // A rewrite keeps the language the first run heard, or it would come back in English.
+    language: base.result.language,
     only: [body.statement],
     roomAnswers: { [body.statement]: answers }
   }, meta.meetingId)

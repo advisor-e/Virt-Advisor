@@ -69,6 +69,7 @@
     "bulkSomeSkipped": "Invited {n}; {s} were already members."
   },
   "console": {
+    "loading": "Loading…",
     "titles": {
       "firm_manager": "Firm Manager",
       "group_manager": "Group Manager",

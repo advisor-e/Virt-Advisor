@@ -27,7 +27,10 @@
  *       definition: { declined, overrides: {id: {text, cites}}, baselines: {id: text}, own },
  *       questions:  { declined, overrides: {id: {question}}, baselines: {id: question}, own },
  *       rule, ruleBaseline, maxWords, maxWordsBaseline } },
- *     style: { overrides: {optionId: {instruction}}, baselines: {optionId: instruction} } }
+ *     style: { overrides: {optionId: {instruction}}, baselines: {optionId: instruction} },
+ *     spelling, spellingBaseline }
+ * `spelling` is English spelling, `nz` or `us` — one value for all five statements, edited like a
+ * word limit (Mike, 2026-10-02, item 13.7; `design/mockups/wordsmith-spelling.html`).
  * and `NEXT_SEQ_KEY`, a counter never restored, so a removed row's id is never handed out again.
  */
 
@@ -67,6 +70,9 @@ const MAX_OWN_PER_PART = 20
 const MAX_CITES = 5
 const MIN_WORDS = 10
 const MAX_WORDS = 120
+
+/** The mentor's starting value: New Zealand, until a level below chooses (Mike, 2026-10-02). */
+const BASE_SPELLING = 'nz'
 
 const DEV_FILE = path.resolve(__dirname, '../../data/dev-wordsmith-content.json')
 
@@ -219,7 +225,8 @@ function readList (raw, field, ownShape) {
  * statement must not stop a manager opening the tab.
  *
  * @param {*} stored
- * @returns {{statements: Object.<string, object>, style: {overrides: object, baselines: object}}}
+ * @returns {{statements: Object.<string, object>, style: {overrides: object, baselines: object},
+ *   spelling: (string|undefined), spellingBaseline: (string|undefined)}}
  */
 function readState (stored) {
   const all = asObject(asObject(stored).statements)
@@ -248,7 +255,14 @@ function readState (stored) {
   Object.keys(asObject(st.baselines)).forEach((id) => {
     if (typeof st.baselines[id] === 'string') { baselines[id] = st.baselines[id] }
   })
-  return { statements, style: { overrides, baselines } }
+  const root = asObject(stored)
+  const spelling = ws.SPELLINGS.includes(root.spelling) ? root.spelling : undefined
+  return {
+    statements,
+    style: { overrides, baselines },
+    spelling,
+    spellingBaseline: spelling && ws.SPELLINGS.includes(root.spellingBaseline) ? root.spellingBaseline : undefined
+  }
 }
 
 function emptyState () {
@@ -280,7 +294,9 @@ function toStored (state) {
   const style = {}
   if (Object.keys(state.style.overrides).length) { style.overrides = state.style.overrides }
   if (Object.keys(state.style.baselines).length) { style.baselines = state.style.baselines }
-  return { statements, style }
+  const stored = { statements, style }
+  if (state.spelling !== undefined) { stored.spelling = state.spelling; stored.spellingBaseline = state.spellingBaseline }
+  return stored
 }
 
 // ── Resolution ───────────────────────────────────────────────────────────────────────
@@ -308,7 +324,8 @@ function badged (rows, above, baselines, field) {
  *
  * @param {string|null} scopeId
  * @param {function(string, string): Promise<*>} reader
- * @returns {Promise<{statements: Array<object>, style: Array<object>}>}
+ * @returns {Promise<{statements: Array<object>, style: Array<object>,
+ *   spelling: {value: string, source: string, changedAbove: boolean, above: (string|undefined)}}>}
  * @throws when the store cannot be read
  */
 async function resolveDetailed (scopeId, reader) {
@@ -369,7 +386,21 @@ async function resolveDetailed (scopeId, reader) {
     ), row.options, state.style.baselines, 'instruction')
   }))
 
-  return { statements, style }
+  const spellingEdited = state.spelling !== undefined
+  // Offered only when the level above now differs from this tier's choice: one that moved to match
+  // it leaves nothing to decide.
+  const spellingChangedAbove = spellingEdited && state.spellingBaseline !== undefined &&
+    state.spellingBaseline !== above.spelling && state.spelling !== above.spelling
+  const spelling = {
+    value: spellingEdited ? state.spelling : above.spelling,
+    source: spellingEdited ? SOURCE_LABELS.override : SOURCE_LABELS.inherited,
+    // The mentor has no level above, so its screen says neither "your own" nor "set above".
+    hasAbove: Boolean(scopeId) && parentScopeOf(scopeId) !== null,
+    changedAbove: spellingChangedAbove,
+    ...(spellingChangedAbove ? { above: above.spelling } : {})
+  }
+
+  return { statements, style, spelling }
 }
 
 /**
@@ -377,11 +408,12 @@ async function resolveDetailed (scopeId, reader) {
  * shipped content for the mentor.
  * @param {string|null} scopeId
  * @param {function(string, string): Promise<*>} reader
- * @returns {Promise<{statements: Array<object>, style: Array<object>}>} engine shape, unbadged
+ * @returns {Promise<{statements: Array<object>, style: Array<object>, spelling: string}>} engine
+ *   shape, unbadged
  */
 async function loadInherited (scopeId, reader) {
   const parent = scopeId ? parentScopeOf(scopeId) : null
-  if (parent === null) { return { statements: BASE_STATEMENTS, style: BASE_STYLE } }
+  if (parent === null) { return { statements: BASE_STATEMENTS, style: BASE_STYLE, spelling: BASE_SPELLING } }
   return toEngineShape(await resolveDetailed(parent, reader))
 }
 
@@ -401,7 +433,8 @@ function toEngineShape (detailed) {
       definition: s.definition.map(r => plainRow(r, ['id', 'basis', 'text', 'cites'])),
       elements: s.questions.map(e => plainRow(e, ['id', 'detect', 'label', 'question']))
     })),
-    style: detailed.style.map(row => ({ key: row.key, options: row.options.map(o => plainRow(o, ['id', 'value', 'instruction'])) }))
+    style: detailed.style.map(row => ({ key: row.key, options: row.options.map(o => plainRow(o, ['id', 'value', 'instruction'])) })),
+    spelling: detailed.spelling.value
   }
 }
 
@@ -414,13 +447,13 @@ function toEngineShape (detailed) {
  *
  * @param {string|null} scopeId - from the verified JWT, never a request body.
  * @param {function(string, string): Promise<*>} reader
- * @returns {Promise<{statements: Array<object>, styleSettings: object}>} checked by the engine's
- *   own checks
+ * @returns {Promise<{statements: Array<object>, styleSettings: object, spelling: string}>} checked
+ *   by the engine's own checks
  * @throws when the store cannot be read or the resolved content fails those checks
  */
 async function loadResolvedContent (scopeId, reader) {
   const shaped = toEngineShape(await resolveDetailed(scopeId, reader))
-  return { statements: ws.checkStatements(shaped.statements), styleSettings: ws.styleGuideFrom(shaped.style) }
+  return { statements: ws.checkStatements(shaped.statements), styleSettings: ws.styleGuideFrom(shaped.style), spelling: shaped.spelling }
 }
 
 /**
@@ -451,6 +484,7 @@ module.exports = {
   BASES,
   BASE_STATEMENTS,
   BASE_STYLE,
+  BASE_SPELLING,
   MAX_DEFINITION,
   MAX_QUESTION,
   MAX_RULE,

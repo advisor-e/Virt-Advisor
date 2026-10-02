@@ -348,7 +348,7 @@ section.firm-manager-hub.section
         .columns
           //- Template Library column
           .column
-            p.has-text-weight-semibold.mb-3 Template library
+            p.has-text-weight-semibold.mb-3 {{ $t('firmManagerHub.templateImport.heading') }}
 
             //- Current status
             .box.mb-4
@@ -356,28 +356,28 @@ section.firm-manager-hub.section
                 b-loading(:is-full-page="false" :active="true")
               template(v-else)
                 .mb-3(v-if="templateImport.hasImport")
-                  b-tag(type="is-success is-light" size="is-medium") {{ templateImport.templateCount }} templates loaded
+                  b-tag(type="is-success is-light" size="is-medium") {{ $t('firmManagerHub.templateImport.loaded', { count: templateImport.templateCount }) }}
                   p.is-size-7.has-text-grey.mt-1
-                    | Version {{ templateImport.history[0] && templateImport.history[0].version }}
-                    | &middot; saved {{ formatDate(templateImport.history[0] && templateImport.history[0].created_at) }}
+                    | {{ $t('firmManagerHub.templateImport.version', { version: templateImport.history[0] && templateImport.history[0].version }) }}
+                    | &middot; {{ $t('firmManagerHub.templateImport.saved', { date: formatDate(templateImport.history[0] && templateImport.history[0].created_at) }) }}
                 .mb-3(v-else)
-                  b-tag(type="is-warning is-light" size="is-medium") Using platform default
-                  p.is-size-7.has-text-grey.mt-1 No firm-specific template library imported yet
+                  b-tag(type="is-warning is-light" size="is-medium") {{ $t('firmManagerHub.templateImport.usingDefault') }}
+                  p.is-size-7.has-text-grey.mt-1 {{ $t('firmManagerHub.templateImport.noImport') }}
 
                 //- Upload
                 b-field(grouped)
-                  b-field(expanded label="Import JSON from master app")
+                  b-field(expanded :label="$t('firmManagerHub.templateImport.importLabel')")
                     b-upload(v-model="templateImportFile" accept=".json" expanded)
                       a.button.is-light.is-fullwidth
                         b-icon(icon="upload")
-                        span {{ templateImportFile ? templateImportFile.name : 'Choose JSON file…' }}
+                        span {{ templateImportFile ? templateImportFile.name : $t('firmManagerHub.templateImport.chooseFile') }}
                   b-field(:label="'\u00a0'")
                     b-button(
                       type="is-primary"
                       :loading="importingTemplates"
                       :disabled="!templateImportFile"
                       @click="submitTemplateImport"
-                    ) Import
+                    ) {{ $t('firmManagerHub.templateImport.import') }}
 
                 b-button(
                   v-if="templateImport.hasImport"
@@ -385,51 +385,51 @@ section.firm-manager-hub.section
                   size="is-small"
                   icon-left="restore"
                   @click="confirmResetTemplates"
-                ) Reset to platform default
+                ) {{ $t('firmManagerHub.templateImport.resetToDefault') }}
 
             //- Version history
             div(v-if="templateImport.history && templateImport.history.length > 1")
-              p.has-text-weight-semibold.mb-2 Import history
+              p.has-text-weight-semibold.mb-2 {{ $t('firmManagerHub.templateImport.history') }}
               b-table(:data="templateImport.history" :hoverable="true" size="is-small")
-                b-table-column(v-slot="{ row }" field="version" label="Version" width="80")
+                b-table-column(v-slot="{ row }" field="version" :label="$t('firmManagerHub.templateImport.colVersion')" width="80")
                   | v{{ row.version }}
-                  b-tag(v-if="row.is_active" type="is-success is-light" size="is-small") current
-                b-table-column(v-slot="{ row }" field="created_at" label="Imported") {{ formatDate(row.created_at) }}
+                  b-tag(v-if="row.is_active" type="is-success is-light" size="is-small") {{ $t('firmManagerHub.templateImport.current') }}
+                b-table-column(v-slot="{ row }" field="created_at" :label="$t('firmManagerHub.templateImport.colImported')") {{ formatDate(row.created_at) }}
                 b-table-column(v-slot="{ row }" label="" width="80")
                   b-button(
                     v-if="!row.is_active"
                     size="is-small"
                     type="is-info is-light"
                     @click="restoreTemplateVersion(row)"
-                  ) Restore
+                  ) {{ $t('firmManagerHub.templateImport.restore') }}
 
           //- Videos column
           .column
-            p.has-text-weight-semibold.mb-3 Video links
+            p.has-text-weight-semibold.mb-3 {{ $t('firmManagerHub.videos.heading') }}
             .box.mb-4
-              b-field(label="Domain")
-                b-select(v-model="newVideo.domain" placeholder="Select domain" expanded)
+              b-field(:label="$t('firmManagerHub.videos.domain')")
+                b-select(v-model="newVideo.domain" :placeholder="$t('firmManagerHub.videos.selectDomain')" expanded)
                   option(v-for="d in domains" :key="d" :value="d") {{ d }}
-              b-field(label="Title")
-                b-input(v-model="newVideo.title" placeholder="e.g. Cash Flow Masterclass")
-              b-field(label="URL (HTTPS)")
+              b-field(:label="$t('firmManagerHub.videos.title')")
+                b-input(v-model="newVideo.title" :placeholder="$t('firmManagerHub.videos.titlePlaceholder')")
+              b-field(:label="$t('firmManagerHub.videos.url')")
                 b-input(v-model="newVideo.url" type="url" placeholder="https://…")
               b-button(
                 type="is-primary"
                 :loading="addingVideo"
                 :disabled="!newVideo.domain || !newVideo.title || !newVideo.url"
                 @click="addVideo"
-              ) Add video
+              ) {{ $t('firmManagerHub.videos.add') }}
 
             b-table(
               :data="videos"
               :hoverable="true"
               :loading="loadingVideos"
-              empty-string="No videos added yet"
+              :empty-string="$t('firmManagerHub.videos.empty')"
             )
-              b-table-column(v-slot="{ row }" field="domain" label="Domain")
+              b-table-column(v-slot="{ row }" field="domain" :label="$t('firmManagerHub.videos.domain')")
                 b-tag {{ row.domain }}
-              b-table-column(v-slot="{ row }" field="title" label="Title")
+              b-table-column(v-slot="{ row }" field="title" :label="$t('firmManagerHub.videos.title')")
                 a(:href="row.url" target="_blank" rel="noopener noreferrer") {{ row.title }}
               b-table-column(v-slot="{ row }" label="" width="80")
                 b-button(
@@ -2058,8 +2058,8 @@ export default {
   },
 
   mounted () {
-    this.loadTemplateImport()
-    this.loadVideos()
+    // loadTemplateImport() and loadVideos() feed only the Templates & Videos panel, hidden
+    // since 2026-07-27 (v-if="false"). They return here if that panel is switched back on.
     this.loadDomains()
     this.loadFirmDistinctions()
     // Only where the tab is actually shown, and asked the same way the tab asks.
@@ -2301,8 +2301,8 @@ export default {
         const res = await this.api('POST', '/api/firm-manager/templates', form, true)
         this.$buefy.toast.open({
           message: res.version
-            ? `${res.templateCount} templates imported (version ${res.version}).`
-            : `${res.templateCount} templates imported.`,
+            ? this.$t('firmManagerHub.templateImport.importedVersion', { count: res.templateCount, version: res.version })
+            : this.$t('firmManagerHub.templateImport.imported', { count: res.templateCount }),
           type: 'is-success'
         })
         this.templateImportFile = null
@@ -2316,9 +2316,9 @@ export default {
 
     confirmResetTemplates () {
       this.$buefy.dialog.confirm({
-        message: 'Remove your firm\'s template library import and revert to the platform default?',
+        message: this.$t('firmManagerHub.templateImport.resetConfirm'),
         type: 'is-danger',
-        confirmText: 'Reset to default',
+        confirmText: this.$t('firmManagerHub.templateImport.resetConfirmButton'),
         onConfirm: () => this.resetTemplateImport()
       })
     },
@@ -2326,7 +2326,7 @@ export default {
     async resetTemplateImport () {
       try {
         await this.api('DELETE', '/api/firm-manager/templates')
-        this.$buefy.toast.open({ message: 'Template library reset to platform default.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.templateImport.resetDone'), type: 'is-success' })
         this.loadTemplateImport()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
@@ -2339,7 +2339,7 @@ export default {
           configKey: 'templates',
           versionId: row.id
         })
-        this.$buefy.toast.open({ message: `Restored as version ${res.version}.`, type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.templateImport.restored', { version: res.version }), type: 'is-success' })
         this.loadTemplateImport()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })
@@ -2363,7 +2363,7 @@ export default {
       this.addingVideo = true
       try {
         await this.api('POST', '/api/firm-manager/videos', this.newVideo)
-        this.$buefy.toast.open({ message: 'Video added.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.videos.added'), type: 'is-success' })
         this.newVideo = { domain: '', title: '', url: '' }
         this.loadVideos()
       } catch (e) {
@@ -2375,9 +2375,9 @@ export default {
 
     confirmDeleteVideo (row) {
       this.$buefy.dialog.confirm({
-        message: DOMPurify.sanitize(`Remove <strong>${row.title}</strong>?`, { USE_PROFILES: { html: true } }),
+        message: DOMPurify.sanitize(this.$t('firmManagerHub.videos.removeConfirm', { title: row.title }), { USE_PROFILES: { html: true } }),
         type: 'is-danger',
-        confirmText: 'Remove',
+        confirmText: this.$t('firmManagerHub.remove'),
         onConfirm: () => this.deleteVideo(row)
       })
     },
@@ -2385,7 +2385,7 @@ export default {
     async deleteVideo (row) {
       try {
         await this.api('DELETE', `/api/firm-manager/videos/${row.id}`)
-        this.$buefy.toast.open({ message: 'Video removed.', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('firmManagerHub.videos.removed'), type: 'is-success' })
         this.loadVideos()
       } catch (e) {
         this.$buefy.toast.open({ message: e.message, type: 'is-danger' })

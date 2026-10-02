@@ -5338,6 +5338,16 @@
   "tierNotConnected": {
     "firmsNotMapped": "The firms in this group are not connected yet, so there is nothing to show here."
   },
+  "hubAccess": {
+    "restricted": "Access Restricted",
+    "contactAdministrator": "Please contact your account administrator.",
+    "notConnected": "This level is not connected yet.",
+    "willEnable": "Your Advisor-e administrator will enable it.",
+    "mentorOnly": "The Mentor view is available to the mentor only.",
+    "globalOnly": "This hub is for global group managers.",
+    "groupOnly": "This hub is for group managers.",
+    "firmOnly": "The Firm Manager hub requires a Firm Manager or Platform Admin role."
+  },
   "caseShare": {
     "heading": "Share upward",
     "sharedStatus": "Shared upward (anonymised)",
@@ -5737,7 +5747,7 @@
     "llDeliverFailed": "That could not be saved. Nothing has changed."
   },
   "firmTaxRates": {
-    "intro": "These are the tax figures the {report} applies to clients in one country — the rate their profit is taxed at, the GST or VAT rate, how often they file a return, and whether GST follows the invoice or the payment.",
+    "intro": "These are the tax figures the Three-Way Forecast applies to clients in one country — the rate their profit is taxed at, the GST or VAT rate, how often they file a return, and whether GST follows the invoice or the payment.",
     "introStrong": "Until a figure here is approved, the forecast uses the app's own, which are New Zealand's and are marked as a starting point.",
     "countryLabel": "Country",
     "countryPlaceholder": "NZ",
@@ -6033,6 +6043,11 @@
       "templatesBody": "The templates you want brought forward when this situation appears. Pick the ones you'd reach for yourself.",
       "boostLabel": "Boost",
       "boostBody": "How hard to push those templates up the list when this situation is recognised. Leave it at the default for a gentle nudge; raise it when you want this situation to strongly steer the recommendation."
+    },
+    "devData": {
+      "heading": "Showing local development data, not the real platform set.",
+      "body": "{rows} loaded from {file}, and the {shadowed} shipped rows are hidden while that file exists. Delete the file to see the real set.",
+      "rows": "{n} row | {n} rows"
     }
   },
   "meetingConsent": {
@@ -7873,6 +7888,42 @@
       "withdrawn": "Withdrawn from mentor.",
       "withdrawFailed": "Could not withdraw the case. Please try again.",
       "noAreaToMove": "This case has no recorded area to move into."
+    },
+    "templateImport": {
+      "heading": "Template library",
+      "loaded": "{count} templates loaded",
+      "version": "Version {version}",
+      "saved": "saved {date}",
+      "usingDefault": "Using platform default",
+      "noImport": "No firm-specific template library imported yet",
+      "importLabel": "Import JSON from master app",
+      "chooseFile": "Choose JSON file…",
+      "import": "Import",
+      "resetToDefault": "Reset to platform default",
+      "history": "Import history",
+      "colVersion": "Version",
+      "current": "current",
+      "colImported": "Imported",
+      "restore": "Restore",
+      "imported": "{count} templates imported.",
+      "importedVersion": "{count} templates imported (version {version}).",
+      "resetConfirm": "Remove your firm's template library import and revert to the platform default?",
+      "resetConfirmButton": "Reset to default",
+      "resetDone": "Template library reset to platform default.",
+      "restored": "Restored as version {version}."
+    },
+    "videos": {
+      "heading": "Video links",
+      "domain": "Domain",
+      "selectDomain": "Select domain",
+      "title": "Title",
+      "titlePlaceholder": "e.g. Cash Flow Masterclass",
+      "url": "URL (HTTPS)",
+      "add": "Add video",
+      "empty": "No videos added yet",
+      "removeConfirm": "Remove <strong>{title}</strong>?",
+      "added": "Video added.",
+      "removed": "Video removed."
     }
   },
   "firmMeetingObservations": {
@@ -8608,6 +8659,17 @@
       "citeLink": "Link",
       "addRow": "Add a row",
       "styleHint": "what the AI is told for each choice; the choices themselves are fixed",
+      "spelling": {
+        "label": "English spelling",
+        "hint": "used when the client spoke English",
+        "nz": "New Zealand",
+        "nzExample": "recognise, colour, organisation",
+        "us": "US",
+        "usExample": "recognize, color, organization",
+        "own": "Your own choice.",
+        "inherited": "Set by the level above you.",
+        "changedAbove": "The level above you now uses {choice}. You chose {yours}, so you still use {yours}."
+      },
       "settingNames": {
         "sentenceLength": "Sentence length",
         "formality": "Formality",

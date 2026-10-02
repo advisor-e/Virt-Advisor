@@ -90,11 +90,14 @@
         :closable="false"
         style="font-size:0.85rem"
       )
-        strong Showing local development data, not the real platform set.
-        |  {{ distinctions.length }} row{{ distinctions.length === 1 ? '' : 's' }} loaded from
-        |  #[code data/dev-platform-distinctions.json], and the
-        |  #[strong {{ shadowedCount }}] shipped rows are hidden while that file exists.
-        |  Delete the file to see the real set.
+        strong {{ $t('mentorDistinctions.devData.heading') }}
+        | &nbsp;
+        i18n(path="mentorDistinctions.devData.body" tag="span")
+          template(#rows) {{ $tc('mentorDistinctions.devData.rows', distinctions.length, { n: distinctions.length }) }}
+          template(#file)
+            code data/dev-platform-distinctions.json
+          template(#shadowed)
+            strong {{ shadowedCount }}
 
       .has-text-centered.py-5(v-if="loadingDistinctions")
         b-loading(:is-full-page="false" :active="true")

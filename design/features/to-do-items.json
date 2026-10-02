@@ -190,16 +190,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "Translation is available, but each hub page has had to be brought into it one at a time. Mike wants it extended across all hub pages and all four levels, and every new page built translatable from the start.",
-      "risk": "A manager working in another language meets English on any hub page that was missed. Wordsmith is the first live case: it tells the AI to write New Zealand English and its code treats American spelling as an error, so a firm writing American English would have correct spelling flagged as a mistake.",
+      "why": "Mike wants translation across all hub pages and all four levels, and every new page built translatable from the start. The hub half is done; Wordsmith's language is what remains.",
+      "risk": "Wordsmith tells the AI to write New Zealand English and its code treats American spelling as an error, so a firm writing American English has correct spelling flagged as a mistake, and a client who spoke another language gets drafts in New Zealand English.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-29, in his own words: \"we have translation available and will extend it across all hub pages, all levels, going forward. In fact, you can list that as a required task to do\"."
       },
-      "touches": "Every hub tab under FirmManagerHub.vue at the four tiers; locales/en.json; server/utils/uiTranslation.js; and Wordsmith's language: the New Zealand spelling rule in buildDraftMessages and the AMERICAN check in server/utils/wordsmith.js.",
-      "note": "NOT SCOPED. 10.1 and 10.2 already brought the manager screens and the hub's backend wording into translation. First job at scoping: list which hub pages and tiers still show English that bypasses it, and name how Wordsmith learns a firm's language and spelling. The impact test is unrun. FOUND 2026-10-01: the hub's template-import panel is English-only - FirmManagerHub.vue lines 359-397 (templates loaded, Version, saved, current, Imported) and the import toast near 2304.",
-      "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it."
+      "touches": "scripts/wordsmith-lab.js and design/WORDSMITH-LAB-REPORT.md, for the after-measurement.",
+      "note": "DONE 2026-10-02: every hub screen takes its wording from locales/en.json, guarded by tests/unit/hubNoTypedEnglish.test.js. Wordsmith writes in the language the client spoke, its checks working in that language (strategy-planner.md section 9b). BEFORE, on Wordsmith Lab case invented-cafe-german: 5 of 8 drafts in English, 4 false name flags, 4 false room questions. AFTER: NOT MEASURED - the OpenAI account ran out of credits mid-run; rerun node -r dotenv/config scripts/wordsmith-lab.js --ai once credits are added, and commit its report. English spelling (New Zealand or US, each level's choice, New Zealand from the mentor) BUILT and walked 2026-10-02 to the approved design/mockups/wordsmith-spelling.html. ONLY THE AFTER-MEASUREMENT REMAINS.",
+      "comment": "2026-09-29 - filed on Mike's instruction, raised by Wordsmith's spelling question. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-02 (evening): PROCEED - everything is built; only the Wordsmith Lab's after-run remains, once OpenAI credits are added."
     },
     {
       "ref": "8.6",
@@ -283,13 +283,13 @@
       "blocks": null,
       "waitingOn": "Us",
       "why": "The meeting reports screen and the meeting set-up screen type their English straight into the code, so an advisor reading in another language sees them in English.",
-      "risk": "Every other Meeting Review screen now translates - the recorder moved on 2026-10-01 - so these two stand out in another language. The reports screen's own comment still defends the typed English by saying the recorder does the same, which is no longer true.",
+      "risk": "The recorder component moved on 2026-10-01, but the recording PAGE around it did not: pages/meeting-record.vue still types 30 phrases, including the not-yet-available-at-your-firm gate and its legal-obligations wording, which takes the same care as the pinned consent wording. These are the only pages in the app with typed English (2026-10-02). The reports screen's own comment still defends the typed English by saying the recorder does the same, which is no longer true.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-10-01 - found building item 8.4's gap notice; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
       },
-      "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, locales/en.json, and the report tests that read English text.",
+      "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, the three page files pages/meeting-record.vue (30 typed phrases), pages/meeting-review.vue (7) and pages/meeting-preset.vue (4), locales/en.json, and the report tests that read English text.",
       "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words. Its numbers and dates need 13.8's helpers too - the talk-time % (lines 128-130) and the en-NZ date at line 480 (8.7, a duplicate, folded in 2026-10-01).",
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
@@ -313,6 +313,48 @@
       "touches": "nuxt.config.js build settings, plugins/i18n.js (whether locales/en.json is bundled), plugins/buefy.js; the measurement method should match the master team's.",
       "note": "Production build 2026-10-01, gzipped: runtime 3.1 + commons/app 57.3 + vendors~app 110.0 + app 211.7 = 382 KB before any page; /firm-manager adds 209 KB, /advisor totals 456 KB. Suspected cause, unproved: the 212 KB app chunk carries the English locale file. First job: confirm the master team's measuring method, then find what is in app.",
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.8",
+      "name": "OpenAI account out of credits since 2026-10-02 - check whether UAT shares it",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 5,
+      "scoreReason": "every AI feature fails while it lasts",
+      "blocker": true,
+      "blocks": "13.7",
+      "waitingOn": "Mike",
+      "why": "Since 2026-10-02 every AI call from the desktop's OpenAI key fails: 429 insufficient_quota, credit_balance_exhausted, \"You have no credits remaining\".",
+      "risk": "If UAT uses the same OpenAI account, every AI feature there - the advisor, Wordsmith, the reports - is failing for testers now. Unknown which account UAT uses.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-02 - found when the Wordsmith Lab's after-run was refused mid-run; filed on Mike's yes at shutdown."
+      },
+      "touches": "Nothing in this repository: the OpenAI account's billing at platform.openai.com, and the key UAT is given by the master team.",
+      "note": "CLOSES WHEN credits are added and UAT has been checked. Then rerun the Wordsmith Lab (13.7's after-measurement).",
+      "comment": "2026-10-02 - filed on Mike's yes at shutdown. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "13.11",
+      "name": "Text comparison drops accented letters, so a check could miss a changed word",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - unproved harm, in languages other than English",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "normalise() in server/utils/meetingReports.js keeps a-z, 0-9 and apostrophes only, so \"Gäste\" becomes \"g ste\" and two words differing only in an accented letter compare equal.",
+      "risk": "Meeting Review's quote check and Wordsmith's must-keep check could pass a draft that changed an accented word. Not seen to happen; both sides are stripped alike, so a true quote still matches.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-02 - found while making Wordsmith's checks work in other languages (13.7); filed on Mike's yes at shutdown."
+      },
+      "touches": "normalise in server/utils/meetingReports.js and every caller: Meeting Review's quote verification, Wordsmith's checkDraft and the Wordsmith Lab.",
+      "note": "MEASURE FIRST, on non-English transcripts: does it ever let a wrong word through? Any change must not loosen Meeting Review's checks. Wordsmith's invented-name check already reads accented letters (wordsOf, 13.7).",
+      "comment": "2026-10-02 - filed on Mike's yes at shutdown. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

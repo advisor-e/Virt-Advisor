@@ -1883,16 +1883,22 @@ replaced by:
    the transcript's **line numbers**; the code takes those lines word for word, the client's only.
    Asked to copy passages instead, the model tidied them (the Lab, 2026-09-29), so the exact words
    are guaranteed by construction. Speech that fits none is left out; a statement nobody spoke
-   about says so.
+   about says so. The sort also reports the language the client spoke, checked against the app's
+   own language codes (anything else is English).
 2. **Check against the definition.** Each statement carries its definition — the Alignment
    document first, best practice second where it agrees, the Alignment document wherever they
    differ. What is missing (a Mission's date and measure, a Strategy's scope) becomes a question
    for the advisor and client, never an invention.
 3. **Style becomes settings** — sentence length, formality, jargon, voice — shown to the advisor.
 4. **Draft** from the sorted quotes, the definition, the purpose and the settings: the client's
-   strongest phrases kept, New Zealand spelling, a length per statement.
+   strongest phrases kept, a length per statement, **in the language the client spoke** (Mike,
+   2026-10-02, item 13.7) — New Zealand spelling when that is English. A rewrite keeps the language
+   its first run heard.
 5. **Code checks every draft** — invented facts, lost key phrases, spelling, length — retries once,
-   then shows any failure to the advisor.
+   then shows any failure to the advisor. The date and number readings and the spelling list are
+   English, so in another language the date and measure are judged by the draft instead, and
+   spelling is not checked; the invented-name check reads accented letters, and is skipped in
+   German, where every noun is capitalised.
 
 **The definitions cascade (Mike, 2026-09-29):** *"as for every other section in this app, what is
 loaded into the mentor hub cascades down thru the layers to firm manager with the same adopt or
@@ -1918,8 +1924,12 @@ down"*); the split, **approved by him the same day** as the one the hub tab is b
 definition rows, their sources, each domain writing rule, the questions for the room, word limits,
 the style instructions; **fixed at every tier** — the five statement names and order, which
 recording Wordsmith may read, the safety rules, the code's checks, and keeping the client's strongest
-phrases. Spelling is New Zealand English in the code for now; a firm's own language and spelling
-come with translation reaching every hub page and level (Mike, 2026-09-29 — item 13.7). **When the hub tab is built, its colours and format match the other
+phrases. Statements are written in the language the client spoke. **English spelling is each
+level's choice, New Zealand or US, starting as New Zealand from the mentor** (Mike, 2026-10-02,
+item 13.7; [`wordsmith-spelling.html`](../mockups/wordsmith-spelling.html)) — at the top of the
+hub tab's Style wording, cascading like a word limit, and the spelling check follows it. **Unlike a
+word limit, a choice is kept even when it matches the level above**: with two values, dropping it
+would leave a firm that chose New Zealand silently following its group to US. **When the hub tab is built, its colours and format match the other
 tabs in the hub** (Mike, 2026-09-29: *"just check the colours and format match that of the other
 pages in the hub when you go to build stage"*) — checked beside an existing tab before it ships; the
 drawing `wordsmith-style-settings.html` shows the content, not the screen.

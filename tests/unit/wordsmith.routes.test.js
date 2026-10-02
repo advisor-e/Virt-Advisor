@@ -212,6 +212,34 @@ describe('writing again', () => {
     expect(prompt).toContain('never \\"we\\"')
   })
 
+  test('🔴 both ways of writing again keep the language the first run heard — never fall back to English', async () => {
+    const id = meeting()
+    const read = fakeClient([Object.assign({ language: 'de' }, SORT), STYLE])
+    route._setClients({ read, write: fakeClient([{ draft: 'Wir sind die Besten.' }]) })
+    const started = await call(route.startRun, req(id, { body: { purpose: 'p', style: 's' } }))
+    const { runId } = started._body
+    await settle(id, runId)
+
+    for (const [handler, body, params] of [
+      [route.startRun, { baseRunId: runId }, {}],
+      [route.rewriteStatement, { statement: 'Vision' }, { runId }]
+    ]) {
+      const write = fakeClient([{ draft: 'Wir sind die Besten.' }])
+      route._setClients({ read: fakeClient([]), write })
+      const again = await call(handler, req(id, { body, params }))
+      await settle(id, again._body.runId)
+      expect(write.chat.completions.create.mock.calls[0][0].messages[0].content).toContain('Write in Deutsch (de)')
+    }
+  })
+
+  test('🔴 the firm\'s English spelling, resolved on the server, reaches the draft', async () => {
+    const wc = require('../../server/utils/wordsmithContent')
+    overlay.loadFirmConfig.mockImplementation((scope, key) => Promise.resolve(key === wc.CONFIG_KEY && scope === FIRM ? { spelling: 'us', spellingBaseline: 'nz' } : null))
+    const id = meeting()
+    const { write } = await firstRun(id)
+    expect(write.chat.completions.create.mock.calls[0][0].messages[0].content).toContain('Write in US English spelling')
+  })
+
   test('settings outside the fixed choices are refused', async () => {
     const id = meeting()
     const { runId } = await firstRun(id)

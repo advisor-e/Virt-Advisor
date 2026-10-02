@@ -2,7 +2,7 @@
 .ftr
   .notification.is-info.is-light.mb-4
     p.is-size-7
-      | {{ $t('firmTaxRates.intro', { report: 'Three-Way Forecast' }) }}
+      | {{ $t('firmTaxRates.intro') }}
       |  #[b {{ $t('firmTaxRates.introStrong') }}]
 
   .field.is-grouped.is-align-items-flex-end.mb-4

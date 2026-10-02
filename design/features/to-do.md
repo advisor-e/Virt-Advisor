@@ -46,8 +46,10 @@ repository sees; the two never both appear, and the build stops if they would.
 | 9 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 10 | **13.9** Meeting reports and set-up screens cannot be translated ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 11 | **22.3** First-load page code is 382 KB against the 300 KB limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 12 | 🔒 **22.8** OpenAI account out of credits since 2026-10-02 - check whether UAT shares it ⚠ *not yet ranked by Mike* | 5 | 13.7 | **Mike** | — |
+| 13 | **13.11** Text comparison drops accented letters, so a check could miss a changed word ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
-**Eleven live items. Four need Mike.** If this list passes about twenty, something is wrong.
+**Thirteen live items. Five need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

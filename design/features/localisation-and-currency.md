@@ -346,7 +346,10 @@ does not already exist on the other side.
    reads `advisor.save.confirm` on screen while every test passes. This is the one failure mode in
    this area that no ordinary test can see, and the only guard is a test that walks the component's
    `$t()` calls against the real locale file — `tests/unit/i18nMessages.test.js`. **Any screen that
-   moves its strings into the wording layer adds itself to that walk in the same change.**
+   moves its strings into the wording layer adds itself to that walk in the same change.** Every
+   hub screen, and any hub tab added later, is checked automatically by
+   `tests/unit/hubNoTypedEnglish.test.js`, which follows the four hub pages' imports and fails on
+   English typed into a screen or a key that does not resolve (item 13.7).
 5. **Keys built by joining text (`$t('advisor.domains.' + id)`) need their own check** — a missing
    entry becomes a raw key offered as a selectable option, not an error.
 6. **The free translation tier has a daily limit.** An environment variable raises it; without it,

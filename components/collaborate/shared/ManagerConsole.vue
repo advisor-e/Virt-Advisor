@@ -24,7 +24,7 @@
           span.sep ·
           nuxt-link(to="/mentor") {{ $t('console.titles.mentor') }}
 
-      b-message(v-if="loading" type="is-info") Loading…
+      b-message(v-if="loading" type="is-info") {{ $t('console.loading') }}
       b-message(v-else-if="!c" type="is-danger") {{ $t('firm.loadFailed') }}
       template(v-else)
         p.has-text-grey.mb-4 {{ pageSubtitle }}
