@@ -178,7 +178,14 @@ const DRAWINGS = [
  *
  * @type {Array<{file: string, svg: number, since: string, item: string}>}
  */
-const AWAITING_APPROVAL = []
+const AWAITING_APPROVAL = [
+  // The sixteen teaching pages that follow a drawn page in his decks and that no concept claimed —
+  // shown to Mike 2026-10-02 after he asked "where is page 2 of the teaching". Each becomes a
+  // further sheet of its concept once approved.
+  ...Array.from({ length: 16 }, (_, i) => ({
+    file: 'strategy-concept-second-pages.html', svg: i + 1, since: '2026-10-02', item: '15.18'
+  }))
+]
 
 /**
  * Every concept a drawing serves, in registry order.
