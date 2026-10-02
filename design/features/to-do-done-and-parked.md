@@ -392,6 +392,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.21 · Earlier messages, including the AI's own recommendation, were cut to 2,000 characters
+each turn.** ✅ **Closed 2026-10-02 by Mike ("done").**
+
+- **What it really was:** proved from the saved bench baseline, no AI calls - all 51 client
+  recommendations (3,477 to 5,832 characters) were cut on a follow-up, losing about half of the
+  advice at the middle length. Learn and Plan were not measured and keep no session; Discover
+  never reached the cut.
+- **What was done:** the server keeps the last 10 replies it sent in the conversation's session
+  and restores a cut AI message only where its own copy begins with what the browser sent
+  (`server/utils/followUpReplies.js`). The session now opens only for the firm and advisor who
+  started it. Design, approved 2026-10-02, with the three differences from it recorded at its
+  top: [`FOLLOW-UP-FULL-REPLIES.md`](../FOLLOW-UP-FULL-REPLIES.md).
+- **What proves it:** 12 tests in `followUpFullReplies.test.js` - 51 of 51 reach the AI whole,
+  a real follow-up turn through the engine sends the whole reply, a forged message is never
+  lengthened, and another firm's session id gets nothing and changes nothing. Full suite 15,086
+  green.
+- **Not checked here:** whether follow-up answers are better - no bench scores follow-ups; UAT
+  judges it.
+
 **7.27 · Every advisor shared one usage limit, because the backend sees only the Nuxt server's
 address.** ✅ **Closed 2026-10-02 by Mike ("done").**
 

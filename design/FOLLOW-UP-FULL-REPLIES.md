@@ -1,6 +1,12 @@
 # The AI sees its own full reply on a follow-up — design for item 7.21
 
-> For Mike's approval. Nothing here is built yet.
+> Approved by Mike 2026-10-02 and built the same day; tests in
+> `tests/unit/followUpFullReplies.test.js`. Three deliberate differences from the design below:
+> (1) the kept replies are restored once at the start of each client-chat turn, so the Moving
+> Forward question sees them too, not only the follow-up; (2) the matching lives in
+> `server/utils/followUpReplies.js`, so it is tested on its own; (3) a reply is restored only
+> when the browser's copy was actually cut (exactly 2,000 characters), and leading whitespace is
+> ignored on both sides, because the screen trims a reply when it removes a selector marker.
 
 ## The impact test
 
