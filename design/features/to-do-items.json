@@ -273,27 +273,6 @@
       }
     },
     {
-      "ref": "15.32",
-      "name": "Changing client in the Strategy Planner keeps the previous client's ticks and suggestion",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "Picking a different client on Scope session leaves the previous client's ticks, and any AI suggestion with reason lines about that client, on screen for the new one.",
-      "risk": "A session can be built for one client from another client's scope and reasons. Possibly worse and not yet proved: an open session is never detached on a client change, so its record may be edited under the other client's name.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-09-30 - found walking item 15.31 in a browser; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "pages/strategy-planner.vue - the clientId watcher, which resets only modelPrints and the guided answers; sessionId, chosen and suggested are never cleared on a client change.",
-      "note": "PROVED: 2 concepts ticked for Harbour Joinery stayed ticked after switching to Kinetic Planning. NOT PROVED: that an open session is written to under the new client - trace a save end to end first. Needs Mike's call on whether ticks should ever carry over, e.g. correcting a wrongly picked client.",
-      "comment": "2026-09-30 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "13.9",
       "name": "Meeting reports and set-up screens cannot be translated",
       "rankedByMike": false,

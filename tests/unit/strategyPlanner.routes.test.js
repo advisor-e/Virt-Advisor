@@ -64,7 +64,10 @@ const FIRM = 'firm-a'
 const ADVISOR = { firmId: FIRM, advisorId: 'adv-1', advisorName: 'D. Okafor' }
 
 function req (over) {
-  return Object.assign({ query: {}, params: {}, body: {} }, ADVISOR, over || {})
+  const r = Object.assign({ query: {}, params: {}, body: {} }, ADVISOR, over || {})
+  // Every session write names the client on screen (item 15.32); the session mock is client-1's.
+  r.body = Object.assign({ clientId: 'client-1' }, r.body)
+  return r
 }
 
 beforeEach(() => {
@@ -815,5 +818,42 @@ describe('PUT /api/strategy/sessions/:id/edits', () => {
 
     expect(res._status).toBe(400)
     expect(store.saveTextEdit).not.toHaveBeenCalled()
+  })
+})
+
+// 🔴 ITEM 15.32. A session is written only under the client it belongs to. Before this, every
+// write named the session alone, so a screen still holding the previous client's session wrote
+// the new client's ticks, boxes and wording into the wrong record. UAT cannot see it: the
+// screen looks right and the words are filed on somebody else.
+describe('a session is written only under its own client — item 15.32', () => {
+  const WRITES = [
+    { route: 'putScope', write: 'setScope', body: { frameworks: [] } },
+    { route: 'putEntries', write: 'saveEntry', body: { entries: [{ frameworkId: 'swot-pest', fieldKey: 'strengths', value: 'x' }] } },
+    { route: 'putEdit', write: 'saveTextEdit', body: { conceptId: 'porters-5-forces', sheet: 0, block: 'b10-1k2x9', text: 'New words.' } },
+    { route: 'postTimeline', write: 'closeOpenField', body: { close: true } }
+  ]
+
+  WRITES.forEach(({ route, write, body }) => {
+    it(`${route}: refuses another client's session as absent, and writes nothing`, async () => {
+      const res = makeRes()
+      await routes[route](req({ params: { id: 7 }, body: Object.assign({ clientId: 'client-2' }, body) }), res)
+      expect(res._status).toBe(404)
+      expect(store[write]).not.toHaveBeenCalled()
+    })
+
+    it(`${route}: refuses a write that names no client`, async () => {
+      const res = makeRes()
+      await routes[route](req({ params: { id: 7 }, body: Object.assign({ clientId: '' }, body) }), res)
+      expect(res._status).toBe(400)
+      expect(store[write]).not.toHaveBeenCalled()
+    })
+
+    it(`${route}: writes when the session is the named client's`, async () => {
+      store[write].mockResolvedValue(true)
+      const res = makeRes()
+      await routes[route](req({ params: { id: 7 }, body: Object.assign({ clientId: 'client-1' }, body) }), res)
+      expect(res._status).toBe(200)
+      expect(store[write]).toHaveBeenCalled()
+    })
   })
 })

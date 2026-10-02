@@ -113,6 +113,35 @@ function firmOf (req) {
 }
 
 /**
+ * Is this session the named client's? Sends the refusal itself and returns false when not.
+ *
+ * 🔴 ITEM 15.32. A session is stored against one client, but every write named only the
+ * session — so after an advisor switched client on Scope, the screen went on writing the new
+ * client's ticks, boxes and suggestion into the previous client's session, and the server
+ * had no way to notice. Each write now names the client the screen shows, and a session that
+ * is not that client's reads as absent: the same 404 as another firm's, so an id cannot be
+ * probed, and the same pairing the meeting recorder refuses on (`meetingReview.startRecording`).
+ *
+ * @param {string|number} sessionId - from the route
+ * @param {string} firmId - from the verified token
+ * @param {*} clientId - from the body: the client on the advisor's screen
+ * @param {object} res
+ * @returns {Promise<boolean>} true when the write may go ahead
+ */
+async function sessionIsClients (sessionId, firmId, clientId, res) {
+  if (!clientId) {
+    sendError(res, 400, 'BAD_INPUT', 'No client on this request')
+    return false
+  }
+  const session = await store.getSession(sessionId, firmId)
+  if (!session || String(session.clientId) !== String(clientId)) {
+    sendError(res, 404, 'NOT_FOUND', 'No such planning session')
+    return false
+  }
+  return true
+}
+
+/**
  * GET /api/strategy/frameworks
  *
  * Platform content — the frameworks and their capture shapes. No client data, but it is
@@ -423,9 +452,10 @@ async function listSessions (req, res) {
  * rather than refusing the whole save.
  *
  * @route PUT /api/strategy/sessions/:id/scope
- * @param {object} req - firmAuth-verified; body `{ domains: string[], frameworks: string[], steps?: Array<{name: string, items: string[], purpose?: string}> }`
+ * @param {object} req - firmAuth-verified; body `{ clientId, domains: string[], frameworks: string[], steps?: Array<{name: string, items: string[], purpose?: string}> }`
  * @param {object} res
  * @returns {200} { success, timestamp }
+ * @returns {404} when the session is not this firm's or not `clientId`'s (item 15.32)
  */
 async function putScope (req, res) {
   const firmId = firmOf(req)
@@ -446,6 +476,7 @@ async function putScope (req, res) {
   const notShipped = chosen.filter(id => !frameworks.getFramework(id) && !frameworks.getConcept(id))
 
   try {
+    if (!(await sessionIsClients(req.params.id, firmId, body.clientId, res))) { return }
     // An imported concept counts only where this firm can see it (item 15.20).
     const visible = notShipped.length ? await imported.loadVisible(firmId) : {}
     const unknown = notShipped.filter(id => !Object.prototype.hasOwnProperty.call(visible, id))
@@ -541,6 +572,9 @@ async function postSuggest (req, res) {
       sendError(res, 404, 'NOT_FOUND', 'No such client')
       return
     }
+    // Item 15.32: checked BEFORE the model is asked, so a call is never spent on a
+    // suggestion that would be stored on another client's session.
+    if (body.sessionId && !(await sessionIsClients(body.sessionId, firmId, clientId, res))) { return }
 
     const cases = await caseStore.listForClient(req.advisorId, firmId, clientId)
     let situation = pretick.situationFromCases(cases)
@@ -631,6 +665,10 @@ async function postSuggest (req, res) {
       timestamp: new Date().toISOString()
     })
   } catch (err) {
+    if (err.code === 'BAD_INPUT') {
+      sendError(res, 400, 'BAD_INPUT', err.message)
+      return
+    }
     console.error('[strategy-planner] postSuggest failed:', err.message)
     sendError(res, 500, 'SUGGEST_ERROR', 'Could not produce a suggestion for this session')
   }
@@ -647,10 +685,11 @@ async function postSuggest (req, res) {
  * screen will ever show and no one will ever find.
  *
  * @route PUT /api/strategy/sessions/:id/entries
- * @param {object} req - firmAuth-verified; body `{ entries: [{ frameworkId, fieldKey,
+ * @param {object} req - firmAuth-verified; body `{ clientId, entries: [{ frameworkId, fieldKey,
  *   value, source?, originalText? }] }`
  * @param {object} res
  * @returns {200} { success, saved, timestamp }
+ * @returns {404} when the session is not this firm's or not `clientId`'s (item 15.32)
  */
 async function putEntries (req, res) {
   const firmId = firmOf(req)
@@ -674,6 +713,7 @@ async function putEntries (req, res) {
   // cards) OR to a concept's own capture table read from Mike's workbooks. Both
   // are whitelists; a key belonging to neither is still refused.
   try {
+    if (!(await sessionIsClients(req.params.id, firmId, body.clientId, res))) { return }
     // Every box must be real — see `unknownBoxes`, shared with the timeline.
     if ((await unknownBoxes(firmId, entries)).length) {
       sendError(res, 400, 'UNKNOWN_FIELD',
@@ -730,10 +770,11 @@ async function putEntries (req, res) {
  * name, a bounded string, and the firm.
  *
  * @route PUT /api/strategy/sessions/:id/edits
- * @param {object} req - firmAuth-verified; body `{ conceptId: string, sheet: number,
+ * @param {object} req - firmAuth-verified; body `{ clientId, conceptId: string, sheet: number,
  *   block: string, text: string|null }` — null or blank puts back the original
  * @param {object} res
  * @returns {200} { success, timestamp }
+ * @returns {404} when the session is not this firm's or not `clientId`'s (item 15.32)
  */
 async function putEdit (req, res) {
   const firmId = firmOf(req)
@@ -755,6 +796,7 @@ async function putEdit (req, res) {
   }
 
   try {
+    if (!(await sessionIsClients(req.params.id, firmId, body.clientId, res))) { return }
     const done = await store.saveTextEdit({
       sessionId: req.params.id,
       firmId,
@@ -787,10 +829,11 @@ async function putEdit (req, res) {
  * it as optional has left AI judgement as the only route, which that ruling forbids.
  *
  * @route POST /api/strategy/sessions/:id/timeline
- * @param {object} req - firmAuth-verified; body `{ frameworkId, fieldKey }` to open a
- *   box, or `{ close: true }` to close whatever is open
+ * @param {object} req - firmAuth-verified; body `{ clientId, frameworkId, fieldKey }` to open
+ *   a box, or `{ clientId, close: true }` to close whatever is open
  * @param {object} res
  * @returns {200} { success, timestamp }
+ * @returns {404} when the session is not this firm's or not `clientId`'s (item 15.32)
  */
 async function postTimeline (req, res) {
   const firmId = firmOf(req)
@@ -801,6 +844,7 @@ async function postTimeline (req, res) {
 
   const body = req.body || {}
   try {
+    if (!(await sessionIsClients(req.params.id, firmId, body.clientId, res))) { return }
     let done
     if (body.close === true) {
       done = await store.closeOpenField(req.params.id, firmId)

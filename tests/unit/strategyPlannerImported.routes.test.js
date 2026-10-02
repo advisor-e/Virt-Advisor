@@ -49,7 +49,12 @@ function makeRes () {
     end (body) { try { this._body = JSON.parse(body) } catch (e) { this._body = body } }
   }
 }
-const req = over => Object.assign({ firmId: 'firm-a', advisorId: 'adv-1', query: {}, params: {}, body: {} }, over)
+const req = (over) => {
+  const r = Object.assign({ firmId: 'firm-a', advisorId: 'adv-1', query: {}, params: {}, body: {} }, over)
+  // Every session write names the client on screen (item 15.32); the session mock is client-1's.
+  r.body = Object.assign({ clientId: 'client-1' }, r.body)
+  return r
+}
 const codeOf = res => res._body && res._body.error && res._body.error.code
 async function call (handler, over) {
   const res = makeRes()
@@ -64,7 +69,7 @@ beforeEach(() => {
     'firm-b': { 'im-f1:record': OTHER_FIRMS }
   }
   overlay.loadFirmConfigsByPrefix.mockImplementation(scope => Promise.resolve(Object.assign({}, held[scope])))
-  store.getSession.mockResolvedValue({ id: 7, firmId: 'firm-a' })
+  store.getSession.mockResolvedValue({ id: 7, firmId: 'firm-a', clientId: 'client-1' })
   store.setScope.mockResolvedValue(true)
   store.saveEntry.mockResolvedValue(true)
   jest.spyOn(console, 'error').mockImplementation(() => {})

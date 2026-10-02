@@ -392,6 +392,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.32 · Changing client in the Strategy Planner kept the previous client's ticks and suggestion
+- and wrote into their session.** ✅ **Closed 2026-10-02 by Mike ("yes" to marking it done).**
+
+- **What it really was:** proved in code before the fix - after a client switch on Scope, the
+  rail stayed open and Build, Run and Suggest all wrote into the previous client's session,
+  Suggest with the new client's history and guided answers. The server checked the firm only.
+- **His ruling:** nothing carries over. A switch starts the screen clean; the old session closes
+  on screen and stays saved.
+- **What was done:** `pages/strategy-planner.vue` starts clean on a switch (a half-typed box is
+  saved under its own client first), and reopening a session brings the picker to its client.
+  Every session write names the client on screen, and `server/routes/strategyPlanner.js` refuses
+  a session that is not that client's - scope, entries, edits, timeline, and Suggest before the
+  model is asked.
+- **What proves it:** 18 new tests across `strategyPlanner.routes`, `strategyPretick.routes` and
+  `strategySessionResume`; full suite 15,090 green. Walked on the running backend: a session for
+  one client refused writes naming another on all four routes, and accepted its own.
+- **Not walked:** the screen in a browser - the page tests carry that half. Sessions misfiled
+  before 2026-10-02 cannot be found by this; nothing records which client was on screen.
+
 **7.18 · Discover's instructions promised a coaching reference, a diagnostic tree and template
 summaries it does not receive.** ✅ **Closed 2026-10-02 by Mike ("yes" to marking it done).**
 

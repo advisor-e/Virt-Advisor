@@ -44,25 +44,24 @@ repository sees; the two never both appear, and the build stops if they would.
 | 7 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-30 |
 | 8 | **13.8** Report figures keep English number formatting in other languages ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 9 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-09-30 |
-| 10 | **15.32** Changing client in the Strategy Planner keeps the previous client's ticks and suggestion ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 11 | **13.9** Meeting reports and set-up screens cannot be translated ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 12 | **7.20** Send the AI only the context the advisor's topic needs ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 13 | **7.21** Earlier messages, including the AI's own recommendation, are cut to 2,000 characters each turn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 14 | **7.22** Test whether a stronger model should write the main advisory answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 15 | **7.23** Keep a record of every AI call: model, prompt version, tokens and time taken ⚠ *not yet ranked by Mike* | 2 | — | Outside | — |
-| 16 | **28.1** Advisors cannot tell us an AI answer was wrong or useful ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 17 | **13.10** Only the advisory chat tells the AI which language to write in ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 18 | **40.2** The main advisory and course prompts cannot be seen or edited on any screen ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 19 | **22.5** Split the coding AI's rules into a short digest and an addendum of reasons ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 20 | **14.5** Give every feature Brief a one-screen current-state digest, with history moved out ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 21 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 22 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 23 | **7.27** Every advisor may share one usage limit, because the backend sees only the Nuxt server's address ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 24 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 25 | **7.29** Template descriptions and the name check read the seed library, not each firm's uploaded library ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 26 | **7.30** About one Discover answer in 51 names a template that does not exist ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 10 | **13.9** Meeting reports and set-up screens cannot be translated ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 11 | **7.20** Send the AI only the context the advisor's topic needs ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 12 | **7.21** Earlier messages, including the AI's own recommendation, are cut to 2,000 characters each turn ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 13 | **7.22** Test whether a stronger model should write the main advisory answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 14 | **7.23** Keep a record of every AI call: model, prompt version, tokens and time taken ⚠ *not yet ranked by Mike* | 2 | — | Outside | — |
+| 15 | **28.1** Advisors cannot tell us an AI answer was wrong or useful ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 16 | **13.10** Only the advisory chat tells the AI which language to write in ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 17 | **40.2** The main advisory and course prompts cannot be seen or edited on any screen ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 18 | **22.5** Split the coding AI's rules into a short digest and an addendum of reasons ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 19 | **14.5** Give every feature Brief a one-screen current-state digest, with history moved out ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 20 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 21 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 22 | **7.27** Every advisor may share one usage limit, because the backend sees only the Nuxt server's address ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 23 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 24 | **7.29** Template descriptions and the name check read the seed library, not each firm's uploaded library ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 25 | **7.30** About one Discover answer in 51 names a template that does not exist ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
 
-**26 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
+**25 live items. Thirteen need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
