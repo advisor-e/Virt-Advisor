@@ -9,24 +9,25 @@
 
 ---
 
-## 2026-10-02 (evening) · Laptop · branch `feat/advisor-progress`
+## 2026-10-02 (late) · Laptop · branch `feat/advisor-progress`
 
-**6 ahead of master after this commit, 0 behind; suite green 695 suites / 15,075 tests on Node 14.15.**
-7.27's two commits are pushed; the rest go up with this note.
+**9 ahead of master after this commit, 0 behind; suite green 696 suites / 15,276 tests on Node 14.15.**
+PR #155 (7.27, 7.21, Tension Point Scripts) merged to master today.
 
-**7.27 done.** Usage limits count each signed-in person within their firm, not the network address
-(`server/utils/rateLimit.js`); limits unchanged. Measured: 10 of 40 refused → 0.
-
-**7.21 done.** A client-chat follow-up sends the AI its own full reply from the server's copy
-(`server/utils/followUpReplies.js`); a session opens only for the firm and advisor who started it.
-Measured: 51 of 51 bench recommendations were cut, all now reach the AI whole.
-Both are principles P11 and P12 in `advisory-engine.md`.
+**15.22 proceeds — only the Sales Flowchart ruling is left (waits on Mike).** Built today:
+Landing Page Review (8 section tables, 58 boxes, S&M pp27–30) and a Notes box for the five
+teaching-only topics. **15.33 done** — sessions listing a removed concept open without it.
+**Fixed:** every Strategy Planner capture box lost the first letter typed into it.
 
 **FOR THE DESKTOP:**
 
-- Shared file changed: `server/advisorEngine.js` — the session store (`sessionCreate`, `sessionSave`
-  now take an owner), the start of `handleQuery`, and two lines where replies are sent.
-- `tests/unit/promptCheck.routes.test.js` now varies the manager, not the address.
-- `design/features/README.md` row 7 carries two new design files.
+- **The capture boxes no longer use Buefy `lazy`.** They save on `change.native` and only signal
+  on `input` — `StrategyCaptureBox.vue`, `StrategyConceptCapture.vue`. Pinned by
+  `strategyCaptureSaveRate.test.js`; don't put `lazy` back.
+- **Grid capture can now be one table per section** (`tableTitle`, `tableNotes`, `span`), and a
+  concept can take a single Notes box (`captureNotes`). Shared files: `strategyCaptureForms.js`,
+  `strategyFrameworks.js`, `scripts/read-deck-capture-tables.js`, `pages/strategy-planner.vue`,
+  `server/routes/meetingSegments.js`, `locales/en.json`.
+- `data/strategy-deck-capture-tables.json` was regenerated; the 15 existing tables are identical.
 
-**Still in hand here:** 8.6 and 15.31, both waiting on Mike.
+**Still in hand here:** 8.6, 15.31 and 15.22, all waiting on Mike.

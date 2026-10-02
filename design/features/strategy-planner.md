@@ -1213,6 +1213,12 @@ brings the picker to that session's own client.
 suggestion (§9a) — no schema change. 🔴 **Every scope save keeps them**, exactly as it keeps the
 suggestion: renaming a step must never put an edited page back to the original.
 
+**A session opens without any concept that no longer exists** (item 15.33, Mike's ruling
+2026-10-02). `getSession` drops it from the ticked list and from every step, quietly — the advisor
+is told nothing, since the concept is gone and had no screen to open — and writes each removal to
+the server log. The next save stores the cleaned scope. `putScope` still refuses an unknown id sent
+from the browser.
+
 ## 5. How spoken words will reach the right box
 
 **"How spoken words reach the right box"** (the session an advisor runs), answering Mike's own
