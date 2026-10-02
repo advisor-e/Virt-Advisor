@@ -73,6 +73,8 @@ beforeEach(() => {
   clientStore.getById.mockResolvedValue({ id: CLIENT, firmId: FIRM })
   caseStore.listForClient.mockResolvedValue([{ summary: 'Margins are falling fast.' }])
   store.saveSuggestion.mockResolvedValue(true)
+  // The session a suggestion is stored on is this client's (item 15.32).
+  store.getSession.mockResolvedValue({ id: 7, firmId: FIRM, clientId: CLIENT })
 })
 
 describe('what comes back', () => {
@@ -269,5 +271,21 @@ describe('when things go wrong', () => {
 
     expect(res._status).toBe(200)
     expect(res._body.reason).toBe('nothing-matched')
+  })
+})
+
+// 🔴 ITEM 15.32. A suggestion is drawn from ONE client's history and answers; stored on another
+// client's session it would put the first client's situation on the second's record.
+describe('the session a suggestion is stored on — item 15.32', () => {
+  it('refuses a session that is not this client\'s, before the model is asked', async () => {
+    store.getSession.mockResolvedValue({ id: 7, firmId: FIRM, clientId: 'another-client' })
+    const create = modelReplying(JSON.stringify({ ticks: [{ id: REAL_CONCEPT, reason: 'x' }] }))
+    const res = makeRes()
+
+    await routes.postSuggest(req({ body: { clientId: CLIENT, sessionId: 7 } }), res)
+
+    expect(res._status).toBe(404)
+    expect(create).not.toHaveBeenCalled()
+    expect(store.saveSuggestion).not.toHaveBeenCalled()
   })
 })

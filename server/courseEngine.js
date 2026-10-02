@@ -577,6 +577,30 @@ async function handleDesign (req, body, res) {
   )
 }
 
+// ── Session history from the browser ───────────────────────────────────────
+
+// Larger than the advisor chat's 2,000-character cap: a tutor reply runs to ~2,000 tokens
+// (about 8,000 characters), and cutting it would lose the lesson the quiz is built from.
+const COURSE_HISTORY_MAX_MESSAGES = 20
+const COURSE_HISTORY_MAX_CHARS = 8000
+
+/**
+ * The course conversation as the browser sent it, made safe to put in a prompt (item 12.3).
+ * Any role but user or assistant becomes user — so a forged system message is moderated as
+ * typed text and never read as an instruction, the rule sanitiseInput applies to the advisor
+ * chat. Keeps the last COURSE_HISTORY_MAX_MESSAGES, each cut at COURSE_HISTORY_MAX_CHARS.
+ *
+ * @param {*} raw - body.sessionHistory, untrusted
+ * @returns {Array<{role: string, content: string}>}
+ */
+function cleanSessionHistory (raw) {
+  if (!Array.isArray(raw)) { return [] }
+  return raw.slice(-COURSE_HISTORY_MAX_MESSAGES).map(m => ({
+    role: m && m.role === 'assistant' ? 'assistant' : 'user',
+    content: m && typeof m.content === 'string' ? m.content.slice(0, COURSE_HISTORY_MAX_CHARS) : ''
+  }))
+}
+
 // ── Session delivery ───────────────────────────────────────────────────────
 
 /** How each sliced activity is described to the tutor. */
@@ -617,7 +641,8 @@ function sliceBriefing (sessionContext) {
 }
 
 async function handleSession (req, body, res) {
-  const { query, sessionHistory = [], sessionContext, advisorProfile, orgTemplateIds } = body
+  const { query, sessionContext, advisorProfile, orgTemplateIds } = body
+  const sessionHistory = cleanSessionHistory(body.sessionHistory)
   if (!query) { return sendError(res, 400, 'QUERY_REQUIRED', 'query is required') }
 
   const openai = getOpenAI()
@@ -725,7 +750,8 @@ async function handleSession (req, body, res) {
 // ── Quiz generation ────────────────────────────────────────────────────────
 
 async function handleQuizGenerate (req, body, res) {
-  const { sessionContext, sessionHistory = [] } = body
+  const { sessionContext } = body
+  const sessionHistory = cleanSessionHistory(body.sessionHistory)
 
   // Fixed override questions take priority over AI generation — matched on
   // session title, then resource/template names (the stable key; CB-12).
@@ -852,7 +878,8 @@ ${jsonShape}`
 // ── Quiz grading ───────────────────────────────────────────────────────────
 
 async function handleQuizGrade (req, body, res) {
-  const { question, answer, sessionContext, sessionHistory = [] } = body
+  const { question, answer, sessionContext } = body
+  const sessionHistory = cleanSessionHistory(body.sessionHistory)
   if (!question || !answer) {
     return sendError(res, 400, 'PARAMS_REQUIRED', 'question and answer are required')
   }
@@ -1055,3 +1082,6 @@ module.exports = async function (req, res) {
 // Exposed for unit testing (the default export is the Restify handler).
 module.exports.parseBody = parseBody
 module.exports.BODY_LIMIT = BODY_LIMIT
+module.exports.cleanSessionHistory = cleanSessionHistory
+module.exports.COURSE_HISTORY_MAX_MESSAGES = COURSE_HISTORY_MAX_MESSAGES
+module.exports.COURSE_HISTORY_MAX_CHARS = COURSE_HISTORY_MAX_CHARS

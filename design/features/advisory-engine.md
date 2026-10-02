@@ -53,10 +53,22 @@ logged. An off-list reply is refused. **In discover mode the AI writes the names
 than choosing from a scored list, so the check runs the other way round: the names it puts under
 *Best match* and *Also worth considering* are read back against the library after it has written
 them and before the advisor sees anything.** A calculation model offered as a template is not
-sent — the AI is asked once more with the fault named and its real page path, and the corrected
+sent — the AI is asked once more — on the same narrative model that wrote the answer — with the
+fault named and its real page path, and the corrected
 answer is the one that is displayed, watched for invented wording, and recorded. If it ignores
 the correction twice the answer goes out with a note saying plainly that the named item is a
-calculator, not a template. `server/utils/templateHeadingCheck.js`.
+calculator, not a template. `server/utils/templateHeadingCheck.js`. A name is read whole from its
+bold marks, so a title with a spaced dash in it survives, and the app's own warning note is never
+read as a name.
+
+**A template named nearly right reaches the advisor in the library's own spelling**
+(`useLibraryTitles`, 2026-10-02). Under the two template headings, a bold name that is a near
+miss of a real title — punctuation, a plural, or a number written as a digit, so "9 Growth
+Aspects" is **Nine Growth Aspects** — is replaced with the title before display, the video
+sentence and the record. No extra AI call. Left as written: invented names, anything in the model
+block, and a calculator name on a line carrying its own page path (4.33's pairing). Each swap is
+logged on the server. Measured on the eight saved 7.18 runs: 24 near misses became 1, an unbolded
+name in brackets.
 
 ⚠ **That check recognises a model by its EXACT catalogue name or route.** Measured 2026-09-17
 against the shipped catalogues, the three "model named but no page path" cases are three
@@ -367,7 +379,7 @@ real conversations through `/api/advisor/query` — see `.claude/skills/run-the-
 | Signal vocabulary | `data/signal-dictionary.json` |
 | Template library | resolved by `server/utils/templateLibrary.js` — the nearest tier's upload (firm → group → global → platform), whole; `data/templates.json` (via `server/utils/templates.js`) is the seed when no tier has uploaded |
 | Signal weights per template | `server/utils/semanticProfiles.js` — a mentor's authored profile at the platform scope wins over `data/semantic-profiles.json`, which the compiler writes and which answers for every page nobody has authored. A store failure falls back to the compiled file rather than emptying the lever. Authored on the Mentor Hub's **Template Profiles** tab (item 7.2 US9) |
-| Rich template content | `data/content-summaries.json` |
+| Rich template content | `data/content-summaries.json` — reaches the AI only under master-library titles, through each description's page link or the alias map (`server/utils/summaries.js`); a description that names no library template is not sent |
 | Domain briefing material | `data/*-domain-support.json`, `server/utils/domainSupport.js` |
 | Distinctions (score boosts) | `data/advisory-distinctions.json` — see [`advisory-distinctions.md`](advisory-distinctions.md) |
 | Lane classification + its guard | `server/utils/contentRouting.js` |
@@ -450,6 +462,17 @@ unknown**.
    the no-match sentence — recommending a template and denying having one, in the same reply.
    **A correction that empties a required block must say what to do with the empty block**, or
    the model finds its own way out.
+10. **The advisor profile is typed input.** It enters a prompt only through `fencedAdvisorProfile`
+   — fenced, and moderated on every call that sends it. A new path that formats it directly sends
+   it bare.
+
+### Measuring a change — the answer bench
+
+`scripts/answer-bench.js` asks the real chat the 51 Scenario Lab cases and scores each answer by
+code checks and an AI judge on the approved
+[`ANSWER-BENCH-CHECKLIST.md`](../ANSWER-BENCH-CHECKLIST.md). Measure a change with a before and an
+after run made back to back, read point by point; runs live in
+[`design/answer-bench-runs/`](../answer-bench-runs/README.md).
 
 ### Known gaps, honestly
 

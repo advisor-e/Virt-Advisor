@@ -37,7 +37,7 @@ const { injectVideoInfo } = require('../server/utils/videoInjector')
 const { logUnverifiedQuotes, appendCorrectionNote } = require('../server/utils/fabricationWatch')
 const { resolveRecommendedTemplatesWithSource, stripTemplateMarker, TEMPLATE_MARK_OPEN } = require('../server/utils/tierLookup')
 const { resolveModelChoiceWithSource, stripModelMarker, MODEL_MARK_OPEN } = require('../server/utils/modelChoiceScan')
-const { checkTemplateHeadings, buildRetryInstruction, buildAdvisorNote } = require('../server/utils/templateHeadingCheck')
+const { checkTemplateHeadings, buildRetryInstruction, buildAdvisorNote, useLibraryTitles } = require('../server/utils/templateHeadingCheck')
 const { logVASession, logModelChoice } = require('../server/utils/activityLogger')
 const { extractSignals, deriveInferredState, buildObservabilityPayload } = require('../server/utils/signals')
 const { buildCaseState } = require('../server/utils/caseState')
@@ -473,6 +473,9 @@ const MODE_SECTIONS = {
   learn: ['get-the-job', 'get-organised']
 }
 
+// The profile fields the advisor types — the seven formatAdvisorProfile reads.
+const ADVISOR_PROFILE_FIELDS = ['advisorRole', 'experience', 'clientDemographic', 'enjoyment', 'technicalStrengths', 'toolsComfort', 'notes']
+
 function formatAdvisorProfile (profile) {
   const lines = []
   if (profile.advisorRole && profile.advisorRole.trim()) { lines.push(`Advisor role / practice type: ${profile.advisorRole.trim()}`) }
@@ -483,6 +486,19 @@ function formatAdvisorProfile (profile) {
   if (profile.toolsComfort && profile.toolsComfort.trim()) { lines.push(`Comfort with tools and frameworks: ${profile.toolsComfort.trim()}`) }
   if (profile.notes && profile.notes.trim()) { lines.push(`Additional context: ${profile.notes.trim()}`) }
   return lines.join('\n')
+}
+
+/**
+ * The advisor's profile as it may enter a prompt. Every field is their own typed words, so it
+ * is fenced as data, never instructions — on every path, from this one place (item 7.25: the
+ * Discover/Learn/Plan path had sent it bare while the client path fenced it).
+ *
+ * @param {object|null|undefined} profile - the advisor profile from the request
+ * @returns {string|null} the fenced profile, or null when no field carries text
+ */
+function fencedAdvisorProfile (profile) {
+  const text = profile ? formatAdvisorProfile(profile) : ''
+  return text ? fenceUntrusted(text) : null
 }
 
 /**
@@ -608,9 +624,8 @@ function buildClientContext (orgTemplateIds, searchQuery, options) {
   const growthText = includeGrowthStage
     ? formatGrowthFundamentalsForPrompt([{ role: 'user', content: includeGrowthStage }], growthAspects)
     : null
-  const profileText = advisorProfile
-    ? `\n\nADVISOR PROFILE: ${fenceUntrusted(formatAdvisorProfile(advisorProfile))}`
-    : ''
+  const fencedProfile = fencedAdvisorProfile(advisorProfile)
+  const profileText = fencedProfile ? `\n\nADVISOR PROFILE: ${fencedProfile}` : ''
 
   // What each built calculation model serves (item 4.29). Platform content, unfenced by
   // design — see the note in server/utils/reportModels.js.
@@ -881,7 +896,10 @@ async function correctTemplateHeadings (answer, sourceMessages, model) {
 
   const _t0 = Date.now()
   try {
-    const response = await getOpenAI().chat.completions.create({
+    // The narrative client, like the answer it corrects: the seam puts its role's own model
+    // in place of `model`, so the classify client would quietly rewrite the answer on the
+    // classify model the day the two roles' models differ (found on item 7.24, 2026-10-02).
+    const response = await getNarrativeAI().chat.completions.create({
       model,
       max_tokens: 2500,
       messages: [
@@ -1972,11 +1990,17 @@ function buildContinuityTraceAudit (isAllowed, priorSummary) {
  *
  * @param {string} query - this turn
  * @param {Array<object>} history - the conversation so far
+ * @param {object} [profile] - the advisor profile, when this call sends it: its fields are
+ *   typed by the advisor, so rule Z3 screens them too (item 7.25)
  * @returns {string[]}
  */
-function typedTexts (query, history) {
+function typedTexts (query, history, profile) {
+  const profileFields = profile
+    ? ADVISOR_PROFILE_FIELDS.map(f => profile[f]).filter(v => typeof v === 'string' && v.trim()).map(v => v.trim())
+    : []
   return [query].concat((Array.isArray(history) ? history : [])
     .filter(m => m && m.role === 'user' && typeof m.content === 'string').map(m => m.content))
+    .concat(profileFields)
     .filter(t => typeof t === 'string')
 }
 
@@ -1989,11 +2013,12 @@ function typedTexts (query, history) {
  * @param {*} err
  * @param {string} query - this turn
  * @param {Array<object>} history - the conversation so far
+ * @param {object} [profile] - the advisor profile, when the blocked call sent it
  * @returns {boolean} true when the block was written
  */
-function writeBlocked (res, err, query, history) {
+function writeBlocked (res, err, query, history, profile) {
   if (res.writableEnded) { return false }
-  const report = moderationReport(err, { typed: typedTexts(query, history) })
+  const report = moderationReport(err, { typed: typedTexts(query, history, profile) })
   if (!report) { return false }
   try {
     res.write('data: ' + JSON.stringify({ type: 'error', code: 'AI_MODERATION_BLOCKED', message: 'Blocked by the AI safety check', moderation: report }) + '\n\n')
@@ -3130,7 +3155,7 @@ async function handleQuery (rawBody, res, identity) {
           stream: true,
           stream_options: { include_usage: true },
           messages: _postMessages
-        }, { personal: true, moderate: typedTexts(query, conversationHistory) })
+        }, { personal: true, moderate: typedTexts(query, conversationHistory, advisorProfile) })
         _postStream = streamPost
         for await (const chunk of streamPost) {
           if (chunk.usage) { _postUsage = chunk.usage }
@@ -3166,7 +3191,7 @@ async function handleQuery (rawBody, res, identity) {
         _postOk = true
       } catch (streamErr) {
         console.error('[advisor] Post-rec stream error:', streamErr.message)
-        if (!writeBlocked(res, streamErr, query, conversationHistory) && !res.writableEnded) {
+        if (!writeBlocked(res, streamErr, query, conversationHistory, advisorProfile) && !res.writableEnded) {
           try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
         }
       } finally {
@@ -3582,8 +3607,9 @@ async function handleQuery (rawBody, res, identity) {
       _copySignals.push(`Explicitly excluded: ${_negativeLabels.join(', ')}`)
     }
 
-    const _profileNote = advisorProfile
-      ? `\nADVISOR PROFILE: ${formatAdvisorProfile(advisorProfile)}\nOnly reference what is explicitly stated. Do not infer seniority or capability from what is absent.`
+    const _fencedProfile = fencedAdvisorProfile(advisorProfile)
+    const _profileNote = _fencedProfile
+      ? `\nADVISOR PROFILE: ${_fencedProfile}\nOnly reference what is explicitly stated. Do not infer seniority or capability from what is absent.`
       : ''
 
     // Phase D/E — DETERMINISTIC display set. The engine, not the AI, decides which
@@ -3970,7 +3996,7 @@ async function handleQuery (rawBody, res, identity) {
         stream: true,
         stream_options: { include_usage: true },
         messages: _p3Messages
-      }, { personal: true, moderate: typedTexts(query, conversationHistory) })
+      }, { personal: true, moderate: typedTexts(query, conversationHistory, advisorProfile) })
       _p3Stream = stream2
       for await (const chunk of stream2) {
         if (chunk.usage) { _p3Usage = chunk.usage }
@@ -4046,7 +4072,7 @@ async function handleQuery (rawBody, res, identity) {
     } catch (streamErr) {
       console.error('[advisor] Phase 3 stream error:', streamErr.message, '| type:', streamErr.constructor.name, '| status:', streamErr.status ?? 'none', '| code:', streamErr.code ?? 'none')
       if (streamErr.error) { console.error('[advisor] Phase 3 OpenAI error detail:', JSON.stringify(streamErr.error)) }
-      if (!writeBlocked(res, streamErr, query, conversationHistory) && !res.writableEnded) {
+      if (!writeBlocked(res, streamErr, query, conversationHistory, advisorProfile) && !res.writableEnded) {
         try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Stream interrupted' }) + '\n\n') } catch (e) {}
       }
     } finally {
@@ -4117,7 +4143,7 @@ async function handleQuery (rawBody, res, identity) {
   const relevantSummaries = summariesApply && trimmedHistory.length >= 6 ? filterSummariesByQuery(summaryQuery, 10) : []
   const summariesText = formatSummariesForPrompt(relevantSummaries)
 
-  const advisorProfileText = advisorProfile ? formatAdvisorProfile(advisorProfile) : null
+  const advisorProfileText = fencedAdvisorProfile(advisorProfile)
   const { system: profileSystemInstruction, context: profileContextInstruction } =
     profileInstructionsFor(mode, !!advisorProfileText)
 
@@ -4287,11 +4313,11 @@ async function handleQuery (rawBody, res, identity) {
       stream: true,
       stream_options: { include_usage: true },
       messages: _mainMessages
-    }, { personal: true, moderate: typedTexts(query, conversationHistory) })
+    }, { personal: true, moderate: typedTexts(query, conversationHistory, advisorProfile) })
   } catch (createErr) {
     console.error('[advisor] OpenAI stream create error:', createErr.message)
     if (!res.writableEnded) {
-      if (!writeBlocked(res, createErr, query, conversationHistory)) {
+      if (!writeBlocked(res, createErr, query, conversationHistory, advisorProfile)) {
         try { res.write('data: ' + JSON.stringify({ type: 'error', message: 'Could not reach AI service' }) + '\n\n') } catch (e) {}
       }
       res.end()
@@ -4320,7 +4346,13 @@ async function handleQuery (rawBody, res, identity) {
         const corrected = mode === 'discover'
           ? await correctTemplateHeadings(_mainBuffer, _mainMessages, model)
           : { answer: _mainBuffer, unresolved: [] }
-        const answer = corrected.answer
+        // A template named nearly right reaches the advisor in the library's own spelling,
+        // before the video injector, so its tutorial sentence finds the real title too.
+        const titled = mode === 'discover' ? useLibraryTitles(corrected.answer) : { text: corrected.answer, renamed: [] }
+        if (titled.renamed.length) {
+          console.log('[advisor] library titles: ' + titled.renamed.map(r => `"${r.from}" -> "${r.to}"`).join(', '))
+        }
+        const answer = titled.text
         // Tier 2: watch for invented quoted wording — a hit appends the
         // approved correction note (a streamed reply can't be unprinted).
         const _mainFlagged = logUnverifiedQuotes(mode, answer, _mainMessages)
@@ -4423,6 +4455,8 @@ module.exports.MAX_PROMPT_CASES = MAX_PROMPT_CASES
 module.exports.buildClientContext = buildClientContext
 
 module.exports.profileInstructionsFor = profileInstructionsFor
+module.exports.fencedAdvisorProfile = fencedAdvisorProfile
+module.exports.typedTexts = typedTexts
 // The primary-issue proposal step (item 4.97 US1) — the builder and the two reply handlers,
 // exported so the flow is proved without driving the SSE handler.
 module.exports.buildIssueProposal = buildIssueProposal

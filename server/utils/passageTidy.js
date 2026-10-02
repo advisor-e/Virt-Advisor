@@ -43,6 +43,11 @@ const TIDY_MODEL = () => modelFor(AI.primary, 'report')
 /** A suggestion past this is not a sentence or two for one box; it is cut, and the cut logged. */
 const MAX_WORDING_CHARS = 600
 
+// Output ceiling (item 7.26): one 1-2 sentence wording per passage, at most ~165 tokens at
+// MAX_WORDING_CHARS, so the ceiling grows with the passages asked about.
+const TIDY_TOKENS_PER_PASSAGE = 200
+const TIDY_MIN_TOKENS = 1500
+
 const SPEAKER = { advisor: 'ADVISOR', client: 'CLIENT' }
 
 /**
@@ -146,7 +151,11 @@ async function suggest (args) {
   try {
     // 🔴 PERSONAL: the client's own spoken words. Moderated on what was SAID alone — never the
     // box names or the instructions, which are the app's own (Z3).
-    completion = await client.chat.completions.create({ messages, temperature: 0 },
+    completion = await client.chat.completions.create({
+      messages,
+      temperature: 0,
+      max_tokens: Math.max(TIDY_MIN_TOKENS, TIDY_TOKENS_PER_PASSAGE * passages.length)
+    },
       { timeout: REPORT_TIMEOUT_MS, personal: true, moderate: spoken })
   } catch (err) {
     console.error('[passage-tidy] model=' + TIDY_MODEL() + ' status=error latency=' +
@@ -176,4 +185,4 @@ async function suggest (args) {
   }
 }
 
-module.exports = { PROMPT_ID, MAX_WORDING_CHARS, buildMessages, validate, suggest }
+module.exports = { PROMPT_ID, MAX_WORDING_CHARS, TIDY_TOKENS_PER_PASSAGE, TIDY_MIN_TOKENS, buildMessages, validate, suggest }

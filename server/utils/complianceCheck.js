@@ -71,6 +71,10 @@ const MAX_DOCUMENTS = 60
 /** Longest a single document name may be in the prompt. Names are a firm's own free text. */
 const MAX_NAME = 200
 
+// Output ceiling (item 7.26): eight points naming their covering documents, about 1,900 tokens
+// at most, plus the model's hidden reasoning, which counts against this limit.
+const MAX_COMPLETION_TOKENS = 8000
+
 /** Idle guard for the call, in milliseconds. A short structured answer needs no more. */
 const TIMEOUT_MS = 60000
 
@@ -251,10 +255,12 @@ async function runCheck (opts) {
     // fails. NOT personal: the prompt carries document FILE NAMES and the eight published
     // points — no client words, no figures. Pinned by aiCallSitesPersonal.test.js.
     const client = getClient('compliance')
+    // No temperature: the compliance role's model accepts only its default, and OpenAI
+    // refused every call that sent 0 (proven by a live call, 2026-10-01, item 7.26).
     const completion = await client.chat.completions.create(
       {
         messages: [{ role: 'user', content: promptText }],
-        temperature: 0
+        max_completion_tokens: MAX_COMPLETION_TOKENS
       },
       // Nothing a person typed: file names and the published points (item 8.2).
       { timeout: TIMEOUT_MS, personal: false, moderate: [] }
@@ -302,6 +308,7 @@ module.exports = {
   POINT_IDS,
   MAX_DOCUMENTS,
   MAX_NAME,
+  MAX_COMPLETION_TOKENS,
   namesOf,
   pointsBlock,
   documentsBlock,

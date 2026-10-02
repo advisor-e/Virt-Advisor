@@ -9,23 +9,23 @@
 
 ---
 
-## 2026-10-01 (afternoon) · Laptop · branch `feat/advisor-progress`
+## 2026-10-02 (afternoon) · Laptop · branch `feat/advisor-progress`
 
-**0 behind master (merged #151 at 16:00), pushed; PR #152 open into master, not merged.
-Suite green: 689 suites / 14,837 tests on Node 14.15.**
+**16 ahead, 0 behind master after this commit — all of it in open PR #153 (title renamed to list 7.18 and 7.24).
+Suite green: 694 suites / 15,079 tests on Node 14.15.**
 
-**8.4 CLOSED on Mike's word.** OpenAI's diarizing model refuses more than 1400 s of audio,
-whatever the file size (proven), so meetings now record in 20-minute parts: strategy sections
-split at 20 min, ordinary meetings in parts joined into one transcript, a failed part named on
-the done panel and above both reports. Browser-walked, 41 min: 257 of 257 lines labelled right.
-Drawing: `meeting-review-long-recording.html`; how it works: `meeting-review.md`.
-Mike ruled the advisor's voice clip extends to every recorded meeting (Decision C).
+**7.18 done.** Credit restored; Mike's approved Discover wording is in `discover.txt`, measured
+(point 3: 32 and 29 against 29 and 33) and kept. On the way: a template named nearly right
+("High-Level Budget", "9 Growth Aspects") now reaches the advisor in the library's spelling —
+`useLibraryTitles`, no extra AI call; near misses 3 and 1 per run → 0 and 0. **7.30 filed:**
+about one Discover answer in 51 still names a template that does not exist.
 
-**13.9 filed:** the meeting reports and set-up screens still type their English in code.
+**15.32 done.** A Strategy Planner session is written only under its own client: switching
+client starts the screen clean, and the server refuses a session/client mismatch on every write.
 
-**FOR THE DESKTOP:** once #152 merges, merge master. Shared files changed: `locales/en.json`
-(`meetingRecorder.*`, `meetingReportsGap.*`), `components/MeetingRecorder.vue`,
-`components/MeetingReview.vue`, `server/routes/meetingReview.js`, `meetingSegments.js`,
-`server/utils/meetingAudioStore.js`, `utils/meetingParts.js` (new).
+**FOR THE DESKTOP:** shared files changed — `pages/strategy-planner.vue` (the clientId watcher,
+`reopenSession`, every session write; not the time stamps you changed), `server/routes/strategyPlanner.js`,
+`server/utils/tierLookup.js` (number words in `_shape`), `server/utils/templateHeadingCheck.js`,
+`server/advisorEngine.js` (one call in the Discover path). Every session write now needs `clientId`.
 
-**Still in hand here:** 8.6, 15.31 (Mike's try-out).
+**Still in hand here:** 8.6 and 15.31, both waiting on Mike.

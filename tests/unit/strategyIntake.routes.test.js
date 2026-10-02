@@ -78,6 +78,8 @@ beforeEach(() => {
   clientStore.getById.mockResolvedValue({ id: CLIENT, firmId: FIRM })
   caseStore.listForClient.mockResolvedValue([])
   store.saveSuggestion.mockResolvedValue(true)
+  // The session a suggestion is stored on is this client's (item 15.32).
+  store.getSession.mockResolvedValue({ id: 's-1', firmId: FIRM, clientId: CLIENT })
   loadBlendedStaircase.mockResolvedValue(BASE_STAIRCASE)
 })
 

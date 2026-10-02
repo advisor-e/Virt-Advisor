@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict'
 /**
- * Pre-commit audit gate — replaces a bare `npm audit --audit-level=critical`.
+ * Pre-push audit gate — replaces a bare `npm audit --audit-level=critical`.
  *
  * WHY THIS EXISTS (the non-obvious part):
  *   The locked Nuxt 2 stack (CLAUDE.md -> Stack Constitution) pins build tooling that

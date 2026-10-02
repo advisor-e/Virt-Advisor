@@ -277,6 +277,19 @@ describe('runCheck', () => {
     expect(seen.prompt).toContain(NAMES[0])
   })
 
+  test('🔴 sends no temperature — the compliance model refuses anything but its default', async () => {
+    // A live call on 2026-10-01 proved OpenAI rejects temperature 0 on this model with a 400,
+    // so every check failed. A stand-in model cannot show that, so the request itself is pinned.
+    let params
+    createOpenAIClient.mockReturnValue({
+      chat: { completions: { create (p) { params = p; return Promise.resolve({ choices: [{ message: { content: JSON.stringify(answer()) } }] }) } } }
+    })
+
+    await runCheck(base)
+
+    expect(params).not.toHaveProperty('temperature')
+  })
+
   test('🔴 a failed call NEVER rejects, and proposes nothing', async () => {
     // A firm pressing a button must not meet an unhandled error, and a failed check must
     // leave their previous result alone rather than replacing it with an empty one.

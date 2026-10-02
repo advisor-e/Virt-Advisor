@@ -329,6 +329,24 @@ describe('the template fallbacks', () => {
   })
 })
 
+describe('the request the draft model accepts', () => {
+  // Live calls on 2026-10-01 proved the draft role's model refuses `max_tokens` and any
+  // temperature but its default, so every blog fell back to the template. A stand-in model
+  // cannot show a refusal, so the request itself is pinned, for both steps.
+  test('🔴 no temperature and no max_tokens; the limit goes as max_completion_tokens', async () => {
+    const calls = stubProvider(completion('ok'))
+    await engine.generateDraft(brief())
+    await engine.generateFinal(brief())
+
+    expect(calls).toHaveLength(2)
+    for (const { params } of calls) {
+      expect(params).not.toHaveProperty('temperature')
+      expect(params).not.toHaveProperty('max_tokens')
+      expect(params.max_completion_tokens).toBeGreaterThan(0)
+    }
+  })
+})
+
 describe('generateDraft', () => {
   test('returns the model text and marks it as AI', async () => {
     stubProvider(completion('# Real outline\n\nFrom the model.'))

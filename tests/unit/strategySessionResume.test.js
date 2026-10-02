@@ -221,3 +221,98 @@ describe('the stamp tells the truth — Decision E', () => {
     expect(w.vm.saveStampTime).not.toBe('')
   })
 })
+
+// 🔴 ITEM 15.32 — Mike's ruling 2026-10-02: nothing carries over to another client. Until
+// this, switching client on Scope left the previous client's session open, and every save
+// that followed went into that client's record under the new client's name. UAT cannot see
+// it: the screen looks right, and the words are filed on somebody else.
+describe('a client change starts clean — item 15.32', () => {
+  /** Records every request; answers a session read with `owned`. */
+  const recordFetch = (owned) => {
+    const calls = []
+    global.fetch = (url, opts) => {
+      calls.push({ url, opts, body: opts && opts.body ? JSON.parse(opts.body) : null })
+      const body = /\/api\/strategy\/sessions\/\d+$/.test(url)
+        ? { session: owned, entries: [], timeline: [] }
+        : {}
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(body) })
+    }
+    return calls
+  }
+  const settle = async (w) => { await w.vm.$nextTick(); await new Promise(resolve => setTimeout(resolve, 0)) }
+
+  it('🔴 closes the previous client\'s session and clears what was chosen for them', async () => {
+    recordFetch()
+    const w = mountPage()
+    w.setData({ clientId: 'c1' })
+    await settle(w)
+    w.setData({ sessionId: 7, sessionClientId: 'c1', chosen: ['porters-5-forces'], suggested: [{ id: 'porters-5-forces', reason: 'x' }] })
+
+    w.setData({ clientId: 'c2' })
+    await settle(w)
+
+    expect(w.vm.sessionId).toBeNull()
+    expect(w.vm.chosen).toEqual([])
+    expect(w.vm.suggested).toEqual([])
+  })
+
+  it('🔴 saves a half-typed box under the client it was typed for, never the new one', async () => {
+    const calls = recordFetch()
+    const w = mountPage()
+    w.setData({ clientId: 'c1' })
+    await settle(w)
+    w.setData({ sessionId: 7, sessionClientId: 'c1' })
+    w.vm.onFieldTyping({ frameworkId: 'porters-5-forces', fieldKey: 'a', value: 'Margins are thin' })
+
+    w.setData({ clientId: 'c2' })
+    await settle(w)
+
+    const saves = calls.filter(c => /\/sessions\/7\/entries$/.test(c.url))
+    expect(saves).toHaveLength(1)
+    expect(saves[0].body.clientId).toBe('c1')
+    expect(saves[0].body.entries[0].value).toBe('Margins are thin')
+  })
+
+  it('keeps the ticks when a client is chosen for the first time', async () => {
+    recordFetch()
+    const w = mountPage()
+    w.setData({ chosen: ['porters-5-forces'] })
+    w.setData({ clientId: 'c1' })
+    await settle(w)
+    expect(w.vm.chosen).toEqual(['porters-5-forces'])
+  })
+
+  it('🔴 a reopened session brings the picker to its own client, and keeps what it restored', async () => {
+    const answers = { situation: 'New café, first year' }
+    recordFetch(session({ clientId: 'c1', scope: { frameworks: ['porters-5-forces'], suggestion: { concepts: [], answers } } }))
+    const w = mountPage()
+    w.setData({ clients: [{ id: 'c1', name: 'One' }, { id: 'c2', name: 'Two' }], clientId: 'c2' })
+    await settle(w)
+
+    await w.vm.reopenSession(7)
+    await settle(w)
+
+    expect(w.vm.clientId).toBe('c1')
+    expect(w.vm.sessionId).toBe(7)
+    expect(w.vm.chosen).toEqual(['porters-5-forces'])
+    expect(w.vm.intakeAnswers).toEqual(answers)
+  })
+
+  it('names the client on screen in every session write — the server refuses any other', async () => {
+    const calls = recordFetch()
+    const w = mountPage()
+    w.setData({ clientId: 'c1' })
+    await settle(w)
+    w.setData({ sessionId: 7, sessionClientId: 'c1' })
+
+    await w.vm.saveScope()
+    await w.vm.onStepsChanged([])
+    await w.vm.onFieldsChanged([{ frameworkId: 'porters-5-forces', fieldKey: 'a', value: 'x' }])
+    await w.vm.onFieldOpened({ frameworkId: 'porters-5-forces', fieldKey: 'a' })
+    await w.vm.onTextEdited({ conceptId: 'porters-5-forces', sheet: 0, block: 'b1', text: 'y' })
+
+    const writes = calls.filter(c => /\/sessions\/7\//.test(c.url))
+    expect(writes.map(c => c.url.split('/').pop()).sort()).toEqual(['edits', 'entries', 'scope', 'scope', 'timeline'])
+    writes.forEach(c => expect(c.body.clientId).toBe('c1'))
+  })
+})

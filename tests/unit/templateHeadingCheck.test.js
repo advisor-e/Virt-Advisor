@@ -109,6 +109,21 @@ describe('templateHeadingCheck — what it deliberately leaves alone', () => {
     expect(found[0].name).toBe(hyphenated)
   })
 
+  it('reads a bold title with a spaced dash in it whole, not cut at that dash', () => {
+    // "Rubbish In - Rubbish Out" was read as "Rubbish In", and the answer bench scored a
+    // correct answer as naming a template that does not exist (2026-10-02).
+    const spaced = TEMPLATE_TITLES.find(t => / - /.test(t))
+    const found = check.namesUnderTemplateHeadings(answer(`**${spaced}**`, [`**${spaced}**`]))
+    expect(found.map(f => f.name)).toEqual([spaced, spaced])
+  })
+
+  it('never reads the advisor note it appends as a name the answer offered', () => {
+    // The bench counted these warning lines as phantom templates (2026-10-02).
+    const note = check.buildAdvisorNote([{ heading: 'also worth considering', name: MODEL.name, route: MODEL.route }])
+    const found = check.namesUnderTemplateHeadings(answer(`**${TEMPLATE}**`, []) + '\n' + note)
+    expect(found.map(f => f.name)).toEqual([TEMPLATE])
+  })
+
   it('ignores prose under a heading that is not a template heading', () => {
     const text = [
       '**How it works**',
@@ -193,6 +208,68 @@ describe('templateHeadingCheck — the live case that produced item 7.7', () => 
 
     expect(check.checkTemplateHeadings(answer(`**${model.name}**`)).ok).toBe(false)
     expect(check.checkTemplateHeadings(answer('**Wages Review**')).ok).toBe(true)
+  })
+})
+
+// A template named nearly right reaches the advisor in the library's spelling (2026-10-02).
+// UAT cannot see this: "High-Level Budget" reads perfectly, and the advisor learns it is
+// spelled otherwise only when a search in Advisor-e comes back empty.
+describe('useLibraryTitles — the library spelling, before the advisor reads it', () => {
+  const { nearestTemplateTitle } = require('../../server/utils/tierLookup')
+  // A model whose name is a near miss of a template title: a name alone cannot say which.
+  const NEAR_MODEL = MODELS.find(m => m.name && m.route &&
+    !TITLE_SET.has(m.name.toLowerCase().trim()) && nearestTemplateTitle(m.name))
+  const NUMBER_TITLE = TEMPLATE_TITLES.find(t => /^nine\b/i.test(t))
+
+  it('replaces a near-miss name under either template heading with the library title', () => {
+    const near = NEAR_MODEL.name
+    const out = check.useLibraryTitles(answer(`**${near}**`, [`**${near}**`]))
+    const title = nearestTemplateTitle(near)
+    expect(out.renamed).toEqual([{ from: near, to: title }])
+    expect(check.namesUnderTemplateHeadings(out.text).map(f => f.name)).toEqual([title, title])
+  })
+
+  it('reads a number written as a digit as the same title', () => {
+    expect(NUMBER_TITLE).toBeTruthy()
+    const digit = NUMBER_TITLE.replace(/^nine/i, '9')
+    const out = check.useLibraryTitles(answer(`**${TEMPLATE}**`, [`**${digit}**`]))
+    expect(out.renamed).toEqual([{ from: digit, to: NUMBER_TITLE }])
+  })
+
+  it('leaves exact titles and invented names as written', () => {
+    const text = answer(`**${TEMPLATE}**`, ['**Something Nobody Has Ever Built**'])
+    expect(check.useLibraryTitles(text)).toEqual({ text, renamed: [] })
+  })
+
+  it('leaves a calculator name alone on a line that sends the advisor to its page', () => {
+    // Relabelling it a template would hide the fault item 7.7 and item 4.33 exist to catch.
+    const text = answer(`**${NEAR_MODEL.name}** — open it at ${NEAR_MODEL.route}`)
+    expect(check.useLibraryTitles(text).renamed).toEqual([])
+  })
+
+  it('corrects the template line and keeps the calculator spelling in the model block', () => {
+    // Seen in a saved bench answer: the same name under "Best match" and, with its page,
+    // under "A model that fits". Each is right where it stands.
+    const text = [
+      '**Best match**',
+      `**${NEAR_MODEL.name}** — this is why it fits.`,
+      '',
+      '**A model that fits**',
+      `**${NEAR_MODEL.name}** — open it at ${NEAR_MODEL.route}`
+    ].join('\n')
+    const out = check.useLibraryTitles(text).text.split('\n')
+    expect(out[1]).toContain(`**${nearestTemplateTitle(NEAR_MODEL.name)}**`)
+    expect(out[4]).toContain(`**${NEAR_MODEL.name}**`)
+  })
+
+  it('changes only the bolded name, never the same words in a sentence', () => {
+    const text = answer(`**${NEAR_MODEL.name}**`) + `\n\nThe ${NEAR_MODEL.name} idea in passing.`
+    expect(check.useLibraryTitles(text).text).toContain(`The ${NEAR_MODEL.name} idea in passing.`)
+  })
+
+  it('survives an empty or missing answer', () => {
+    expect(check.useLibraryTitles('').renamed).toEqual([])
+    expect(check.useLibraryTitles(null).renamed).toEqual([])
   })
 })
 

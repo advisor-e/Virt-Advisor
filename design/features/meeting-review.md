@@ -627,8 +627,8 @@ button that scrolls the page a few inches is worse than none. And **there is no 
 the drawing's chrome states the month and offers no picker, so the screen shows the current month
 only; a selector would be a deviation, and it is recorded here rather than added.
 
-**What is still not built** — the follow-through check across meetings, the transcript-expiry job,
-and nothing else. **The jargon tile is not on this list**: it was REMOVED by Mike's ruling of
+**Nothing in the plan is outstanding** — the follow-through check across meetings and the
+transcript-expiry job were built 2026-09-07 (slices 6 and 5). **The jargon tile is not on this list**: it was REMOVED by Mike's ruling of
 2026-09-02, not deferred.
 
 🔴 **FOUR THINGS SLICE 3 DECIDED, ALL RULED BY MIKE ON 2026-09-02 after being put to him one at a

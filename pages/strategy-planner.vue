@@ -573,6 +573,12 @@ export default {
       /** The open session's id, once one exists. */
       sessionId: null,
       /**
+       * Whose the open session is — set when it is started or reopened. Item 15.32: a client
+       * change that does not match it closes the session on screen (Mike's ruling, 2026-10-02:
+       * nothing carries over to another client).
+       */
+      sessionClientId: null,
+      /**
        * WHAT THE AI PROPOSED, AND ONLY THAT — `[{ id, reason }]`. Decision C, stage 6.
        *
        * 🔴 IT IS NEVER THE SCOPE. `chosen` above is the scope and is the only thing saved
@@ -1268,16 +1274,22 @@ export default {
     /**
      * A client was chosen — look for the sessions they already have. Decision A.
      *
-     * ⚠ The bar is the ONLY thing that changes. Nothing is reopened, nothing is started,
-     * and what the advisor has already ticked is untouched: a silent resume is exactly
-     * what the ruling refused, because guessing wrong in front of a client cannot be
-     * undone in the room.
+     * ⚠ Nothing is reopened and nothing is started: a silent resume is exactly what the
+     * ruling refused, because guessing wrong in front of a client cannot be undone in the
+     * room. The FIRST choice keeps what is ticked. A SWITCH to another client starts clean
+     * (`startCleanFor`, Mike's ruling 2026-10-02, item 15.32).
      */
-    clientId () {
+    clientId (now, was) {
       this.modelPrints = {}
-      // Guided answers describe ONE client (item 15.31); they never carry to the next.
-      this.intakeAnswers = null
-      if (this.suggestState === 'no-history') { this.suggestState = '' }
+      // A reopened session bringing the picker round to its own client: what it restored —
+      // its guided answers included — is that client's, and stays.
+      if (String(now) !== String(this.sessionClientId)) {
+        // Guided answers describe ONE client (item 15.31); they never carry to the next.
+        this.intakeAnswers = null
+        if (this.suggestState === 'no-history') { this.suggestState = '' }
+        // Item 15.32. A real switch starts clean; the first choice (`was` empty) keeps the ticks.
+        if (was) { this.startCleanFor(now, was) }
+      }
       this.loadClientSessions()
     },
 
@@ -1427,6 +1439,7 @@ export default {
           credentials: 'same-origin',
           headers: this.headers(true),
           body: JSON.stringify({
+            clientId: this.clientId,
             domains: [],
             frameworks: this.chosen,
             steps: this.stepsToSave(this.planStepDefs),
@@ -1816,6 +1829,7 @@ export default {
           credentials: 'same-origin',
           headers: this.headers(true),
           body: JSON.stringify({
+            clientId: this.clientId,
             domains: [],
             frameworks: this.chosen,
             steps: this.stepsToSave(next),
@@ -2131,6 +2145,7 @@ export default {
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
         const body = await res.json()
         this.sessionId = body.sessionId
+        this.sessionClientId = this.clientId
         // A new session starts with every page exactly as drawn, and with no times set.
         this.textEdits = {}
         this.planTiming = { startsAt: null, minutes: {}, days: {} }
@@ -2324,6 +2339,11 @@ export default {
         const scope = session.scope || {}
 
         this.sessionId = session.id
+        // Item 15.32: the picker follows the session, never the other way round. Owner first,
+        // so the watcher sees the picker arriving at the session's own client and keeps it.
+        const owner = this.clients.find(c => String(c.id) === String(session.clientId))
+        this.sessionClientId = owner ? owner.id : session.clientId
+        if (String(this.clientId) !== String(this.sessionClientId)) { this.clientId = this.sessionClientId }
         this.chosen = Array.isArray(scope.frameworks) ? scope.frameworks.slice() : []
         this.suggested = (scope.suggestion && Array.isArray(scope.suggestion.concepts))
           ? scope.suggestion.concepts.slice()
@@ -2425,6 +2445,61 @@ export default {
     },
 
     /**
+     * The advisor switched client — item 15.32, Mike's ruling 2026-10-02: nothing carries
+     * over. The previous client's session closes on screen (it stays saved, and the resume
+     * bar offers the new client's own), and every tick, suggestion, step and typed word
+     * goes with it.
+     *
+     * 🔴 WHY. Until this, the open session stayed open under the new client's name, and every
+     * save — the ticks, the boxes, the AI's suggestion drawn from the new client's history —
+     * went into the previous client's record. The server now refuses that pairing too.
+     *
+     * ⚠ A BOX TYPED BUT NOT YET SAVED belongs to the client it was typed for, so it is written
+     * out under that client before the session is let go — never lost, never moved.
+     *
+     * @param {string} now - the client just chosen
+     * @param {string} was - the client before
+     * @returns {void}
+     */
+    startCleanFor (now, was) {
+      if (this.autoSaveTimer) { clearTimeout(this.autoSaveTimer); this.autoSaveTimer = null }
+      const pending = this.pendingEntry
+      if (pending && this.sessionId) {
+        this.saveEntriesFor(this.sessionId, was, [pending]).then((ok) => {
+          if (!ok) { this.error = this.$t('strategyPlanner.errors.saveFailed') }
+        })
+      }
+
+      this.pendingEntry = null
+      this.sessionId = null
+      this.sessionClientId = null
+      this.chosen = []
+      this.suggested = []
+      this.suggestState = ''
+      this.planStepDefs = []
+      this.entries = {}
+      this.textEdits = {}
+      this.planTiming = { startsAt: null, minutes: {}, days: {} }
+      this.captures = {}
+      this.openBox = null
+      this.recState = { meetingId: '', segments: [], live: null, paused: false }
+      this.heardSegments = []
+      this.wordsWaiting = 0
+      this.heardLoadedFor = ''
+      this.reopenedAt = null
+      this.startedFromBlank = false
+      this.showEarlier = false
+      this.saveState = ''
+      this.lastSavedAt = null
+
+      if (process.client && this.$route.query.sessionId) {
+        const q = Object.assign({}, this.$route.query, { clientId: now || undefined })
+        delete q.sessionId
+        this.$router.replace({ query: q }).catch(() => { /* same route, nothing to do */ })
+      }
+    },
+
+    /**
      * The advisor is typing — Decisions D and E. NOTHING IS SENT HERE.
      *
      * 🔴 THIS IS THE HALF THAT MUST NEVER BECOME A SAVE. It runs on every keystroke, and
@@ -2503,7 +2578,7 @@ export default {
           method: 'POST',
           credentials: 'same-origin',
           headers: this.headers(true),
-          body: JSON.stringify(payload)
+          body: JSON.stringify(Object.assign({ clientId: this.clientId }, payload))
         })
       } catch (e) { /* see the note above */ }
     },
@@ -2556,22 +2631,40 @@ export default {
       }
       this.saveState = 'saving'
 
-      try {
-        const res = await fetch('/api/strategy/sessions/' + this.sessionId + '/entries', {
-          method: 'PUT',
-          credentials: 'same-origin',
-          headers: this.headers(true),
-          body: JSON.stringify({ entries })
-        })
-        if (!res.ok) { throw new Error('HTTP ' + res.status) }
+      if (await this.saveEntriesFor(this.sessionId, this.clientId, entries)) {
         this.markSaved()
-      } catch (e) {
+      } else {
         this.error = this.$t('strategyPlanner.errors.saveFailed')
         // ⚠ THE STAMP MUST NOT SAY "Saved" AFTER A FAILURE. Decision E is about the stamp
         // telling the truth; a green tick over a save that did not happen is the exact lie
         // it exists to prevent. The words are still on screen — a failed save never rolls
         // the advisor back — so "unsaved" is the accurate word for them.
         this.saveState = 'unsaved'
+      }
+    },
+
+    /**
+     * Write boxes to one session, named with the client they belong to (item 15.32 — the
+     * server refuses a session that is not that client's). Taking both as arguments is what
+     * lets `startCleanFor` save a half-typed box under the client it was typed for.
+     *
+     * @route PUT /api/strategy/sessions/:id/entries
+     * @param {number|string} sessionId
+     * @param {string} clientId
+     * @param {Array<{frameworkId: string, fieldKey: string, value: string}>} entries
+     * @returns {Promise<boolean>} true when saved
+     */
+    async saveEntriesFor (sessionId, clientId, entries) {
+      try {
+        const res = await fetch('/api/strategy/sessions/' + sessionId + '/entries', {
+          method: 'PUT',
+          credentials: 'same-origin',
+          headers: this.headers(true),
+          body: JSON.stringify({ clientId, entries })
+        })
+        return res.ok
+      } catch (e) {
+        return false
       }
     },
 
@@ -2599,7 +2692,7 @@ export default {
           method: 'PUT',
           credentials: 'same-origin',
           headers: this.headers(true),
-          body: JSON.stringify(edit)
+          body: JSON.stringify(Object.assign({ clientId: this.clientId }, edit))
         })
         if (!res.ok) { throw new Error('HTTP ' + res.status) }
         const sheetKey = edit.conceptId + '#' + edit.sheet

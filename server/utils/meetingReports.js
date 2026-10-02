@@ -52,6 +52,13 @@ const REPORT_MODEL = () => modelFor(AI.primary, 'report')
 /** Generation is nowhere near a page render, so the socket may wait. */
 const REPORT_TIMEOUT_MS = 120000
 
+// Output ceilings (item 7.26), set well above what each prompt asks for so a valid reply is
+// never cut: the summary is two paragraphs, actions and one quote (~1,200 tokens); a coaching
+// answer is one quote or NOT FOUND per point (~80 tokens each).
+const SUMMARY_MAX_TOKENS = 4000
+const COACHING_TOKENS_PER_POINT = 150
+const COACHING_MIN_TOKENS = 2000
+
 /** What the model must answer when it cannot find the thing. Checked for exactly. */
 const NOT_FOUND = 'NOT FOUND'
 
@@ -452,9 +459,10 @@ function logCall (label, startedAt, ok, usage, extra, reply, err) {
  * @param {string} label
  * @param {string[]} spoken - what was SAID in the meeting, one entry per segment: the text this
  *   call names for moderation (item 8.2). Never the prompt's framing or the observation points.
+ * @param {number} maxTokens - the output ceiling for this report
  * @returns {Promise<{reply: (object|null), usage: (object|null)}>}
  */
-async function askModel (deps, messages, label, spoken) {
+async function askModel (deps, messages, label, spoken, maxTokens) {
   const startedAt = Date.now()
   const client = deps.client || getClient('report')
   try {
@@ -464,7 +472,8 @@ async function askModel (deps, messages, label, spoken) {
     // explicitly cleared for personal data. Pinned by aiCallSitesPersonal.test.js.
     const completion = await client.chat.completions.create({
       messages,
-      temperature: 0
+      temperature: 0,
+      max_tokens: maxTokens
     }, { timeout: REPORT_TIMEOUT_MS, personal: true, moderate: spoken })
 
     const content = completion &&
@@ -500,7 +509,7 @@ async function generateSummary (args) {
     ? args.transcript.segments
     : []
   const messages = buildSummaryMessages({ segments, scenarioName: args.scenarioName })
-  const { reply, provider } = await askModel(args, messages, 'summary', segments.map(s => String((s && s.text) || '')))
+  const { reply, provider } = await askModel(args, messages, 'summary', segments.map(s => String((s && s.text) || '')), SUMMARY_MAX_TOKENS)
 
   const checked = validateSummary(reply, segments)
   if (!checked.valid) {
@@ -570,7 +579,8 @@ async function generateCoachingNotes (args) {
   // the model with an empty list would spend money to be told nothing.
   if (asked.length) {
     const messages = buildCoachingMessages({ segments, points: asked })
-    const answered = await askModel(args, messages, 'coaching', segments.map(s => String((s && s.text) || '')))
+    const answered = await askModel(args, messages, 'coaching', segments.map(s => String((s && s.text) || '')),
+      Math.max(COACHING_MIN_TOKENS, COACHING_TOKENS_PER_POINT * asked.length))
     const reply = answered.reply
     provider = answered.provider
     const checked = validateCoaching(reply, segments, asked)
@@ -612,6 +622,9 @@ async function generateCoachingNotes (args) {
 module.exports = {
   REPORT_MODEL,
   REPORT_TIMEOUT_MS,
+  SUMMARY_MAX_TOKENS,
+  COACHING_TOKENS_PER_POINT,
+  COACHING_MIN_TOKENS,
   NOT_FOUND,
   TRANSCRIPT_OPEN,
   TRANSCRIPT_CLOSE,

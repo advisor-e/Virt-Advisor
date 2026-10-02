@@ -3,9 +3,9 @@ name: firm-manager-edit-target
 description: >-
   Use when bringing a building block under no-code Firm Manager editing — letting a firm view and
   change a piece of the decision config without a developer. Trigger for any "make X firm-editable",
-  "add X to Firm Manager", "EDIT-TARGET" work, or the pending building blocks in ACTIONS.md
-  (14-question weight sliders, the strategy table, primary-issues, content-summaries, the coaching
-  reference, the logic-tree editor). Reuses the existing firm-overlay mechanism (version history +
+  "add X to Firm Manager", "EDIT-TARGET" work, or the building blocks the frozen ACTIONS.md once
+  listed (14-question weight sliders, the strategy table, primary-issues, content-summaries, the
+  coaching reference, the logic-tree editor) — check each against the code first. Reuses the existing firm-overlay mechanism (version history +
   restore for free) and the IDOR-safe auth guard. Keywords: firm override, firmOverlay, config_key,
   firm_framework_versions, Advisory Distinctions pattern, no-code editing, version history.
 ---
@@ -92,4 +92,5 @@ edit-target needs an allowed-value list, **read it from the data file** (see the
 ## References
 - `server/routes/firmManager.js`, `server/utils/firmOverlay.js`, `server/restify-server.js`,
   `components/FirmManagerHub.vue`.
-- Memory: `firm_manager_hub`. Backlog: `design/ACTIONS.md` → EDIT-TARGET list.
+- Memory: `firm_manager_hub`. Live work is on `design/features/to-do-items.json`;
+  `design/ACTIONS.md` is a frozen archive.

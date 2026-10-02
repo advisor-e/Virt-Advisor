@@ -43,6 +43,9 @@ const SUMMARY_MODEL = () => modelFor(AI.primary, 'report')
 /** A heading's text past this is not a short summary; it is cut, and the cut is logged. */
 const MAX_SECTION_CHARS = 1500
 
+// Output ceiling (item 7.26): up to 30 sections of 1-3 sentences, about 130 tokens each.
+const SUMMARY_MAX_TOKENS = 6000
+
 /**
  * The headings a concept's summary is written under: its capture table's own row and column
  * labels, in order, each once. A concept with none — a report model, the org chart, a page with
@@ -174,7 +177,7 @@ async function generate (args) {
   try {
     // 🔴 PERSONAL: the client's own spoken words (see the module note). Moderated on what was
     // SAID alone — never the headings or the framing, which are the app's own (Z3).
-    completion = await client.chat.completions.create({ messages, temperature: 0 },
+    completion = await client.chat.completions.create({ messages, temperature: 0, max_tokens: SUMMARY_MAX_TOKENS },
       { timeout: REPORT_TIMEOUT_MS, personal: true, moderate: segments.map(s => String((s && s.text) || '')) })
   } catch (err) {
     console.error('[concept-summary] model=' + SUMMARY_MODEL() + ' status=error latency=' +
@@ -312,6 +315,7 @@ function composeMeetingSummary (segments, readSummary) {
 
 module.exports = {
   MAX_SECTION_CHARS,
+  SUMMARY_MAX_TOKENS,
   headingsFor,
   buildMessages,
   validate,
