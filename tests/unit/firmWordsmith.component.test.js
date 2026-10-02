@@ -41,6 +41,7 @@ function content () {
       questionsDeclined: []
     }].concat(['Purpose', 'Values', 'Mission', 'Strategy'].map(plain)),
     style: [{ key: 'voice', options: [{ id: 'ws-style-voice-we', value: 'we', instruction: 'Speak as "we".', source: 'inherited', changedAbove: false }] }],
+    spelling: { value: 'nz', source: 'edited-here', hasAbove: true, changedAbove: true, above: 'us' },
     limits: { maxDefinition: 600, maxQuestion: 300, maxRule: 800, maxInstruction: 400, minWords: 10, maxWords: 120 }
   }
 }
@@ -99,4 +100,38 @@ test('🔴 a style row offers only Edit — never Switch off or Remove — and i
   await wrapper.vm.send('PUT', 'style', { id: 'ws-style-voice-we', instruction: 'New.' }, true)
   expect(lastSent()).toMatchObject({ method: 'PUT', path: '/api/firm-manager/wordsmith/style', body: { id: 'ws-style-voice-we', instruction: 'New.' } })
   expect(lastSent().body).not.toHaveProperty('statement')
+})
+
+describe('English spelling (item 13.7)', () => {
+  const styleChip = () => wrapper.findAll('.fws-chip').filter(c => c.text().includes('wordsmith.hub.styleChip')).at(0)
+  const option = value => wrapper.findAll('.fws-opt').filter(b => b.text().includes('wordsmith.hub.spelling.' + value)).at(0)
+  const sentCount = () => global.fetch.mock.calls.filter(c => c[1] && c[1].method !== 'GET').length
+
+  beforeEach(async () => {
+    await styleChip().trigger('click')
+    await settle(wrapper)
+  })
+
+  test('choosing US sends the value alone — no statement and no scope', async () => {
+    await option('us').trigger('click')
+    await settle(wrapper)
+    expect(lastSent()).toEqual({ method: 'PUT', path: '/api/firm-manager/wordsmith/spelling', body: { value: 'us' } })
+  })
+
+  test('🔴 pressing the spelling already in use sends nothing, so an inherited one is never turned into this level\'s own', async () => {
+    const before = sentCount()
+    await option('nz').trigger('click')
+    await settle(wrapper)
+    expect(sentCount()).toBe(before)
+  })
+
+  test('Use theirs and Keep mine on a change above are their own requests', async () => {
+    const offer = wrapper.find('.fws-changed')
+    await offer.findAll('button').filter(b => b.text() === 'growthAspectQuestions.buttons.useTheirs').at(0).trigger('click')
+    await settle(wrapper)
+    expect(lastSent()).toMatchObject({ method: 'POST', path: '/api/firm-manager/wordsmith/spelling/use-inherited', body: {} })
+    await wrapper.find('.fws-changed').findAll('button').filter(b => b.text() === 'growthAspectQuestions.buttons.keepMine').at(0).trigger('click')
+    await settle(wrapper)
+    expect(lastSent()).toMatchObject({ method: 'POST', path: '/api/firm-manager/wordsmith/spelling/keep-mine', body: {} })
+  })
 })

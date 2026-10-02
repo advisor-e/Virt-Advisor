@@ -24,13 +24,13 @@
       @retry="recompute"
     )
     hero-strip(:stale="!!error")
-      hero-figure(:label="$t('report.marginBreakeven.hero.margin')" :value="pct(data.marginPct)" :sub="$t('report.marginBreakeven.hero.marginSub')")
+      hero-figure(:label="$t('report.marginBreakeven.hero.margin')" :value="pct(data.marginPct, 0)" :sub="$t('report.marginBreakeven.hero.marginSub')")
       hero-figure(
         :label="$t('report.marginBreakeven.hero.markup')"
-        :value="round1(data.markup) + '× · ' + pct(data.markup)"
+        :value="times(data.markup) + ' · ' + pct(data.markup, 0)"
         :sub="$t('report.marginBreakeven.hero.markupSub')"
       )
-      hero-figure(:label="$t('report.marginBreakeven.hero.cos')" :value="pct(data.costOfSalesPct)" :sub="$t('report.marginBreakeven.hero.cosSub')")
+      hero-figure(:label="$t('report.marginBreakeven.hero.cos')" :value="pct(data.costOfSalesPct, 0)" :sub="$t('report.marginBreakeven.hero.cosSub')")
       hero-figure(
         :label="$t('report.marginBreakeven.hero.breakEven')"
         :value="money(data.requiredSales)"
@@ -90,7 +90,7 @@
             div {{ $t('report.marginBreakeven.whatIf.atPrice') }}
               b.num {{ money(data.chosen.newPrice) }}
             div {{ $t('report.marginBreakeven.whatIf.marginBecomes') }}
-              b.num {{ pct(data.chosen.newMarginPct) }}
+              b.num {{ pct(data.chosen.newMarginPct, 0) }}
             div {{ $t('report.marginBreakeven.whatIf.mustSell') }}
               b.num {{ round0(data.chosen.unitsRequired) }} {{ $t('report.marginBreakeven.whatIf.units') }}
             div {{ $t('report.marginBreakeven.whatIf.vsNow') }}
@@ -105,9 +105,9 @@
         //- whole clause, "Ihre Die Marge beträgt 67%".
         i18n.mbk-edu-p(v-if="data" path="report.marginBreakeven.coach.text" tag="p")
           template(#margin)
-            strong {{ pct(data.marginPct) }}
+            strong {{ pct(data.marginPct, 0) }}
           template(#markup)
-            strong {{ round1(data.markup) }}×
+            strong {{ times(data.markup) }}
           template(#overheads)
             strong {{ money(f.oh) }}
           template(#drawings)
@@ -143,6 +143,7 @@ import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import savedReport from '~/mixins/savedReport'
 
@@ -153,7 +154,7 @@ export default {
 
   components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField, ProvenanceBadge },
 
-  mixins: [currencyMixin, reportRecompute, savedReport],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -205,7 +206,7 @@ fields: [
       for (let i = 1; i < pts.length; i++) { path += ' L' + x(pts[i].chg) + ' ' + y(pts[i].units) }
       const grid = []
       for (let g = 0; g <= 4; g++) { grid.push({ y: pt + ph * g / 4, label: Math.round(maxU * (1 - g / 4)) }) }
-      const xlabels = [-40, -20, 0, 20, 40, 60, 80].map(function (p) { return { x: x(p), label: (p > 0 ? '+' : '') + p + '%' } })
+      const xlabels = [-40, -20, 0, 20, 40, 60, 80].map(p => ({ x: x(p), label: this.signedPct100(p, 0) }))
       return {
         pl,
 pt,
@@ -224,15 +225,14 @@ path,
   mounted () { this.recompute() },
 
   methods: {
-    // money() / money2() now come from currencyMixin (firm currency + locale).
-    pct (n) { return Math.round((n || 0) * 100) + '%' },
+    // money() / money2() come from currencyMixin, pct() / times() / signedPct100() from
+    // reportFormatMixin — both in the reader's language.
     round0 (n) { return Math.round(n || 0) },
-    round1 (n) { return (Math.round((n || 0) * 10) / 10).toFixed(1) },
     fmtField (fld) {
       const v = this.f[fld.k]
       if (fld.fmt === 'money') { return this.money(v) }
       if (fld.fmt === 'money2') { return this.money2(v) }
-      if (fld.fmt === 'signpct') { return (v > 0 ? '+' : '') + v + '%' }
+      if (fld.fmt === 'signpct') { return this.signedPct100(v, 0) }
       return v
     },
     /**

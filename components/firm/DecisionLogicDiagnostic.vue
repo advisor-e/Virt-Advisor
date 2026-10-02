@@ -152,21 +152,21 @@ section.dx
                     | {{ $t('firmDecisionLogic.dxChipTree', { points: r.points }) }}
                   span.reason.r-other
                     | {{ $t('firmDecisionLogic.dxChipOther', { points: signed(row.otherFactors) }) }}
-                td.score-n {{ row.score }}
+                td.score-n {{ numUpTo(row.score) }}
 
         //- Three different facts, three different sentences. Collapsing them
         //- into "the engine did not rank it at all" was a real defect (found
         //- 2026-08-03): the ranking log keeps only the top 20, so a template
         //- missing from it may have scored perfectly well.
         p.not-ranked(v-if="expected && expected.outsideSheet")
-          | {{ $t('firmDecisionLogic.dxOutsideSheet', { score: expected.score, shown: sheetRows.length }) }}
+          | {{ $t('firmDecisionLogic.dxOutsideSheet', { score: numUpTo(expected.score), shown: sheetRows.length }) }}
         p.not-ranked(v-else-if="expected && expected.unscored && expected.inLibrary")
           | {{ $t('firmDecisionLogic.dxUnscored') }}
         p.not-ranked(v-else-if="expected && expected.unscored")
           | {{ $t('firmDecisionLogic.dxNotInLibrary') }}
 
         .gap(v-if="gapShown")
-          p.gap-head(v-if="result.gap > 0") {{ $t('firmDecisionLogic.dxGapHead', { points: result.gap }) }}
+          p.gap-head(v-if="result.gap > 0") {{ $t('firmDecisionLogic.dxGapHead', { points: numUpTo(result.gap) }) }}
           p.gap-head(v-else) {{ $t('firmDecisionLogic.dxGapWon') }}
 
           //- With the classifier down, none of the three gap sentences below can be
@@ -218,11 +218,11 @@ section.dx
               i18n(path="firmDecisionLogic.dxGapMathText" tag="span")
                 template(#distinction)
                   strong {{ $t('firmDecisionLogic.dxGapDoD', { distinction: distinctionBoost }) }}
-                template(#withDistinction) {{ scoreWithDistinction }}
+                template(#withDistinction) {{ numUpTo(scoreWithDistinction) }}
                 template(#tree)
                   strong {{ $t('firmDecisionLogic.dxGapDoF', { tree: treeBoost }) }}
-                template(#withTree) {{ scoreWithTree }}
-                template(#top) {{ topScore }}
+                template(#withTree) {{ numUpTo(scoreWithTree) }}
+                template(#top) {{ numUpTo(topScore) }}
                 template(#verdict)
                   strong {{ $t('firmDecisionLogic.' + gapVerdictKey) }}
 
@@ -302,6 +302,7 @@ section.dx
 
 <script>
 import { slotMarkers, sentenceParts } from '~/utils/sentenceParts'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /**
  * Sections 4 and 5 of the Decision Logic page — the diagnostic and the ideas.
@@ -329,6 +330,8 @@ import { slotMarkers, sentenceParts } from '~/utils/sentenceParts'
  */
 export default {
   name: 'DecisionLogicDiagnostic',
+
+  mixins: [reportFormatMixin],
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
@@ -902,7 +905,7 @@ export default {
      */
     signed (n) {
       const v = Number(n) || 0
-      return (v < 0 ? '−' : '+') + Math.abs(v)
+      return (v < 0 ? '−' : '+') + this.numUpTo(Math.abs(v))
     },
 
     /**

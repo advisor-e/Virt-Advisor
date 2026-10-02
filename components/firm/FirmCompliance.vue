@@ -331,6 +331,8 @@
  */
 
 import moderationMessage from '~/mixins/moderationMessage'
+import { num } from '~/utils/currencyFormat'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
 
 export default {
   name: 'FirmCompliance',
@@ -681,8 +683,8 @@ export default {
       const kb = Number(bytes) / 1024
       if (!Number.isFinite(kb) || kb <= 0) { return '' }
       return kb < 1024
-        ? this.$t('firmCompliance.units.kb', { n: Math.round(kb) })
-        : this.$t('firmCompliance.units.mb', { n: (kb / 1024).toFixed(1) })
+        ? this.$t('firmCompliance.units.kb', { n: num(Math.round(kb), this.$i18n.locale) })
+        : this.$t('firmCompliance.units.mb', { n: num(kb / 1024, this.$i18n.locale, 1) })
     },
 
     /**
@@ -777,9 +779,7 @@ export default {
      * @returns {string}
      */
     dateWords (iso) {
-      const d = new Date(iso)
-      if (Number.isNaN(d.getTime())) { return '' }
-      return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+      return fmtDate(iso, this.$i18n.locale)
     },
 
     /**

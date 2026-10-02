@@ -38,7 +38,7 @@
   .card(v-if="step === 'check'")
     header.card-header
       p.card-header-title {{ $t('strategyConcepts.step2.heading') }}
-      p.card-header-icon.is-size-7.has-text-grey {{ $t('strategyConcepts.step2.converted', { s: seconds, kb: kilobytes }) }}
+      p.card-header-icon.is-size-7.has-text-grey {{ $t('strategyConcepts.step2.converted', { s: secondsText, kb: kilobytesText }) }}
     .card-content
       p.mb-4 {{ $t('strategyConcepts.step2.intro') }}
       .mb-4(v-for="(p, i) in pages" :key="i")
@@ -99,6 +99,7 @@ import PdfDropZone from '~/components/base/PdfDropZone.vue'
 import ImportedConceptPage from '~/components/strategy/ImportedConceptPage.vue'
 import ConceptBoxMarker from '~/components/strategy/ConceptBoxMarker.vue'
 import { boxesForSave, boxesReady } from '~/utils/conceptBoxes'
+import { num } from '~/utils/currencyFormat'
 
 const BASE = '/api/firm-manager/strategy-concepts'
 
@@ -139,7 +140,7 @@ export default {
       teaching: [],
       /** Every teaching page as converted, in order. */
       pages: [],
-      seconds: '0',
+      seconds: 0,
       kilobytes: 0,
       name: '',
       nameMissing: false,
@@ -153,6 +154,10 @@ export default {
   },
 
   computed: {
+    /** The conversion's time and size, in the reader's language (item 13.8). */
+    secondsText () { return num(this.seconds, this.$i18n.locale, 1) },
+    kilobytesText () { return num(this.kilobytes, this.$i18n.locale) },
+
     sectionName () {
       const s = this.sections.find(x => x.id === this.section)
       return s ? s.name : ''
@@ -195,7 +200,7 @@ export default {
         for (const file of this.teaching) { pages = pages.concat(await this.preview(file)) }
         if (pages.length > this.limits.maxTeachingPages) { throw this.failure('TOO_MANY_PAGES', pages.length) }
         this.pages = pages
-        this.seconds = ((Date.now() - began) / 1000).toFixed(1)
+        this.seconds = (Date.now() - began) / 1000
         this.kilobytes = Math.round(pages.reduce((n, p) => n + p.svg.length, 0) / 1024)
         if (!this.name) { this.name = String(pages[0].title || '').trim().slice(0, this.limits.maxName) }
         this.step = 'check'

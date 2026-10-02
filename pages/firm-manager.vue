@@ -6,11 +6,11 @@
   .hero.is-fullheight-with-navbar(v-else-if="!authorised")
     .hero-body
       .container.has-text-centered
-        p.title.is-4 Access Restricted
+        p.title.is-4 {{ $t('hubAccess.restricted') }}
         p.subtitle.is-6
-          | The Firm Manager hub requires a Firm Manager or Platform Admin role.
+          | {{ $t('hubAccess.firmOnly') }}
           br
-          | Please contact your account administrator.
+          | {{ $t('hubAccess.contactAdministrator') }}
 
   firm-manager-hub(
     v-else

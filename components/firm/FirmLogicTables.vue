@@ -249,6 +249,7 @@ section.firm-logic-tables
 
 <script>
 import { autogrow, resizePersist } from '~/utils/textareaDirectives'
+import { formatDate as fmtDate, DATE_TIME } from '~/utils/dateLocale'
 
 /** Where this browser remembers whether the table list is hidden. */
 const RAIL_STATE_KEY = 'lt:railHidden'
@@ -691,8 +692,7 @@ export default {
 
     formatDate (value) {
       if (!value) { return '' }
-      const d = new Date(value)
-      return isNaN(d.getTime()) ? String(value) : d.toLocaleString()
+      return fmtDate(value, this.$i18n.locale, DATE_TIME) || String(value)
     },
 
     /** Which section array currently holds an item id, or null. */

@@ -41,7 +41,7 @@
             .prog-stat-num {{ tiers[tier.key].courseSessions }}
             .prog-stat-label {{ $t('advisorProgress.statCourseSessions') }}
           .prog-stat
-            .prog-stat-num(v-if="tiers[tier.key].avgQuizScore !== null") {{ tiers[tier.key].avgQuizScore }}%
+            .prog-stat-num(v-if="tiers[tier.key].avgQuizScore !== null") {{ pctUpTo(tiers[tier.key].avgQuizScore / 100) }}
             .prog-stat-num(v-else) —
             .prog-stat-label {{ $t('advisorProgress.statAvgQuiz') }}
         .prog-tier-footer
@@ -84,6 +84,8 @@
 <script>
 import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
 import CpdRecord from '~/components/CpdRecord.vue'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /**
  * Advisory areas this screen can name, as i18n keys under `advisorProgress.domain.*`.
@@ -101,6 +103,8 @@ export default {
   name: 'AdvisorProgression',
 
   components: { CpdRecord },
+
+  mixins: [reportFormatMixin],
 
   props: {
     advisorId: { type: String, default: 'local-advisor' },
@@ -197,7 +201,7 @@ export default {
      */
     formatDate (dt) {
       if (!dt) { return '' }
-      return new Date(dt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+      return fmtDate(dt, this.$i18n.locale)
     },
 
     /**

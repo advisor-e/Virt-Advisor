@@ -205,6 +205,7 @@ import LineChart from '~/components/base/LineChart'
 import BarPairChart from '~/components/base/BarPairChart'
 import DoughnutChart from '~/components/base/DoughnutChart'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
 /** Everything the template reads, before the first response lands. */
@@ -233,7 +234,7 @@ export default {
     DoughnutChart
   },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute],
 
   props: {
     /**
@@ -395,7 +396,7 @@ export default {
     percent (v) {
       return v === null || v === undefined || !isFinite(Number(v))
         ? this.dash
-        : (Number(v) * 100).toFixed(1) + '%'
+        : this.pct(Number(v))
     },
 
     /**

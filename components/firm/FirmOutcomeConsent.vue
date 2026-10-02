@@ -158,6 +158,8 @@
 </template>
 
 <script>
+import { formatDate as fmtDate, DATE_TIME } from '~/utils/dateLocale'
+
 /**
  * Outcome Sharing — the firm manager's consent switch for Outcome Learning, item 4.87.
  *
@@ -384,9 +386,7 @@ export default {
      * @returns {string}
      */
     dateWords (iso) {
-      const d = new Date(iso)
-      if (Number.isNaN(d.getTime())) { return '' }
-      return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+      return fmtDate(iso, this.$i18n.locale)
     },
 
     /**
@@ -395,9 +395,7 @@ export default {
      * @returns {string}
      */
     dateTimeWords (iso) {
-      const d = new Date(iso)
-      if (Number.isNaN(d.getTime())) { return '' }
-      return this.dateWords(iso) + ', ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+      return fmtDate(iso, this.$i18n.locale, DATE_TIME)
     },
 
     /**

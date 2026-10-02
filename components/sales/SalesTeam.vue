@@ -87,6 +87,7 @@
 <script>
 import currencyMixin from '~/mixins/currencyMixin'
 import LoadingSpinner from '~/components/sales/LoadingSpinner.vue'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /** The same key the other Sales Tracker screens read their token from. */
 const TOKEN_KEY = 'advisor_e_token'
@@ -111,7 +112,7 @@ export default {
 
   components: { LoadingSpinner },
 
-  mixins: [currencyMixin],
+  mixins: [reportFormatMixin, currencyMixin],
 
   props: {
     /**
@@ -216,7 +217,7 @@ export default {
      * @returns {string}
      */
     percent (v) {
-      return v === null || v === undefined ? this.dash : `${v}%`
+      return v === null || v === undefined ? this.dash : this.pctUpTo(v / 100)
     }
     // `money()` is currencyMixin's — whole units in the FIRM's currency, so a
     // roll-up compares magnitudes and no screen hardcodes a symbol.

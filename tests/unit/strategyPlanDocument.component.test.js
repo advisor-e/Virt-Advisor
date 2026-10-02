@@ -23,6 +23,7 @@
 
 const { mountWithBuefy } = require('../helpers/mountComponent')
 const StrategyPlanDocument = require('~/components/strategy/StrategyPlanDocument.vue').default
+const { conceptSheetCount } = require('~/components/strategy/concepts/index.js')
 
 /** A concept with a real fill-in table behind it. */
 const WITH_TABLE = {
@@ -84,7 +85,10 @@ describe('a concept with a table is unchanged by the ruling', () => {
   test('it prints both a teaching page and a capture page', () => {
     const wrapper = mountPlan([WITH_TABLE])
 
-    expect(wrapper.findAll('.is-teach').length).toBe(1)
+    // One teaching page per sheet he drew — the 8 Profit Levers has two since
+    // 2026-10-02 (item 15.18), so the count comes from the registry, not a literal.
+    expect(wrapper.findAll('.is-teach').length).toBe(conceptSheetCount(WITH_TABLE.conceptId))
+    expect(conceptSheetCount(WITH_TABLE.conceptId)).toBe(2)
     expect(wrapper.findAll('.is-capture').length).toBe(1)
   })
 

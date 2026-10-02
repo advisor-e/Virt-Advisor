@@ -36,7 +36,7 @@
           //- The share, and WHEN the counts were read — they are cached a minute, so
           //- "read 14 Sep 09:12" is the honest word, never "now".
           .mol-tile-s(v-if="page.reach && page.reach.delivered > 0")
-            | {{ $t('outcomeLearning.tileReachSub', { percent: reachPercent, when: dateTimeWords(page.reach.readAt) }) }}
+            | {{ $t('outcomeLearning.tileReachSub', { percent: pct100(reachPercent, 0), when: dateTimeWords(page.reach.readAt) }) }}
       .column.is-one-fifth
         .box.mol-tile
           .mol-tile-l {{ $t('outcomeLearning.tileLive') }}
@@ -279,6 +279,8 @@ import ENGAGEMENT from '~/data/engagement-types.json'
 import HubGuidePanel from '~/components/shared/HubGuidePanel.vue'
 import HubReadingCard from '~/components/shared/HubReadingCard.vue'
 import moderationMessage from '~/mixins/moderationMessage'
+import { formatDate as fmtDate, DATE_TIME } from '~/utils/dateLocale'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 const DOMAIN_LABELS = {}
 DOMAINS.forEach((d) => { if (d && d.id) { DOMAIN_LABELS[d.id] = d.label || d.id } })
@@ -292,7 +294,7 @@ export default {
 
   components: { HubGuidePanel, HubReadingCard },
 
-  mixins: [moderationMessage],
+  mixins: [reportFormatMixin, moderationMessage],
 
   props: {
     apiToken: { type: String, required: true }
@@ -757,12 +759,12 @@ export default {
     /** @param {number} part @param {number} whole @returns {string} */
     percent (part, whole) {
       if (!whole) { return '' }
-      return Math.round(100 * part / whole) + '%'
+      return this.pct(part / whole, 0)
     },
 
     /** @param {number} fraction - 0..1 @returns {string} */
     percentOf (fraction) {
-      return Number.isFinite(fraction) ? Math.round(100 * fraction) + '%' : ''
+      return Number.isFinite(fraction) ? this.pct(fraction, 0) : ''
     },
 
     /**
@@ -777,22 +779,17 @@ export default {
       if (typeof month !== 'string' || !/^\d{4}-\d{2}$/.test(month)) { return '' }
       const parts = month.split('-')
       const d = new Date(Number(parts[0]), Number(parts[1]) - 1, 1)
-      if (Number.isNaN(d.getTime())) { return '' }
-      return d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+      return fmtDate(d, this.$i18n.locale, { month: 'long', year: 'numeric' })
     },
 
     /** @param {string} iso @returns {string} */
     dateWords (iso) {
-      const d = new Date(iso)
-      if (Number.isNaN(d.getTime())) { return '' }
-      return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+      return fmtDate(iso, this.$i18n.locale)
     },
 
     /** @param {string} iso @returns {string} */
     dateTimeWords (iso) {
-      const d = new Date(iso)
-      if (Number.isNaN(d.getTime())) { return '' }
-      return this.dateWords(iso) + ', ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+      return fmtDate(iso, this.$i18n.locale, DATE_TIME)
     },
 
     /**

@@ -150,7 +150,22 @@ const DRAWINGS = [
   // the one part of this concept the page editor cannot reach.
   ...[1, 2, 3, 4, 5, 6].map(n => ({
     file: 'strategy-concept-alignment-statements.html', svg: n, sheet: n, conceptId: 'alignment-statements'
-  }))
+  })),
+
+  // THE PAGES THAT FOLLOW A DRAWN PAGE IN HIS DECKS — a completed table, a worked example,
+  // his explanation — which no concept claimed, so nothing showed them. Approved by Mike
+  // 2026-10-02 (item 15.18), after "where is page 2 of the teaching". Each is a further
+  // sheet of the concept whose drawing above is its sheet 1.
+  ...[
+    ['progression-of-economic-value', 2], ['the-8-profit-levers', 2],
+    ['a-i-d-c-r-a-advertisement-framework', 2],
+    ['digital-funnel-storyboard', 2], ['digital-funnel-storyboard', 3],
+    ['outbound-messaging-plan', 2], ['outbound-messaging-plan', 3],
+    ['inbound-landing-page-review', 2], ['inbound-landing-page-review', 3],
+    ['inbound-landing-page-review', 4], ['inbound-landing-page-review', 5],
+    ['sales-process-review', 2], ['sales-process-review', 3], ['sales-process-review', 4],
+    ['sales-process-review', 5], ['sales-process-review', 6]
+  ].map(([conceptId, sheet], i) => ({ file: 'strategy-concept-second-pages.html', svg: i + 1, sheet, conceptId }))
 ]
 
 /**

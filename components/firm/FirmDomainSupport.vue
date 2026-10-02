@@ -333,6 +333,7 @@ section.firm-domain-support
 <script>
 import { autogrow, resizePersist } from '~/utils/textareaDirectives'
 import MethodGuidePanel from '~/components/firm/MethodGuidePanel.vue'
+import { formatDate as fmtDate, DATE_TIME } from '~/utils/dateLocale'
 
 /** Where this browser remembers whether the domain list is hidden. */
 const RAIL_STATE_KEY = 'ds:railHidden'
@@ -884,8 +885,7 @@ export default {
 
     formatDate (value) {
       if (!value) { return '' }
-      const d = new Date(value)
-      return isNaN(d.getTime()) ? String(value) : d.toLocaleString()
+      return fmtDate(value, this.$i18n.locale, DATE_TIME) || String(value)
     },
 
     /** Which section array currently holds an item id, or null. */

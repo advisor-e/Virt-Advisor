@@ -94,6 +94,7 @@
 
 <script>
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
 
 const DOMAIN_LABELS = {
   conflict: 'Conflict & Dispute',
@@ -264,8 +265,7 @@ export default {
 
     formatDate (value) {
       if (!value) { return this.$t('mentorReview.recently') }
-      const d = new Date(value)
-      return isNaN(d.getTime()) ? this.$t('mentorReview.recently') : d.toLocaleDateString()
+      return fmtDate(value, this.$i18n.locale) || this.$t('mentorReview.recently')
     }
   }
 }

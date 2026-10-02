@@ -323,6 +323,7 @@
 import MarkdownIt from 'markdown-it'
 import DOMPurify from 'isomorphic-dompurify'
 import moderationMessage from '~/mixins/moderationMessage'
+import { formatDate as fmtDate, DATE_TIME } from '~/utils/dateLocale'
 
 /**
  * SalesBlog — the advisor's blog-writing screen (item 17 stage 5).
@@ -513,8 +514,7 @@ export default {
     /** A stored timestamp as the reader's own local date and time. */
     whenText (value) {
       if (!value) { return '' }
-      const d = new Date(value)
-      return isNaN(d.getTime()) ? String(value) : d.toLocaleString()
+      return fmtDate(value, this.$i18n.locale, DATE_TIME) || String(value)
     },
 
     /**

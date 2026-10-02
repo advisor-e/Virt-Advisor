@@ -115,7 +115,7 @@
           td {{ businessMaxLoan === null ? '—' : money(businessMaxLoan) }}
         tr
           td {{ $t('report.loanEstimator.result.business.rate') }}
-          td {{ num(data.business.loanRate * 100, 2) }}%
+          td {{ pct(data.business.loanRate, 2) }}
         tr
           td {{ $t('report.loanEstimator.result.business.term') }}
           td {{ data.business.loanTermYears }}
@@ -150,7 +150,7 @@
               client-changed-badge(v-if="isClientChanged('repayment.deposit')" :label="$t('clientReports.saved.badge')")
           slider-field(
             :label="$t('report.loanEstimator.result.calc.rate')"
-            :display="num(calc.ratePct, 2) + '%'"
+            :display="pct100(calc.ratePct, 2)"
             :value="calc.ratePct"
             :min="0.5" :max="15" :step="0.05"
             @input="v => { calc.ratePct = v }"
@@ -221,6 +221,7 @@ import SliderField from '~/components/base/SliderField'
 import StaleBanner from '~/components/base/StaleBanner'
 import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
 /**
@@ -260,7 +261,7 @@ export default {
 
   components: { HeroStrip, HeroFigure, SliderField, StaleBanner, ClientChangedBadge },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute],
 
   props: {
     /** Step 1's confirmed security-position payload (model-shaped). */

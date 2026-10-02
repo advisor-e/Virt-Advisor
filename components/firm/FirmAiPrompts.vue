@@ -146,7 +146,7 @@
             tr(v-for="h in history" :key="h.id")
               td {{ $t('firmAiPrompts.historyVersion', { n: h.version }) }}
               td.is-size-7.has-text-grey {{ h.saved_by }}
-              td.is-size-7.has-text-grey {{ h.created_at }}
+              td.is-size-7.has-text-grey {{ stampText(h.created_at) }}
               td.has-text-right
                 b-button(size="is-small" type="is-light" @click="restore(h.id)")
                   | {{ $t('firmAiPrompts.historyRestore') }}
@@ -155,6 +155,7 @@
 <script>
 import FirmPromptCheck from '~/components/firm/FirmPromptCheck.vue'
 import FirmPromptMaterial from '~/components/firm/FirmPromptMaterial.vue'
+import { formatStamp } from '~/utils/dateLocale'
 
 /**
  * FirmAiPrompts — the tab a manager opens to read the instructions the AI is given, and
@@ -263,6 +264,9 @@ export default {
   },
 
   methods: {
+    /** A stored stamp in the reader's language, never the raw database value (item 13.8). */
+    stampText (v) { return formatStamp(v, this.$i18n.locale) },
+
     /** Read the prompts, this level's own settings, and the protection panel. */
     async load () {
       this.loading = true

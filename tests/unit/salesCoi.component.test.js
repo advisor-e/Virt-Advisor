@@ -208,7 +208,7 @@ describe('money is the firm\'s, never a hardcoded currency', () => {
 
   test('the component takes its formatter from currencyMixin', () => {
     const src = componentSource()
-    expect(src).toMatch(/mixins:\s*\[currencyMixin\]/)
+    expect(src).toMatch(/mixins:\s*\[[^\]]*\bcurrencyMixin\b/)
   })
 })
 

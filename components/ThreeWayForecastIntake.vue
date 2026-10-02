@@ -385,7 +385,7 @@
                       size="sm"
                       spaced)
                 td.muted(colspan="2")
-                  | {{ sh.opening.value < 0 ? $t('report.threeWayForecast.confirm.overdrawn', { rate: pct(form.shareholderRate) }) : $t('report.threeWayForecast.confirm.inCredit') }}
+                  | {{ sh.opening.value < 0 ? $t('report.threeWayForecast.confirm.overdrawn', { rate: pct100(form.shareholderRate) }) : $t('report.threeWayForecast.confirm.inCredit') }}
         //- Rows as they are needed, never a fixed number (Mike, 2026-09-05).
         .tw-actions.add-funding
           b-button(
@@ -505,7 +505,7 @@
                   td.rowhead
                     | {{ $t('report.threeWayForecast.assume.quickFire.grossMargin') }}
                     small {{ $t('report.threeWayForecast.assume.quickFire.marginItself') }}
-                  td.base {{ pct(quickFireBaseMargin) }}
+                  td.base {{ pct100(quickFireBaseMargin) }}
                   td.yr(v-for="(y, i) in quickFireVisibleYears" :key="'m' + i")
                     b-input(v-model.number="y.grossMargin" type="number" step="any" size="is-small")
                 tr
@@ -1012,7 +1012,7 @@
                         span {{ $t(bucketLabel) }}
                       b-input(v-model.number="form.overseas.balancePayment[i]" type="number" step="any" size="is-small")
                     .tw-foot(:class="balanceTotal === 100 ? 'is-good' : 'is-crit'")
-                      | {{ balanceTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct(balanceTotal) }) }}
+                      | {{ balanceTotal === 100 ? $t('report.threeWayForecast.assume.addsUp') : $t('report.threeWayForecast.assume.doesNotAddUp', { total: pct100(balanceTotal) }) }}
                   div
                     .termhead {{ $t('report.threeWayForecast.assume.overseas.gettingHereHeading') }}
                     .field
@@ -1432,6 +1432,7 @@ import GlossaryTerm from '~/components/base/GlossaryTerm.vue'
 import VolatilityDial from '~/components/base/VolatilityDial.vue'
 import ForecastCurrencies from '~/components/shared/ForecastCurrencies.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import moderationMessage from '~/mixins/moderationMessage'
 // The quick-fire option's arithmetic (item 4.71). Its own module because slice 2's
 // three-year screen needs years 2 and 3, and two copies of a compounding rule would drift
@@ -1628,7 +1629,7 @@ export default {
 
   components: { ProvenanceBadge, VolatilityDial, GlossaryTerm, ForecastCurrencies },
 
-  mixins: [currencyMixin, moderationMessage],
+  mixins: [currencyMixin, reportFormatMixin, moderationMessage],
 
   props: {
     /** Verified login pass (JWT); the intake route is firmAuth-guarded. */
@@ -1846,7 +1847,7 @@ export default {
      * @returns {string}
      */
     quickFireMarkupLine () {
-      const shown = this.quickFireYearsOut.map(y => this.pct(y.markup)).join(' · ')
+      const shown = this.quickFireYearsOut.map(y => this.pct100(y.markup)).join(' · ')
       return this.$t('report.threeWayForecast.assume.quickFire.equalsMarkup', { list: shown })
     },
 
@@ -2095,13 +2096,13 @@ export default {
     countryTaxChanges () {
       const t = this.countryTax
       const out = []
-      const pct = v => `${Math.round(v * 1000) / 10}%`
+      const pct = v => this.pctUpTo(v)
 
       if (t.companyTax && Math.abs(Number(this.form.taxRate) / 100 - t.companyTax.rate) > 1e-9) {
-        out.push(`${this.$t('report.threeWayForecast.assume.taxRate')} ${this.form.taxRate}% → ${pct(t.companyTax.rate)}`)
+        out.push(`${this.$t('report.threeWayForecast.assume.taxRate')} ${this.pctUpTo(Number(this.form.taxRate) / 100, 2)} → ${pct(t.companyTax.rate)}`)
       }
       if (t.gst && Math.abs(Number(this.form.gstRate) / 100 - t.gst.rate) > 1e-9) {
-        out.push(`${this.$t('report.threeWayForecast.assume.gstRate')} ${this.form.gstRate}% → ${pct(t.gst.rate)}`)
+        out.push(`${this.$t('report.threeWayForecast.assume.gstRate')} ${this.pctUpTo(Number(this.form.gstRate) / 100, 2)} → ${pct(t.gst.rate)}`)
       }
       if (t.filing && t.filing.months !== this.form.gstFilingMonths) {
         out.push(`${this.$t('report.threeWayForecast.assume.gstPeriod')} ${this.form.gstPeriod} → ${t.filing.label}`)
@@ -2428,7 +2429,7 @@ export default {
     overseasCollectionMessage () {
       const total = this.overseasCollectionTotal
       return total > 100
-        ? this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(total) })
+        ? this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct100(total) })
         : this.profileMessage(total, 'debtor')
     },
 
@@ -2504,7 +2505,7 @@ export default {
       if (!p) { return '' }
       return this.$t('report.threeWayForecast.assume.overseas.patternSentence', {
         name: p.name,
-        bands: p.curve.map(v => Math.round(v * 100) + '%').join(' / ')
+        bands: p.curve.map(v => this.pct(v, 0)).join(' / ')
       })
     },
 
@@ -2569,7 +2570,7 @@ export default {
       if (!rows.length) { return '' }
       const total = rows.reduce((a, r) => a + r.amount, 0)
       return this.$t('report.threeWayForecast.assume.overseas.earlyDepositBody', {
-        amount: Math.round(total).toLocaleString(),
+        amount: this.num(Math.round(total)),
         months: rows.map(r => r.month).join(', ')
       })
     },
@@ -2585,7 +2586,7 @@ export default {
       return this.form.assets.map((asset, i) => ({
         index: i,
         label: this.$t('report.threeWayForecast.confirm.assets.' + asset.key) +
-          ' — ' + this.pct(Number(asset.rate) || 0)
+          ' — ' + this.pct100(Number(asset.rate) || 0)
       }))
     },
 
@@ -3232,9 +3233,6 @@ export default {
       return 'assume'
     },
 
-    /** A whole-number percentage for display. @param {number} v */
-    pct (v) { return this.num(v, 1) + '%' },
-
     /**
      * Did month `i` come from the file? (Mike's ruling, 2026-09-07.)
      * @param {number} i the month's position, 0-11.
@@ -3601,10 +3599,10 @@ export default {
      */
     profileMessage (total, which) {
       if (total === 100) { return this.$t('report.threeWayForecast.assume.addsUp') }
-      const gap = this.pct(Math.abs(100 - total))
+      const gap = this.pct100(Math.abs(100 - total))
       const suffix = total < 100 ? 'Short' : 'Over'
       return this.$t('report.threeWayForecast.assume.' + which + suffix, {
-        total: this.pct(total), gap
+        total: this.pct100(total), gap
       })
     },
 
@@ -3884,7 +3882,7 @@ export default {
       if (m.unit === 'days') {
         return this.$t('report.threeWayForecast.assume.trend.daysValue', { n: Math.round(v) })
       }
-      if (m.unit === 'points') { return v.toFixed(1) + '%' }
+      if (m.unit === 'points') { return this.pct100(v, 1) }
       return this.money(v)
     },
 
@@ -3903,9 +3901,9 @@ export default {
         return sign + this.$t('report.threeWayForecast.assume.trend.daysValue', { n: Math.round(size) })
       }
       if (m.unit === 'points') {
-        return sign + this.$t('report.threeWayForecast.assume.trend.pointsValue', { n: size.toFixed(1) })
+        return sign + this.$t('report.threeWayForecast.assume.trend.pointsValue', { n: this.num(size, 1) })
       }
-      return sign + size.toFixed(1) + '%'
+      return sign + this.pct100(size, 1)
     },
 
     /**
@@ -4392,7 +4390,7 @@ export default {
         : this.$tc('report.threeWayForecast.assume.capital.bookValueWorking', r.monthsCharged, {
           opening: this.money(r.opening),
           months: r.monthsCharged,
-          rate: this.pct(ratePct),
+          rate: this.pct100(ratePct),
           category: categoryLabel
         })
       return { bookValue: r.bookValue, working }
@@ -4720,7 +4718,7 @@ export default {
       if (this.form.overseas.enabled && this.balanceTotal !== 100) {
         this.buildError = this.$t('report.threeWayForecast.assume.blockedBy', {
           block: this.$t('report.threeWayForecast.assume.overseas.balanceHeading'),
-          reason: this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct(this.balanceTotal) })
+          reason: this.$t('report.threeWayForecast.assume.doesNotAddUp', { total: this.pct100(this.balanceTotal) })
         })
         return
       }

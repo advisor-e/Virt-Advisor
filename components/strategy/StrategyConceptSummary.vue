@@ -40,6 +40,8 @@
 </template>
 
 <script>
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+
 /**
  * StrategyConceptSummary — one concept's summary, for the advisor and client to edit and approve.
  *
@@ -100,10 +102,9 @@ export default {
       return this.segment.summaryState === 'failed' && !this.retrying && !this.sections.length
     },
 
-    /** "9:48 am", in the reader's own format. */
+    /** "09:48" in English - the reader's language on a 24-hour clock (item 13.8). */
     approvedTime () {
-      const at = new Date(this.approvedAt)
-      return isNaN(at.getTime()) ? '' : at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      return fmtDate(this.approvedAt, this.$i18n.locale, { hour: '2-digit', minute: '2-digit', hour12: false })
     }
   },
 

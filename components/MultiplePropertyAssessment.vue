@@ -579,6 +579,7 @@ import StaleBanner from '~/components/base/StaleBanner'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import savedReport from '~/mixins/savedReport'
 
@@ -748,7 +749,7 @@ export default {
 
   components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice, ClientChangedBadge },
 
-  mixins: [currencyMixin, reportRecompute, savedReport],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -830,7 +831,7 @@ export default {
 
     /** The phasing series as one readable line for the closed disclosure. */
     phasingSummary () {
-      return this.taxRules.phasingPct.map(v => (Number(v) || 0) + '%').join(' / ')
+      return this.taxRules.phasingPct.map(v => this.pctUpTo((Number(v) || 0) / 100, 2)).join(' / ')
     },
 
     /**
@@ -1506,19 +1507,6 @@ export default {
     /** Apply a successful recompute — consumed by the reportRecompute mixin. */
     applyResult (data) {
       this.data = data
-    },
-
-    /**
-     * A decimal rate as a percentage string, e.g. 0.08625 → "8.625%". The same helper
-     * Cost of Capital carries; `num` (currencyMixin) does the locale formatting.
-     * @param {number} v
-     * @param {number} [dp=1]
-     * @returns {string}
-     */
-    pct (v, dp) {
-      const n = Number(v)
-      const places = (dp === undefined || dp === null) ? 1 : dp
-      return this.num((Number.isFinite(n) ? n : 0) * 100, places) + '%'
     },
 
     /**

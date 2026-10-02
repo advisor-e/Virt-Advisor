@@ -168,6 +168,52 @@ describe('Use theirs and Keep mine', () => {
   })
 })
 
+describe('English spelling — each firm\'s choice, New Zealand from the mentor (item 13.7)', () => {
+  const setMentor = (value) => {
+    db[PLATFORM_SCOPE + '::' + wc.CONFIG_KEY] = { statements: {}, style: {}, spelling: value, spellingBaseline: 'nz' }
+  }
+
+  test('starts as New Zealand, and a value off the two is refused with nothing saved', async () => {
+    expect((await call(routes.getForManager))._body.spelling).toMatchObject({ value: 'nz', source: 'inherited', changedAbove: false })
+    expect(codeOf(await call(routes.editSpelling, { value: 'uk' }))).toBe('INVALID_VALUE')
+    expect(db[FIRM + '::' + wc.CONFIG_KEY]).toBeUndefined()
+  })
+
+  test('🔴 a level\'s choice passes down: the firm follows the mentor\'s US until it chooses', async () => {
+    setMentor('us')
+    expect((await call(routes.getForManager))._body.spelling).toMatchObject({ value: 'us', source: 'inherited' })
+    expect((await wc.loadResolvedContent(FIRM, wc.readScopeConfig)).spelling).toBe('us')
+  })
+
+  test('🔴 a firm that chose New Zealand keeps it when the level above moves to US — offered, never applied', async () => {
+    // The approved drawing's case. With two values, a choice dropped for matching the level above
+    // would leave this firm silently following its group to US.
+    await call(routes.editSpelling, { value: 'nz' })
+    expect(stored(FIRM)).toMatchObject({ spelling: 'nz', spellingBaseline: 'nz' })
+    setMentor('us')
+    expect((await call(routes.getForManager))._body.spelling).toMatchObject({ value: 'nz', source: 'edited-here', changedAbove: true, above: 'us' })
+    expect((await wc.loadResolvedContent(FIRM, wc.readScopeConfig)).spelling).toBe('nz')
+
+    const kept = await call(routes.keepMineSpelling)
+    expect(kept._body.spelling).toMatchObject({ value: 'nz', changedAbove: false })
+    expect(stored(FIRM)).toMatchObject({ spelling: 'nz', spellingBaseline: 'us' })
+
+    const theirs = await call(routes.useInheritedSpelling)
+    expect(theirs._body.spelling).toMatchObject({ value: 'us', source: 'inherited' })
+  })
+
+  test('a level above that moves to match the firm\'s choice offers nothing', async () => {
+    await call(routes.editSpelling, { value: 'us' })
+    setMentor('us')
+    expect((await call(routes.getForManager))._body.spelling).toMatchObject({ value: 'us', source: 'edited-here', changedAbove: false })
+  })
+
+  test('Use theirs and Keep mine with no choice made are not found', async () => {
+    expect(codeOf(await call(routes.useInheritedSpelling))).toBe('NOT_FOUND')
+    expect(codeOf(await call(routes.keepMineSpelling))).toBe('NOT_FOUND')
+  })
+})
+
 describe('ids and history', () => {
   test('a removed row’s id is never handed out again, even after a restore', async () => {
     await call(routes.addRow, { statement: 'Values', part: 'questions', question: 'Which one would you keep if it cost you?' })

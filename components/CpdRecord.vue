@@ -106,6 +106,7 @@ section.cpd-record
 
 <script>
 import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
 
 /**
  * The three claimable activities, as i18n key suffixes under `cpd.activityName.*`.
@@ -488,9 +489,7 @@ export default {
      */
     formatDate (dt) {
       if (!dt) { return '' }
-      const d = new Date(dt)
-      if (!Number.isFinite(d.getTime())) { return '' }
-      return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+      return fmtDate(dt, this.$i18n.locale)
     },
 
     /**

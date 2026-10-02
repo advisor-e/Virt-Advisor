@@ -6,14 +6,14 @@
   .hero.is-fullheight-with-navbar(v-else-if="!authorised")
     .hero-body
       .container.has-text-centered
-        p.title.is-4(v-if="notConnected") This level is not connected yet.
-        p.subtitle.is-6(v-if="notConnected") Your Advisor-e administrator will enable it.
+        p.title.is-4(v-if="notConnected") {{ $t('hubAccess.notConnected') }}
+        p.subtitle.is-6(v-if="notConnected") {{ $t('hubAccess.willEnable') }}
         template(v-else)
-          p.title.is-4 Access Restricted
+          p.title.is-4 {{ $t('hubAccess.restricted') }}
           p.subtitle.is-6
-            | This hub is for global group managers.
+            | {{ $t('hubAccess.globalOnly') }}
             br
-            | Please contact your account administrator.
+            | {{ $t('hubAccess.contactAdministrator') }}
 
   firm-manager-hub(
     v-else

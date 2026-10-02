@@ -174,9 +174,9 @@
                       @click="removeTask(i)") ×
                 tr.oe-total
                   td {{ $t('report.ownerExpectations.owners.totals') }}
-                  td.r.oe-num(:class="{ 'is-crit': !isWhole(openResult.dutyTotals.now) }") {{ pct(openResult.dutyTotals.now) }}
+                  td.r.oe-num(:class="{ 'is-crit': !isWhole(openResult.dutyTotals.now) }") {{ share(openResult.dutyTotals.now) }}
                   td.r.oe-num {{ num(openResult.dutyTotals.nowHours, 2) }}
-                  td.r.oe-num(:class="{ 'is-crit': !isWhole(openResult.dutyTotals.focus) }") {{ pct(openResult.dutyTotals.focus) }}
+                  td.r.oe-num(:class="{ 'is-crit': !isWhole(openResult.dutyTotals.focus) }") {{ share(openResult.dutyTotals.focus) }}
                   td.r.oe-num {{ num(openResult.dutyTotals.focusHours, 2) }}
                   td
           b-button.oe-add(
@@ -247,7 +247,7 @@
                       v-if="row.input"
                       v-model.number="form.development[row.key][i]"
                       type="number" step="any" size="is-small")
-                    span.oe-num(v-else-if="row.pct") {{ pct(s[row.key]) }}
+                    span.oe-num(v-else-if="row.pct") {{ share(s[row.key]) }}
                     span.oe-num(v-else) {{ money(s[row.key]) }}
           p.oe-note {{ $t('report.ownerExpectations.stages.footnote') }}
 
@@ -293,6 +293,7 @@ import HeroFigure from '~/components/base/HeroFigure'
 import StaleBanner from '~/components/base/StaleBanner'
 import SampleNotice from '~/components/base/SampleNotice.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import savedReport from '~/mixins/savedReport'
 import SHIPPED from '~/data/owner-focus-tasks.json'
@@ -377,7 +378,7 @@ export default {
 
   components: { ReportHeader, HeroStrip, HeroFigure, StaleBanner, SampleNotice },
 
-  mixins: [currencyMixin, reportRecompute, savedReport],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute, savedReport],
 
   props: {
     /** Hosted inside a Strategy Planner card rather than on its own page (item 15.23). */
@@ -769,9 +770,9 @@ export default {
     },
 
     /** A decimal as a percentage, for display. Null is a figure that has no meaning — a dash. */
-    pct (value) {
+    share (value) {
       if (value === null) { return '—' }
-      return (Number(value || 0) * 100).toFixed(1) + '%'
+      return this.pct(Number(value || 0))
     },
 
     /** Does a duty split add up to the whole week? Tolerates floating-point noise. */

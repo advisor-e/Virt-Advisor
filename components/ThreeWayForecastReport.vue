@@ -67,7 +67,7 @@
         :tone="headline.afterTax < 0 ? 'crit' : 'default'")
       hero-figure(
         :label="$t('report.threeWayForecast.report.grossMargin')"
-        :value="pct(headline.grossMarginPct)"
+        :value="pct100(headline.grossMarginPct, 1)"
         :sub="grossMarginSub")
 
     //- FRS-42 para 59: a forecast says that actual results are likely to differ from it.
@@ -142,7 +142,7 @@
         //- Each lever carries the `client` badge when the client moved it (§5, D4).
         slider-field(
           :label="$t('report.threeWayForecast.report.salesAll')"
-          :display="signedPct(f.salesShift)"
+          :display="signedPct100(f.salesShift, 0)"
           :value="f.salesShift"
           :min="-50" :max="50" :step="1"
           @input="v => setField('salesShift', v)"
@@ -153,7 +153,7 @@
               :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.assume.markup')"
-          :display="pct(f.markup)"
+          :display="pct100(f.markup, 1)"
           :value="f.markup"
           :min="0" :max="200" :step="1"
           @input="v => setField('markup', v)"
@@ -164,7 +164,7 @@
               :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.assume.monthAfter')"
-          :display="pct(f.debtorMonthAfter)"
+          :display="pct100(f.debtorMonthAfter, 1)"
           :value="f.debtorMonthAfter"
           :min="0" :max="100" :step="1"
           @input="v => setField('debtorMonthAfter', v)"
@@ -175,7 +175,7 @@
               :label="$t('clientReports.saved.badge')")
         slider-field(
           :label="$t('report.threeWayForecast.report.overheadsAll')"
-          :display="signedPct(f.overheadShift)"
+          :display="signedPct100(f.overheadShift, 0)"
           :value="f.overheadShift"
           :min="-50" :max="50" :step="1"
           @input="v => setField('overheadShift', v)"
@@ -443,6 +443,7 @@ import { intlLocaleFor } from '~/utils/dateLocale'
 import SliderField from '~/components/base/SliderField.vue'
 import ClientChangedBadge from '~/components/base/ClientChangedBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 
 /** The month a serial date falls in, as a short label the header row can carry. */
@@ -453,7 +454,7 @@ export default {
 
   components: { HeroStrip, HeroFigure, StaleBanner, SliderField, ClientChangedBadge, ThreeWayForecastNotes, ThreeWayForecastCover, ThreeWayForecastGlance },
 
-  mixins: [currencyMixin, reportRecompute],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute],
 
   props: {
     /** The confirmed inputs from the intake, or null to compute on the sample. */
@@ -1008,7 +1009,7 @@ export default {
       }
       // One string, so a translation sees the whole sentence (13.6's rule).
       lines.push(this.$t('report.threeWayForecast.report.coachMarginLine', {
-        amount: this.money(h.grossSurplus), pct: this.pct(h.grossMarginPct), overheads: this.money(overheadsPerMonth)
+        amount: this.money(h.grossSurplus), pct: this.pct100(h.grossMarginPct, 1), overheads: this.money(overheadsPerMonth)
       }))
       if (this.stockOutMonths.length) {
         lines.push(this.$t('report.threeWayForecast.report.stockOutBody'))
@@ -1144,10 +1145,8 @@ export default {
       return row.key === 'close' ? v[v.length - 1] : v.reduce((a, x) => a + (Number(x) || 0), 0)
     },
 
-    /** A whole-number percentage, in the reader's language. */
-    pct (v) { return this.num(v, 1) + '%' },
-    /** The same, with an explicit sign — a lever reads as a change, not a level. */
-    signedPct (v) { return (v > 0 ? '+' : '') + this.num(v, 0) + '%' },
+    // pct100() / signedPct100() come from reportFormatMixin: the levers are already ×100,
+    // and the reader's language writes the "%" as well as the digits.
 
     /** One lever moved. `reportRecompute` owns the debounce and the race guard. */
     setField (key, value) {

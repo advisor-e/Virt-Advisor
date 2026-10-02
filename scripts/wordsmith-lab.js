@@ -12,15 +12,17 @@
 //   1 sort   quotes kept and thrown away; a statement nobody spoke about that got quotes anyway
 //   2 gaps   the questions raised for the room
 //   3 style  the settings each purpose/style became; two styles that drafted near-identical text
-//   4-5      each draft's code checks, first-try passes, suspect words, spoken instructions obeyed
+//   4-5      each draft's code checks, first-try passes, suspect words, spoken instructions obeyed,
+//            and a draft written in another language than the client spoke (item 13.7)
 //
 // RUN (structure only, no model):  node scripts/wordsmith-lab.js
 // RUN (real drafts):               node -r dotenv/config scripts/wordsmith-lab.js --ai
 // ONE CASE:                        node -r dotenv/config scripts/wordsmith-lab.js --ai invented-cafe
 //   On Node 14 add NODE_EXTRA_CA_CERTS as the other labs do (design/HANDOFF.md → Local Setup).
 //
-// Only an --ai run writes design/WORDSMITH-LAB-REPORT.md: a structure run must never replace
-// measured drafts with nothing, which is the scenario lab's recorded mistake.
+// Only an --ai run in which every run succeeded writes design/WORDSMITH-LAB-REPORT.md: a structure
+// run or a refused one must never replace measured drafts with nothing, which is the scenario
+// lab's recorded mistake.
 // Exits 1 on a structural fault or a failed run.
 // ─────────────────────────────────────────────────────────────────────────────────────────
 
@@ -62,6 +64,27 @@ function structuralFaults (statements) {
   return faults
 }
 
+/**
+ * The common little words of the languages the cases are written in. A bench reading only, never
+ * the engine's: a draft is in whichever language more of these belong to.
+ */
+const FUNCTION_WORDS = {
+  en: ['the', 'and', 'we', 'our', 'is', 'are', 'to', 'of', 'in', 'for', 'that', 'with'],
+  de: ['der', 'die', 'das', 'und', 'wir', 'unser', 'unsere', 'ist', 'sind', 'zu', 'für', 'mit', 'nicht', 'ein', 'eine']
+}
+
+/** The case language a draft reads as, or '' when neither list is met. */
+function writtenIn (text) {
+  const words = String(text || '').toLowerCase().split(/[^a-zäöüß]+/)
+  let best = ''
+  let most = 0
+  Object.keys(FUNCTION_WORDS).forEach((lang) => {
+    const n = words.filter(w => FUNCTION_WORDS[lang].includes(w)).length
+    if (n > most) { best = lang; most = n }
+  })
+  return best
+}
+
 /** Share of words two drafts have in common, 0..1. */
 function overlap (a, b) {
   const words = t => new Set(normalise(t).split(' ').filter(w => w.length > 3))
@@ -83,6 +106,8 @@ async function runCase (c) {
         const text = normalise(s.draft.text)
         ;(c.suspectWords || []).forEach((w) => { if (text.includes(normalise(w))) { s.checks.issues.push({ code: 'suspect-word', detail: w }) } })
         ;(c.mustNotSay || []).forEach((w) => { if (text.includes(normalise(w))) { s.checks.issues.push({ code: 'obeyed-speech', detail: w }) } })
+        const lang = writtenIn(s.draft.text)
+        if (lang !== (c.language || 'en')) { s.checks.issues.push({ code: 'wrong-language', detail: (lang || 'unknown') + ', client spoke ' + (c.language || 'en') }) }
         s.checks.passed = s.checks.issues.length === 0
       })
       runs.push({ style, out })
@@ -203,15 +228,21 @@ async function main () {
   const results = []
   for (const c of cases) { results.push({ c, runs: await runCase(c) }) }
   const m = tally(results)
-  fs.writeFileSync(REPORT_PATH, report(results, m))
   console.log('Drafts ' + m.drafts + ' · passing ' + m.passed + ' · first try ' + m.firstTry + ' · too alike ' + m.tooAlike +
     ' · lowest coverage ' + Math.round(Math.min.apply(null, m.coverage.concat([1])) * 100) + '% · failed runs ' + m.failedRuns)
+  // A run the API refused measured nothing; written down, it would replace a measured report
+  // with a partial one (2026-10-02: an exhausted credit balance emptied the report this way).
+  if (m.failedRuns) {
+    console.error('Report NOT written: ' + m.failedRuns + ' run(s) failed. First failure: ' +
+      results.map(r => r.runs.find(x => x.error)).filter(Boolean).map(x => x.error.replace(/\s+/g, ' ').slice(0, 240))[0])
+    process.exit(1)
+  }
+  fs.writeFileSync(REPORT_PATH, report(results, m))
   console.log('Report: ' + path.relative(process.cwd(), REPORT_PATH))
-  if (m.failedRuns) { process.exit(1) }
 }
 
 if (require.main === module) {
   main().catch((err) => { console.error(err); process.exit(1) })
 }
 
-module.exports = { overlap, coverage, tally, structuralFaults }
+module.exports = { overlap, coverage, tally, structuralFaults, writtenIn }

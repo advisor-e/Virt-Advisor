@@ -55,7 +55,7 @@ section.firm-team-progress
               | {{ $t('firmTeamProgress.notLevelled', { n: row.unclassifiedSessions }) }}
 
         b-table-column(v-slot="{ row }" :label="$t('firmTeamProgress.colAvgQuiz')" width="110" numeric)
-          | {{ row.avgQuizScore === null ? '—' : row.avgQuizScore + '%' }}
+          | {{ row.avgQuizScore === null ? '—' : pctUpTo(row.avgQuizScore / 100) }}
 
         b-table-column(v-slot="{ row }" :label="$t('firmTeamProgress.colLastActive')" width="130")
           | {{ row.lastActive ? formatDate(row.lastActive) : '—' }}
@@ -96,7 +96,7 @@ section.firm-team-progress
           .tier-cell
             span.tier-count(:class="'tier-' + tier.key") {{ tierSessions(row, tier.key) }}
             span.tier-score.has-text-grey.is-size-7(v-if="tierScore(row, tier.key) !== null")
-              | {{ tierScore(row, tier.key) }}%
+              | {{ pctUpTo(tierScore(row, tier.key) / 100) }}
 
         b-table-column(
           v-slot="{ row }"
@@ -142,6 +142,8 @@ section.firm-team-progress
 import FirmAdvisorQuestions from '~/components/firm/FirmAdvisorQuestions.vue'
 import TierNotConnected from '~/components/base/TierNotConnected.vue'
 import { fetchWithTimeout } from '~/utils/fetchWithTimeout'
+import { formatDate as fmtDate } from '~/utils/dateLocale'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 
 /** The three capability levels, in the order a manager reads them. */
 const TIER_DEFS = [
@@ -157,6 +159,8 @@ export default {
   name: 'FirmTeamProgress',
 
   components: { FirmAdvisorQuestions, TierNotConnected },
+
+  mixins: [reportFormatMixin],
 
   props: {
     /** Bearer token for the firm-manager API (the server re-checks every call). */
@@ -277,14 +281,15 @@ export default {
     },
 
     /**
-     * Day-month-year, matching the advisor's own progress screen. Deliberately not
+     * Day-month-year in the reader's language, matching the advisor's own progress
+     * screen. Deliberately not
      * the browser's short numeric default: 7/8 is a different day in two countries.
      *
      * @param {string|Date} dt - a completion timestamp.
      * @returns {string} e.g. "29 Jul 2026".
      */
     formatDate (dt) {
-      return new Date(dt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+      return fmtDate(dt, this.$i18n.locale)
     }
   }
 }

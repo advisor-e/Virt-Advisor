@@ -450,6 +450,24 @@ const MODEL_FORM = 'report-model'
  * figures stay in the client's own saved report and are worked out afresh wherever they show.
  */
 
+/**
+ * Is this cell his template's printed instruction on its first ruled line?
+ *
+ * 🔴 IT IS A LINE TO WRITE ON, WITH HIS INSTRUCTION PRINTED IN IT — Mike's ruling,
+ * 2026-10-02 (item 15.18). Blue Ocean Fronts and Progression of Economic Value print
+ * "1, Enter your thoughts here..." on line 1 of a column. Read as words, it gave that line
+ * no box and became the LABEL of the box beside it — Progression of Economic Value offered
+ * 20 boxes where he rules 21 and drew its top row one column out of place. It is a box,
+ * and his words are the grey text in it until the advisor types. This replaces the
+ * 2026-09-19 reading that showed it as "your example" and counted Blue Ocean at 15.
+ *
+ * @param {{text: string=, blank: boolean=}} cell
+ * @returns {boolean}
+ */
+function isInstructionLine (cell) {
+  return Boolean(cell && !cell.blank && cell.text && /^\s*\d+\s*,?\s*enter your thoughts here/i.test(cell.text))
+}
+
 function fieldsOfTable (table, tableIndex, form) {
   if (form === NAMED_FIELD_STACK) {
     return namedFieldStackFields(table, tableIndex)
@@ -526,8 +544,25 @@ function fieldsOfTable (table, tableIndex, form) {
   const promptRow = hasRuledLines && rows.length > 2 &&
     rows[1].cells.length > 0 && rows[1].cells.every(c => c.header && c.text)
 
+  // 🔴 HIS WORKED EXAMPLE ON A RULED TABLE — item 15.18, the drawing Mike approved
+  // 2026-10-02 (design/mockups/strategy-capture-worked-example.html). A row of his words
+  // directly under a heading, with ruled lines beneath, is the example answer for each of
+  // those columns. Insights Summary and Progression of Economic Value both lost it: every
+  // cell carries words, so none was a box, and nothing else kept it. It is shown above the
+  // column's lines, "shown, never typed into" (the banded-grid rule of 2026-09-19), so it
+  // rides on the column's FIRST box as `bandExample` — never a box of its own, which would
+  // change the count the save guard admits.
+  const pendingExample = {}
+
   rows.forEach((row, r) => {
     if (isQuestionSheet && r > 0 && row.cells.every(c => c.blank)) { return }
+    if (hasRuledLines && r > 0 && isLabelRow(rows, r - 1) && !isLabelRow(rows, r) &&
+        // A row his page MARKS as a heading is the question each column asks (the
+        // `promptRow` above) — A.I.D.C.R.A, the Price tables — never an example.
+        row.cells.every(c => c.text && !c.blank && !c.merged && !c.guide && !c.header)) {
+      row.cells.forEach((cell, c) => { pendingExample[c] = cell.text })
+      return
+    }
     if (promptRow && r === 1) {
       row.cells.forEach((cell, c) => { if (!cell.merged) { columnPrompts[c] = cell.text } })
       return
@@ -556,13 +591,14 @@ function fieldsOfTable (table, tableIndex, form) {
 
     // The row's own name, where it has one — a prompt, an aim, an attribute. A label row
     // has already returned above, so this is always a content row.
-    const rowLabel = row.cells[0] && row.cells[0].text && !row.cells[0].blank
+    const rowLabel = row.cells[0] && row.cells[0].text && !row.cells[0].blank &&
+      !isInstructionLine(row.cells[0])
       ? row.cells[0].text
       : ''
 
     row.cells.forEach((cell, c) => {
       const isCapture = hasRuledLines
-        ? cell.blank
+        ? (cell.blank || isInstructionLine(cell))
         : (c > 0)
 
       if (!isCapture) { return }
@@ -580,6 +616,10 @@ function fieldsOfTable (table, tableIndex, form) {
         // deck page's line, which is a line all the same.
         example: cell.guide ? cell.text : ((!cell.blank && cell.text) ? cell.text : '')
       })
+      if (pendingExample[c]) {
+        fields[fields.length - 1].bandExample = pendingExample[c]
+        delete pendingExample[c]
+      }
     })
   })
 
@@ -735,6 +775,7 @@ module.exports = {
   captureForConcept,
   hasCaptureField,
   fieldsOfTable,
+  isInstructionLine,
   NAMED_FIELD_STACK,
   PARALLEL_PROMPT_PAIR,
   SMALL_COMPARISON_GRID,

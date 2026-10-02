@@ -30,6 +30,8 @@
 </template>
 
 <script>
+import { formatDate as fmtDate, DATE_TIME } from '~/utils/dateLocale'
+
 /**
  * MeetingUnfinished — the advisor's recordings that were started and never finished.
  *
@@ -94,8 +96,7 @@ export default {
 
     /** When the recording was started, in the reader's own date format. */
     started (r) {
-      const at = new Date(r.createdAt)
-      return isNaN(at.getTime()) ? '' : at.toLocaleString()
+      return fmtDate(r.createdAt, this.$i18n.locale, DATE_TIME)
     },
 
     /**

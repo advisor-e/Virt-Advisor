@@ -32,8 +32,8 @@
       )
       hero-figure(
         :label="$t('report.workingCapital.hero.factor')"
-        :value="round1(out.cycleFactorMonthly) + '×'"
-        :sub="round0(out.cycleFactorAnnual) + '× ' + $t('report.workingCapital.hero.factorSub')"
+        :value="times(out.cycleFactorMonthly)"
+        :sub="times(out.cycleFactorAnnual, 0) + ' ' + $t('report.workingCapital.hero.factorSub')"
       )
       hero-figure(
         :label="$t('report.workingCapital.hero.revenue')"
@@ -91,7 +91,7 @@
           //- One locale string per sentence, figures as slots (item 13.6).
           i18n.bpr-cycsum(path="report.workingCapital.wheel.sumText" tag="div")
             template(#factor)
-              b {{ round1(out.cycleFactorMonthly) }}×
+              b {{ times(out.cycleFactorMonthly) }}
             template(#days)
               b {{ round0(out.cycleDays) }} {{ $t('report.workingCapital.coach.days') }}
             template(#payable)
@@ -103,7 +103,7 @@
           line(x1="150" y1="40" x2="150" y2="320" stroke="var(--bpr-line)" stroke-width="1.5" stroke-dasharray="4 5")
           rect(x="16" y="150" width="116" height="70" rx="11" fill="var(--bpr-panel-2)" stroke="var(--bpr-line)")
           text(x="74" y="178" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--bpr-ink)") {{ $t('report.workingCapital.wheel.fixedCosts') }}
-          text.num(x="74" y="200" text-anchor="middle" font-size="15" font-weight="600" fill="var(--bpr-ink)") {{ money(inputs.fixedCostsMonthly) }}/mo
+          text.num(x="74" y="200" text-anchor="middle" font-size="15" font-weight="600" fill="var(--bpr-ink)") {{ $t('report.workingCapital.wheel.perMonth', { v: money(inputs.fixedCostsMonthly) }) }}
           text(x="74" y="246" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)") {{ $t('report.workingCapital.wheel.outside1') }}
           text(x="74" y="260" text-anchor="middle" font-size="10.5" fill="var(--bpr-muted)") {{ $t('report.workingCapital.wheel.outside2') }}
           g(fill="none" stroke="#0070c0" stroke-width="6" stroke-linecap="round" marker-end="url(#bprAh)")
@@ -122,15 +122,15 @@
           g
             circle(cx="440" cy="180" r="38" fill="#0070c0")
             text(x="440" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") {{ $t('report.workingCapital.wheel.stock') }}
-            text.num(x="440" y="194" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.92") {{ inputs.daysDeliverable + inputs.daysOnHand }}d
+            text.num(x="440" y="194" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.92") {{ $t('report.workingCapital.wheel.daysShort', { n: inputs.daysDeliverable + inputs.daysOnHand }) }}
           g
             circle(cx="330" cy="290" r="38" fill="#4ca52d")
             text(x="330" y="288" text-anchor="middle" font-size="13" font-weight="600" fill="#fff") {{ $t('report.workingCapital.wheel.sale') }}
-            text.num(x="330" y="304" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.85") {{ round0(out.totalUnits) }} u
+            text.num(x="330" y="304" text-anchor="middle" font-size="10.5" fill="#fff" opacity="0.85") {{ $t('report.workingCapital.wheel.unitsShort', { n: round0(out.totalUnits) }) }}
           g
             circle(cx="220" cy="180" r="38" fill="#ff9900")
             text(x="220" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="#002b64") {{ $t('report.workingCapital.wheel.debtors') }}
-            text.num(x="220" y="194" text-anchor="middle" font-size="10.5" fill="#002b64" opacity="0.85") {{ inputs.daysReceivable }}d
+            text.num(x="220" y="194" text-anchor="middle" font-size="10.5" fill="#002b64" opacity="0.85") {{ $t('report.workingCapital.wheel.daysShort', { n: inputs.daysReceivable }) }}
           circle.bpr-coin(r="7" :style="{ '--spin': spinDur }")
 
       //- COACH
@@ -144,14 +144,14 @@
           template(#days)
             strong {{ round0(out.cycleDays) }} {{ $t('report.workingCapital.coach.days') }}
           template(#factor)
-            strong {{ round1(out.cycleFactorMonthly) }}×
+            strong {{ times(out.cycleFactorMonthly) }}
           template(#outside)
             em {{ $t('report.workingCapital.coach.outside') }}
         i18n.bpr-edu-p(v-if="fasterHint" path="report.workingCapital.coach.fasterText" tag="p")
           template(#days)
             strong {{ fasterHint.days }} {{ $t('report.workingCapital.coach.days') }}
           template(#factor)
-            strong {{ fasterHint.factor }}×
+            strong {{ fasterHint.factor }}
           template(#extra)
             strong {{ fasterHint.extra }}
 
@@ -186,6 +186,7 @@ import HeroFigure from '~/components/base/HeroFigure'
 import SliderField from '~/components/base/SliderField'
 import ProvenanceBadge from '~/components/base/ProvenanceBadge.vue'
 import currencyMixin from '~/mixins/currencyMixin'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import reportRecompute from '~/mixins/reportRecompute'
 import savedReport from '~/mixins/savedReport'
 
@@ -209,7 +210,7 @@ export default {
 
   components: { ReportHeader, StaleBanner, HeroStrip, HeroFigure, SliderField, ProvenanceBadge },
 
-  mixins: [currencyMixin, reportRecompute, savedReport],
+  mixins: [currencyMixin, reportFormatMixin, reportRecompute, savedReport],
 
   data () {
     return {
@@ -313,14 +314,15 @@ fields: [
      * two places. The model owns it; both screens read it.
      *
      * @returns {{days: number, factor: string, extra: string}|null} null while the model
-     *   has not answered, or where the cycle is zero and the what-if means nothing.
+     *   has not answered, or where the cycle is zero and the what-if means nothing. `factor`
+     *   carries its own "×".
      */
     fasterHint () {
       if (!this.out || this.out.cycleDays <= 0 || !this.out.fasterCycle) { return null }
       const f = this.out.fasterCycle
       return {
         days: f.days,
-        factor: (Math.round(f.factor * 10) / 10).toFixed(1),
+        factor: this.times(f.factor),
         extra: this.money(f.extraAnnualRevenue)
       }
     },
@@ -330,7 +332,7 @@ fields: [
     },
     diffPctText () {
       const p = this.out ? this.out.differencePct : 0
-      return (p >= 0 ? '+' : '−') + Math.abs(p * 100).toFixed(1) + '%'
+      return (p >= 0 ? '+' : '−') + this.pct(Math.abs(p))
     }
   },
 
@@ -339,13 +341,13 @@ fields: [
   },
 
   methods: {
-    // money() comes from currencyMixin (firm currency + locale).
+    // money() comes from currencyMixin, pct()/times() from reportFormatMixin — both in the
+    // reader's language. A whole number with no grouping reads the same in every language.
     round0 (n) { return Math.round(n || 0) },
-    round1 (n) { return (Math.round((n || 0) * 10) / 10).toFixed(1) },
     fmtField (f, v) {
       if (f.fmt === 'money') { return this.money(v) }
       if (f.fmt === 'money2') { return this.money2(v) }
-      if (f.fmt === 'pct') { return Math.round(v * 100) + '%' }
+      if (f.fmt === 'pct') { return this.pct(v, 0) }
       return v
     },
     /**

@@ -318,7 +318,8 @@ nothing about who may write the setting moved with the control.
 | Wording setup and merge | `plugins/i18n.js` |
 | Language helper | `mixins/localeMixin.js` |
 | Money formatting | `mixins/currencyMixin.js` |
-| Percentages, multiples, ratios, days — written in the reader's language (item 13.8) | `mixins/reportFormatMixin.js` over `utils/reportFormat.js`; a screen never requires the util directly (`reportFormat.test.js` guards it) |
+| Percentages, multiples, ratios, days, scores and counts — written in the reader's language on every report, hub screen and adviser screen (item 13.8) | `mixins/reportFormatMixin.js` over `utils/reportFormat.js`. `reportFormat.test.js` guards both ways a screen can slip back to English: requiring the util directly, and keeping its own `pct`/`percent` of the same name, which silently beats the mixin's in Vue 2 |
+| Dates — the reader's language, never the browser's. **English is day first with a 24-hour clock ("7 Sept 2026, 14:05")** (Mike, 2026-10-01) | `formatDate` / `formatStamp` in `utils/dateLocale.js`, over `intlLocaleFor`, which maps `en` to `en-GB`. `i18nDateFormats.test.js` fails on a date or number written with no locale, `undefined`, `[]` or a hardcoded `'en-AU'`/`'en-US'`/`'en-NZ'` — each follows the browser or one country |
 | Translation route | `server/routes/translate.js` |
 | Currency routes | `server/routes/currency.js` |
 | Supported lists | `data/languages.json`, `data/currencies.json` |
@@ -345,7 +346,10 @@ does not already exist on the other side.
    reads `advisor.save.confirm` on screen while every test passes. This is the one failure mode in
    this area that no ordinary test can see, and the only guard is a test that walks the component's
    `$t()` calls against the real locale file — `tests/unit/i18nMessages.test.js`. **Any screen that
-   moves its strings into the wording layer adds itself to that walk in the same change.**
+   moves its strings into the wording layer adds itself to that walk in the same change.** Every
+   hub screen, and any hub tab added later, is checked automatically by
+   `tests/unit/hubNoTypedEnglish.test.js`, which follows the four hub pages' imports and fails on
+   English typed into a screen or a key that does not resolve (item 13.7).
 5. **Keys built by joining text (`$t('advisor.domains.' + id)`) need their own check** — a missing
    entry becomes a raw key offered as a selectable option, not an error.
 6. **The free translation tier has a daily limit.** An environment variable raises it; without it,

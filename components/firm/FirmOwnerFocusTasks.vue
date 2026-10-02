@@ -63,12 +63,14 @@ section.fot
         tbody
           tr(v-for="v in versions" :key="v.id")
             td {{ v.version }}
-            td {{ v.created_at || v.createdAt }}
+            td {{ stampText(v.created_at || v.createdAt) }}
             td.fot-right
               b-button(size="is-small" :loading="saving" @click="restore(v.id)") {{ $t('ownerFocusTasks.restore') }}
 </template>
 
 <script>
+import { formatStamp } from '~/utils/dateLocale'
+
 /**
  * FirmOwnerFocusTasks — the starting list of Focus Tasks/Duties this tier hands down to every
  * owner on the Business Owner Expectations model. Item 5.4.
@@ -166,6 +168,9 @@ export default {
   },
 
   methods: {
+    /** A stored stamp in the reader's language, never the raw database value (item 13.8). */
+    stampText (v) { return formatStamp(v, this.$i18n.locale) },
+
     async load () {
       this.loading = true
       this.loadError = ''
