@@ -839,7 +839,11 @@ twelve boxes, his six divisions against Primary Output and Divisional KPI. **Rev
 Insights Data** — his own slide names the template (*"Review the Internal Team Insights page of
 the Insights Summary template"*), which was extracted and reaching no concept. Of his other
 templates, **Curve & Cycle Notes** now serves Market Diffusion and Product Life Cycle (2026-09-24);
-**Sales Flowchart and Tension Point Scripts** belong to Sales Process Review, held by Mike that day;
+**Tension Point Scripts** serves Sales Process Review (2026-10-02, item 15.22) — a client-facing
+concept, the owner's sales process to their customers — with all five of his worked rows shown
+above the lines, because a run of example rows now stays whole on its column
+(`bandExamples`, [`strategy-capture-tension-point-scripts.html`](../mockups/strategy-capture-tension-point-scripts.html));
+**Sales Flowchart**, its other table, is still held by Mike;
 **SWOT Notes** belongs to the `swot-pest` framework, not to any of the 46 concepts.
 
 🔴 **AND THAT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A

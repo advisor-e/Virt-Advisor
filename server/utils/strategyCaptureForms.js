@@ -550,19 +550,29 @@ function fieldsOfTable (table, tableIndex, form) {
   // those columns. Insights Summary and Progression of Economic Value both lost it: every
   // cell carries words, so none was a box, and nothing else kept it. It is shown above the
   // column's lines, "shown, never typed into" (the banded-grid rule of 2026-09-19), so it
-  // rides on the column's FIRST box as `bandExample` — never a box of its own, which would
+  // rides on the column's FIRST box as `bandExamples` — never a box of its own, which would
   // change the count the save guard admits.
-  const pendingExample = {}
+  //
+  // 🔴 AND A RUN OF THEM IS KEPT WHOLE — Mike, 2026-10-02 (item 15.22,
+  // design/mockups/strategy-capture-tension-point-scripts.html). Tension Point Scripts
+  // writes FIVE worked rows under its headings before the lines; only the first matched
+  // "directly under a heading", and the other four were dropped without a trace. A row of
+  // words that follows an example row is the next example, so each column carries a list.
+  const pendingExamples = {}
+  let previousWasExample = false
 
   rows.forEach((row, r) => {
     if (isQuestionSheet && r > 0 && row.cells.every(c => c.blank)) { return }
-    if (hasRuledLines && r > 0 && isLabelRow(rows, r - 1) && !isLabelRow(rows, r) &&
+    if (hasRuledLines && r > 0 &&
+        (previousWasExample || (isLabelRow(rows, r - 1) && !isLabelRow(rows, r))) &&
         // A row his page MARKS as a heading is the question each column asks (the
         // `promptRow` above) — A.I.D.C.R.A, the Price tables — never an example.
         row.cells.every(c => c.text && !c.blank && !c.merged && !c.guide && !c.header)) {
-      row.cells.forEach((cell, c) => { pendingExample[c] = cell.text })
+      row.cells.forEach((cell, c) => { (pendingExamples[c] = pendingExamples[c] || []).push(cell.text) })
+      previousWasExample = true
       return
     }
+    previousWasExample = false
     if (promptRow && r === 1) {
       row.cells.forEach((cell, c) => { if (!cell.merged) { columnPrompts[c] = cell.text } })
       return
@@ -616,9 +626,9 @@ function fieldsOfTable (table, tableIndex, form) {
         // deck page's line, which is a line all the same.
         example: cell.guide ? cell.text : ((!cell.blank && cell.text) ? cell.text : '')
       })
-      if (pendingExample[c]) {
-        fields[fields.length - 1].bandExample = pendingExample[c]
-        delete pendingExample[c]
+      if (pendingExamples[c]) {
+        fields[fields.length - 1].bandExamples = pendingExamples[c]
+        delete pendingExamples[c]
       }
     })
   })

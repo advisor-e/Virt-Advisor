@@ -169,8 +169,11 @@ one list of eight. Each list now sits under its own column, and the printed plan
 on every line — *"Our 'Upstream' Revenue Opportunities · Our Thoughts to Support These Ideas"*,
 his two headings joined, no word of ours.
 
+**Built 2026-10-02 on rulings 2a and 2b:** Sales Process Review captures into Tension Point
+Scripts — 10 boxes, his five worked rows shown above them. 35 → 36 concepts capture.
+
 **Not built, and why:**
-- **Sales Process Review** — held by ruling 2.
+- **Sales Process Review's Sales Flowchart** — held by ruling 2.
 - **(Inbound) Landing Page Review** — his pages are a finished worked example with no blank
   copy; turning it into a form needs his ruling on which column is the client's.
 - **Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles** — no
