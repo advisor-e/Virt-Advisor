@@ -71,7 +71,7 @@ never to ignore.
 These are the coding team's authoritative requirements. They override anything the AI
 infers from the installed packages. Where the repo has drifted from this spec, **the spec
 wins and the drift is logged for reconciliation** (see the drift box below and
-`design/ACTIONS.md`) — drift is never treated as the new policy.
+`design/features/to-do-items.json`) — drift is never treated as the new policy.
 
 > **🔒 ONE-DIRECTIONAL RULE (absolute, no exceptions).** Reconciliation only ever moves
 > the repo **toward** this spec. "Ratifying" a drift, raising a locked version, or adopting
@@ -833,7 +833,8 @@ watchpack, the template compiler. They run during `npm run dev` and `npm run bui
 developer machines; they are not present in or reachable from the deployed runtime. The risk
 is formally accepted in `design/SECURITY-AUDIT-NOTES.md`.
 
-- **The pre-commit blocking gate is `--audit-level=critical`** — set deliberately, because a
+- **The pre-push audit gate (`scripts/audit-gate.js`) blocks on any critical advisory not on its
+  accepted list** — set deliberately, because a
   strict `high` gate would block every commit on the unavoidable Nuxt 2 build-tool warnings
   above. This is the looser of the two thresholds and is an intentional trade-off, not a
   quality compromise.

@@ -91,6 +91,12 @@ const PASS_PROMPT_ID = 'country-schedule-pass'
  */
 const PAGES_PER_PASS = 8
 
+// Output ceilings (item 7.26), hidden reasoning included. The survey's reply is small but the
+// model reasons over the whole PDF; a pass returns every class on PAGES_PER_PASS pages, about
+// 430 rows at ~45 tokens. A hit ends as `incomplete` and the pass is reported as unread.
+const SURVEY_MAX_OUTPUT_TOKENS = 8000
+const PASS_MAX_OUTPUT_TOKENS = 40000
+
 /**
  * The most passes one schedule may take.
  *
@@ -364,6 +370,7 @@ function validatePass (raw, opts) {
  * @param {string} opts.scopeId - the VERIFIED scope, for the prompt's own tier overrides
  * @param {string} opts.filename
  * @param {string} opts.base64 - the document, encoded once by the caller and reused per pass
+ * @param {number} opts.maxOutputTokens - the ceiling, hidden reasoning included
  * @param {Function} opts.loadFirmConfig
  * @returns {Promise<{ok: boolean, code: (string|null), message: (string|null), answer: string, parsed: (object|null)}>}
  *   Never rejects on a model or network fault.
@@ -401,7 +408,10 @@ async function _send (opts) {
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
-      buildRequest({ promptText, filename: opts.filename, base64: opts.base64 }),
+      // The ceiling is added here, not in the shared buildRequest, because the depreciation
+      // reader that shares it is deliberately left uncapped (item 7.26).
+      Object.assign(buildRequest({ promptText, filename: opts.filename, base64: opts.base64 }),
+        { max_output_tokens: opts.maxOutputTokens }),
       { timeout: IDLE_TIMEOUT_MS, moderate: [] } // the app's prompt and a PDF, which cannot be checked (8.2)
     )
     for await (const event of events) {
@@ -528,7 +538,8 @@ async function readSchedule (opts) {
   // ── The survey ────────────────────────────────────────────────────────────────────────
   const surveyed = await _send(Object.assign({
     promptId: SURVEY_PROMPT_ID,
-    replacements: { country }
+    replacements: { country },
+    maxOutputTokens: SURVEY_MAX_OUTPUT_TOKENS
   }, common))
   if (!surveyed.ok) {
     return { ok: false, code: surveyed.code, message: surveyed.message, reading: null, blocked: surveyed.blocked }
@@ -578,7 +589,8 @@ async function readSchedule (opts) {
     for (let attempt = 0; attempt < 2 && result === null; attempt++) {
       const sent = await _send(Object.assign({
         promptId: PASS_PROMPT_ID,
-        replacements: { country, fromPage: pass.from, toPage: pass.to }
+        replacements: { country, fromPage: pass.from, toPage: pass.to },
+        maxOutputTokens: PASS_MAX_OUTPUT_TOKENS
       }, common))
       // 🔴 A REFUSAL IS NOT A TRANSIENT FAULT AND MUST NOT BE RETRIED, here or on the next pass.
       // The service refusing this request will refuse the next thirty-nine identically, so the
@@ -696,6 +708,8 @@ module.exports = {
   SURVEY_PROMPT_ID,
   PASS_PROMPT_ID,
   PAGES_PER_PASS,
+  SURVEY_MAX_OUTPUT_TOKENS,
+  PASS_MAX_OUTPUT_TOKENS,
   MAX_PASSES,
   MAX_PDF_BYTES,
   PDF_MIME,

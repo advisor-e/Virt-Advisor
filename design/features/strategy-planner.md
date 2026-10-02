@@ -1183,6 +1183,15 @@ next session by design. **Do not add a purge job here** by analogy with `meeting
 in Task / Whom / When. Every read is scoped by firm, and a session in another firm reads as
 **absent rather than forbidden**, so an id cannot be probed for existence.
 
+🔴 **A session is written only under its own client** (item 15.32, Mike's ruling 2026-10-02:
+*nothing carries over*). Every write — scope, boxes, page edits, timeline, and Suggest when it
+names a session — sends the client on screen, and a session that is not that client's reads as
+absent, the same pairing the meeting recorder refuses on. On screen, **switching client closes
+the open session** (still saved, offered back on the resume bar) and clears the ticks,
+suggestion, steps and typed words; a box typed but not yet saved is written under the client it
+was typed for first. The first choice of client keeps what is ticked, and reopening a session
+brings the picker to that session's own client.
+
 **The advisor's page edits ride `scope_json`** beside the ticks, the steps and the AI's
 suggestion (§9a) — no schema change. 🔴 **Every scope save keeps them**, exactly as it keeps the
 suggestion: renaming a step must never put an edited page back to the original.

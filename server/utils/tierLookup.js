@@ -38,6 +38,13 @@ const SUBSECTION_TIER = {
 
 const TIER_RANK = { 'entry-level': 1, intermediate: 2, advanced: 3 }
 
+/**
+ * Number words read as digits, so "Nine Growth Aspects" and "9 Growth Aspects" share a
+ * shape. Above the index because `_shape` runs while it is built, at require time.
+ */
+const NUMBER_WORDS = { one: '1', two: '2', three: '3', four: '4', five: '5', six: '6', seven: '7', eight: '8', nine: '9', ten: '10', eleven: '11', twelve: '12' }
+const NUMBER_WORD = /\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/g
+
 // Built once at require time: lowercase template title → tier
 const _titleToTier = new Map()
 
@@ -135,12 +142,15 @@ function isKnownTemplate (title) {
 }
 
 /**
- * A title's shape, ignoring the punctuation and plural that separate a name the AI wrote
- * from the one the master export holds: "Lease vs Buy" / "Lease vs. Buy",
- * "High-Level Budget" / "High Level Budget", "Dashboard Reports" / "Dashboard Report".
+ * A title's shape, ignoring the punctuation, plural and number spelling that separate a
+ * name the AI wrote from the one the master export holds: "Lease vs Buy" / "Lease vs. Buy",
+ * "High-Level Budget" / "High Level Budget", "Dashboard Reports" / "Dashboard Report",
+ * "9 Growth Aspects" / "Nine Growth Aspects" (seen on the answer bench, 2026-10-02).
  */
 function _shape (title) {
-  return String(title || '').toLowerCase().replace(/[^a-z0-9]+/g, '').replace(/s$/, '')
+  return String(title || '').toLowerCase()
+    .replace(NUMBER_WORD, w => NUMBER_WORDS[w])
+    .replace(/[^a-z0-9]+/g, '').replace(/s$/, '')
 }
 
 /**

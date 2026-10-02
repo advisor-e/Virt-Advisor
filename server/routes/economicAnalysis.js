@@ -67,6 +67,9 @@ const MODEL = 'gpt-6-astra'
 
 /** Standard web search on the Responses API — not deep research (prompt file §2). */
 const TOOLS = [{ type: 'web_search' }]
+// Output ceiling (item 7.26), hidden reasoning included. The largest recorded run used 5,710
+// output tokens (design/ECONOMIC-ANALYSIS-TEST-RUNS.md); a hit ends as `incomplete`.
+const MAX_OUTPUT_TOKENS = 16000
 
 /**
  * 🔴 THE SEARCH IS COMPULSORY, NOT REQUESTED, and that is the whole of this constant.
@@ -333,7 +336,7 @@ async function runResearch (run, promptText, brief) {
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const events = await client.responses.create(
-      { model: MODEL, input: promptText, tools: TOOLS, tool_choice: TOOL_CHOICE, stream: true },
+      { model: MODEL, input: promptText, tools: TOOLS, tool_choice: TOOL_CHOICE, stream: true, max_output_tokens: MAX_OUTPUT_TOKENS },
       { timeout: IDLE_TIMEOUT_MS, moderate: [brief || ''] } // the advisor's brief (8.2)
     )
 
@@ -551,6 +554,7 @@ async function setInclude (req, res) {
 }
 
 module.exports = {
+  MAX_OUTPUT_TOKENS,
   startResearch,
   getRun,
   setInclude,

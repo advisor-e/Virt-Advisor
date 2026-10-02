@@ -210,13 +210,13 @@ modified tracked file behind.
    reported the desktop idle on 2026-09-14 when its note was two days newer, and again on
    2026-09-15. Read the file for its *content* by all means; take its *date* from the check.
 
-   **Read the JSON, not `to-do.md`.** The page is 850 lines of standing explanation
+   **Read the JSON, not `to-do.md`.** The page is standing explanation
    wrapped around a generated table; the JSON *is* the list, and the page is
    rebuilt from it. Same information, a fraction of the reading. Open the page only if
    Mike asks why an item is worded as it is.
 
    🔴 **THE ARRAY ORDER IS MIKE'S RANKING. NEVER RE-SORT IT — NOT EVEN TO READ IT.**
-   `items[0]` is his first priority and `items[27]` his last. The score is **not** the
+   `items[0]` is his first priority and the last item his last. The score is **not** the
    order: the file's own readme says *"it is not computed from the score, and it must
    never be re-sorted by a script or a session"*, and `scripts/apply-to-do.js` says
    *"ORDER IS THE ARRAY'S ORDER. Nothing here sorts, and nothing here may."* Where his

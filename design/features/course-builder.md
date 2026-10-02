@@ -137,6 +137,9 @@ deliberately, because it had almost none.
 5. **Completion logging is fire-and-forget by design** — a database failure must never interrupt
    a live session — which means a failed write is easy to miss. It is logged server-side; check
    there, not on screen.
+6. **The session history comes from the browser.** `cleanSessionHistory` runs before the session
+   and both quiz calls: any role but user or assistant becomes user, the last 20 messages are
+   kept, each at most 8,000 characters.
 
 ### Known open items
 

@@ -41,6 +41,9 @@ const AI_ROLE = 'translate'
 /** One model call carries at most this many strings, or this many English characters. */
 const BATCH_MAX_STRINGS = 60
 const BATCH_MAX_CHARS = 4000
+// Output ceiling (item 7.26): a batch is at most BATCH_MAX_CHARS of English, about 1,000
+// tokens; ×4 covers scripts that take more tokens per word, plus the JSON keys.
+const BATCH_MAX_TOKENS = 8000
 /** Model calls in flight at once for one language. */
 const CONCURRENCY = 4
 /** The store is written after this many batches, and again at the end. */
@@ -262,6 +265,7 @@ async function translateBatch (code, languageName, keys, flat, client) {
         { role: 'user', content: JSON.stringify(payload) }
       ],
       temperature: 0,
+      max_tokens: BATCH_MAX_TOKENS,
       response_format: { type: 'json_object' }
       // moderate: [] — the app's own wording from locales/, nothing a person typed (Z3).
     }, { personal: false, moderate: [], timeout: CALL_TIMEOUT_MS })
@@ -461,6 +465,7 @@ function _reset () {
 }
 
 module.exports = {
+  BATCH_MAX_TOKENS,
   getLocale,
   checkTranslation,
   buildBatches,

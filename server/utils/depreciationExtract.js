@@ -575,6 +575,8 @@ async function readDocument (opts) {
   const _startedAt = Date.now()
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
+    // No max_output_tokens, by Mike's ruling of 2026-10-01 (item 7.26): a full IR265 read is
+    // ~2,800 rows, near the model's own maximum, so any ceiling would cut real readings.
     const events = await client.responses.create(
       buildRequest({ promptText, filename: opts.filename, base64: opts.buffer.toString('base64') }),
       { timeout: IDLE_TIMEOUT_MS, moderate: [] } // the app's prompt and a PDF, which cannot be checked (8.2)

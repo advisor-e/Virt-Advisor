@@ -44,6 +44,9 @@ const PROMPT_ID = 'next-steps-draft'
  * the advisor never saw sent.
  */
 const MODEL = 'gpt-6-astra'
+// Output ceiling (item 7.26): three short steps plus limits, about 450 tokens visible; the
+// model's hidden reasoning counts against it too.
+const MAX_OUTPUT_TOKENS = 8000
 
 /** Socket inactivity guard. A draft is a few hundred tokens; a minute is generous. */
 const IDLE_TIMEOUT_MS = 60000
@@ -122,7 +125,7 @@ async function runDraft (run, promptText) {
   try {
     const client = _clientFactory({ apiKey: process.env.OPENAI_API_KEY })
     const response = await client.responses.create(
-      { model: MODEL, input: promptText, text: { format: { type: 'json_object' } } },
+      { model: MODEL, input: promptText, text: { format: { type: 'json_object' } }, max_output_tokens: MAX_OUTPUT_TOKENS },
       { timeout: IDLE_TIMEOUT_MS, moderate: [] } // only the app's whitelisted words (8.2)
     )
     const checked = validateDraft(response)
@@ -278,6 +281,7 @@ async function setReady (req, res) {
 module.exports = {
   PROMPT_ID,
   MODEL,
+  MAX_OUTPUT_TOKENS,
   startDraft,
   getDraft,
   setReady,

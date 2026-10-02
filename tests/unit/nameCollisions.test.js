@@ -36,8 +36,11 @@ const templates = require('../../data/templates.json')
 const MODELS = (loadReportModels().models || []).filter(m => m && m.name && m.route)
 const TITLES = Object.values(templates).map(t => t && t.title).filter(Boolean)
 
-/** The same shape rule `tierLookup` indexes on: punctuation and a trailing plural ignored. */
-const shape = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '').replace(/s$/, '')
+/** The same shape rule `tierLookup` indexes on: punctuation, a trailing plural and number spelling ignored. */
+const NUMBER_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 }
+const shape = s => String(s || '').toLowerCase()
+  .replace(/\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/g, w => NUMBER_WORDS[w])
+  .replace(/[^a-z0-9]+/g, '').replace(/s$/, '')
 
 /** Every model name that is, or nearly is, a real template title. */
 function collisions () {

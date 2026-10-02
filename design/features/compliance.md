@@ -156,6 +156,9 @@ item is new, which is the correct answer for a firm that has declared nothing.
   three times. A session once proposed sending the documents and asked Mike to rule on the
   personal data in them; the drawing had already answered it. Attaching a file in
   `complianceCheck.js` breaks a promise printed on the screen the firm is reading.
+- 🔴 **The completeness check's model refuses `temperature` and `max_tokens`.** It is called with
+  `max_completion_tokens` only; a stand-in model cannot show the refusal, so the request is
+  pinned by `complianceCheck.test.js`.
 - 🔴 **The gate has exactly one condition and it is the declaration.** Not the evidence pack,
   not the check, not a newer publication — each has a test that fails if it starts gating.
 - 🔴 **The gate fails CLOSED**, which reverses this app's usual rule that a failed read degrades

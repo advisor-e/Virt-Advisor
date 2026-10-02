@@ -109,6 +109,19 @@ thing is not a priority — it is the finder's own opinion wearing a number.
 
 *Nobody should re-raise these as open work. If circumstances change, the ruling changes first.*
 
+**7.24 · The advisor sees only three dots while Discover, Learn and Plan answers are written.**
+⏸ **Parked 2026-10-02 by Mike** — his yes to parking it on the impact test's result.
+
+- **Where it stood:** measured on the answer bench that morning, a Discover answer takes a median
+  3.2 seconds, 1 in 10 over 9, the longest 25; about 15% get a heading correction adding 7 to 13
+  seconds. A stalled call is not endless: every OpenAI call has a 60-second inactivity limit,
+  after which the advisor gets a Retry button. Learn and Plan waits were not measured.
+- **Why parked:** the gain is how a wait feels, which no bench or count can measure.
+- **Fixed on the way:** the heading correction now runs on the narrative client, not the classify
+  one, so it cannot silently use a different model from the answer it corrects.
+- **What un-parks it:** Mike noticing the wait himself. Scoping then starts from his wording for
+  a progress line.
+
 **15.15 · Devil's Advocate - challenging optimistic thinking in the room.** ⏸ **Parked 2026-09-29 by
 Mike** — in his words, *"Im having a re-think on the devils advicate feature - lets mark it as
 'parked' for now."*
@@ -444,6 +457,141 @@ locked in the prompt. Either is fine; deciding by accident is not.
 - **What carried over:** its one addition — the screen's numbers and dates need 13.8's helpers too
   (the talk-time %, the en-NZ date at line 480) — is in 13.9's note. `i18nDateFormats.test.js`
   names the file as waiting on 13.9.
+**15.32 · Changing client in the Strategy Planner kept the previous client's ticks and suggestion
+- and wrote into their session.** ✅ **Closed 2026-10-02 by Mike ("yes" to marking it done).**
+
+- **What it really was:** proved in code before the fix - after a client switch on Scope, the
+  rail stayed open and Build, Run and Suggest all wrote into the previous client's session,
+  Suggest with the new client's history and guided answers. The server checked the firm only.
+- **His ruling:** nothing carries over. A switch starts the screen clean; the old session closes
+  on screen and stays saved.
+- **What was done:** `pages/strategy-planner.vue` starts clean on a switch (a half-typed box is
+  saved under its own client first), and reopening a session brings the picker to its client.
+  Every session write names the client on screen, and `server/routes/strategyPlanner.js` refuses
+  a session that is not that client's - scope, entries, edits, timeline, and Suggest before the
+  model is asked.
+- **What proves it:** 18 new tests across `strategyPlanner.routes`, `strategyPretick.routes` and
+  `strategySessionResume`; full suite 15,090 green. Walked on the running backend: a session for
+  one client refused writes naming another on all four routes, and accepted its own.
+- **Not walked:** the screen in a browser - the page tests carry that half. Sessions misfiled
+  before 2026-10-02 cannot be found by this; nothing records which client was on screen.
+
+**7.18 · Discover's instructions promised a coaching reference, a diagnostic tree and template
+summaries it does not receive.** ✅ **Closed 2026-10-02 by Mike ("yes" to marking it done).**
+
+- **What was done:** `data/prompts/discover.txt` now promises only what the engine sends - the
+  template list, this firm's own coaching notes and method, and the calculation models. A vague
+  search asks one question; "How it works" draws on the template's purpose and its summary where
+  one is provided. His wording, approved 2026-10-02:
+  [`DISCOVER-WORDING-7.18.md`](../DISCOVER-WORDING-7.18.md).
+- **Fixed on the way:** template summaries reach the AI under master-library titles only
+  (`e5f53061`). Sending them from Discover's first message was measured, gave no gain, and was
+  taken out.
+- **What proves it:** the answer bench, Discover only, against the two runs the wording file named.
+  Point 3, "Reasons match the tools": 29 and 33 before, 32 and 29 after - within the 4-point spread
+  between two identical runs, so not worse, and kept. Names real 49, 50 before and 48, 51 after;
+  crisis first 4/4 throughout; the second run passed all 55 code checks. The before runs predate
+  `e5f53061`, so they were not made back to back; with no score moving, nothing turns on it. Runs:
+  `design/answer-bench-runs/*-718-*.json`.
+- **The gain is accuracy, not a score:** the AI is no longer told to use material it never gets.
+
+**7.19 · Build a bench that scores the written answer the real advisory prompt produces.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **His rulings:** the questions are the 51 invented Scenario Lab cases (no real conversations);
+  scoring is code checks plus an AI judge marking each answer against
+  [`ANSWER-BENCH-CHECKLIST.md`](../ANSWER-BENCH-CHECKLIST.md), approved as committed in `fd417a13`.
+- **What was built:** `scripts/answer-bench.js` drives the real advisory chat offline (about 13
+  scripted turns to Phase 3 in client mode; one or two in Discover) and keeps every run in
+  [`design/answer-bench-runs/`](../answer-bench-runs/README.md), reported point by point;
+  `scripts/answer-bench-score.js` holds the checks, the judge's question and a strict check of the
+  judge's reply - anything malformed is unscored, never a pass.
+- **What proves it:** two damaged runs. Swapping the chat's instructions for one generic line
+  dropped the code checks to 73.6% (client) and 0% (Discover); telling the chat another case's
+  story dropped "About this client" from 17 of 51 to 0 and 16 to 0. `answerBenchScore.test.js`,
+  28 tests, every line of the scoring covered.
+- **How to use it:** a change to the AI is measured by a "before" and an "after" run made back to
+  back - never against these proving runs, which used an earlier version of the judge.
+
+**7.26 · Several AI calls that write long output set no length limit.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was done:** thirteen ceilings, each sized from what its prompt asks for and well above
+  it, sent under the name the model accepts - `max_tokens` on gpt-4o-mini, `max_completion_tokens`
+  (chat) or `max_output_tokens` (Responses) on gpt-6-astra, whose hidden reasoning counts against
+  the limit. Compliance 8,000; concept summary 6,000; passage tidy 200 per passage (floor 1,500);
+  Meeting Summary 4,000; coaching 150 per point (floor 2,000); Wordsmith sort 4 per line + 200
+  (floor 1,000), style 1,000, draft 6,000; screen translation 8,000; economic analysis 16,000
+  (largest recorded run 5,710); Next Steps 8,000; country schedule survey 8,000, each pass 40,000.
+- **Mike's ruling:** the depreciation-schedule reader stays uncapped - a full IR265 read is
+  ~2,800 rows, near the model's maximum, so any ceiling cuts real readings.
+- **Found doing it, fixed and proven by live calls (`9d62d45e`):** the compliance check had been
+  refused on every call (temperature 0 on astra), and every sales blog had fallen back to the
+  template (max_tokens and temperature on astra).
+- **What proves it:** `tests/unit/aiOutputLimits.test.js`, 15 tests, failing on the old code -
+  including a guard that every ceiling exists, so a deleted one cannot pass as undefined. A live
+  compliance call answered inside its ceiling (346 tokens). Full suite green on Node 14.15. The
+  other ceilings are reasoned from their prompts, not measured; a hit fails safely as unreadable
+  or incomplete, never as a half answer.
+
+**22.4 · Eight stale claims in the AI's instructions and feature notes.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was done, each checked against the code first:** `CLAUDE.md:74` names
+  `to-do-items.json` as where drift is logged; `CLAUDE.md` and `scripts/audit-gate.js` say the
+  audit gate runs at pre-push; the master-export-upload skill says it is built at the mentor tier
+  (`POST /api/mentor/templates/import`) and not at firm level; the firm-manager-edit-target skill
+  no longer sends work to the frozen `ACTIONS.md`; `startup.md` drops the 850-line and
+  `items[27]` figures; `logic-lab.md` says accept-and-push to distinctions is built;
+  `meeting-review.md` no longer lists two built pieces as outstanding; `MEMORY.md` indexes the
+  source-workbooks memory.
+- **Left on purpose:** `CLAUDE.md` 239 and 827 only point at `ACTIONS.md` as the history of two
+  past version fixes, which an archive is right for.
+- **Found doing it:** a stray, untracked `.claude/.claude/` folder from 2026-06-09 loaded four old
+  skill copies into every laptop session, one repeating a stale claim, beside settings
+  pre-approving `npx nuxi@latest init . --force`. Deleted on Mike's yes.
+
+**12.3 · The course tutor put browser-sent history into the prompt unchecked.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was found:** the course session spread the browser's history into the messages as sent,
+  so a forged `system` message reached the model as an instruction and was never moderated, with
+  no limit on count or length. The quiz generator and grader read the same history.
+- **What was done:** `cleanSessionHistory` in `server/courseEngine.js` runs first in all three:
+  any role but user or assistant becomes user (moderated as typed, the advisor chat's rule), the
+  last 20 messages are kept, each cut at 8,000 characters - larger than the advisor chat's 2,000
+  so a tutor's lesson survives for the quiz.
+- **What proves it:** `tests/unit/courseSessionHistory.test.js`, four tests, all failing on the
+  old code; one drives a real session and shows the forged message reaching the model as user
+  text and in the moderated list. Full suite green on Node 14.15. Not walked in the app.
+
+**7.25 · The advisor profile reached the main prompt unfenced and unmoderated.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was found:** Discover, Learn and Plan sent the advisor's profile bare, and the client
+  recommendation's briefing carried a second bare copy beside the fenced one. No AI call that
+  sent the profile passed it to moderation, which rule Z3 requires of anything a person typed.
+- **What was done:** `fencedAdvisorProfile` in `server/advisorEngine.js` is now the only route by
+  which the profile enters a prompt, fenced as data. `typedTexts` and `writeBlocked` take the
+  profile, so the three calls that send it (the reply after a recommendation, the client
+  recommendation, and Discover/Learn/Plan) moderate its fields and quote a blocked one back as
+  the advisor's own. Moderation's 15-minute cache means an unchanged profile costs the allowance
+  once per 15 minutes.
+- **What proves it:** `tests/unit/advisorProfileFence.test.js` (fence, typed closing marker
+  stripped, empty profile adds nothing, fields screened, a blocked field quoted as typed). Full
+  suite green on Node 14.15. Not run against OpenAI or walked in the app: a prompt is not visible
+  on screen, so the tests are the proof.
+- **Left to 7.20:** the client recommendation still receives the profile twice; removing a copy
+  changes what the AI is told, so it is measured there.
+
+**22.6 · A second constitution file arrived with the speckit tools beside the Stack Constitution.**
+✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was found:** no clash. `.specify/memory/constitution.md` is 35 lines that restate no
+  rule: it points at `CLAUDE.md`, `WORKING-AGREEMENT.md` and `to-do-items.json` as the authority
+  and says amendments are made there, never to it (commit `0089a5b1`, 2026-09-08).
+- **The risk that remains:** the generic `speckit-constitution` skill writes that file, so running
+  it by name would replace the pointer with a fresh constitution. Nothing runs it automatically.
 
 **8.4 · Meetings longer than 23 minutes were refused by OpenAI and lost their audio.**
 ✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), after the browser walk.**
