@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Worked Example Lines</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #002b64; --body: #23405f; --line: #d5e1ee; --wash: #f1f6fb;
+    --accent: #0070c0; --eg: #6b7f99; --bg: #fff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif; color: var(--body);
+    background: var(--bg); margin: 0; padding: 32px 16px 80px; line-height: 1.55;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  h1 { color: var(--ink); font-size: 30px; margin: 0 0 6px; }
+  .eyebrow { color: var(--accent); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; margin: 0 0 10px; }
+  .lede { max-width: 74ch; }
+  .lede b { color: var(--ink); }
+  .rule { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+  .tbl { margin: 0 0 40px; }
+  h2 { color: var(--ink); font-size: 21px; margin: 0 0 2px; }
+  .src { color: var(--eg); font-size: 12.5px; margin: 0 0 12px; }
+  .colhead { font-size: 12px; font-weight: 700; color: var(--ink); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 8px; }
+  .colhead span { color: var(--line); margin: 0 8px; }
+  table.bg { width: 100%; border-collapse: collapse; margin: 0 0 14px; table-layout: fixed; }
+  table.bg th {
+    text-align: left; background: var(--wash); color: var(--ink); font-size: 13.5px;
+    padding: 9px 12px; border: 1px solid var(--line); border-bottom: 2px solid var(--accent);
+    vertical-align: top;
+  }
+  table.bg td { border: 1px solid var(--line); padding: 7px 10px; vertical-align: middle; }
+  .ln { display: inline-block; width: 22px; color: var(--eg); font-size: 11.5px; }
+  .box {
+    display: inline-block; width: calc(100% - 26px); height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe;
+  }
+  th.sect { border-bottom: 2px solid var(--accent); }
+  .sect-title { display: block; font-size: 15px; font-weight: 700; color: var(--ink); }
+  .sect-eg { display: block; margin-top: 4px; font-size: 12.5px; font-style: italic; font-weight: 400; color: var(--eg); }
+  td.eg { background: #fafcfe; }
+  .egtext { color: var(--eg); font-size: 12.5px; font-style: italic; }
+  .egtag {
+    display: inline-block; margin-left: 8px; font-size: 9.5px; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--eg);
+    border-radius: 3px; padding: 1px 5px; vertical-align: 2px;
+  }
+  .note { background: var(--wash); border-left: 3px solid var(--accent); border-radius: 0 9px 9px 0; padding: 12px 16px; margin: 0 0 26px; }
+  .note h3 { margin: 0 0 6px; color: var(--ink); font-size: 15px; }
+  .note ul { margin: 6px 0 0; padding-left: 18px; }
+  .bad { border-left-color: #c0392b; background: #fdf3f2; }
+  h2.vh { margin: 0 0 8px; }
+  .vbar { display: flex; align-items: center; gap: 8px; margin: 0 0 7px; flex-wrap: wrap; }
+  .vb {
+    display: inline-flex; align-items: center; gap: 5px; border-radius: 6px;
+    padding: 4px 11px; font-size: 12.5px; font-weight: 600; cursor: default;
+  }
+  .vb.idle { border: 1px solid var(--line); color: var(--accent); background: #fff; }
+  .vb.stopb { background: #c0392b; color: #fff; }
+  .vlab { font-size: 12.5px; color: #c0392b; font-weight: 600; }
+  .vlab.ok { color: #16a34a; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #c0392b; }
+  .tick { display: inline-flex; }
+  td.rec { background: #fffaf9; }
+  .boxlive {
+    display: inline-block; width: calc(100% - 26px); min-height: 30px; vertical-align: middle;
+    border: 1px solid #c0392b; border-radius: 5px; background: #fff; padding: 5px 9px;
+    font-size: 13.5px; color: var(--eg); font-style: italic;
+  }
+  .boxfilled {
+    display: inline-block; width: calc(100% - 26px); min-height: 30px; vertical-align: middle;
+    border: 1px solid var(--line); border-radius: 5px; background: #fdfefe; padding: 5px 9px; font-size: 13.5px;
+  }
+  @media (max-width: 720px) {
+    table.bg, table.bg thead, table.bg tbody, table.bg th, table.bg td, table.bg tr { display: block; }
+    table.bg th { border-bottom: 1px solid var(--line); }
+    .box { width: 100%; }
+    .ln { width: auto; margin-right: 6px; }
+  }
+  .ph { color: var(--eg); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Strategy Planner &middot; item 15.18</p>
+  <h1>Worked Example Lines</h1>
+  <p class="lede">
+    <b>Two capture forms where your worked example never reaches the screen.</b> Every heading,
+    example and count below is read from your own workbooks and from the code as it runs today
+    &mdash; nothing on this page was written by us. A drawing for approval before anything is built.
+  </p>
+
+  <div class="note bad">
+    <h3>What the screen does today</h3>
+    <ul>
+      <li><b>Review Internal Insights Data</b> shows <b>0 of 4</b> of your worked examples, and offers <b>12 boxes where your document rules 12</b>.</li>
+      <li><b>Progression of Economic Value</b> shows <b>0 of 3</b> of your worked examples, and offers <b>20 boxes where your document rules 21</b>. Your placeholder line <i>&ldquo;1 Enter your thoughts here&hellip;&rdquo;</i> is shown as the label on <b>2 boxes</b>, and its own box is missing.</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>The rule this follows &mdash; already approved, 2026-09-19</h3>
+    <ul>
+      <li>From the banded-grid drawing you approved: <i>&ldquo;A line that carries words is your
+        worked example &mdash; shown, never typed into.&rdquo;</i> It is drawn here exactly as that
+        drawing drew Blue Ocean's: a greyed line, tagged <b>your example</b>, above the empty boxes.</li>
+      <li><b>The tag's two words are the only wording on the screen that is not yours.</b> They are
+        taken from the approved drawing, and are yours to change.</li>
+      <li>Elsewhere in the Strategy Planner your example appears as grey text <i>inside</i> a box. These
+        two forms would be the first place it sits on a line of its own, because here one example
+        sits above three empty lines and belongs to none of them in particular.</li>
+    </ul>
+  </div>
+
+  <div class="note">
+    <h3>A separate question, drawn here only so the table is complete</h3>
+    <ul>
+      <li>On Progression of Economic Value, your line <i>&ldquo;1 Enter your thoughts here&hellip;&rdquo;</i>
+        is drawn as a box with those words in grey inside it, so the first column has all of its
+        ruled lines. That fix is a separate decision and will be asked separately.</li>
+    </ul>
+  </div>
+
+  <hr class="rule">
+
+<section class="tbl">
+  <h2>Review Internal Insights Data</h2>
+  <p class="src">Insights Summary &middot; 4 worked examples &middot; <b>12 boxes to fill in</b></p>
+<table class="bg" style="--cols:2"><thead><tr><th>What We Do LESS Well</th><th>What We Do WELL</th></tr></thead><tbody>
+<tr><td class="eg"><span class="egtext">We don't follow up customers after purchase to see if they still need help</span><span class="egtag">your example</span></td><td class="eg"><span class="egtext">We do a great job of Identifying customer needs at time of sale</span><span class="egtag">your example</span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+<table class="bg" style="--cols:2"><thead><tr><th>What Resources We Need</th><th>Suggestions/ Ideas</th></tr></thead><tbody>
+<tr><td class="eg"><span class="egtext">We need a better range of electric hand tools to sell, we get asked for them all the time</span><span class="egtag">your example</span></td><td class="eg"><span class="egtext">We could run 'tips n tricks' classes - 30 min sessions, where we show how to use certain tools...</span><span class="egtag">your example</span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+</section>
+<section class="tbl">
+  <h2>Progression of Economic Value</h2>
+  <p class="src">Progression of Economic Value &middot; 3 worked examples &middot; <b>21 boxes to fill in</b></p>
+<table class="bg" style="--cols:3"><thead><tr><th>Our Business Output (Delivery Promise)</th><th>Our Business Imperative Tasks</th><th>Our Consumer Sensitivity Tasks</th></tr></thead><tbody>
+<tr><td class="eg"><span class="egtext">Our quality means cheaper in the long run</span><span class="egtag">your example</span></td><td class="eg"><span class="egtext">Quality Control</span><span class="egtag">your example</span></td><td class="eg"><span class="egtext">Monitor &amp; Record Failures / ‘Comebacks’</span><span class="egtag">your example</span></td></tr>
+<tr><td><span class="ln"></span><span class="boxfilled ph">1 Enter your thoughts here...</span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+<tr><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td><td><span class="ln"></span><span class="box"></span></td></tr>
+</tbody></table>
+</section>
+
+</div>
+</body>
+</html>

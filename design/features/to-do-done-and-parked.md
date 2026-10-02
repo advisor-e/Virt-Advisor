@@ -379,6 +379,30 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**13.7 · Translation reaches every hub page at every level, going forward.**
+✅ **Closed 2026-10-02 by Mike ("yes" to marking it done), once the after-measurement ran.**
+
+- **What was done:** every screen the four hub pages reach takes its wording from
+  `locales/en.json`, guarded by `hubNoTypedEnglish.test.js`, which follows the hub pages' imports
+  so a new tab is covered automatically. Wordsmith writes in the language the client spoke, its
+  checks working in that language (`strategy-planner.md` §9b), and English spelling — New Zealand
+  or US — is each level's choice, built to the approved
+  [`wordsmith-spelling.html`](../mockups/wordsmith-spelling.html) and walked in a build.
+- **What proved it:** the Wordsmith Lab, case `invented-cafe-german`
+  ([`WORDSMITH-LAB-REPORT.md`](../WORDSMITH-LAB-REPORT.md)). Before: 5 of 8 drafts in English,
+  4 false name flags, 4 false room questions. After: **8 of 8 in German**, all passing first try,
+  0 name flags, 1 room question — the same scope question the English café raises in both styles.
+- **Not covered here:** the meeting pages' typed English (13.9) and the business-word glossary (13.6).
+
+**22.8 · OpenAI account out of credits since 2026-10-02 — check whether UAT shares it.**
+✅ **Closed 2026-10-02 by Mike ("yes" to marking it done), the day it was filed.**
+
+- **What was done:** Mike added credits to the OpenAI account the same day.
+- **What proved it:** a live call from the desktop's key on Node 14.15 returned HTTP 200 and a
+  reply from `gpt-4o-mini`, where every call that morning had been refused with
+  `insufficient_quota`. If UAT uses the same account, it is restored by the same top-up.
+- **Unblocks:** 13.7's Wordsmith Lab after-run and the laptop's 7.18 Discover bench runs.
+
 **13.8 · Report figures kept English number formatting in other languages.**
 ✅ **Closed 2026-10-01 by Mike ("yes" to marking it done), the day it was built.**
 
