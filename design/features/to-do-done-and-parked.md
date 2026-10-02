@@ -379,6 +379,24 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.18 · The advisor never sees the worked answer Mike wrote on a ruled table.**
+✅ **Closed 2026-10-02 by Mike ("yes" to marking it done), the day it was built.**
+
+- **What was done:** his example row now shows above the empty boxes as a greyed line tagged
+  *your example*, to the approved
+  [`strategy-capture-worked-example.html`](../mockups/strategy-capture-worked-example.html) —
+  Review Internal Insights Data 4 of 4, Progression of Economic Value 3 of 3, where both showed 0.
+  The same day, on his rulings: the **16 teaching pages** that follow a drawn page in his decks and
+  that no concept claimed reach the run screen and the client's plan
+  ([`strategy-concept-second-pages.html`](../mockups/strategy-concept-second-pages.html)); his
+  printed *"1, Enter your thoughts here…"* is a box with his words as its grey text (Blue Ocean 16,
+  Progression of Economic Value 21); a grid with no row names drops its empty name column.
+- **What proved it:** every concept's boxes compared before and after each change — only the two
+  instruction-line concepts moved, by one each. Walked on a production build: all 7 examples, all
+  23 drawings on Run session and in Produce plan, every box under its heading. Pinned by
+  `strategyCaptureForms.test.js` (where an example lands, that it is never a box, and that only
+  these two concepts carry one).
+
 **13.7 · Translation reaches every hub page at every level, going forward.**
 ✅ **Closed 2026-10-02 by Mike ("yes" to marking it done), once the after-measurement ran.**
 

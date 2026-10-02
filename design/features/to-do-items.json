@@ -76,27 +76,6 @@
   "orderSource": "the Handbook ranking control (scripts/handbook-shell.html), saved by Mike on 2026-08-15. It replaced design/mockups/to-do-list-table.html, which set the order before it. 2026-09-15: Mike moved 7.2 (filed as 4.97) from 7th to 1st in his own words - 'make sure its at front of task list next time' - after US5 was left half built with nothing calling countReviewStatus. Every other item kept its relative order; nothing was re-sorted.",
   "items": [
     {
-      "ref": "15.18",
-      "name": "The advisor never sees the worked answer Mike wrote on a ruled table",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Mike",
-      "why": "Where one of his tables has ruled writing lines, only the blank cells become boxes, so the example row he wrote to show what a good answer looks like is dropped. The advisor gets his headings and empty boxes.",
-      "risk": "The app is inconsistent with itself, which is the part that will confuse whoever picks this up: on the deck-page sheets his examples DO arrive as grey guide text inside the box, and strategyDeckCaptureTables.test.js insists they must. It waits on Mike because Insights Summary has THREE blank rows under each heading and ONE example - which box carries it, or whether it sits above them all, is a design decision that ends up in a client's document.",
-      "askedBy": {
-        "who": "Mike",
-        "ours": false,
-        "detail": "2026-09-23 - filed on his yes at shutdown, after wiring Insights Summary made it visible for the first time. He was offered the fix and chose to have it designed rather than guessed."
-      },
-      "touches": "fieldsOfTable in server/utils/strategyCaptureForms.js, where `isCapture` is `cell.blank` once a grid has ruled lines and the example row is therefore never a field; the `example` property every other form already carries; components/strategy/StrategyCaptureBox.vue, which renders it as guide text.",
-      "note": "NOT A REGRESSION. It has always behaved this way and only became visible on 2026-09-23, when Insights Summary became the first banded grid WITH a worked example to reach a screen - Porter's and Blue Ocean go heading straight to ruled lines and have no example to lose. AFFECTS THE BANDED GRIDS ONLY. The prompt-answer sheets are unaffected: with no ruled line every cell is a field, so his example is already the box's own guide text.",
-      "comment": "2026-09-23 - found by reading what an advisor would actually see after the heading fix landed, not by any test failing. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "15.21",
       "name": "The PDF reader Add Concept needs carries a high advisory no Node 14 version fixes",
       "rankedByMike": false,
