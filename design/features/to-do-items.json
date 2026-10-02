@@ -115,7 +115,11 @@
       },
       "touches": "design/STRATEGY-CAPTURE-FORM-PROPOSALS.md sections 2 and 5-6, where each proposal and the reason it was not built are recorded; data/strategy-frameworks.json captureForm on the seven; scripts/read-deck-capture-tables.js if a deck page is read.",
       "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - his Sales Flowchart (p47) and Tension Point Scripts (p50) are both its tables; held because of confusion over the client's sales process, and the Sales Flowchart template reads as 5 boxes where his page has 15 steps. (2) Landing Page Review - pp27-30 are a finished worked example with no blank copy; which column is the client's is his call. (3) The five with no capture page are proposed as teaching only, because any box label would be written by us.",
-      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown, so the remainder of 15.16 has a place on the list."
+      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown, so the remainder of 15.16 has a place on the list. 2026-10-02 - Sales Process Review ruled: Tension Point Scripts captures, all five examples shown (proposals §6, 2a-2b); drawing design/mockups/strategy-capture-tension-point-scripts.html awaits his approval.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-10-02"
+      }
     },
     {
       "ref": "13.6",
