@@ -533,7 +533,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "The advisor chat allows 30 requests a minute and courses 15, counted per address. Every request reaches the backend through the Nuxt server, so unless TRUST_PROXY is on, all users share one count.",
       "risk": "In production a busy firm would see \"Rate limit exceeded\" once the whole deployment passes 30 advisor messages in a minute. UAT, with a few testers, would never show it. Whether TRUST_PROXY is set in UAT or production is the master team's to say.",
       "askedBy": {
@@ -542,8 +542,12 @@
         "detail": "2026-10-01 - found checking a sentence moved out of 7.23; filed on Mike's yes. A defect we found."
       },
       "touches": "server/utils/rateLimit.js clientIp; its callers in server/advisorEngine.js (30), server/courseEngine.js (15), server/routes/mentor.js, outcomeLearning.js, promptCheck.js; server-middleware/advisor.js and course.js, which forward from the Nuxt server; firmAuth, which already knows the signed-in advisor.",
-      "note": "Likely fix: count per signed-in advisor rather than per address. Needs a small design first. Not proven in a deployed environment.",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+      "note": "DESIGNED 2026-10-02, awaiting Mike's approval: design/RATE-LIMIT-PER-ADVISOR.md. Measured: five advisors behind one address, 8 messages each in a minute, 10 of 40 refused. Holds in every deployment - with TRUST_PROXY on, one office still shares one address.",
+      "comment": "2026-10-02 - Mike's yes to start it on the laptop: impact test run, design committed for his approval. Score and scoreReason are ours; he has not ranked it.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-10-02"
+      }
     },
     {
       "ref": "7.28",
