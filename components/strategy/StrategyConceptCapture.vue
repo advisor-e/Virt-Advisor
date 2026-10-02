@@ -219,27 +219,27 @@ section.scc2
                   rect(x="6" y="6" width="12" height="12" rx="2")
                 | {{ $t('voice.stopRecording') }}
 
-          //- 🔴 `lazy` IS LOAD-BEARING — WITHOUT IT THIS BOX SAVES ONCE PER KEYSTROKE.
-          //- Buefy's Input fires its `input` event from the native one unless `lazy` is
-          //- set, in which case it fires on `change` — that is, when the advisor leaves the
-          //- box. Every emission here is one `PUT /entries` and one database write, so a
-          //- 200-character answer was 200 round trips. Worse, they are fired without
-          //- awaiting each other, so on a slow line an early short value can land AFTER a
-          //- later one and store half a sentence. Found 2026-09-22; the JSDoc on
-          //- `onFieldChanged` in pages/strategy-planner.vue had claimed blur behaviour
-          //- since it was written. Pinned by tests/unit/strategyCaptureSaveRate.test.js.
+          //- 🔴 THE BOX SAVES WHEN THE ADVISOR LEAVES IT, NEVER PER KEYSTROKE. Each save is
+          //- one `PUT /entries` and one database write, so per keystroke a 200-character
+          //- answer was 200 round trips, fired without awaiting each other — on a slow line
+          //- an early short value could land AFTER a later one and store half a sentence
+          //- (found 2026-09-22). So the save is `@change.native`, the leaving of the box,
+          //- and `@input` only tells the page there is unsaved typing.
+          //- 🔴 AND NO `lazy`, WHICH LOST THE FIRST LETTER OF EVERY ANSWER (2026-10-02, item
+          //- 15.22): under it the box was redrawn from the last SAVED text when the first
+          //- keystroke flipped the page to "Unsaved changes". See StrategyCaptureBox.vue.
+          //- Both halves pinned by tests/unit/strategyCaptureSaveRate.test.js.
           //- ⚠ Dictation is NOT affected: `emitVoice` emits `field-changed` directly and
           //- never goes through this input.
           b-input(
             :id="inputId(field)"
             type="textarea"
-            lazy
             :rows="rowsFor(field)"
             :value="valueOf(field)"
             :placeholder="field.example"
             @focus="onFocus(field)"
-            @input="onInput(field, $event)"
-            @input.native="onTyping(field, $event.target.value)"
+            @input="onTyping(field, $event)"
+            @change.native="onInput(field, $event.target.value)"
           )
           //- Screen 4 of the recorded session: what was said while this box was open.
           strategy-heard-passages(v-if="conceptId" :concept-id="conceptId" :field-key="field.key")
