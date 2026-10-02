@@ -756,3 +756,50 @@ describe('the named-field stack — his name, his worked example, one box', () =
     expect(wrong).toEqual([])
   })
 })
+
+// 🔴 HIS WORKED EXAMPLE ON A RULED TABLE — item 15.18, approved 2026-10-02
+// (design/mockups/strategy-capture-worked-example.html). Not wording: WHERE it lands and
+// what it must not disturb. Both failures are invisible on screen — a box missing from the
+// save guard, or one of his column questions swallowed as an "example" — until an advisor's
+// answer is refused or a question is gone.
+describe('his worked example rides on a column, never becomes a box', () => {
+  const captureOf = id => forms.captureForConcept(concepts.find(c => c.id === id))
+  const examplesOf = capture => capture.fields.filter(f => f.bandExample)
+
+  test('Insights Summary and Progression of Economic Value carry every example he wrote', () => {
+    const insights = captureOf('review-internal-insights-data')
+    const pine = captureOf('progression-of-economic-value')
+
+    // Read off his workbook: the all-words row beneath each heading row.
+    const cellsUnderHeadings = (template) => {
+      const rows = captureTables.templates[template].tables[0].rows
+      const allWords = r => r.cells.every(c => c.text && !c.blank)
+      return rows.filter((r, i) => i > 0 && allWords(r) && allWords(rows[i - 1]))
+        .reduce((n, r) => n + r.cells.length, 0)
+    }
+    expect(examplesOf(insights).length).toBe(cellsUnderHeadings('Insights Summary'))
+    expect(examplesOf(pine).length).toBe(cellsUnderHeadings('Progression of Economic Value'))
+    // Each sits on a box in its OWN column.
+    examplesOf(insights).concat(examplesOf(pine)).forEach((f) => {
+      expect(f.key).toMatch(new RegExp('c' + f.column + '$'))
+    })
+  })
+
+  test('the box count is unchanged by it, so the save guard admits exactly what it did', () => {
+    // 12 ruled lines on Insights Summary; Progression of Economic Value's count is left
+    // to its own placeholder fault and is pinned only as unchanged here.
+    expect(captureOf('review-internal-insights-data').fields.length).toBe(12)
+    expect(captureOf('progression-of-economic-value').fields.length).toBe(20)
+  })
+
+  test('a row his page marks as a heading is his question, never an example', () => {
+    // A.I.D.C.R.A and the two Price tables put a question under each heading; read as
+    // examples, every one was taken off its column. Found while building this, 2026-10-02.
+    const withExamples = concepts
+      .filter(c => c.captureTemplate)
+      .filter(c => examplesOf(forms.captureForConcept(c)).length)
+      .map(c => c.id)
+      .sort()
+    expect(withExamples).toEqual(['progression-of-economic-value', 'review-internal-insights-data'])
+  })
+})

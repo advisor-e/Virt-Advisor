@@ -526,8 +526,25 @@ function fieldsOfTable (table, tableIndex, form) {
   const promptRow = hasRuledLines && rows.length > 2 &&
     rows[1].cells.length > 0 && rows[1].cells.every(c => c.header && c.text)
 
+  // 🔴 HIS WORKED EXAMPLE ON A RULED TABLE — item 15.18, the drawing Mike approved
+  // 2026-10-02 (design/mockups/strategy-capture-worked-example.html). A row of his words
+  // directly under a heading, with ruled lines beneath, is the example answer for each of
+  // those columns. Insights Summary and Progression of Economic Value both lost it: every
+  // cell carries words, so none was a box, and nothing else kept it. It is shown above the
+  // column's lines, "shown, never typed into" (the banded-grid rule of 2026-09-19), so it
+  // rides on the column's FIRST box as `bandExample` — never a box of its own, which would
+  // change the count the save guard admits.
+  const pendingExample = {}
+
   rows.forEach((row, r) => {
     if (isQuestionSheet && r > 0 && row.cells.every(c => c.blank)) { return }
+    if (hasRuledLines && r > 0 && isLabelRow(rows, r - 1) && !isLabelRow(rows, r) &&
+        // A row his page MARKS as a heading is the question each column asks (the
+        // `promptRow` above) — A.I.D.C.R.A, the Price tables — never an example.
+        row.cells.every(c => c.text && !c.blank && !c.merged && !c.guide && !c.header)) {
+      row.cells.forEach((cell, c) => { pendingExample[c] = cell.text })
+      return
+    }
     if (promptRow && r === 1) {
       row.cells.forEach((cell, c) => { if (!cell.merged) { columnPrompts[c] = cell.text } })
       return
@@ -580,6 +597,10 @@ function fieldsOfTable (table, tableIndex, form) {
         // deck page's line, which is a line all the same.
         example: cell.guide ? cell.text : ((!cell.blank && cell.text) ? cell.text : '')
       })
+      if (pendingExample[c]) {
+        fields[fields.length - 1].bandExample = pendingExample[c]
+        delete pendingExample[c]
+      }
     })
   })
 

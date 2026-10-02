@@ -135,6 +135,14 @@ section.scc2
           th.scc2-attr &nbsp;
           th(v-for="col in gridColumns" :key="'h' + col.column") {{ col.label }}
       tbody
+        //- His worked example under his headings, shown and never typed into — item 15.18,
+        //- design/mockups/strategy-capture-worked-example.html, approved 2026-10-02.
+        tr.scc2-eg-row(v-if="gridExamples.some(text => text)")
+          td.scc2-attr &nbsp;
+          td.scc2-eg(v-for="(text, i) in gridExamples" :key="'eg' + i")
+            template(v-if="text")
+              span.scc2-egtext {{ text }}
+              span.scc2-egtag {{ $t('strategyPlanner.capture.yourExample') }}
         template(v-for="group in gridRows")
           tr(v-for="(line, i) in group.lines" :key="line.key")
             //- His attribute name spans its own lines rather than repeating on each.
@@ -168,6 +176,9 @@ section.scc2
         p.scc2-block-label(v-if="block.label")
           | {{ block.label }}
           span.scc2-stamp(v-if="stampOf(block)") {{ stampOf(block) }}
+        p.scc2-eg(v-if="exampleOf(block)")
+          span.scc2-egtext {{ exampleOf(block) }}
+          span.scc2-egtag {{ $t('strategyPlanner.capture.yourExample') }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
           label.scc2-field-label(
             v-if="field.rowLabel"
@@ -674,6 +685,17 @@ export default {
     },
 
     /**
+     * His worked example for each grid column, in `gridColumns` order — '' where a column
+     * has none. Carried on the column's first box as `bandExample` (item 15.18).
+     *
+     * @returns {string[]}
+     */
+    gridExamples () {
+      return this.gridColumns.map(col =>
+        (this.visitFields.find(f => f.column === col.column && f.bandExample) || {}).bandExample || '')
+    },
+
+    /**
      * The rows of that grid, each carrying one box per column, grouped under the
      * attribute they belong to so his name spans its lines rather than repeating.
      *
@@ -751,6 +773,16 @@ export default {
     stampOf (block) {
       const field = (block.fields || []).find(f => this.fieldStamps[f.key])
       return field ? this.fieldStamps[field.key] : ''
+    },
+
+    /**
+     * His worked example for a block — shown above its lines, never typed into (item 15.18).
+     * @param {{fields: Array<{bandExample: string=}>}} block
+     * @returns {string} the example, or '' where his table gives none
+     */
+    exampleOf (block) {
+      const field = (block.fields || []).find(f => f.bandExample)
+      return field ? field.bandExample : ''
     },
 
     /**
@@ -1091,6 +1123,32 @@ export default {
   font-weight: 700;
   color: #002b64;
   margin-bottom: 6px;
+}
+
+/* His worked example — the approved drawing's greyed line and tag (item 15.18). */
+.scc2-eg {
+  background: #fafcfe;
+  margin-bottom: 6px;
+}
+
+.scc2-egtext {
+  color: #6b7f99;
+  font-size: 12.5px;
+  font-style: italic;
+}
+
+.scc2-egtag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #6b7f99;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  vertical-align: 2px;
 }
 
 .scc2-stamp {
