@@ -549,31 +549,6 @@
       "touches": "normalise in server/utils/meetingReports.js and every caller: Meeting Review's quote verification, Wordsmith's checkDraft and the Wordsmith Lab.",
       "note": "MEASURE FIRST, on non-English transcripts: does it ever let a wrong word through? Any change must not loosen Meeting Review's checks. Wordsmith's invented-name check already reads accented letters (wordsOf, 13.7).",
       "comment": "2026-10-02 - filed on Mike's yes at shutdown. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "15.33",
-      "name": "A planner session holding a removed concept can never be saved again",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "putScope refuses any id it no longer knows, so a session saved before a concept was removed fails every save, and the advisor cannot untick a concept the screen no longer shows.",
-      "risk": "The advisor sees 'did not save' on every change with no way out, and the scope count overshoots ('52 of 50 included'). Today: sessions saved before 15.17 removed eight ids on 2026-09-23 - 47 of 192 dev sessions. Later: any concept removed, possibly a firm's imported one (15.20, unchecked).",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-02 - found walking Tension Point Scripts (15.22) on session 79; filed on Mike's yes."
-      },
-      "touches": "server/routes/strategyPlanner.js putScope (the UNKNOWN_FRAMEWORK guard); pages/strategy-planner.vue saveScope and session load; components/strategy/StrategyScopeMenu.vue includedOf count.",
-      "note": "MIKE'S RULING 2026-10-02: drop a removed concept QUIETLY when the session opens, so it saves again, and write each removal to the server log for audit - no message to the advisor. The putScope guard stays: it still refuses an unknown id sent from the browser.",
-      "comment": "2026-10-02 - filed on Mike's yes; ruled the same day. Score and scoreReason are ours; he has not ranked it.",
-      "activeOn": {
-        "machine": "laptop",
-        "since": "2026-10-02"
-      }
     }
   ]
 }

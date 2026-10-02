@@ -392,6 +392,22 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**15.33 · A planner session holding a removed concept could never be saved again.**
+✅ **Closed 2026-10-02 by Mike ("yes" to marking it done), the day it was found.**
+
+- **What it really was:** sessions saved before 15.17 removed eight ids on 2026-09-23 still
+  listed them, so `putScope` refused every save, the scope count read "52 of 50 included", and
+  the advisor could not untick a concept the screen no longer showed - 47 of 192 dev sessions.
+- **What was done, on Mike's ruling:** `getSession` drops a concept that no longer exists from
+  the list and every step when the session opens, quietly, and logs each removal for audit
+  (`withoutRemovedConcepts` in `server/routes/strategyPlanner.js`). The `putScope` guard is
+  unchanged - an unknown id sent from the browser is still refused.
+- **What proves it:** two tests in `strategyPlanner.routes.test.js` (a removed id dropped and
+  logged; a clean session returned exactly as stored). Walked on dev session 79: "44 of 50
+  included", Save session accepted, no error, the removal in the server log. Full suite 15,287.
+- **Not checked here:** whether UAT holds any such session - if it does, it heals itself on its
+  next opening.
+
 **7.21 · Earlier messages, including the AI's own recommendation, were cut to 2,000 characters
 each turn.** ✅ **Closed 2026-10-02 by Mike ("done").**
 
