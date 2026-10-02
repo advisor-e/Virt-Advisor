@@ -323,17 +323,21 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "Every earlier message is trimmed to 2,000 characters before it goes back to the AI, and a full recommendation runs far longer, so a follow-up is answered without most of what was advised.",
-      "risk": "Follow-up answers may contradict or forget the recommendation. The limit is a safety check on what the browser sends, so the fix needs design - for example keeping the AI's replies on the server - not just a bigger number. How often it bites is unmeasured.",
+      "risk": "Follow-up answers may contradict or forget the recommendation. The limit is a safety check on what the browser sends, so the fix needs design, not just a bigger number. Measured 2026-10-02: all 51 bench client recommendations exceed it; about half is lost at the middle length.",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-10-01 - found in the digest-and-addendum review; filed on Mike's instruction to record every suggestion. A defect we found."
       },
       "touches": "server/utils/sanitiseInput.js lines 11 and 59-63; server/advisorEngine.js history replay; the 2-hour in-memory session store (about 376-413); a rolling conversation summary as the alternative to full replay.",
-      "note": "Confirmed in code 2026-10-01: MAX_FIELD 2000 applies to assistant turns too. Recommendation replies allow up to 2,500 tokens, roughly 10,000 characters. Measure on the answer bench (7.19, built 2026-10-01): a before and an after run, back to back.",
-      "comment": "2026-10-01 - filed on Mike's instruction. Score and scoreReason are ours; he has not ranked it."
+      "note": "DESIGNED 2026-10-02, awaiting Mike's approval: design/FOLLOW-UP-FULL-REPLIES.md. The server keeps its own copy of each reply and uses it where the browser's copy matches; the session opens only for the advisor who started it. Measure: the 51 baseline replies reach the AI whole, no AI calls.",
+      "comment": "2026-10-02 - Mike's yes to start it on the laptop: impact test run, design committed for his approval. Score and scoreReason are ours; he has not ranked it.",
+      "activeOn": {
+        "machine": "laptop",
+        "since": "2026-10-02"
+      }
     },
     {
       "ref": "7.22",
