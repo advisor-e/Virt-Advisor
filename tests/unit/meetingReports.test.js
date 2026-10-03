@@ -97,6 +97,33 @@ describe('meetingReports — quote verification', () => {
   })
 })
 
+// 🔴 Item 13.11. The comparison kept a-z only: a word in nine of the app's 28 languages became
+// nothing, so no quote in them could ever be confirmed, and a quote with one accented letter
+// swapped for another passed as genuine. Nobody in UAT reads a Russian transcript.
+describe('meetingReports — quote verification in every alphabet', () => {
+  it('finds a true quote in Russian, Greek and Chinese, and refuses an invented one', () => {
+    expect(findQuote([seg('advisor', 0, 9, 'Мы обсудили бюджет на следующий год')], 'обсудили бюджет на следующий год')).not.toBeNull()
+    expect(findQuote([seg('advisor', 0, 9, 'Мы обсудили бюджет на следующий год')], 'мы решили закрыть магазин завтра')).toBeNull()
+    expect(findQuote([seg('advisor', 0, 9, 'Συζητήσαμε τον προϋπολογισμό για τον επόμενο χρόνο')], 'τον προϋπολογισμό για τον επόμενο χρόνο')).not.toBeNull()
+    expect(findQuote([seg('advisor', 0, 9, '我们讨论了明年的预算和招聘计划')], '讨论了明年的预算和招聘')).not.toBeNull()
+    expect(findQuote([seg('advisor', 0, 9, '我们讨论了明年的预算和招聘计划')], '我们决定关闭这家商店')).toBeNull()
+  })
+
+  it('refuses a quote with one accented letter swapped for another', () => {
+    const segments = [seg('advisor', 0, 9, 'Wir haben die Preise für die Gäste erhöht')]
+    expect(findQuote(segments, 'die Preise für die Gäste erhöht')).not.toBeNull()
+    expect(findQuote(segments, 'die Preise für die Göste erhöht')).toBeNull()
+  })
+
+  it('still refuses a fragment too short to be evidence, in a language written without spaces', () => {
+    expect(findQuote([seg('advisor', 0, 9, '我们讨论了明年的预算和招聘计划')], '明年的预算')).toBeNull()
+  })
+
+  it('matches an accent typed as a separate mark against the same letter typed whole', () => {
+    expect(normalise('Gäste')).toBe(normalise('Gäste'))
+  })
+})
+
 describe('meetingReports — what is put in front of the model', () => {
   it('wraps the transcript in delimiters and tells the model it is not instructions', () => {
     const messages = buildSummaryMessages({ segments: TRANSCRIPT.segments, scenarioName: 'End of year meeting' })

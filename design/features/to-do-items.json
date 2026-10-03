@@ -468,7 +468,7 @@
     },
     {
       "ref": "22.3",
-      "name": "First-load page code is 382 KB against the 300 KB limit",
+      "name": "First-load page code is 387 KB against the 300 KB limit",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -484,29 +484,8 @@
         "detail": "2026-10-01 - measured while registering Datepicker and Progress (66e010c9); filed on Mike's yes."
       },
       "touches": "nuxt.config.js build settings, plugins/i18n.js (whether locales/en.json is bundled), plugins/buefy.js; the measurement method should match the master team's.",
-      "note": "Production build 2026-10-01, gzipped: runtime 3.1 + commons/app 57.3 + vendors~app 110.0 + app 211.7 = 382 KB before any page; /firm-manager adds 209 KB, /advisor totals 456 KB. Suspected cause, unproved: the 212 KB app chunk carries the English locale file. First job: confirm the master team's measuring method, then find what is in app.",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "13.11",
-      "name": "Text comparison drops accented letters, so a check could miss a changed word",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness - unproved harm, in languages other than English",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "normalise() in server/utils/meetingReports.js keeps a-z, 0-9 and apostrophes only, so \"Gäste\" becomes \"g ste\" and two words differing only in an accented letter compare equal.",
-      "risk": "Meeting Review's quote check and Wordsmith's must-keep check could pass a draft that changed an accented word. Not seen to happen; both sides are stripped alike, so a true quote still matches.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-02 - found while making Wordsmith's checks work in other languages (13.7); filed on Mike's yes at shutdown."
-      },
-      "touches": "normalise in server/utils/meetingReports.js and every caller: Meeting Review's quote verification, Wordsmith's checkDraft and the Wordsmith Lab.",
-      "note": "MEASURE FIRST, on non-English transcripts: does it ever let a wrong word through? Any change must not loosen Meeting Review's checks. Wordsmith's invented-name check already reads accented letters (wordsOf, 13.7).",
-      "comment": "2026-10-02 - filed on Mike's yes at shutdown. Score and scoreReason are ours; he has not ranked it."
+      "note": "CAUSE PROVED 2026-10-03, production build, gzipped: runtime 3.3 + commons/app 57.3 + vendors~app 109.2 + app 217.5 = 387 KB. locales/en.json is 140 KB of it, bundled whole into app; without it about 247 KB. 13.9 added about 5 KB. The other seven locales are about 2 KB each. Next: a design so each page loads only the wording it uses - serving the file outside the JS would move the number, not the download.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. 2026-10-03 - cause proved and recorded on Mike's yes. MIKE'S CALL 2026-10-03: PROCEED - next is the design."
     },
     {
       "ref": "13.12",

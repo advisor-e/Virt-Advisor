@@ -392,6 +392,24 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**13.11 · Text comparison dropped accented letters, so a check could miss a changed word.**
+✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was measured and built.**
+
+- **What it really was - worse than filed:** `normalise` in `server/utils/meetingReports.js`
+  kept a-z only. Measured on the real functions: a quote with one accented letter swapped
+  (Gäste → Göste) passed as genuine; and in the nine of the app's 28 languages not written in
+  a-z (ar, el, he, hi, ja, ko, ru, uk, zh) every word became nothing, so Meeting Review could
+  never confirm a true quote and Wordsmith's must-keep check passed a draft that had dropped
+  the phrase.
+- **What was done, on Mike's yes:** `normalise` keeps letters, marks and numbers in any script
+  (NFC first). A quote needs 4 words to be evidence, or 8 characters in Chinese and Japanese,
+  which put no spaces between words. Meeting Review's checks only tighten.
+- **What proves it:** new cases in `meetingReports.test.js` (Russian, Greek, Chinese found and
+  invented refused; the swap refused; a short Chinese fragment refused; a separate accent mark
+  matched) and `wordsmith.test.js` (a lost Russian phrase flagged). Against the old code 4 fail.
+  Full suite 697 files / 15,304 tests.
+- **Not checked here:** no recorded meeting in those languages exists on the laptop.
+
 **7.29 · Template descriptions and the name check read the seed library, not each firm's
 uploaded library.** ✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was built.**
 
