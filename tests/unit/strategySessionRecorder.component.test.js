@@ -51,7 +51,7 @@ let calls = []
 function reply (url, opts) {
   calls.push({ url, method: (opts && opts.method) || 'GET', body: opts && opts.body && typeof opts.body === 'string' ? JSON.parse(opts.body) : null })
   let body = {}
-  if (url === '/api/meeting/consent') { body = { retentionPhrase: '18 months' } }
+  if (url === '/api/meeting/consent') { body = { retentionMonths: 18 } }
   if (url === '/api/meeting/recordings' && opts.method === 'POST') { body = { meetingId: 'm1' } }
   if (/\/segments$/.test(url)) {
     const n = calls.filter(c => /\/segments$/.test(c.url)).length

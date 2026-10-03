@@ -105,7 +105,7 @@ describe('PUT — setting the period', () => {
     const res = makeRes()
     await routes.setRetention(managerReq({ months: 12 }), res)
     expect(res._status).toBe(200)
-    expect(res._body).toEqual({ saved: true, months: 12, phrase: '1 year' })
+    expect(res._body).toEqual({ saved: true, months: 12 })
     expect(overlay.saveFirmConfig).toHaveBeenCalledWith(
       'firm-1', 'register-retention', { months: 12 }, 'manager@firm.example')
   })

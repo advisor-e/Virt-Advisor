@@ -37,12 +37,12 @@ const PAYLOAD = {
       id: EOY,
       name: 'End of Year Meeting',
       points: [
-        { id: 'mo-eoy-1', text: 'The meeting was framed.', sourceTier: 'platform', sourceLabel: 'From Advisor-e', hintWords: [] },
-        { id: 'fm-2', text: "Our firm's own question.", sourceTier: 'firm', sourceLabel: 'From your firm', hintWords: [] },
-        { id: 'ao-1', text: 'I asked about home.', sourceTier: 'advisor', sourceLabel: 'Added by you', hintWords: ['at home'] }
+        { id: 'mo-eoy-1', text: 'The meeting was framed.', sourceTier: 'platform', hintWords: [] },
+        { id: 'fm-2', text: "Our firm's own question.", sourceTier: 'firm', hintWords: [] },
+        { id: 'ao-1', text: 'I asked about home.', sourceTier: 'advisor', hintWords: ['at home'] }
       ],
       setAside: [
-        { id: 'mo-eoy-4', text: 'Named actions were agreed.', sourceTier: 'firm', sourceLabel: 'From your firm', hintWords: [] }
+        { id: 'mo-eoy-4', text: 'Named actions were agreed.', sourceTier: 'firm', hintWords: [] }
       ]
     },
     { id: 'client_sales', name: 'Client Sales', points: [], setAside: [] }
@@ -253,12 +253,13 @@ const CLIENT_PAYLOAD = {
       id: EOY,
       name: 'End of Year Meeting',
       points: [
-        { id: 'mo-eoy-1', text: 'The meeting was framed.', sourceTier: 'platform', sourceLabel: 'From Advisor-e', hintWords: [] },
-        { id: 'ao-1', text: 'I asked about home.', sourceTier: 'advisor', sourceLabel: 'Added by you', hintWords: [] },
-        { id: 'eo-1', text: 'Raise succession gently.', sourceTier: 'client', sourceLabel: 'For this client · added by Tom Boyd', hintWords: [], setBy: { byId: 'adv-t', byName: 'Tom Boyd', at: 'x' } }
+        { id: 'mo-eoy-1', text: 'The meeting was framed.', sourceTier: 'platform', hintWords: [] },
+        { id: 'ao-1', text: 'I asked about home.', sourceTier: 'advisor', hintWords: [] },
+        { id: 'eo-1', text: 'Raise succession gently.', sourceTier: 'client', hintWords: [], setBy: { byId: 'adv-t', byName: 'Tom Boyd', at: 'x' } },
+        { id: 'eo-2', text: 'Ask about the new site.', sourceTier: 'client', hintWords: [], setBy: { byId: null, byName: null, at: null } }
       ],
       setAside: [
-        { id: 'fm-2', text: "Our firm's own question.", sourceTier: 'firm', sourceLabel: 'From your firm', setAsideLabel: 'off for this client · set aside by Ruth Kelleher', hintWords: [] }
+        { id: 'fm-2', text: "Our firm's own question.", sourceTier: 'firm', hintWords: [], setBy: { byId: 'adv-r', byName: 'Ruth Kelleher', at: 'x' } }
       ]
     }
   ]
@@ -291,12 +292,29 @@ describe("the client's level", () => {
     await flush(); await flush()
     const reads = global.fetch.mock.calls.map(c => String(c[0]))
     expect(reads).toContain('/api/meeting/observations/client/' + CLIENT)
-    expect(wrapper.vm.current.points.map(p => p.id)).toEqual(['mo-eoy-1', 'ao-1', 'eo-1'])
+    expect(wrapper.vm.current.points.map(p => p.id)).toEqual(['mo-eoy-1', 'ao-1', 'eo-1', 'eo-2'])
     expect(wrapper.vm.clientName).toBe('Harbourside Joinery Ltd')
 
     wrapper.vm.clientId = ''
     await flush(); await flush()
     expect(wrapper.vm.current.points.map(p => p.id)).toEqual(['mo-eoy-1', 'fm-2', 'ao-1'])
+  })
+
+  it('🔴 words each source line from its tier and who set it, and never shows a missing name as blank', async () => {
+    // Item 13.12: the backend sends the tier and the name; the words come from the locale file
+    // in the reader's language. A nameless entry must read as the advisor level's own phrase —
+    // a tester rarely meets one, which is why this is a test.
+    const wrapper = mountWithClients()
+    await flush()
+    wrapper.vm.clientId = CLIENT
+    await flush(); await flush()
+    const label = id => wrapper.vm.sourceLabel(wrapper.vm.current.points.find(p => p.id === id))
+    expect(label('mo-eoy-1')).toBe('meetingPreset.sourcePlatform')
+    expect(label('ao-1')).toBe('meetingPreset.sourceAdvisor')
+    expect(label('eo-1')).toBe('meetingPreset.sourceClient {"name":"Tom Boyd"}')
+    expect(label('eo-2')).toBe('meetingPreset.sourceClient {"name":"meetingPreset.unknownAdvisor"}')
+    expect(wrapper.vm.setAsideLabel(wrapper.vm.current.setAside[0])).toBe('meetingPreset.setAsideClient {"name":"Ruth Kelleher"}')
+    expect(wrapper.vm.sourceLabel({ sourceTier: 'mystery' })).toBe('')
   })
 
   it('🔴 a client-level set-aside carries the client id and nothing about who is asking', async () => {

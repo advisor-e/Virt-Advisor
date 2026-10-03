@@ -95,10 +95,10 @@ describe('meetingObservationsEntity — applyEntityLayer', () => {
     const nameless = out.find(p => p.id === 'eo-2')
     expect(named.source).toBe(entity.ENTITY_SOURCE)
     expect(named.sourceTier).toBe('client')
-    expect(named.sourceLabel).toContain('Tom Boyd')
     expect(named.setBy).toEqual({ byId: 'adv-t', byName: 'Tom Boyd', at: '2026-09-10T00:00:00.000Z' })
-    expect(nameless.sourceLabel).not.toMatch(/adv-|undefined|null/)
+    // A nameless entry sends null, never the id, for the screen to word (item 13.12).
     expect(nameless.setBy.byName).toBeNull()
+    expect(named).not.toHaveProperty('sourceLabel')
   })
 
   test('a bare-string decline (hand-edited dev file) is still honoured', () => {
@@ -127,7 +127,7 @@ describe('meetingObservationsEntity — entitySetAsidePoints', () => {
     ]
     const out = entity.entitySetAsidePoints(mine, declines)
     expect(out.map(p => p.id)).toEqual(['mo-eoy-1'])
-    expect(out[0].setAsideLabel).toContain('Ruth Kelleher')
+    expect(out[0].setBy.byName).toBe('Ruth Kelleher')
     expect(out[0].sourceTier).toBe('platform')
     expect(entity.entitySetAsidePoints(mine, [])).toEqual([])
   })
@@ -195,8 +195,8 @@ describe('meetingObservationsEntity — nextEntityPointId', () => {
   })
 })
 
-describe('meetingObservationsEntity — labels', () => {
-  test('the tier label table adds the client level to the advisor level\'s three', () => {
-    expect(entity.SOURCE_TIER_LABELS).toEqual({ ...advisor.SOURCE_TIER_LABELS, client: 'For this client' })
+describe('meetingObservationsEntity — tiers', () => {
+  test('the client level is added to the advisor level\'s three', () => {
+    expect(entity.SOURCE_TIERS).toEqual(advisor.SOURCE_TIERS.concat('client'))
   })
 })

@@ -25,7 +25,7 @@
 
 const {
   ADVISOR_SOURCE_LABELS,
-  SOURCE_TIER_LABELS,
+  SOURCE_TIERS,
   MAX_OWN_POINTS_PER_SCENARIO,
   validateAdvisorPoint,
   readAdvisorDeclines,
@@ -117,25 +117,28 @@ describe('which tier an advisor is told a point came from', () => {
     expect(sourceTierOf(null)).toBe('firm')
   })
 
-  it('pins the three approved labels, because a silent change misattributes authorship', () => {
+  it('pins the three tiers and their approved labels, because a silent change misattributes authorship', () => {
     // 🔴 LOAD-BEARING WORDING, and the one place it is pinned. These are Mike's ruling of
     // 2026-09-08 (question 3): five tiers collapse to THREE labels, the middle two folding
     // into the firm. If "From your firm" ever drifted onto a platform point, or the middle
     // tiers gained a fourth label, an advisor would be told the wrong organisation is
     // accountable for what they are assessed against. That is not a wording preference.
-    expect(SOURCE_TIER_LABELS).toEqual({
-      platform: 'From Advisor-e',
-      firm: 'From your firm',
-      advisor: 'Added by you'
-    })
+    // Since item 13.12 the backend sends the tier and the screen words it from the locale
+    // file, so the words are pinned there — with the client level's two (ruled 2026-09-10).
+    expect(SOURCE_TIERS).toEqual(['platform', 'firm', 'advisor'])
+    const words = require('../../locales/en.json').meetingPreset
+    expect([words.sourcePlatform, words.sourceFirm, words.sourceAdvisor])
+      .toEqual(['From Advisor-e', 'From your firm', 'Added by you'])
+    expect([words.sourceClient, words.setAsideClient, words.unknownAdvisor])
+      .toEqual(['For this client · added by {name}', 'off for this client · set aside by {name}', 'an advisor whose name we do not hold'])
   })
 })
 
 describe('applying the advisor layer', () => {
-  it('stamps every point with a tier and its label', () => {
+  it('stamps every point with a tier, and no English label', () => {
     const out = applyAdvisorLayer(FIRM_POINTS, { declines: [], own: [] })
     expect(out.map(p => p.sourceTier)).toEqual(['platform', 'firm', 'firm', 'firm'])
-    expect(out.every(p => typeof p.sourceLabel === 'string' && p.sourceLabel)).toBe(true)
+    expect(out.some(p => 'sourceLabel' in p)).toBe(false)
   })
 
   it('removes a point the advisor set aside, and only for them', () => {

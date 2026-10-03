@@ -149,8 +149,9 @@ export default {
 
   methods: {
     /**
-     * One period in words. Mirrors the backend's `retentionPhrase` for the options list,
-     * which the backend cannot render because it never sees the list.
+     * One period in words, in the reader's language — the only place this period becomes
+     * words (item 13.12). Whole years are said as years: "1 year" is how a records policy
+     * is written, and "12 months" is the same period.
      * @param {number} m - whole months
      * @returns {string}
      */
@@ -178,7 +179,7 @@ export default {
         this.months = data.resolved.months
         this.source = data.resolved.source
         this.ownMonths = data.ownMonths
-        this.phrase = data.phrase
+        this.phrase = this.monthsPhrase(data.resolved.months)
         this.min = data.min
         this.max = data.max
         // The control opens on what is in force, so saving without touching it is a

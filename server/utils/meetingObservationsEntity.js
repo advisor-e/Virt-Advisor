@@ -45,7 +45,7 @@
 
 const {
   validateAdvisorPoint,
-  SOURCE_TIER_LABELS: ADVISOR_SOURCE_TIER_LABELS,
+  SOURCE_TIERS: ADVISOR_SOURCE_TIERS,
   MAX_OWN_POINTS_PER_SCENARIO
 } = require('./meetingObservationsAdvisor')
 
@@ -93,15 +93,6 @@ const ENTITY_POINT_PREFIX = 'eo-'
 /** The `source` stamped on a client-level point, and the tier the screen colours it by. */
 const ENTITY_SOURCE = 'for-this-client'
 const ENTITY_TIER = 'client'
-
-/**
- * The approved label stem for a client-level point. The name is appended by
- * `entitySourceLabel`, because question 4 ruled that every entry names who set it.
- */
-const ENTITY_LABEL_STEM = 'For this client'
-
-/** The label suffix on a point set aside for this client, before the name. */
-const SET_ASIDE_STEM = 'off for this client'
 
 /** How a stored name or id is read: trimmed, capped, or null. Never an empty string. */
 function readName (value) {
@@ -235,29 +226,10 @@ function readEntityOwn (stored) {
   return { scenarios, nextSeq }
 }
 
-/**
- * The approved source line for a client-level point: "For this client · added by Tom Boyd".
- * With no name held: "For this client · added by an advisor whose name we do not hold" — the
- * advisor level's own wording for the same gap.
- *
- * @param {{byName: (string|null)}} row
- * @returns {string}
- */
-function entitySourceLabel (row) {
-  const who = (row && row.byName) ? row.byName : 'an advisor whose name we do not hold'
-  return ENTITY_LABEL_STEM + ' · added by ' + who
-}
-
-/**
- * The suffix on a set-aside point: "off for this client · set aside by Ruth Kelleher".
- *
- * @param {{byName: (string|null)}} row
- * @returns {string}
- */
-function setAsideLabel (row) {
-  const who = (row && row.byName) ? row.byName : 'an advisor whose name we do not hold'
-  return SET_ASIDE_STEM + ' · set aside by ' + who
-}
+// 🔴 QUESTION 4 (2026-09-10): every client-level entry names who set it. The point carries
+// `setBy`, and the screen words "For this client · added by Tom Boyd" and "off for this client
+// · set aside by Ruth Kelleher" in the reader's language (item 13.12) — with the advisor
+// level's own phrase when no name is held.
 
 /**
  * The points in force for ONE advisor meeting ONE client, in one meeting type.
@@ -294,7 +266,6 @@ function applyEntityLayer (advisorPoints, entityState) {
       cannotHear: Boolean(r.cannotHear),
       source: ENTITY_SOURCE,
       sourceTier: ENTITY_TIER,
-      sourceLabel: entitySourceLabel(r),
       setBy: { byId: r.byId || null, byName: r.byName || null, at: r.at || null }
     }))
 
@@ -311,7 +282,7 @@ function applyEntityLayer (advisorPoints, entityState) {
  *
  * @param {Array<object>} advisorPoints - from `applyAdvisorLayer`
  * @param {object[]} declines - from `readEntityDeclines`, one scenario
- * @returns {Array<object>} points carrying `sourceTier`, `sourceLabel`, `setAsideLabel` and `setBy`
+ * @returns {Array<object>} points carrying `sourceTier` and `setBy` - who set it aside
  */
 function entitySetAsidePoints (advisorPoints, declines) {
   const byId = {}
@@ -326,7 +297,6 @@ function entitySetAsidePoints (advisorPoints, declines) {
       const d = byId[p.id]
       return {
         ...p,
-        setAsideLabel: setAsideLabel(d),
         setBy: { byId: d.byId || null, byName: d.byName || null, at: d.at || null }
       }
     })
@@ -360,12 +330,11 @@ function nextEntityPointId (existingOwnRows, lastSeq) {
 }
 
 /**
- * The tier labels an advisor is shown, with the client level added to the advisor level's
- * three. Exported so the screen and the tests read one table.
+ * The tiers an advisor is shown, with the client level added to the advisor level's three.
  *
- * @type {Object.<string, string>}
+ * @type {string[]}
  */
-const SOURCE_TIER_LABELS = { ...ADVISOR_SOURCE_TIER_LABELS, [ENTITY_TIER]: ENTITY_LABEL_STEM }
+const SOURCE_TIERS = ADVISOR_SOURCE_TIERS.concat(ENTITY_TIER)
 
 module.exports = {
   CONFIG_KEYS,
@@ -375,14 +344,12 @@ module.exports = {
   ENTITY_POINT_PREFIX,
   ENTITY_SOURCE,
   ENTITY_TIER,
-  SOURCE_TIER_LABELS,
+  SOURCE_TIERS,
   MAX_OWN_POINTS_PER_SCENARIO,
   entityConfigKey,
   entityIdFromKey,
   readEntityDeclines,
   readEntityOwn,
-  entitySourceLabel,
-  setAsideLabel,
   applyEntityLayer,
   entitySetAsidePoints,
   nextEntityPointId

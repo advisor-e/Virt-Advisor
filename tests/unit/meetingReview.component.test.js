@@ -380,6 +380,21 @@ describe('🔴 since we last met — the three states are distinguishable', () =
     w.destroy()
   })
 
+  it('the expired panel words the firm\'s period from its months, and an older report keeps its stored words', async () => {
+    // Item 13.12: the period reaches the screen as a number and is worded in the reader's
+    // language. A report stored before then carries only the backend's English phrase, and
+    // showing it beats dropping the line.
+    const now = mountWith({ from: { meetingId: 'old', at: '2025-01-02T09:00:00.000Z' }, expired: true, retentionMonths: 6, items: [] })
+    await flush()
+    expect(now.vm.expiredPeriod).toBe('retentionPeriod.nMonths {"n":6}')
+    now.destroy()
+
+    const older = mountWith({ from: { meetingId: 'old', at: '2025-01-02T09:00:00.000Z' }, expired: true, retentionPhrase: '18 months', items: [] })
+    await flush()
+    expect(older.vm.expiredPeriod).toBe('18 months')
+    older.destroy()
+  })
+
   it('a first meeting with a client is a different state from a meeting with no client', async () => {
     const first = mountWith({ none: true, reason: 'first', items: [] })
     await flush()

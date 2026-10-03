@@ -173,20 +173,22 @@ describe('keptUntil — the sentence on the register', () => {
   })
 })
 
-describe('retentionPhrase — the period as a screen reads it', () => {
-  it.each([[18, '18 months'], [1, '1 month'], [6, '6 months']])('%p months reads as %p', (months, words) => {
-    expect(retention.retentionPhrase(months)).toBe(words)
+describe('the period becomes words on the screen, never here (item 13.12)', () => {
+  // FirmRegisterRetention.vue `monthsPhrase` words it in the reader's language. Called with a
+  // stand-in `$t` that returns the key, so this pins which wording is chosen, not the words.
+  const { methods } = require('../../components/firm/FirmRegisterRetention.vue').default
+  const phrase = m => methods.monthsPhrase.call({ $t: (k, p) => p ? k + ' ' + JSON.stringify(p) : k }, m)
+
+  it('says a whole year as a year — "12 months" is the wrong register for a records policy', () => {
+    expect(phrase(12)).toBe('registerRetention.oneYear')
   })
 
-  // A records policy is written in years where the period is one. "12 months" is the same
-  // span and the wrong register for the sentence it sits in.
-  it('says a whole year as a year', () => {
-    expect(retention.retentionPhrase(12)).toBe('1 year')
+  it('one month is singular, and any other figure is counted', () => {
+    expect(phrase(1)).toBe('registerRetention.oneMonth')
+    expect(phrase(18)).toBe('registerRetention.nMonths {"n":18}')
   })
 
-  // A screen must never show a blank where a period belongs, so an impossible figure
-  // renders the platform default rather than throwing or returning ''.
-  it.each([[0], [19], [84], [null], ['18'], [1.5]])('renders the default for %p', (bad) => {
-    expect(retention.retentionPhrase(bad)).toBe('18 months')
+  it('the backend no longer words it at all', () => {
+    expect(retention).not.toHaveProperty('retentionPhrase')
   })
 })

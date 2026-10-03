@@ -6241,8 +6241,19 @@
     "copied": "Copied — paste it into your email",
     "copyRefused": "Your browser would not let the app copy that. Select the text and copy it yourself."
   },
+  "retentionPeriod": {
+    "_note": "How long a firm keeps meeting transcripts, written from the number of months on the screen (item 13.12): the consent screens, the reports screen and the manager's Meeting Review tab. Once the backend's own English phrase.",
+    "oneMonth": "1 month",
+    "nMonths": "{n} months"
+  },
   "meetingPreset": {
-    "_note": "MeetingPreset.vue, what an advisor is checked on before a meeting. Moved here 2026-10-03 word for word, item 13.9, on Mike's yes.",
+    "_note": "MeetingPreset.vue, what an advisor is checked on before a meeting. Moved here 2026-10-03 word for word, item 13.9, on Mike's yes. The source* and setAsideClient labels are Mike's ruled wording (2026-09-08 and 2026-09-10), moved from the backend 2026-10-03, item 13.12.",
+    "sourcePlatform": "From Advisor-e",
+    "sourceFirm": "From your firm",
+    "sourceAdvisor": "Added by you",
+    "sourceClient": "For this client · added by {name}",
+    "setAsideClient": "off for this client · set aside by {name}",
+    "unknownAdvisor": "an advisor whose name we do not hold",
     "withWho": "Who is this meeting with?",
     "nobody": "Nobody in particular",
     "pickClient": "Pick a client to see, and change, what you check on with them in particular. Leave it as it is and you see your usual list.",

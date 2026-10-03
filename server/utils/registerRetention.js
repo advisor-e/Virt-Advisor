@@ -230,32 +230,9 @@ function keptUntil (openedAt, months) {
   return until.toISOString()
 }
 
-/**
- * The period in words, for a screen — the only place months become prose here.
- *
- * ⚠ A SEPARATE FUNCTION FROM `meetingRetention.retentionPhrase`, DELIBERATELY, for the same
- * reason the two dials are separate: that one renders a figure **spoken aloud to a client**
- * in approved consent wording, and must never change shape because a manager's screen wanted
- * different words. This one is read on a screen only.
- *
- * Whole years are said as years — "12 months" is the same period as "1 year" and the second
- * is how a records policy is written. Singular is handled because "1 months" on a manager's
- * screen makes the rest of the page look unconsidered.
- *
- * An out-of-range figure renders the platform default rather than throwing: a screen must
- * never show a blank where a period belongs.
- *
- * @param {number} months
- * @returns {string} e.g. "18 months", "1 year", "1 month"
- */
-function retentionPhrase (months) {
-  const n = Number(months)
-  if (!Number.isInteger(n) || n < MIN_MONTHS || n > MAX_MONTHS) {
-    return PLATFORM_DEFAULT_MONTHS + ' months'
-  }
-  if (n === 12) { return '1 year' }
-  return n === 1 ? '1 month' : n + ' months'
-}
+// The period becomes words on the SCREEN, in the reader's language (item 13.12):
+// FirmRegisterRetention.vue `monthsPhrase`, where whole years are said as years. This module
+// supplies the number and nothing else.
 
 module.exports = {
   CONFIG_KEY,
@@ -268,6 +245,5 @@ module.exports = {
   readStoredRetention,
   loadOwnRetention,
   loadResolvedRetention,
-  keptUntil,
-  retentionPhrase
+  keptUntil
 }

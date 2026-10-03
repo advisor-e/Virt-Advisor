@@ -168,25 +168,6 @@ describe('a refused database is never answered with a default', () => {
   })
 })
 
-describe('the figure as it is said out loud', () => {
-  test('plural months', () => {
-    expect(retention.retentionPhrase(18)).toBe('18 months')
-  })
-
-  test('one month is singular', () => {
-    // "kept for 1 months" in front of a client is the kind of carelessness that makes the
-    // rest of the sentence sound untrue too.
-    expect(retention.retentionPhrase(1)).toBe('1 month')
-  })
-
-  test.each([[0], [-3], [null], ['18'], [NaN], [1.5]])(
-    'an unusable value (%p) falls back to the platform default rather than printing itself',
-    (value) => {
-      expect(retention.retentionPhrase(value)).toBe(retention.PLATFORM_DEFAULT_MONTHS + ' months')
-    }
-  )
-})
-
 describe('the platform default', () => {
   test("is Mike's ruling of 2026-09-01", () => {
     // 🔴 A DELIBERATE PIN, and `CLAUDE.md` says to say why. This is not a tuning constant: it

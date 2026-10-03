@@ -489,7 +489,7 @@
     },
     {
       "ref": "13.12",
-      "name": "Retention period, added-by and set-aside-by labels and backend errors reach meeting screens in English",
+      "name": "Backend error messages reach the screens in English, whatever the reader's language",
       "rankedByMike": false,
       "kind": "defect",
       "score": 3,
@@ -497,16 +497,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Us",
-      "why": "The backend writes these words itself, so they stay English in any reader's language: retentionPhrase (\"18 months\"), the set-up screen's sourceLabel and setAsideLabel, and error messages such as \"No such meeting\".",
-      "risk": "The consent screen's privacy sentence, \"The transcript is kept for {months}\", reads German around an English period. The reports screen's retention line and every set-up point's source label do the same. Seen walking the meeting pages in German on 2026-10-03.",
+      "why": "Every Restify route returns its error message in English, and screens show it as sent: \"No such meeting\" on a German reports page. The meeting routes alone send 46 codes with 75 messages.",
+      "risk": "A reader in another language meets English exactly when something has gone wrong. No shared way exists to word a backend error in the reader's language; only moderation blocks are translated, from a fixed list (mixins/moderationMessage.js).",
       "askedBy": {
         "who": "us",
         "ours": true,
         "detail": "2026-10-03 - found proving 13.9 in German; filed on Mike's yes. A defect we found."
       },
-      "touches": "server/utils/meetingRetention.js and registerRetention.js retentionPhrase; server/utils/meetingObservationsEntity.js entitySourceLabel and setAsideLabel; meetingObservations.js sourceLabel; their routes; MeetingConsentPanel.vue retentionSentence, MeetingReview.vue, MeetingPreset.vue; locales/en.json.",
-      "note": "SCOPE FIRST. The backend already sends retentionMonths beside the phrase, so the screens can write the period themselves; the consent sentence takes the same care as the pinned consent wording. The source labels come from a pattern other features share (resolveInheritedRows), so check who else shows them before changing the shape.",
-      "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+      "touches": "server/utils/sendError and every route's messages; the screens' error handling (a shared mixin, as CLAUDE.md asks); locales/en.json.",
+      "note": "DONE 2026-10-03: the retention period and the set-up point labels - the backend sends months, tiers and names, the screens word them (mixins/retentionPeriod.js, MeetingPreset.vue). LEFT: a whole-app design for errors, so every screen words a backend error by its code in the reader's language.",
+      "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-03: PROCEED - period and labels built; errors wait on a whole-app design."
     },
     {
       "ref": "7.31",
@@ -527,6 +527,27 @@
       },
       "touches": "server/utils/semanticProfiles.js, contentRouting.js, logicTrees.js, resolveTemplateName.js, quizOverrides.js, templateCheck.js, templateCheckPatch.js; the seed fallback in server/routes/firmManager.js. Reuse templateLibrary.loadEffectiveTemplates, as 7.29 did.",
       "note": "SURVEY FIRST: for each module, say what it does with the library and whether a firm's upload should change it. Template Check may rightly compare against the master file. Fix only what the survey shows wrong, each proven like tests/unit/firmLibraryNames.test.js.",
+      "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "22.9",
+      "name": "cases.routes.test.js failed once in a full run and passed alone",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - a random failure can block a push",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "On 2026-10-03 one test in tests/unit/cases.routes.test.js failed in a full run; alone it passed 58 of 58, and the next full run passed whole. The failing run's message was not kept.",
+      "risk": "A test that fails at random can stop the pre-push gate for no reason, and teaches people to re-run rather than read - which is how a real failure gets waved through.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-03 - seen in the full suite while building 13.12; filed on Mike's yes. A defect we found."
+      },
+      "touches": "tests/unit/cases.routes.test.js and whatever shared state or timing it leans on; server/routes/cases.js if the route itself is order-dependent.",
+      "note": "FIRST JOB: catch it failing with its message - run the full suite repeatedly with --json and keep every failure. Fix the cause it shows; never retry or skip the test.",
       "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]

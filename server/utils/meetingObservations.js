@@ -583,12 +583,11 @@ function asAdvisorPreset (scenario) {
     cannotHear: Boolean(p.cannotHear),
     hintWords: Array.isArray(p.hintWords) ? p.hintWords : [],
     // Carried through for the advisor's own level (2026-09-08): which tier the advisor is
-    // told a point came from, and the approved words for it. Absent until
-    // `meetingObservationsAdvisor.applyAdvisorLayer` has stamped them, which is why these
-    // are conditional rather than defaulted — a screen that has not been through that layer
+    // told a point came from — the screen words it (item 13.12). Absent until
+    // `meetingObservationsAdvisor.applyAdvisorLayer` has stamped it, which is why it is
+    // conditional rather than defaulted — a screen that has not been through that layer
     // must show no source line at all, never an empty or guessed one.
-    ...(p.sourceTier ? { sourceTier: p.sourceTier } : {}),
-    ...(p.sourceLabel ? { sourceLabel: p.sourceLabel } : {})
+    ...(p.sourceTier ? { sourceTier: p.sourceTier } : {})
   }))
 }
 

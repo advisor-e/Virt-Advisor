@@ -222,8 +222,7 @@ function withSetBy (p) {
   const slim = asAdvisorPreset({ points: [p] })[0]
   return {
     ...slim,
-    ...(p.setBy ? { setBy: p.setBy } : {}),
-    ...(p.setAsideLabel ? { setAsideLabel: p.setAsideLabel } : {})
+    ...(p.setBy ? { setBy: p.setBy } : {})
   }
 }
 

@@ -165,8 +165,9 @@ function splitFindings (findings) {
  * @param {Array<object>} followFindings - from `splitFindings`
  * @param {object} [context]
  * @param {string} [context.reason] - why there is no previous meeting: `first` or `no_client`
- * @param {string} [context.retentionPhrase] - the firm's own period, rendered for the expired
- *   panel. Mike's ruling, 2026-09-07: the expired panel names it, and it is never hardcoded.
+ * @param {number} [context.retentionMonths] - the firm's own period, for the expired panel.
+ *   Mike's ruling, 2026-09-07: the expired panel names it, and it is never hardcoded. The
+ *   screen words it in the reader's language (item 13.12).
  * @returns {object} always an object — `none` marks the two empty cases
  */
 function buildBlock (previous, followFindings, context) {
@@ -180,7 +181,7 @@ function buildBlock (previous, followFindings, context) {
     return {
       from: { meetingId: previous.meetingId, at: previous.at },
       expired: true,
-      retentionPhrase: ctx.retentionPhrase || '',
+      retentionMonths: Number.isInteger(ctx.retentionMonths) ? ctx.retentionMonths : null,
       items: []
     }
   }

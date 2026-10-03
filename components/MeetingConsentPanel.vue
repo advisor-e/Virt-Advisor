@@ -9,13 +9,13 @@
       p.mcon-who {{ $t('meetingConsent.approvedNote') }}
       q.mcon-line {{ $t('meetingConsent.spokenLine') }}
 
-    p.is-size-7.mt-4(v-if="retentionPhrase") {{ retentionSentence }}
+    p.is-size-7.mt-4(v-if="period") {{ retentionSentence }}
     b-message.mt-4(v-else type="is-warning" size="is-small") {{ $t('meetingConsent.retentionUnreadable') }}
 
     .buttons.mt-4
       b-button(
         type="is-primary"
-        :disabled="!retentionPhrase"
+        :disabled="!period"
         :loading="busy"
         @click="$emit('start')") {{ $t('meetingConsent.step1Start') }}
       b-button(type="is-light" @click="$emit('cancel')") {{ $t('meetingConsent.step1Cancel') }}
@@ -71,11 +71,17 @@
  * string would have advisors saying something untrue the day a firm changes the dial, with
  * nothing on screen to show it. If the figure could not be read, the panel says so and
  * refuses to start — an unknown number is not something to guess at in front of a client.
+ * The period is worded here, in the reader's language, from the number of months (item
+ * 13.12) — never from the backend's words.
  *
  * Vue 2 Options API, Pug, Buefy.
  */
+import retentionPeriod from '~/mixins/retentionPeriod'
+
 export default {
   name: 'MeetingConsentPanel',
+
+  mixins: [retentionPeriod],
 
   props: {
     /** Which step is on screen: 1 before recording, 2 while it runs. */
@@ -84,8 +90,8 @@ export default {
       required: true,
       validator: v => v === 1 || v === 2
     },
-    /** The firm's retention period, already worded — e.g. "18 months". Empty when unknown. */
-    retentionPhrase: { type: String, default: '' },
+    /** The firm's retention period in whole months. Null when unknown. */
+    retentionMonths: { type: Number, default: null },
     /** Seconds captured so far, shown on step 2's bar. */
     elapsedSeconds: { type: Number, default: 0 },
     /** True while a request is in flight, so a button cannot be pressed twice. */
@@ -95,7 +101,12 @@ export default {
   computed: {
     /** The approved retention sentence with this firm's figure substituted. */
     retentionSentence () {
-      return this.$t('meetingConsent.step1Retention').replace('{months}', this.retentionPhrase)
+      return this.$t('meetingConsent.step1Retention').replace('{months}', this.period)
+    },
+
+    /** The period in words, or '' when the figure could not be read. */
+    period () {
+      return this.retentionPeriod(this.retentionMonths)
     },
 
     /** mm:ss, as the drawing shows it. */

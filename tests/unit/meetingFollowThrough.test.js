@@ -221,10 +221,12 @@ describe('the stored block', () => {
     expect(buildBlock(null, []).reason).toBe('first')
   })
 
-  test('the expired block carries the firm\'s own retention phrase, never a constant', () => {
+  test('the expired block carries the firm\'s own retention period, never a constant', () => {
     const prev = { meetingId: 'old', at: '2025-01-02T09:00:00.000Z', expired: true, actions: [] }
-    const block = buildBlock(prev, [], { retentionPhrase: '6 months' })
+    const block = buildBlock(prev, [], { retentionMonths: 6 })
     expect(block.expired).toBe(true)
-    expect(block.retentionPhrase).toBe('6 months')
+    // The months, not words: the screen writes the period in the reader's language (13.12).
+    expect(block.retentionMonths).toBe(6)
+    expect(block).not.toHaveProperty('retentionPhrase')
   })
 })

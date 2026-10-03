@@ -64,7 +64,7 @@
             span {{ p.text }}
             //- Question 4 (2026-09-08, and again 2026-09-10 for the client level): EVERY
             //- point, always. A client-level label already carries the name of who set it.
-            .mpre-src(:class="'is-' + p.sourceTier") {{ p.sourceLabel }}
+            .mpre-src(:class="'is-' + p.sourceTier") {{ sourceLabel(p) }}
         .mpre-acts(v-if="editingId !== p.id")
           //- Only a point written at THIS level can be edited or removed here. Rewriting an
           //- inherited point would be editing the level above — P14. Inside a client's list the
@@ -86,7 +86,7 @@
           span.mpre-box.is-off
           .mpre-body
             span.has-text-grey {{ p.text }}
-            .mpre-src(:class="'is-' + p.sourceTier") {{ p.sourceLabel }} · {{ clientId ? p.setAsideLabel : $t('meetingPreset.offForYou') }}
+            .mpre-src(:class="'is-' + p.sourceTier") {{ sourceLabel(p) }} · {{ clientId ? setAsideLabel(p) : $t('meetingPreset.offForYou') }}
           .mpre-acts
             b-button(size="is-small" type="is-text" :loading="saving" @click="setAside(p, false)") {{ $t('meetingPreset.putBack') }}
 
@@ -357,6 +357,36 @@ export default {
      * the advisor's OWN points are not offered: they are one person's, invisible to every
      * colleague, and are edited on that advisor's own list — a judgement stated, not assumed.
      */
+    /**
+     * Where a point came from, as the advisor reads it (item 13.12 — the backend sends the tier
+     * and, for a client-level point, who added it; never the words). Mike's ruling of
+     * 2026-09-08: the five tiers read as three, the middle two as "From your firm"; and of
+     * 2026-09-10: every client-level entry names who set it.
+     * @param {object} point
+     * @returns {string} '' for a tier this screen does not know, so no line is guessed
+     */
+    sourceLabel (point) {
+      const tier = point && point.sourceTier
+      if (tier === 'client') { return this.$t('meetingPreset.sourceClient', { name: this.setByName(point) }) }
+      const key = { platform: 'sourcePlatform', firm: 'sourceFirm', advisor: 'sourceAdvisor' }[tier]
+      return key ? this.$t('meetingPreset.' + key) : ''
+    },
+
+    /**
+     * Who set a point aside for this client.
+     * @param {object} point
+     * @returns {string}
+     */
+    setAsideLabel (point) {
+      return this.$t('meetingPreset.setAsideClient', { name: this.setByName(point) })
+    },
+
+    /** The name held for whoever set an entry, or the phrase for a name we do not hold. */
+    setByName (point) {
+      const name = point && point.setBy && point.setBy.byName
+      return name || this.$t('meetingPreset.unknownAdvisor')
+    },
+
     canSetAside (point) {
       if (point.sourceTier === this.editableTier) { return false }
       if (this.clientId && point.sourceTier === 'advisor') { return false }

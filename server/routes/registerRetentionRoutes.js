@@ -46,8 +46,7 @@ const {
   MAX_MONTHS,
   validateRetentionMonths,
   loadOwnRetention,
-  loadResolvedRetention,
-  retentionPhrase
+  loadResolvedRetention
 } = require('../utils/registerRetention')
 
 /**
@@ -114,7 +113,7 @@ async function writeScopeConfig (scopeId, value, savedBy) {
  *
  * @route GET /api/firm-manager/register-retention
  * @returns {{resolved: object, ownMonths: (number|null), platformDefault: number,
- *   min: number, max: number, phrase: string}}
+ *   min: number, max: number}} - the screen words `resolved.months` itself (item 13.12)
  */
 async function getRetention (req, res) {
   try {
@@ -125,8 +124,7 @@ async function getRetention (req, res) {
       ownMonths,
       platformDefault: PLATFORM_DEFAULT_MONTHS,
       min: MIN_MONTHS,
-      max: MAX_MONTHS,
-      phrase: retentionPhrase(resolved.months)
+      max: MAX_MONTHS
     })
   } catch (err) {
     return serverError(res, err, 'read the retention period')
@@ -147,7 +145,7 @@ async function getRetention (req, res) {
  *
  * @route PUT /api/firm-manager/register-retention
  * @param {object} req.body - `{ months: number }`
- * @returns {{saved: true, months: number, phrase: string}}
+ * @returns {{saved: true, months: number}}
  */
 async function setRetention (req, res) {
   const checked = validateRetentionMonths((req.body || {}).months)
@@ -158,8 +156,7 @@ async function setRetention (req, res) {
     await writeScopeConfig(req.firmId, { months: checked.value }, req.userEmail)
     res.send(200, {
       saved: true,
-      months: checked.value,
-      phrase: retentionPhrase(checked.value)
+      months: checked.value
     })
   } catch (err) {
     return serverError(res, err, 'save the retention period')
@@ -177,13 +174,13 @@ async function setRetention (req, res) {
  * intent — "inherit from above" — is already true.
  *
  * @route DELETE /api/firm-manager/register-retention
- * @returns {{reset: true, resolved: object, phrase: string}}
+ * @returns {{reset: true, resolved: object}}
  */
 async function resetRetention (req, res) {
   try {
     await writeScopeConfig(req.firmId, null, req.userEmail)
     const resolved = await loadResolvedRetention(req.firmId, readScopeConfig)
-    res.send(200, { reset: true, resolved, phrase: retentionPhrase(resolved.months) })
+    res.send(200, { reset: true, resolved })
   } catch (err) {
     return serverError(res, err, 'reset the retention period')
   }

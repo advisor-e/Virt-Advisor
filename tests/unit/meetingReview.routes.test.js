@@ -141,12 +141,12 @@ describe('the retention dial', () => {
 })
 
 describe('the consent screen’s one value', () => {
-  test('an advisor is given the figure and the words to render it into', async () => {
+  test('an advisor is given the figure, and no English words for it — the screen words it (13.12)', async () => {
     const res = makeMockRes()
     await routes.getConsentContext(makeReq(), res)
     expect(res._status).toBe(200)
     expect(res._body.retentionMonths).toBe(PLATFORM_DEFAULT_MONTHS)
-    expect(res._body.retentionPhrase).toBe('18 months')
+    expect(res._body).not.toHaveProperty('retentionPhrase')
   })
 
   test("a firm's own figure is what its advisors are given", async () => {
@@ -157,7 +157,7 @@ describe('the consent screen’s one value', () => {
       Promise.resolve(scopeId === FIRM ? { months: 36 } : null))
     const res = makeMockRes()
     await routes.getConsentContext(makeReq(), res)
-    expect(res._body.retentionPhrase).toBe('36 months')
+    expect(res._body.retentionMonths).toBe(36)
   })
 })
 

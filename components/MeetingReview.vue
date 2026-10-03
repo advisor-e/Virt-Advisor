@@ -176,8 +176,8 @@
 
         b-message(v-if="followThrough.expired" type="is-warning" size="is-small")
           p.has-text-weight-semibold {{ $t('meetingReview.expired', { date: lastMetOn }) }}
-          p.is-size-7.mt-1(v-if="followThrough.retentionPhrase")
-            | {{ $t('meetingReview.expiredRetention', { period: followThrough.retentionPhrase }) }}
+          p.is-size-7.mt-1(v-if="expiredPeriod")
+            | {{ $t('meetingReview.expiredRetention', { period: expiredPeriod }) }}
 
         b-message(v-else-if="followThrough.none && followThrough.reason === 'no_client'" type="is-info" size="is-small")
           | {{ $t('meetingReview.notAgainstClient') }}
@@ -317,6 +317,7 @@
 
 import moderationMessage from '~/mixins/moderationMessage'
 import reportFormatMixin from '~/mixins/reportFormatMixin'
+import retentionPeriod from '~/mixins/retentionPeriod'
 import { clockOf } from '~/utils/meetingParts'
 import { formatDate } from '~/utils/dateLocale'
 import { numUpTo } from '~/utils/reportFormat'
@@ -333,7 +334,7 @@ const LONG_DATE = { day: 'numeric', month: 'long', year: 'numeric' }
 export default {
   name: 'MeetingReview',
 
-  mixins: [moderationMessage, reportFormatMixin],
+  mixins: [moderationMessage, reportFormatMixin, retentionPeriod],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -400,6 +401,18 @@ export default {
       if (!from || !from.at) { return '' }
       // Read in UTC to match how meetings are stamped.
       return formatDate(from.at, this.$i18n.locale, { ...LONG_DATE, timeZone: 'UTC' })
+    },
+
+    /**
+     * How long the firm keeps transcripts, for the expired panel, in the reader's language.
+     * A report stored before item 13.12 carries the backend's English phrase instead of the
+     * months; it is shown as stored rather than dropped.
+     * @returns {string}
+     */
+    expiredPeriod () {
+      const ft = this.followThrough
+      if (!ft) { return '' }
+      return this.retentionPeriod(ft.retentionMonths) || ft.retentionPhrase || ''
     },
 
     /**

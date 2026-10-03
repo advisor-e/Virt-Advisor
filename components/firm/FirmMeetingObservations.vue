@@ -280,10 +280,13 @@
 import FirmMeetingTypes from '~/components/firm/FirmMeetingTypes.vue'
 import FirmMeetingPatterns from '~/components/firm/FirmMeetingPatterns.vue'
 import { intlLocaleFor, formatStamp } from '~/utils/dateLocale'
+import retentionPeriod from '~/mixins/retentionPeriod'
 export default {
   name: 'FirmMeetingObservations',
 
   components: { FirmMeetingTypes, FirmMeetingPatterns },
+
+  mixins: [retentionPeriod],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -460,7 +463,7 @@ export default {
       try {
         const data = await this.api('GET', '/api/firm-manager/meeting-retention')
         this.retentionDraft = data.resolved.months
-        this.retentionPhrase = data.phrase
+        this.retentionPhrase = this.retentionPeriod(data.resolved.months)
         this.retentionSetHere = data.ownMonths !== null
         this.retentionMin = data.min
         this.retentionMax = data.max

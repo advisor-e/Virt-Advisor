@@ -160,7 +160,7 @@ beforeEach(() => {
 })
 
 describe('the advisor read', () => {
-  test('every point carries the tier it came from and the words for it', async () => {
+  test('every point carries the tier it came from, and no English label — the screen words it (13.12)', async () => {
     const res = makeMockRes()
     await routes.getForAdvisor(makeReq({ query: { scenario: EOY } }), res)
 
@@ -169,7 +169,8 @@ describe('the advisor read', () => {
     expect(points.length).toBeGreaterThan(0)
     // Question 4, ruled 2026-09-08: EVERY point, always. A label that appears only
     // sometimes teaches an advisor to read its absence as meaning something.
-    expect(points.every(p => p.sourceTier && p.sourceLabel)).toBe(true)
+    expect(points.every(p => ['platform', 'firm', 'advisor'].includes(p.sourceTier))).toBe(true)
+    expect(points.some(p => 'sourceLabel' in p)).toBe(false)
   })
 
   test('shows what I set aside, so I can put it back', async () => {

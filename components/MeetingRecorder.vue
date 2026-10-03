@@ -12,7 +12,7 @@
     .box(v-if="stage === 'consent1' || stage === 'consent2'")
       meeting-consent-panel(
         :step="stage === 'consent1' ? 1 : 2"
-        :retention-phrase="retentionPhrase"
+        :retention-months="retentionMonths"
         :elapsed-seconds="elapsedSeconds"
         :busy="busy"
         @start="startRecording"
@@ -190,7 +190,8 @@ export default {
       fatal: '',
       chunkError: '',
       stage: 'consent1',
-      retentionPhrase: '',
+      /** The firm's retention period in months; the consent panel words it (item 13.12). */
+      retentionMonths: null,
       meetingId: '',
       elapsedSeconds: 0,
       interrupted: false,
@@ -259,7 +260,7 @@ export default {
     async loadConsentContext () {
       try {
         const data = await this.call('GET', '/api/meeting/consent')
-        this.retentionPhrase = data.retentionPhrase || ''
+        this.retentionMonths = data.retentionMonths || null
       } catch (err) {
         this.fatal = this.$t('meetingRecorder.errRetention', { error: err.message })
       } finally {
@@ -294,7 +295,7 @@ export default {
           parts: true
         })
         this.meetingId = started.meetingId
-        this.retentionPhrase = started.retentionPhrase || this.retentionPhrase
+        this.retentionMonths = started.retentionMonths || this.retentionMonths
         await this.openPart()
       } catch (err) {
         this.busy = false
