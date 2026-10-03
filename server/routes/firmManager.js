@@ -2199,6 +2199,8 @@ async function getQuizzes (req, res) {
     const state = await loadFirmQuizState(req.firmId, overlay.loadFirmConfig, base)
     const resolved = await loadBlendedQuizBanks(req.firmId, overlay.loadFirmConfig)
     const driftQids = await _quizDriftQids(req.firmId, state.overrides, req.userEmail)
+    // The pages THIS firm's library holds (item 7.31) — the same list a save binds against.
+    const library = (await _firmTemplateLibrary(req.firmId)) || undefined
     res.send(200, {
       base,
       firmOverride,
@@ -2210,7 +2212,7 @@ async function getQuizzes (req, res) {
       hasDecisions: state.declinedIds.length > 0 ||
         Object.keys(state.overrides).length > 0 ||
         state.ownRows.length > 0,
-      pages: quizzablePages(listTemplatePages())
+      pages: quizzablePages(listTemplatePages(library))
     })
   } catch (err) {
     return serverError(res, 500, 'DB_ERROR', err)
@@ -2229,7 +2231,7 @@ async function getQuizzes (req, res) {
  */
 async function saveQuizzes (req, res) {
   const { quizzes } = req.body || {}
-  const check = validateQuizOverride(quizzes)
+  const check = validateQuizOverride(quizzes, (await _firmTemplateLibrary(req.firmId)) || undefined)
   if (!check.ok) {
     const payload = { success: false, error: { code: 'INVALID_QUIZZES', message: check.error }, timestamp: new Date().toISOString() }
     if (check.candidates && check.candidates.length) { payload.error.candidates = check.candidates }
@@ -2703,7 +2705,8 @@ async function addOwnQuizQuestion (req, res) {
   }
   let resolved
   try {
-    resolved = resolveTemplateName(body.bank)
+    // Bound against THIS firm's library (item 7.31), the one the editor listed.
+    resolved = resolveTemplateName(body.bank, (await _firmTemplateLibrary(req.firmId)) || undefined)
   } catch (err) {
     return sendError(res, 503, 'LIBRARY_UNAVAILABLE', 'The page library could not be read, so questions cannot be saved right now')
   }

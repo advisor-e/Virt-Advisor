@@ -122,6 +122,22 @@ describe('a capture box saves when the advisor leaves it, not as they type', () 
     expect(w.emitted('field-changed')).toBeFalsy()
     expect(input.element.value).toBe('Half a sen')
   })
+
+  it('🔴 the first letter survives the page redrawing as the advisor starts to type', async () => {
+    // Found 2026-10-02 walking item 15.22: "Client sees…" saved as "lient sees…". Under
+    // `lazy` the box redrew from the last SAVED text, and the first keystroke flips the
+    // page to "Unsaved changes" — a redraw — so that keystroke was wiped. Every later one
+    // survived only because nothing redrew again. Invisible here without the redraw.
+    const w = mountCapture()
+    const input = w.find('textarea')
+
+    input.element.value = 'C'
+    await input.trigger('input')
+    await w.setProps({ entries: {} })
+
+    expect(input.element.value).toBe('C')
+    expect(w.emitted('field-changed')).toBeFalsy()
+  })
 })
 
 describe('the shared capture box behaves the same way', () => {
@@ -153,5 +169,17 @@ describe('the shared capture box behaves the same way', () => {
     const emitted = w.emitted('input-field') || []
     expect(emitted).toHaveLength(1)
     expect(emitted[0][1]).toBe(SENTENCE)
+  })
+
+  it('🔴 the first letter survives the box being redrawn as the advisor starts to type', async () => {
+    const w = mountBox()
+    const input = w.find('textarea')
+
+    input.element.value = 'C'
+    await input.trigger('input')
+    await w.setProps({ recording: false, rows: 4 })
+
+    expect(input.element.value).toBe('C')
+    expect(w.emitted('input-field')).toBeFalsy()
   })
 })

@@ -23,29 +23,29 @@
         | {{ $t('voice.stopRecording') }}
 
   //- 🔴 TWO EVENTS, AND ONLY ONE OF THEM SAVES.
-  //- `@input` is Buefy's, made to fire on LEAVING the box by `lazy` below — that is the
-  //- save. `@input.native` is the raw keystroke, and it sends NOTHING anywhere: it tells
-  //- the page there are words not yet written out, so the Saved stamp can say so
-  //- (Decision E) and the pause timer can start (Decision D, "yes - auto save").
-  //- ⚠ NEVER SAVE FROM `@input.native`. That is the 2026-09-22 defect exactly.
+  //- `@change.native` fires when the advisor LEAVES the box — that is the save. `@input`
+  //- is the keystroke, and it sends NOTHING anywhere: it tells the page there are words
+  //- not yet written out, so the Saved stamp can say so (Decision E) and the pause timer
+  //- can start (Decision D, "yes - auto save").
+  //- ⚠ NEVER SAVE FROM `@input`. One write per character, fired without awaiting each
+  //- other, can store a half-typed answer on a slow line — the 2026-09-22 defect.
   //-
-  //- 🔴 `lazy` IS LOAD-BEARING — see the same note in StrategyConceptCapture.vue.
-  //- Without it Buefy emits `input` from the native event, so this box saves once per
-  //- keystroke — one `PUT /entries` and one database write per character, fired without
-  //- awaiting each other, which on a slow line can store a half-typed answer. With it,
-  //- the box saves when the advisor leaves it, which is what the JSDoc on
-  //- `onFieldChanged` always claimed. Pinned by tests/unit/strategyCaptureSaveRate.test.js.
+  //- 🔴 AND NO `lazy`, WHICH LOST THE FIRST LETTER OF EVERY ANSWER (2026-10-02, item
+  //- 15.22). Under `lazy` Buefy draws the box from the last SAVED text; the first keystroke
+  //- flips the page to "Unsaved changes", the page redraws, and the box was redrawn from
+  //- the saved text — so "Client sees…" was stored as "lient sees…". Without it Buefy holds
+  //- what was typed, and the save still waits for the change event. Both halves pinned by
+  //- tests/unit/strategyCaptureSaveRate.test.js.
   b-input(
     :id="'scb-' + field.key"
     :type="singleLine ? 'text' : 'textarea'"
-    lazy
     :rows="singleLine ? null : rows"
     :size="singleLine ? 'is-small' : null"
     :value="value"
     :placeholder="field.example"
     @focus="$emit('focus-field', field)"
-    @input="$emit('input-field', field, $event)"
-    @input.native="$emit('typing-field', field, $event.target.value)"
+    @input="$emit('typing-field', field, $event)"
+    @change.native="$emit('input-field', field, $event.target.value)"
   )
   //- Whatever the layout hangs under this box — screen 4's recorded passages, on the grid.
   slot

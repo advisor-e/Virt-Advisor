@@ -128,39 +128,49 @@ section.scc2
   //- Until this, every column name was dropped on the way to the screen: 181 boxes on
   //- Customer Types with no persona on any of them, 25 on Operational Objectives with
   //- no stage.
+  //- 🔴 ONE TABLE PER SECTION WHERE HIS PAGES NAME THEM — Landing Page Review's eight, item
+  //- 15.22, design/mockups/strategy-capture-landing-page-review.html, approved 2026-10-02.
+  //- His "Section N" heads its own table and his notes sit above it. Every other grid is
+  //- one table, exactly as before.
   .scc2-scroll(v-else-if="isGrid")
-    table.scc2-tdg
-      thead
-        tr
-          th.scc2-attr(v-if="gridHasRowNames") &nbsp;
-          th(v-for="col in gridColumns" :key="'h' + col.column") {{ col.label }}
-      tbody
-        //- His worked example under his headings, shown and never typed into — item 15.18,
-        //- design/mockups/strategy-capture-worked-example.html, approved 2026-10-02.
-        //- A run of them is one row each — Tension Point Scripts has five (item 15.22).
-        tr.scc2-eg-row(v-for="(exampleRow, r) in gridExampleRows" :key="'egr' + r")
-          td.scc2-attr(v-if="gridHasRowNames") &nbsp;
-          td.scc2-eg(v-for="(text, i) in exampleRow" :key="'eg' + r + '-' + i")
-            template(v-if="text")
-              span.scc2-egtext {{ text }}
-              span.scc2-egtag {{ $t('strategyPlanner.capture.yourExample') }}
-        template(v-for="group in gridRows")
-          tr(v-for="(line, i) in group.lines" :key="line.key")
-            //- His attribute name spans its own lines rather than repeating on each.
-            td.scc2-attr(v-if="gridHasRowNames && i === 0" :rowspan="group.lines.length") {{ group.label }}
-            td(v-for="field in line.cells" :key="field.key")
-              strategy-capture-box(
-                :field="field"
-                :value="valueOf(field)"
-                :rows="rowsFor(field)"
-                :speech-supported="speechSupported"
-                :recording="voiceField === field.key"
-                @toggle-voice="toggleVoiceField"
-                @focus-field="onFocus"
-                @input-field="onInput"
-                @typing-field="onTyping"
-              )
-                strategy-heard-passages(v-if="conceptId" :concept-id="conceptId" :field-key="field.key")
+    template(v-for="grid in gridTables")
+      p.scc2-grid-note(v-for="(note, n) in grid.notes" :key="grid.key + '-note' + n") {{ note }}
+      //- A section table fits the card, as the drawing does: at the grid's fixed 430px a
+      //- column the client writes the actual words in sat off the edge.
+      table.scc2-tdg(:key="grid.key" :class="{ 'is-fit': grid.title }")
+        thead
+          tr
+            th.scc2-attr(v-if="grid.hasRowNames")
+              template(v-if="grid.title") {{ grid.title }}
+              template(v-else) &nbsp;
+            th(v-for="col in grid.columns" :key="'h' + col.column") {{ col.label }}
+        tbody
+          //- His worked example under his headings, shown and never typed into — item 15.18,
+          //- design/mockups/strategy-capture-worked-example.html, approved 2026-10-02.
+          //- A run of them is one row each — Tension Point Scripts has five (item 15.22).
+          tr.scc2-eg-row(v-for="(exampleRow, r) in grid.exampleRows" :key="'egr' + r")
+            td.scc2-attr(v-if="grid.hasRowNames") &nbsp;
+            td.scc2-eg(v-for="(text, i) in exampleRow" :key="'eg' + r + '-' + i")
+              template(v-if="text")
+                span.scc2-egtext {{ text }}
+                span.scc2-egtag {{ $t('strategyPlanner.capture.yourExample') }}
+          template(v-for="group in grid.groups")
+            tr(v-for="(line, i) in group.lines" :key="line.key")
+              //- His attribute name spans its own lines rather than repeating on each.
+              td.scc2-attr(v-if="grid.hasRowNames && i === 0" :rowspan="group.lines.length") {{ group.label }}
+              td(v-for="field in line.cells" :key="field.key" :colspan="field.span || 1")
+                strategy-capture-box(
+                  :field="field"
+                  :value="valueOf(field)"
+                  :rows="rowsFor(field)"
+                  :speech-supported="speechSupported"
+                  :recording="voiceField === field.key"
+                  @toggle-voice="toggleVoiceField"
+                  @focus-field="onFocus"
+                  @input-field="onInput"
+                  @typing-field="onTyping"
+                )
+                  strategy-heard-passages(v-if="conceptId" :concept-id="conceptId" :field-key="field.key")
 
   template(v-else)
     .scc2-grid(
@@ -181,10 +191,11 @@ section.scc2
           span.scc2-egtext {{ text }}
           span.scc2-egtag {{ $t('strategyPlanner.capture.yourExample') }}
         .scc2-field(v-for="field in block.fields" :key="field.key")
+          //- A teaching-only topic's notes box carries our one word as a locale key (15.22).
           label.scc2-field-label(
-            v-if="field.rowLabel"
+            v-if="field.rowLabel || field.labelKey"
             :for="inputId(field)"
-          ) {{ field.rowLabel }}
+          ) {{ field.labelKey ? $t(field.labelKey) : field.rowLabel }}
 
           //- 🔴 THE SAME VOICE BAR THE ADVISOR ALREADY USES — Mike, 2026-09-19:
           //- "check the 'i have a client with a problem...' section - i want app user
@@ -208,27 +219,27 @@ section.scc2
                   rect(x="6" y="6" width="12" height="12" rx="2")
                 | {{ $t('voice.stopRecording') }}
 
-          //- 🔴 `lazy` IS LOAD-BEARING — WITHOUT IT THIS BOX SAVES ONCE PER KEYSTROKE.
-          //- Buefy's Input fires its `input` event from the native one unless `lazy` is
-          //- set, in which case it fires on `change` — that is, when the advisor leaves the
-          //- box. Every emission here is one `PUT /entries` and one database write, so a
-          //- 200-character answer was 200 round trips. Worse, they are fired without
-          //- awaiting each other, so on a slow line an early short value can land AFTER a
-          //- later one and store half a sentence. Found 2026-09-22; the JSDoc on
-          //- `onFieldChanged` in pages/strategy-planner.vue had claimed blur behaviour
-          //- since it was written. Pinned by tests/unit/strategyCaptureSaveRate.test.js.
+          //- 🔴 THE BOX SAVES WHEN THE ADVISOR LEAVES IT, NEVER PER KEYSTROKE. Each save is
+          //- one `PUT /entries` and one database write, so per keystroke a 200-character
+          //- answer was 200 round trips, fired without awaiting each other — on a slow line
+          //- an early short value could land AFTER a later one and store half a sentence
+          //- (found 2026-09-22). So the save is `@change.native`, the leaving of the box,
+          //- and `@input` only tells the page there is unsaved typing.
+          //- 🔴 AND NO `lazy`, WHICH LOST THE FIRST LETTER OF EVERY ANSWER (2026-10-02, item
+          //- 15.22): under it the box was redrawn from the last SAVED text when the first
+          //- keystroke flipped the page to "Unsaved changes". See StrategyCaptureBox.vue.
+          //- Both halves pinned by tests/unit/strategyCaptureSaveRate.test.js.
           //- ⚠ Dictation is NOT affected: `emitVoice` emits `field-changed` directly and
           //- never goes through this input.
           b-input(
             :id="inputId(field)"
             type="textarea"
-            lazy
             :rows="rowsFor(field)"
             :value="valueOf(field)"
             :placeholder="field.example"
             @focus="onFocus(field)"
-            @input="onInput(field, $event)"
-            @input.native="onTyping(field, $event.target.value)"
+            @input="onTyping(field, $event)"
+            @change.native="onInput(field, $event.target.value)"
           )
           //- Screen 4 of the recorded session: what was said while this box was open.
           strategy-heard-passages(v-if="conceptId" :concept-id="conceptId" :field-key="field.key")
@@ -686,56 +697,31 @@ export default {
     },
 
     /**
-     * Does any row of the grid carry his name for it? Progression of Economic Value names
-     * none, so its name column would be an empty strip the approved drawing does not have.
-     * @returns {boolean}
-     */
-    gridHasRowNames () {
-      return this.gridRows.some(group => group.label)
-    },
-
-    /**
-     * His worked examples as rows of the grid, each row in `gridColumns` order — '' where a
-     * column has none. Carried on the column's first box as `bandExamples` (items 15.18, 15.22).
+     * The grid's tables: one per section where his tables carry a title (Landing Page
+     * Review's "Section N", item 15.22), otherwise one for the whole card — so every grid
+     * approved before keeps its single table, Digital Funnel's two pages included.
      *
-     * @returns {string[][]}
+     * @returns {Array<{key: string, title: string, notes: string[], columns: Array,
+     *   hasRowNames: boolean, exampleRows: string[][], groups: Array}>}
      */
-    gridExampleRows () {
-      const perColumn = this.gridColumns.map(col =>
-        (this.visitFields.find(f => f.column === col.column && f.bandExamples) || {}).bandExamples || [])
-      const depth = Math.max(0, ...perColumn.map(list => list.length))
-      return Array.from({ length: depth }, (_, r) => perColumn.map(list => list[r] || ''))
-    },
-
-    /**
-     * The rows of that grid, each carrying one box per column, grouped under the
-     * attribute they belong to so his name spans its lines rather than repeating.
-     *
-     * @returns {Array<{label: string, lines: Array<{key: string, cells: Array}>}>}
-     */
-    gridRows () {
-      const lines = []
-      const byRow = {}
+    gridTables () {
+      const tableOf = f => Number(f.key.split('r')[0].slice(1))
+      if (!this.visitFields.some(f => f.tableTitle)) {
+        return [Object.assign({ key: 'grid', title: '', notes: [] }, this.gridOf(this.visitFields))]
+      }
+      const order = []
+      const byTable = {}
       this.visitFields.forEach((f) => {
-        const id = 't' + f.key.split('r')[0].slice(1) + 'r' + f.row
-        if (!byRow[id]) {
-          byRow[id] = { key: id, label: f.rowLabel || '', cells: [] }
-          lines.push(byRow[id])
-        }
-        byRow[id].cells.push(f)
+        const t = tableOf(f)
+        if (!byTable[t]) { byTable[t] = []; order.push(t) }
+        byTable[t].push(f)
       })
-
-      // His attribute name spans its own lines: a run of consecutive lines carrying the
-      // same name is one group. An empty name groups alone, so nothing is merged that
-      // he did not name.
-      const groups = []
-      lines.forEach((line) => {
-        const last = groups[groups.length - 1]
-        if (last && line.label && last.label === line.label) { last.lines.push(line) } else {
-          groups.push({ label: line.label, lines: [line] })
-        }
-      })
-      return groups
+      const notes = this.capture.tableNotes || []
+      return order.map(t => Object.assign({
+        key: 'grid' + t,
+        title: byTable[t][0].tableTitle || '',
+        notes: notes[t] || []
+      }, this.gridOf(byTable[t])))
     },
 
     /**
@@ -778,6 +764,59 @@ export default {
   },
 
   methods: {
+    /**
+     * One grid table drawn from a set of boxes.
+     *
+     * - `columns` — his column headings, in his document's order.
+     * - `hasRowNames` — whether any row carries his name for it. Progression of Economic
+     *   Value names none, so its name column would be an empty strip the approved drawing
+     *   does not have.
+     * - `exampleRows` — his worked examples as rows, each in `columns` order, '' where a
+     *   column has none; carried on the column's first box as `bandExamples` (items 15.18,
+     *   15.22).
+     * - `groups` — the rows, one box per column, grouped under the attribute they belong to
+     *   so his name spans its lines rather than repeating. An empty name groups alone, so
+     *   nothing is merged that he did not name.
+     *
+     * @param {object[]} fields
+     * @returns {{columns: Array<{column: number, label: string}>, hasRowNames: boolean,
+     *   exampleRows: string[][], groups: Array<{label: string, lines: Array}>}}
+     */
+    gridOf (fields) {
+      const columns = []
+      fields.forEach((f) => {
+        if (!columns.some(c => c.column === f.column)) {
+          columns.push({ column: f.column, label: f.columnLabel || '' })
+        }
+      })
+      columns.sort((a, b) => a.column - b.column)
+
+      const perColumn = columns.map(col =>
+        (fields.find(f => f.column === col.column && f.bandExamples) || {}).bandExamples || [])
+      const depth = Math.max(0, ...perColumn.map(list => list.length))
+      const exampleRows = Array.from({ length: depth }, (_, r) => perColumn.map(list => list[r] || ''))
+
+      const lines = []
+      const byRow = {}
+      fields.forEach((f) => {
+        const id = 't' + f.key.split('r')[0].slice(1) + 'r' + f.row
+        if (!byRow[id]) {
+          byRow[id] = { key: id, label: f.rowLabel || '', cells: [] }
+          lines.push(byRow[id])
+        }
+        byRow[id].cells.push(f)
+      })
+      const groups = []
+      lines.forEach((line) => {
+        const last = groups[groups.length - 1]
+        if (last && line.label && last.label === line.label) { last.lines.push(line) } else {
+          groups.push({ label: line.label, lines: [line] })
+        }
+      })
+
+      return { columns, hasRowNames: groups.some(group => group.label), exampleRows, groups }
+    },
+
     /**
      * @param {{fields: Array<{key: string}>}} block
      * @returns {string} the stamp for the first of the block's boxes that has one, or ''
@@ -889,7 +928,19 @@ export default {
      * @returns {number}
      */
     rowsFor (field) {
-      return this.rowsByKey[field.key] || linesForExample(field.example, 1)
+      // A notes box is the whole of the topic's capture, drawn as a page of room (15.22) —
+      // before the blocks' rule, which would size it by an example it does not have.
+      if (this.capture.form === 'notes') { return 8 }
+      if (this.rowsByKey[field.key]) { return this.rowsByKey[field.key] }
+      // A section table's box is a third of the card wide (Landing Page Review, 15.22), so
+      // his longer doughnut answers were cut off at the full-width height.
+      const grid = field.tableTitle && this.gridTables.find(g => g.title === field.tableTitle)
+      if (!grid) { return linesForExample(field.example, 1) }
+      // The name column takes its share of the width too; a spare line, because a word that
+      // wraps early otherwise loses his last line, and room for his longest answers (348
+      // characters) where the shared helper stops at ten lines.
+      const perLine = Math.floor(CHARS_PER_FULL_LINE / (grid.columns.length + (grid.hasRowNames ? 1 : 0)))
+      return Math.max(2, Math.min(16, Math.ceil((field.example || '').length / perLine) + 1))
     },
 
     /**
@@ -1130,6 +1181,29 @@ export default {
   font-weight: 600;
   font-size: 13px;
   border-right: 2px solid #0070c0;
+}
+
+/* One table per section (Landing Page Review, item 15.22): space between them, and his
+   notes above a table in the example's grey — shown, never typed into. */
+.scc2-tdg + .scc2-grid-note,
+.scc2-tdg + .scc2-tdg {
+  margin-top: 18px;
+}
+
+.scc2-tdg.is-fit th,
+.scc2-tdg.is-fit td {
+  width: auto;
+}
+
+.scc2-tdg.is-fit th.scc2-attr,
+.scc2-tdg.is-fit td.scc2-attr {
+  width: 150px;
+}
+
+.scc2-grid-note {
+  color: #6b7f99;
+  font-size: 12.5px;
+  margin-bottom: 6px;
 }
 
 .scc2-block-label {

@@ -122,17 +122,19 @@ function namesUnderTemplateHeadings (text) {
  * Did the answer offer a calculation model as if it were a template?
  *
  * @param {string} text - the answer as the advisor would read it (markers stripped)
+ * @param {Array<object>|null} [library] - the firm's library in force (item 7.29); the
+ *   committed seed when absent
  * @returns {{ok: boolean, offenders: Array<{heading: string, name: string, route: string}>}}
  *   `ok` false means the answer must not be sent as written. Each offender names the
  *   heading it sat under and the real page path of the model it actually is, so the
  *   caller can tell the AI precisely what it got wrong.
  */
-function checkTemplateHeadings (text) {
+function checkTemplateHeadings (text, library) {
   const offenders = []
   const seen = new Set()
 
   for (const found of namesUnderTemplateHeadings(text)) {
-    if (isKnownTemplate(found.name)) { continue }
+    if (isKnownTemplate(found.name, library)) { continue }
     // 🔴 THE NEAR MISS, 2026-09-17. SIX model names collide with real template titles,
     // and three differ from the library's own spelling by a single character:
     // "Lease vs Buy" / "Lease vs. Buy", "High-Level Budget" / "High Level Budget",
@@ -141,7 +143,7 @@ function checkTemplateHeadings (text) {
     // and told the AI the advisor would find nothing in Advisor-e — when the document is
     // in the library. That is this guard causing item 7.7's fault in reverse, and it was
     // firing on 28 of 38 bench calls.
-    if (nearestTemplateTitle(found.name)) { continue }
+    if (nearestTemplateTitle(found.name, library)) { continue }
     const route = resolveModelToken(found.name)
     if (!route) { continue }
     const key = found.name.toLowerCase()
@@ -212,9 +214,11 @@ function buildRetryInstruction (offenders) {
  * `looksLikeCalculatorReference` exist to catch. Same pairing, item 4.33.
  *
  * @param {string} text - the answer as the advisor would read it (markers stripped)
+ * @param {Array<object>|null} [library] - the firm's library in force (item 7.29); the
+ *   committed seed when absent
  * @returns {{text: string, renamed: Array<{from: string, to: string}>}}
  */
-function useLibraryTitles (text) {
+function useLibraryTitles (text, library) {
   if (typeof text !== 'string' || !text) { return { text, renamed: [] } }
   const renamed = []
   let heading = null
@@ -227,8 +231,8 @@ function useLibraryTitles (text) {
     if (!heading || ADVISOR_NOTE_LINE.test(line)) { return line }
     const m = line.match(BOLD_NAME_LINE)
     const name = m && _bare(m[1])
-    if (!name || isKnownTemplate(name)) { return line }
-    const title = nearestTemplateTitle(name)
+    if (!name || isKnownTemplate(name, library)) { return line }
+    const title = nearestTemplateTitle(name, library)
     if (!title) { return line }
     const route = resolveModelToken(name)
     if (route && line.includes(route)) { return line }

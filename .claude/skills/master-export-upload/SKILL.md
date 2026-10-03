@@ -8,8 +8,9 @@ description: >-
   "firm uploads their templates", "self-service export upload", "Stage 2 search_content" work, or
   any feature that accepts an uploaded config/data file from the browser. Keywords: file upload,
   schema validation, last-known-good, version history, per-firm storage, search_content.
-  STATUS: built at the mentor tier — POST /api/mentor/templates/import follows this procedure.
-  A firm-level upload is not built.
+  STATUS: built at the mentor tier (POST /api/mentor/templates/import) and the firm tier
+  (POST /api/firm-manager/templates, with restore and reset); the master app can also push the
+  platform library (server/routes/integrationTemplates.js).
 ---
 
 # Master-export upload (secure)

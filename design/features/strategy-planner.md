@@ -844,6 +844,16 @@ concept, the owner's sales process to their customers — with all five of his w
 above the lines, because a run of example rows now stays whole on its column
 (`bandExamples`, [`strategy-capture-tension-point-scripts.html`](../mockups/strategy-capture-tension-point-scripts.html));
 **Sales Flowchart**, its other table, is still held by Mike;
+**(Inbound) Landing Page Review** captures from its own deck pages (S&M pp27–30, item 15.22,
+[`strategy-capture-landing-page-review.html`](../mockups/strategy-capture-landing-page-review.html)) —
+eight section tables, all three columns the client's as his p26 asks, each table titled with his
+"Section N" so recurring row names stay distinct on screen, in the plan and in Meeting Review;
+a cell he ruled across columns is one box;
+**Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix and Senge's Circles of
+Causality** are teaching only — his deck gives them no table — and each takes one **Notes** box
+beneath his drawing, printed in the client's plan (`captureNotes`, Mike's ruling 2026-10-02,
+[`strategy-capture-teaching-notes.html`](../mockups/strategy-capture-teaching-notes.html)); "Notes"
+is the one word on it that is ours, and it is a locale string;
 **SWOT Notes** belongs to the `swot-pest` framework, not to any of the 46 concepts.
 
 🔴 **AND THAT EXPOSED A HEADING FAULT WITH TWO HALVES, IN THE RULE EVERY BANDED GRID USES.** A
@@ -1202,6 +1212,12 @@ brings the picker to that session's own client.
 **The advisor's page edits ride `scope_json`** beside the ticks, the steps and the AI's
 suggestion (§9a) — no schema change. 🔴 **Every scope save keeps them**, exactly as it keeps the
 suggestion: renaming a step must never put an edited page back to the original.
+
+**A session opens without any concept that no longer exists** (item 15.33, Mike's ruling
+2026-10-02). `getSession` drops it from the ticked list and from every step, quietly — the advisor
+is told nothing, since the concept is gone and had no screen to open — and writes each removal to
+the server log. The next save stores the cleaned scope. `putScope` still refuses an unknown id sent
+from the browser.
 
 ## 5. How spoken words will reach the right box
 

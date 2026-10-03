@@ -378,6 +378,17 @@ describe('a malformed concept fails at load, not in a client meeting', () => {
       Object.assign({}, good, { model: '/owner-expectations' }), known).model).toBe('/owner-expectations')
   })
 
+  it('🔴 rejects a notes box beside a table, or anything but true — item 15.22, ruling 6', () => {
+    // Two captures for one concept, one of them under a label we wrote beside his boxes.
+    expect(() => frameworks.buildConcept(Object.assign({}, good, {
+      captureNotes: true, captureForm: 'banded-grid', captureTemplate: 'Org Chart', captureFormBasis: 'measured'
+    }), known)).toThrow(/notes/)
+    expect(() => frameworks.buildConcept(
+      Object.assign({}, good, { captureNotes: 'yes' }), known)).toThrow(/captureNotes/)
+    expect(frameworks.buildConcept(
+      Object.assign({}, good, { captureNotes: true }), known).captureNotes).toBe(true)
+  })
+
   it('rejects a concept that runs a model AND names a capture table', () => {
     // Two captures for one concept: the figures would land in the session as well.
     expect(() => frameworks.buildConcept(Object.assign({}, good, {

@@ -392,6 +392,100 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.31 · Modules reading the built-in template file instead of the library in force.**
+✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was filed, surveyed and built.**
+
+- **What it really was:** the survey found six readers that should follow the library in
+  force. A firm can upload its own export and the master app can push the platform's
+  (`integrationTemplates.js`), so these went stale for every firm the first time either
+  happened. Per firm: the logic-tree availability gate withheld templates a firm added and
+  named ones it removed; the quiz editor refused a firm's own page as "not in your library";
+  quiz-bank matching dropped authored questions for firm-only templates. For the mentor:
+  Template Check and Template Profiles judged against an old file. `contentRouting.js` (a
+  build-time report) and `firmManager.js`'s fallback were right and left alone.
+- **What was done, on Mike's yes:** `logicTrees` builds its title sets per library and
+  `buildLearnReferenceText` takes it (advisorEngine x2, courseEngine); the quiz routes and the
+  course builder pass the firm's library to `resolveTemplateName`, `validateQuizOverride` and
+  `findQuizBank`; `semanticProfiles` and the Template Check routes read
+  `loadEffectiveTemplates(null)`.
+- **What proves it:** `tests/unit/firmLibraryEverywhere.test.js` - one library with a template
+  renamed, added and removed; 10 checks, 4 of them plus the quiz editor's route failing on the
+  old code (a firm's own page refused 404). Full suite 699 files / 15,311 tests.
+- **Not checked here:** the course builder's two quiz-bank calls are not route-tested; the
+  module beneath them is. Quiz banks are keyed by title, so a renamed template loses its
+  questions under either library - recorded in advisory-engine.md.
+
+**13.11 · Text comparison dropped accented letters, so a check could miss a changed word.**
+✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was measured and built.**
+
+- **What it really was - worse than filed:** `normalise` in `server/utils/meetingReports.js`
+  kept a-z only. Measured on the real functions: a quote with one accented letter swapped
+  (Gäste → Göste) passed as genuine; and in the nine of the app's 28 languages not written in
+  a-z (ar, el, he, hi, ja, ko, ru, uk, zh) every word became nothing, so Meeting Review could
+  never confirm a true quote and Wordsmith's must-keep check passed a draft that had dropped
+  the phrase.
+- **What was done, on Mike's yes:** `normalise` keeps letters, marks and numbers in any script
+  (NFC first). A quote needs 4 words to be evidence, or 8 characters in Chinese and Japanese,
+  which put no spaces between words. Meeting Review's checks only tighten.
+- **What proves it:** new cases in `meetingReports.test.js` (Russian, Greek, Chinese found and
+  invented refused; the swap refused; a short Chinese fragment refused; a separate accent mark
+  matched) and `wordsmith.test.js` (a lost Russian phrase flagged). Against the old code 4 fail.
+  Full suite 697 files / 15,304 tests.
+- **Not checked here:** no recorded meeting in those languages exists on the laptop.
+
+**7.29 · Template descriptions and the name check read the seed library, not each firm's
+uploaded library.** ✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was built.**
+
+- **What it really was:** `summaries.js` titled every description, and `tierLookup` checked
+  every name, against `data/templates.json` alone, while the library itself resolves per firm.
+  Harmless while the seed and the export match; the day a firm's export renames a template,
+  its AI would be shown and allowed the old title.
+- **What was done, on Mike's yes:** `isKnownTemplate`, `nearestTemplateTitle`, the declared and
+  prose recommendation readers, `checkTemplateHeadings`, `useLibraryTitles` and the summaries
+  readers take the library in force as an optional last argument, null or absent meaning the
+  seed. One index or build per library, held in a WeakMap. Wired at the advisory chat's five
+  uses and the course builder's descriptions.
+- **What proves it:** `tests/unit/firmLibraryNames.test.js` renames a template in one firm's
+  upload, through the real `loadEffectiveTemplates` walk: that firm's AI is shown and checked
+  against the new title, a second firm keeps the old one. Against the old code it fails 4 of 7.
+  Full suite 697 files / 15,299 tests.
+- **Not checked here:** nothing on a screen changes until a firm uploads a renamed export.
+
+**13.9 · Meeting reports and set-up screens could not be translated.**
+✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was built.**
+
+- **What it really was:** 185 phrases typed into the three meeting pages, `MeetingReview.vue`
+  and `MeetingPreset.vue`, plus one warning in `MeetingConsentPanel.vue`; the reports screen
+  wrote its dates New Zealand style and its talk-time % in English. Measured with the hub
+  guard's own checks. Found while measuring: the recording page's client box showed the raw
+  key `clientStep.title` - fixed on Mike's yes (`advisor.clientStep.title`).
+- **What was done, on Mike's yes:** every phrase moved word for word into `locales/en.json`
+  (`meetingPages`, `meetingReview`, `meetingPreset`, `meetingConsent.retentionUnreadable`),
+  bold parts as `<i18n>` slots; dates through `formatDate`, the % through `pct100`, the pause
+  through `numUpTo`. The model's literal NOT FOUND stays untranslated, as code.
+- **What proves it:** `hubNoTypedEnglish.test.js` now walks the three meeting pages too;
+  `i18nDateFormats.test.js` has no exemptions left. Full suite 696 files / 15,292 tests. A
+  production build walked in German: 0 English phrases, 0 raw keys on all three pages.
+- **Not checked here:** the reports screen with a real meeting in German - the laptop holds
+  none; the component tests cover it. Authored content (meeting types, observation points)
+  stays in the language it was written in, which is outside this item.
+
+**15.33 · A planner session holding a removed concept could never be saved again.**
+✅ **Closed 2026-10-02 by Mike ("yes" to marking it done), the day it was found.**
+
+- **What it really was:** sessions saved before 15.17 removed eight ids on 2026-09-23 still
+  listed them, so `putScope` refused every save, the scope count read "52 of 50 included", and
+  the advisor could not untick a concept the screen no longer showed - 47 of 192 dev sessions.
+- **What was done, on Mike's ruling:** `getSession` drops a concept that no longer exists from
+  the list and every step when the session opens, quietly, and logs each removal for audit
+  (`withoutRemovedConcepts` in `server/routes/strategyPlanner.js`). The `putScope` guard is
+  unchanged - an unknown id sent from the browser is still refused.
+- **What proves it:** two tests in `strategyPlanner.routes.test.js` (a removed id dropped and
+  logged; a clean session returned exactly as stored). Walked on dev session 79: "44 of 50
+  included", Save session accepted, no error, the removal in the server log. Full suite 15,287.
+- **Not checked here:** whether UAT holds any such session - if it does, it heals itself on its
+  next opening.
+
 **7.21 · Earlier messages, including the AI's own recommendation, were cut to 2,000 characters
 each turn.** ✅ **Closed 2026-10-02 by Mike ("done").**
 

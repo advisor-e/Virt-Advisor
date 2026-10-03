@@ -46,7 +46,11 @@ async function mountHub (state) {
   const wrapper = mountWithBuefy(FirmManagerHub, {
     propsData: { firmId: 'firm-1', apiToken: 'test-token', userEmail: 'm@x.com' },
     // Real English: these tests read button words and the "1 update" count off the card.
-    mocks: englishMocks()
+    mocks: englishMocks(),
+    // The Adviser Network tab's console reads eight lists from its own endpoint; given the
+    // `{}` stub above it rendered against nothing and printed ten render errors on every
+    // run - errors no user can reach, which cost a session a search on 2026-10-02.
+    stubs: { ManagerConsole: true }
   })
   await new Promise(resolve => setTimeout(resolve, 0))
   wrapper.setData(Object.assign({

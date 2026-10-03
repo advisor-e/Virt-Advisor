@@ -98,7 +98,7 @@
     },
     {
       "ref": "15.22",
-      "name": "Six Strategy Planner topics and Sales Process Review's flowchart need Mike's ruling to capture",
+      "name": "Sales Process Review's Sales Flowchart still needs Mike's ruling before it can capture",
       "rankedByMike": false,
       "kind": "feature",
       "score": 3,
@@ -106,16 +106,16 @@
       "blocker": false,
       "blocks": null,
       "waitingOn": "Mike",
-      "why": "Six of the 48 concepts still teach and capture nothing: (Inbound) Landing Page Review, and five with no capture page in his deck - Boston Model, Technology Points, Sigmoid Curve, Risk Reward Matrix, Senge's Circles of Causality.",
-      "risk": "An advisor running these topics has nowhere to record what the client said, so it does not reach the plan or the next session. Choosing a form for them is Mike's decision (census section 4), so nothing moves until he rules.",
+      "why": "Every concept now captures something except the Sales Flowchart half of Sales Process Review (S&M p47), which Mike held on 2026-09-24 over confusion about the client's sales process.",
+      "risk": "The client's step-by-step sales process is not recorded, so it does not reach the plan or the next session. Whether and how it captures is Mike's decision, so nothing moves until he rules.",
       "askedBy": {
         "who": "Mike",
         "ours": false,
         "detail": "2026-09-24 - closing 15.16: \"build as many as you can with what you have - we can pick up the rest later\", and on Sales Process Review, \"move forward without it for now - we can pick it up later\". Filed on his yes at shutdown the same day."
       },
       "touches": "design/STRATEGY-CAPTURE-FORM-PROPOSALS.md sections 2 and 5-6, where each proposal and the reason it was not built are recorded; data/strategy-frameworks.json captureForm on the seven; scripts/read-deck-capture-tables.js if a deck page is read.",
-      "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - BUILT 2026-10-02 into Tension Point Scripts (p50), all five of his examples shown; its Sales Flowchart (p47) is still held, and the reader gives it 3-7 boxes where his page has 15 steps. (2) Landing Page Review - pp27-30 are a finished worked example with no blank copy; which column is the client's is his call. (3) The five with no capture page are proposed as teaching only, because any box label would be written by us.",
-      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown. MIKE'S CALL 2026-10-02: PROCEED - Tension Point Scripts built (design/mockups/strategy-capture-tension-point-scripts.html); the Sales Flowchart, Landing Page Review and the five teaching-only rulings remain.",
+      "note": "READ THE PROPOSALS FILE, NOT THIS. Three separate rulings, one at a time: (1) Sales Process Review - BUILT 2026-10-02 into Tension Point Scripts (p50), all five of his examples shown; its Sales Flowchart (p47) is still held, and the reader gives it 3-7 boxes where his page has 15 steps. (2) Landing Page Review - BUILT 2026-10-02 from pp27-30, all three columns the client's, 58 boxes. (3) The five with no capture page - ruled teaching only, each with one Notes box; BUILT 2026-10-02.",
+      "comment": "2026-09-24 - filed on Mike's yes at the laptop shutdown. MIKE'S CALL 2026-10-02: PROCEED - Tension Point Scripts, Landing Page Review and the five topics' Notes boxes built (design/mockups/strategy-capture-tension-point-scripts.html, -landing-page-review.html, -teaching-notes.html); only the Sales Flowchart remains.",
       "activeOn": {
         "machine": "laptop",
         "since": "2026-10-02"
@@ -197,7 +197,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "The Strategy Planner's Suggest button reads only the client's last two saved conversation summaries. A client with none gets no suggestion, and the Virtual Advisor's intake answers and the client_planning logic tree never reach it.",
       "risk": "The first strategy meeting with a new client, when guidance matters most, gets none: the advisor reads all 48 rows and ticks by hand. Linking the logic tree needs a map from its branches to Mike's deck concepts, which is his content to author.",
       "askedBy": {
@@ -206,33 +206,12 @@
         "detail": "2026-09-30 - \"we need to focus on building the logic similar to the 'I've got a client who's got a problem with' section\", then yes to the planner asking the intake questions itself."
       },
       "touches": "server/utils/strategyPretick.js; server/routes/strategyPlanner.js postSuggest; components/strategy/StrategyScopeMenu.vue; the QUESTIONS array in server/advisorEngine.js (the source, not a copy); data/logic_trees.json client_planning; locales/en.json; design/features/strategy-planner.md.",
-      "note": "PROCEED. BUILT from design/mockups/strategy-suggest-intake.html: a client with no saved conversation is asked the Virtual Advisor's own questions, one at a time, and the count comes from session length. Every ruling and the measurement are in strategy-planner.md, stage 6. Walked in a browser: 90 minutes pre-ticked exactly 4. Three of the four measures are met; left is Mike's own try-out of the screen.",
-      "comment": "2026-09-30 - filed on Mike's request and ruling. Built the same day; MIKE'S CALL: PROCEED - next is his own try-out. Score and scoreReason are ours; he has not ranked it.",
+      "note": "BUILT, NOT GOOD ENOUGH YET. A client with no saved conversation is asked the Virtual Advisor's own questions, one at a time, and the count comes from session length (strategy-planner.md, stage 6). Mike's try-out 2026-10-03 failed the fourth measure: the suggestions did not make sense - \"this section needs work\". Next: improve them, after the bug fixes he asked for first.",
+      "comment": "2026-09-30 - filed on Mike's request and ruling. Built the same day. MIKE'S CALL 2026-10-03: PROCEED, kept live - his try-out found the suggestions not good enough; come back to it once the bugs are fixed. Score and scoreReason are ours; he has not ranked it.",
       "activeOn": {
         "machine": "laptop",
         "since": "2026-09-30"
       }
-    },
-    {
-      "ref": "13.9",
-      "name": "Meeting reports and set-up screens cannot be translated",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The meeting reports screen and the meeting set-up screen type their English straight into the code, so an advisor reading in another language sees them in English.",
-      "risk": "The recorder component moved on 2026-10-01, but the recording PAGE around it did not: pages/meeting-record.vue still types 30 phrases, including the not-yet-available-at-your-firm gate and its legal-obligations wording, which takes the same care as the pinned consent wording. These are the only pages in the app with typed English (2026-10-02). The reports screen's own comment still defends the typed English by saying the recorder does the same, which is no longer true.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found building item 8.4's gap notice; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, the three page files pages/meeting-record.vue (30 typed phrases), pages/meeting-review.vue (7) and pages/meeting-preset.vue (4), locales/en.json, and the report tests that read English text.",
-      "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words. Its numbers and dates need 13.8's helpers too - the talk-time % (lines 128-130) and the en-NZ date at line 480 (8.7, a duplicate, folded in 2026-10-01).",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
       "ref": "7.20",
@@ -467,27 +446,6 @@
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.29",
-      "name": "Template descriptions and the name check read the seed library, not each firm's uploaded library",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The live library is resolved through the cascade (firm, group, global, platform upload), but summaries.js titles each description, and tierLookup's isKnownTemplate checks names, against data/templates.json, the committed seed.",
-      "risk": "Harmless today: the seed and the latest master export were identical on 2026-10-02 (291 titles each). Once a tier uploads an export that renames a template, descriptions reach the AI under the old title and it names a template that does not exist - the fault fixed on 7.18, back by a side door.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-02 - found at shutdown, checking the 7.18 names fix against the advisory-engine Brief; filed on Mike's yes. A defect we found."
-      },
-      "touches": "server/utils/summaries.js withLibraryTitles; server/utils/tierLookup.js isKnownTemplate and nearestTemplateTitle; server/utils/templateLibrary.js, which resolves the library per scope; their callers in server/advisorEngine.js and server/courseEngine.js.",
-      "note": "Needs a design first: the summaries load once for the whole app, while the library resolves per firm. Measure: a test that renames a template in an uploaded library and proves the AI is shown the new title.",
-      "comment": "2026-10-02 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "7.30",
       "name": "About one Discover answer in 51 names a template that does not exist",
       "rankedByMike": false,
@@ -510,7 +468,7 @@
     },
     {
       "ref": "22.3",
-      "name": "First-load page code is 382 KB against the 300 KB limit",
+      "name": "First-load page code is 387 KB against the 300 KB limit",
       "rankedByMike": false,
       "kind": "defect",
       "score": 2,
@@ -526,50 +484,50 @@
         "detail": "2026-10-01 - measured while registering Datepicker and Progress (66e010c9); filed on Mike's yes."
       },
       "touches": "nuxt.config.js build settings, plugins/i18n.js (whether locales/en.json is bundled), plugins/buefy.js; the measurement method should match the master team's.",
-      "note": "Production build 2026-10-01, gzipped: runtime 3.1 + commons/app 57.3 + vendors~app 110.0 + app 211.7 = 382 KB before any page; /firm-manager adds 209 KB, /advisor totals 456 KB. Suspected cause, unproved: the 212 KB app chunk carries the English locale file. First job: confirm the master team's measuring method, then find what is in app.",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+      "note": "CAUSE PROVED 2026-10-03, production build, gzipped: runtime 3.3 + commons/app 57.3 + vendors~app 109.2 + app 217.5 = 387 KB. locales/en.json is 140 KB of it, bundled whole into app; without it about 247 KB. 13.9 added about 5 KB. The other seven locales are about 2 KB each. Next: a design so each page loads only the wording it uses - serving the file outside the JS would move the number, not the download.",
+      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. 2026-10-03 - cause proved and recorded on Mike's yes. MIKE'S CALL 2026-10-03: PROCEED - next is the design."
     },
     {
-      "ref": "13.11",
-      "name": "Text comparison drops accented letters, so a check could miss a changed word",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness - unproved harm, in languages other than English",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "normalise() in server/utils/meetingReports.js keeps a-z, 0-9 and apostrophes only, so \"Gäste\" becomes \"g ste\" and two words differing only in an accented letter compare equal.",
-      "risk": "Meeting Review's quote check and Wordsmith's must-keep check could pass a draft that changed an accented word. Not seen to happen; both sides are stripped alike, so a true quote still matches.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-02 - found while making Wordsmith's checks work in other languages (13.7); filed on Mike's yes at shutdown."
-      },
-      "touches": "normalise in server/utils/meetingReports.js and every caller: Meeting Review's quote verification, Wordsmith's checkDraft and the Wordsmith Lab.",
-      "note": "MEASURE FIRST, on non-English transcripts: does it ever let a wrong word through? Any change must not loosen Meeting Review's checks. Wordsmith's invented-name check already reads accented letters (wordsOf, 13.7).",
-      "comment": "2026-10-02 - filed on Mike's yes at shutdown. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
-      "ref": "15.33",
-      "name": "A planner session holding a removed concept can never be saved again",
+      "ref": "13.12",
+      "name": "Backend error messages reach the screens in English, whatever the reader's language",
       "rankedByMike": false,
       "kind": "defect",
       "score": 3,
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
-      "why": "putScope refuses any id it no longer knows, so a session saved before a concept was removed fails every save, and the advisor cannot untick a concept the screen no longer shows.",
-      "risk": "The advisor sees 'did not save' on every change with no way out, and the scope count overshoots ('52 of 50 included'). Today: sessions saved before 15.17 removed eight ids on 2026-09-23 - 47 of 192 dev sessions. Later: any concept removed, possibly a firm's imported one (15.20, unchecked).",
+      "waitingOn": "Us",
+      "why": "Every Restify route returns its error message in English, and screens show it as sent: \"No such meeting\" on a German reports page. The meeting routes alone send 46 codes with 75 messages.",
+      "risk": "A reader in another language meets English exactly when something has gone wrong. No shared way exists to word a backend error in the reader's language; only moderation blocks are translated, from a fixed list (mixins/moderationMessage.js).",
       "askedBy": {
         "who": "us",
         "ours": true,
-        "detail": "2026-10-02 - found walking Tension Point Scripts (15.22) on session 79; filed on Mike's yes."
+        "detail": "2026-10-03 - found proving 13.9 in German; filed on Mike's yes. A defect we found."
       },
-      "touches": "server/routes/strategyPlanner.js putScope (the UNKNOWN_FRAMEWORK guard); pages/strategy-planner.vue saveScope and session load; components/strategy/StrategyScopeMenu.vue includedOf count.",
-      "note": "NEEDS MIKE FIRST: when a session holds a concept that no longer exists, is it dropped quietly or is the advisor told which one was taken out - and if told, in what words. Then check whether UAT holds any such session, and whether a firm can delete an imported concept.",
-      "comment": "2026-10-02 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+      "touches": "server/utils/sendError and every route's messages; the screens' error handling (a shared mixin, as CLAUDE.md asks); locales/en.json.",
+      "note": "DONE 2026-10-03: the retention period and the set-up point labels - the backend sends months, tiers and names, the screens word them (mixins/retentionPeriod.js, MeetingPreset.vue). LEFT: a whole-app design for errors, so every screen words a backend error by its code in the reader's language.",
+      "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-03: PROCEED - period and labels built; errors wait on a whole-app design."
+    },
+    {
+      "ref": "22.9",
+      "name": "cases.routes.test.js failed once in a full run and passed alone",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - a random failure can block a push",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "On 2026-10-03 one test in tests/unit/cases.routes.test.js failed in a full run; alone it passed 58 of 58, and the next full run passed whole. The failing run's message was not kept.",
+      "risk": "A test that fails at random can stop the pre-push gate for no reason, and teaches people to re-run rather than read - which is how a real failure gets waved through.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-03 - seen in the full suite while building 13.12; filed on Mike's yes. A defect we found."
+      },
+      "touches": "tests/unit/cases.routes.test.js and whatever shared state or timing it leans on; server/routes/cases.js if the route itself is order-dependent.",
+      "note": "FIRST JOB: catch it failing with its message - run the full suite repeatedly with --json and keep every failure. Fix the cause it shows; never retry or skip the test.",
+      "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

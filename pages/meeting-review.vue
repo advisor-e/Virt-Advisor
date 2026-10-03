@@ -6,19 +6,20 @@
   .hero.is-fullheight-with-navbar(v-else-if="!authorised")
     .hero-body
       .container.has-text-centered
-        p.title.is-4 Access Restricted
+        p.title.is-4 {{ $t('meetingPages.accessTitle') }}
         p.subtitle.is-6
-          | Please sign in to read your meeting reports.
+          | {{ $t('meetingPages.signInReview') }}
           br
-          | Contact your account administrator if you think you should have access.
+          | {{ $t('meetingPages.contactAdmin') }}
 
   .container.py-5(v-else-if="!meetingId")
     b-message(type="is-warning" size="is-small")
-      | #[b No meeting was named.] Open your reports from the recording screen, which knows
-      |  which meeting you have just finished.
+      i18n(path="meetingPages.noMeetingNamed" tag="span")
+        template(#lead)
+          b {{ $t('meetingPages.noMeetingNamedLead') }}
 
   .container.py-5(v-else)
-    h1.title.is-4 After your meeting
+    h1.title.is-4 {{ $t('meetingPages.reviewHeading') }}
     meeting-review(:api-token="apiToken" :meeting-id="meetingId")
 </template>
 

@@ -25,6 +25,11 @@ const { mergeSections, COLLABORATE_SECTIONS } = require('../../utils/i18nMessage
 
 const ROOT = path.join(__dirname, '..', '..')
 const HUB_PAGES = ['pages/mentor.vue', 'pages/global-group-manager.vue', 'pages/group-manager.vue', 'pages/firm-manager.vue']
+/**
+ * Item 13.9: the three meeting pages, walked the same way. Outside this walk the recording
+ * page's client box showed "clientStep.title" on screen and nothing noticed (2026-10-03).
+ */
+const MEETING_PAGES = ['pages/meeting-preset.vue', 'pages/meeting-record.vue', 'pages/meeting-review.vue']
 const MESSAGES = mergeSections(require('../../locales/en.json'), require('../../locales/collaborate/en.json'), COLLABORATE_SECTIONS)
 
 /** Static attributes whose value a reader sees. */
@@ -53,7 +58,7 @@ function hubFiles () {
       if (fs.existsSync(abs)) { visit(path.relative(ROOT, abs).replace(/\\/g, '/')) }
     }
   }
-  HUB_PAGES.forEach(visit)
+  HUB_PAGES.concat(MEETING_PAGES).forEach(visit)
   return [...seen].sort()
 }
 
@@ -132,7 +137,7 @@ describe('🔴 every hub screen, at every level, is translatable', () => {
 
   test('the walk reaches the four hub pages and the screens under them', () => {
     // A walk that silently stopped following imports would pass everything below.
-    expect(files).toEqual(expect.arrayContaining(HUB_PAGES.concat(['components/FirmManagerHub.vue', 'components/firm/FirmWordsmith.vue'])))
+    expect(files).toEqual(expect.arrayContaining(HUB_PAGES.concat(MEETING_PAGES, ['components/FirmManagerHub.vue', 'components/firm/FirmWordsmith.vue', 'components/MeetingReview.vue', 'components/MeetingPreset.vue'])))
     expect(files.length).toBeGreaterThan(50)
   })
 

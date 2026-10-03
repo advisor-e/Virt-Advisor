@@ -105,6 +105,26 @@ const PAGES = [
       { page: 8, gapRows: true, form: 'named-field-stack' },
       { page: 9, grid: { headerRows: 1, labelColumns: [] } }
     ]
+  },
+  // 🔴 EIGHT SECTION TABLES, TWO TO A PAGE — item 15.22, drawing approved by Mike 2026-10-02
+  // (design/mockups/strategy-capture-landing-page-review.html). The client writes all three
+  // columns, as his p26 asks; his doughnut answers are the guide text. `section` keeps his
+  // "Section N" as the table's title, because the same row names recur in five sections
+  // and without it the plan would print five identical labels. `notesRegion` is the ruled
+  // box above Section 1 holding his two notes — shown, never boxes.
+  {
+    template: 'Designing Your Landing Page',
+    deck: 'sales-marketing',
+    parts: [
+      { page: 27, region: [205, 500], notesRegion: [120, 200], section: true, grid: { headerRows: 1, labelColumns: [0] } },
+      { page: 27, region: [505, 820], section: true, grid: { headerRows: 1, labelColumns: [0] } },
+      { page: 28, region: [128, 480], section: true, grid: { headerRows: 1, labelColumns: [0] } },
+      { page: 28, region: [503, 800], section: true, grid: { headerRows: 1, labelColumns: [0] } },
+      { page: 29, region: [98, 460], section: true, grid: { headerRows: 1, labelColumns: [0] } },
+      { page: 29, region: [463, 815], section: true, grid: { headerRows: 1, labelColumns: [0] } },
+      { page: 30, region: [183, 360], section: true, grid: { headerRows: 1, labelColumns: [0] } },
+      { page: 30, region: [428, 605], section: true, grid: { headerRows: 1, labelColumns: [0] } }
+    ]
   }
 ]
 
@@ -262,7 +282,28 @@ function gridOfPage (pageJson, options) {
     })
     return { columns, rows }
   }
-  return linesGrid(cells, xs, ys, drawings.filter(isHorizontalRule), opts.grid, textOf)
+  return linesGrid(cells, xs, ys, drawings.filter(isHorizontalRule), opts.grid, textOf,
+    drawings.filter(isVerticalRule))
+}
+
+/**
+ * His notes in a ruled box of their own, one per printed line — Landing Page Review's
+ * "Arrival Assumption" and "First 7 secs" above Section 1 (item 15.22).
+ *
+ * @param {object} pageJson
+ * @param {Array<number>} region  the band of the page the box occupies
+ * @returns {string[]}
+ */
+function notesOfPage (pageJson, region) {
+  const lines = []
+  pageJson.spans
+    .filter(s => s.bbox[1] >= region[0] && s.bbox[1] <= region[1] && !isPageNumber(s, pageJson))
+    .sort((a, b) => (Math.abs(a.bbox[1] - b.bbox[1]) > 4 ? a.bbox[1] - b.bbox[1] : a.bbox[0] - b.bbox[0]))
+    .forEach((s) => {
+      const last = lines[lines.length - 1]
+      if (last && Math.abs(last.y - s.bbox[1]) <= 4) { last.text += ' ' + s.text } else { lines.push({ y: s.bbox[1], text: s.text }) }
+    })
+  return lines.map(l => expandLigatures(l.text).replace(/\s+/g, ' ').trim()).filter(Boolean)
 }
 
 /** His line numbers — `1`, `2.` — printed at the start of a writing line. */
@@ -300,12 +341,19 @@ const PLACEHOLDER_LIST = /^(\d+\.\s*[A-Z]\s*)+$/
  * @param {function(Array<object>): string} textOf
  * @returns {{columns: number, rows: Array<{cells: Array<object>}>}}
  */
-function linesGrid (cells, xs, ys, hRules, grid, textOf) {
+function linesGrid (cells, xs, ys, hRules, grid, textOf, vRules) {
   const columns = xs.length - 1
   // Is there a rule along the top of row r across column c? If not, the cell merges up.
   const ruledAbove = (r, c) => {
     const mid = (xs[c] + xs[c + 1]) / 2
     return hRules.some(d => Math.abs(d.rect[1] - ys[r]) < 2 && d.rect[0] - 2 <= mid && d.rect[2] + 2 >= mid)
+  }
+  // 🔴 AND ACROSS: is there a rule down the left of column c through row r? Landing Page
+  // Review's "Graphics Table" is one instruction ruled across all three answer columns;
+  // read without this it offered three boxes, two of them under no words (item 15.22).
+  const ruledLeft = (r, c) => {
+    const mid = (ys[r] + ys[r + 1]) / 2
+    return (vRules || []).some(d => Math.abs(d.rect[0] - xs[c]) < 2 && d.rect[1] - 2 <= mid && d.rect[3] + 2 >= mid)
   }
 
   // Gather each column's merged runs so a run's words belong to its first row.
@@ -336,6 +384,9 @@ function linesGrid (cells, xs, ys, hRules, grid, textOf) {
       const text = textOf(own.slice())
       if (label) { return h === r ? { text } : { text, merged: true } }
       if (h !== r) { return { text: '', merged: true } }
+      // An empty answer cell with no rule on its left continues the cell beside it.
+      // `across` tells it from a merge down a column, so only this one widens the box beside it.
+      if (!text && c > 0 && !grid.labelColumns.includes(c - 1) && !ruledLeft(r, c)) { return { text: '', merged: true, across: true } }
       if (!text) { return { text: '', blank: true } }
       if (LINE_NUMBER.test(text)) { return { text, blank: true } }
       if (own.every(s => s.bold)) { return { text } }
@@ -369,22 +420,25 @@ function build (pagesDir) {
     // `parts` gives each page its own reading and its own form; otherwise every page
     // shares the entry's.
     const parts = p.parts || (p.pages || [p.page]).map(page => ({ page, region: p.region, grid: p.grid }))
-    const pages = parts.map(part => part.page)
+    const pages = parts.map(part => part.page).filter((n, i, all) => all.indexOf(n) === i)
     const tables = parts.map((part) => {
       const n = part.page
       const file = path.join(pagesDir, `${p.deck}-p${String(n).padStart(2, '0')}.json`)
       if (!fs.existsSync(file)) {
         throw new Error(`missing ${file} — run: python scripts/read-deck-pages.py ${p.deck} ${n} --out ${pagesDir}`)
       }
-      const table = gridOfPage(JSON.parse(fs.readFileSync(file, 'utf8')),
-        { region: part.region, grid: part.grid, gapRows: part.gapRows })
+      const pageJson = JSON.parse(fs.readFileSync(file, 'utf8'))
+      const table = gridOfPage(pageJson, { region: part.region, grid: part.grid, gapRows: part.gapRows })
       if (part.form) { table.form = part.form }
+      // His own heading in the corner cell — "Section 1" — names the table.
+      if (part.section) { table.title = table.rows[0].cells[0].text }
+      if (part.notesRegion) { table.notes = notesOfPage(pageJson, part.notesRegion) }
       return table
     })
     templates[p.template] = {
       // Provenance, so the table can be found again on his page rather than trusted.
       file: pages.length > 1
-        ? `${p.deck} deck, pages ${pages.join(' and ')}`
+        ? `${p.deck} deck, pages ${pages.slice(0, -1).join(', ')} and ${pages[pages.length - 1]}`
         : `${p.deck} deck, page ${pages[0]}`,
       format: 'deck-page',
       deck: p.deck,

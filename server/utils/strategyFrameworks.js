@@ -503,6 +503,15 @@ function buildConcept (raw, knownIds) {
     throw fail('BAD_CONCEPT', 'Concept "' + id + '" carries a capture form while marked ' +
       'unmeasured. Choosing one is a design decision — census §4 — not a data edit.')
   }
+  // 🔴 A NOTES BOX IS FOR A CONCEPT HIS DECK GIVES NO TABLE — Mike's ruling 6, 2026-10-02
+  // (design/mockups/strategy-capture-teaching-notes.html). With a table as well it would be
+  // two captures for one concept, and a box under a label we wrote beside his own boxes.
+  if (raw.captureNotes !== undefined && raw.captureNotes !== true) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" has a captureNotes that is not true.')
+  }
+  if (raw.captureNotes && (raw.captureForm || raw.captureTemplate || raw.model)) {
+    throw fail('BAD_CONCEPT', 'Concept "' + id + '" takes notes and also names a capture.')
+  }
 
   REFERENCEABLE.forEach(function (field) {
     const ref = raw[field + 'Ref']
@@ -541,7 +550,8 @@ function buildConcept (raw, knownIds) {
     // Mike's own words off the concept's pages, read by machine — the card's lead-in.
     pageWords: raw.pageWords || [],
     model: raw.model || null,
-    importReport: raw.importReport || null
+    importReport: raw.importReport || null,
+    captureNotes: raw.captureNotes === true
   }
 }
 

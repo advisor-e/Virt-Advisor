@@ -9,24 +9,25 @@
 
 ---
 
-## 2026-10-02 (evening) · Laptop · branch `feat/advisor-progress`
+## 2026-10-03 · Laptop · branch `feat/advisor-progress`
 
-**6 ahead of master after this commit, 0 behind; suite green 695 suites / 15,075 tests on Node 14.15.**
-7.27's two commits are pushed; the rest go up with this note.
+**14 ahead of master, 0 behind; suite green 699 suites / 15,300 tests on Node 14.15. All in PR #156.**
 
-**7.27 done.** Usage limits count each signed-in person within their firm, not the network address
-(`server/utils/rateLimit.js`); limits unchanged. Measured: 10 of 40 refused → 0.
-
-**7.21 done.** A client-chat follow-up sends the AI its own full reply from the server's copy
-(`server/utils/followUpReplies.js`); a session opens only for the firm and advisor who started it.
-Measured: 51 of 51 bench recommendations were cut, all now reach the AI whole.
-Both are principles P11 and P12 in `advisory-engine.md`.
+**Closed today:** 13.9 (meeting screens translate), 7.29 and 7.31 (everything asking "is this a
+real template?" reads the library in force), 13.11 (quote/phrase checks read every alphabet).
+**13.12** half-built: retention period and point labels worded on screen; backend errors wait on a
+whole-app design. **15.31** kept live: Mike's try-out found the suggestions not good enough.
+**Filed:** 22.9 (cases.routes.test.js failed once, passed alone).
 
 **FOR THE DESKTOP:**
 
-- Shared file changed: `server/advisorEngine.js` — the session store (`sessionCreate`, `sessionSave`
-  now take an owner), the start of `handleQuery`, and two lines where replies are sent.
-- `tests/unit/promptCheck.routes.test.js` now varies the manager, not the address.
-- `design/features/README.md` row 7 carries two new design files.
+- **The backend no longer sends English wording** for the retention period (`retentionPhrase`,
+  `phrase`) or point labels (`sourceLabel`, `setAsideLabel`): months, tiers and names only. Screens
+  word them via `mixins/retentionPeriod.js` and `MeetingPreset.vue`. Don't reintroduce them.
+- **Pass the library in force** to `logicTrees.buildLearnReferenceText`, `tierLookup`, `summaries`,
+  `resolveTemplateName`, `findQuizBank` — `loadEffectiveTemplates(firmId)`, or `(null)` for mentor.
+- **`hubNoTypedEnglish.test.js` now also walks the three meeting pages.**
+- Shared files: `locales/en.json`, `server/advisorEngine.js`, `server/courseEngine.js`,
+  `server/routes/firmManager.js`, `server/routes/mentor.js`.
 
-**Still in hand here:** 8.6 and 15.31, both waiting on Mike.
+**Still in hand here:** 15.22 and 8.6 (wait on Mike), 15.31 (waits on us, after the bugs).

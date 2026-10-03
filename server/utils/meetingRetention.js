@@ -209,22 +209,8 @@ async function loadResolvedRetention (scopeId, loadFirmConfig) {
   }
 }
 
-/**
- * The figure as the advisor reads it aloud — the only place months become words.
- *
- * 🔴 THIS IS THE SUBSTITUTION THE CONSENT SCREEN MAKES, and it is the whole reason this
- * module exists. The approved sentence is fixed; this supplies the one value inside it.
- * Singular is handled because "kept for 1 months" in front of a client is the kind of
- * carelessness that makes the rest of the sentence sound untrue too.
- *
- * @param {number} months
- * @returns {string} e.g. "18 months", "1 month"
- */
-function retentionPhrase (months) {
-  const n = Number(months)
-  if (!Number.isInteger(n) || n < 1) { return PLATFORM_DEFAULT_MONTHS + ' months' }
-  return n === 1 ? '1 month' : n + ' months'
-}
+// The figure becomes words on the SCREEN, in the reader's language (item 13.12):
+// mixins/retentionPeriod.js. This module supplies the number and nothing else.
 
 module.exports = {
   CONFIG_KEY,
@@ -236,6 +222,5 @@ module.exports = {
   validateRetentionMonths,
   readStoredRetention,
   loadOwnRetention,
-  loadResolvedRetention,
-  retentionPhrase
+  loadResolvedRetention
 }

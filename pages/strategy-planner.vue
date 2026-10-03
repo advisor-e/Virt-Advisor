@@ -469,7 +469,7 @@ const MODEL_PRINTS = {
  * advisor stops. 1.2 seconds is long enough that ordinary typing never trips it and
  * short enough that "Unsaved changes" is gone before anyone reads it.
  *
- * ⚠ Leaving the box saves too, through Buefy's `lazy` — this closes the OTHER hole, an
+ * ⚠ Leaving the box saves too, on its `change` event — this closes the OTHER hole, an
  * advisor who types an answer and then walks away without clicking anything at all.
  */
 const AUTOSAVE_PAUSE_MS = 1200
@@ -1039,8 +1039,11 @@ export default {
             : (capture.fields || [])
               .map(f => ({
                 key: visit.conceptId + '::' + f.key,
-                // `columnHead` names the side where one heading spans two columns.
-                label: [f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
+                // `columnHead` names the side where one heading spans two columns;
+                // `tableTitle` his section, where row names recur across them (15.22).
+                label: f.labelKey
+                  ? this.$t(f.labelKey)
+                  : [f.tableTitle, f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.key,
                 value: (this.entries[visit.conceptId + '::' + f.key] || '').trim()
               }))
         })
@@ -1960,7 +1963,9 @@ export default {
       const visit = this.conceptVisits.find(v => v.conceptId === conceptId)
       return ((visit && visit.capture && visit.capture.fields) || []).map(f => ({
         key: f.key,
-        label: [f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.label || f.key
+        label: f.labelKey
+          ? this.$t(f.labelKey)
+          : [f.tableTitle, f.columnHead, f.columnLabel, f.rowLabel].filter(Boolean).join(' · ') || f.label || f.key
       }))
     },
 
@@ -2584,15 +2589,16 @@ export default {
     /**
      * A box changed. Saved on blur, never per keystroke.
      *
-     * 🔴 WHAT MAKES THAT TRUE IS THE `lazy` PROP ON THE TWO CAPTURE INPUTS, AND FROM THE
-     * DAY THIS COMMENT WAS WRITTEN UNTIL 2026-09-22 IT WAS NOT THERE. Buefy's Input emits
-     * `input` from the NATIVE input event unless `lazy` is set, so every character typed
-     * into a box arrived here as its own save: one `PUT /entries` and one database write
-     * each, roughly 200 for a 200-character answer. They are also fired without awaiting
-     * one another, so on a slow line an early short value can land after a later one and
-     * store a half-typed sentence. Remove `lazy` from StrategyConceptCapture.vue or
-     * StrategyCaptureBox.vue and all of that comes back, silently and invisibly on screen.
-     * tests/unit/strategyCaptureSaveRate.test.js exists to stop that.
+     * 🔴 WHAT MAKES THAT TRUE IS THAT THE TWO CAPTURE INPUTS SAVE ON `change.native` AND
+     * ONLY SIGNAL ON `input`. Until 2026-09-22 every character typed into a box arrived
+     * here as its own save: one `PUT /entries` and one database write each, roughly 200
+     * for a 200-character answer, fired without awaiting one another, so on a slow line an
+     * early short value could land after a later one and store a half-typed sentence.
+     * Buefy's `lazy` fixed that and lost the first letter of every answer (2026-10-02), so
+     * both inputs now take the save from the change event directly — see
+     * StrategyCaptureBox.vue. Route a save through `input` and all of the 2026-09-22 harm
+     * comes back, silently and invisibly on screen; tests/unit/strategyCaptureSaveRate.test.js
+     * exists to stop either fault returning.
      *
      * @param {{frameworkId: string, fieldKey: string, value: string}} payload
      */

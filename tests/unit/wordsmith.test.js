@@ -421,6 +421,12 @@ describe('step 5 — the code reads every draft', () => {
     expect(ws.checkDraft('If in doubt we\'ll pay out.', c).passed).toBe(true)
     expect(ws.checkDraft('We are fair.', c).issues).toEqual([{ code: 'lost-phrase', detail: 'if in doubt, we\'ll pay out' }])
   })
+
+  it('🔴 finds a lost must-keep phrase in Russian — item 13.11, where a-z-only compared nothing to nothing', () => {
+    const c = { quotes: [{ text: 'Мы обсудили бюджет на следующий год' }], maxWords: 30, language: 'ru', mustKeep: ['бюджет на следующий год'] }
+    expect(ws.checkDraft('Мы обсудили бюджет на следующий год', c).passed).toBe(true)
+    expect(ws.checkDraft('Мы говорили о погоде', c).issues).toEqual([{ code: 'lost-phrase', detail: 'бюджет на следующий год' }])
+  })
 })
 
 describe('run — the five steps together', () => {

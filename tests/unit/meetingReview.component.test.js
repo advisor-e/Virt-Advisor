@@ -101,7 +101,7 @@ describe('loading', () => {
     const wrapper = mountScreen({ ...LOADED, state: 'failed', summary: null, coaching: null })
     await flush()
     expect(wrapper.vm.state).toBe('failed')
-    expect(wrapper.text()).toContain('could not be written')
+    expect(wrapper.text()).toContain('meetingReview.failed')
   })
 
   it('says which report is missing when only one failed', async () => {
@@ -117,7 +117,7 @@ describe('loading', () => {
       mocks: { $buefy: { toast: { open: jest.fn() } } }
     })
     await flush()
-    expect(wrapper.vm.loadError).toContain('could not be loaded')
+    expect(wrapper.vm.loadError).toContain('meetingReview.loadFailed')
   })
 
   it('warns when the two voices could not be told apart', async () => {
@@ -125,7 +125,7 @@ describe('loading', () => {
     // fail visibly rather than render as a confident percentage.
     const wrapper = mountScreen({ ...LOADED, attributionConfident: false })
     await flush()
-    expect(wrapper.text()).toContain('could not reliably tell the two voices apart')
+    expect(wrapper.text()).toContain('meetingReview.voices')
   })
 
   it('🔴 names every stretch no report could read, above both reports — and says nothing for a whole meeting', async () => {
@@ -253,7 +253,7 @@ describe('the observation points', () => {
     }
     const wrapper = mountScreen({ ...LOADED, coaching: answered })
     await flush()
-    expect(wrapper.text()).toContain('You answered')
+    expect(wrapper.text()).toContain('meetingReview.youAnswered')
   })
 
   it('does not offer to disagree twice with the same point', async () => {
@@ -295,7 +295,7 @@ describe('the measured figures', () => {
     // It cannot be counted, only understood, so it comes from the summary with a citation.
     const wrapper = mountScreen()
     await flush()
-    expect(wrapper.text()).toContain('Actions were agreed at 1:30')
+    expect(wrapper.text()).toContain('meetingReview.agreementAt1:30')
   })
 })
 
@@ -378,6 +378,21 @@ describe('🔴 since we last met — the three states are distinguishable', () =
     expect(w.vm.followThrough.expired).toBe(true)
     expect(w.vm.followThrough.items).toEqual([])
     w.destroy()
+  })
+
+  it('the expired panel words the firm\'s period from its months, and an older report keeps its stored words', async () => {
+    // Item 13.12: the period reaches the screen as a number and is worded in the reader's
+    // language. A report stored before then carries only the backend's English phrase, and
+    // showing it beats dropping the line.
+    const now = mountWith({ from: { meetingId: 'old', at: '2025-01-02T09:00:00.000Z' }, expired: true, retentionMonths: 6, items: [] })
+    await flush()
+    expect(now.vm.expiredPeriod).toBe('retentionPeriod.nMonths {"n":6}')
+    now.destroy()
+
+    const older = mountWith({ from: { meetingId: 'old', at: '2025-01-02T09:00:00.000Z' }, expired: true, retentionPhrase: '18 months', items: [] })
+    await flush()
+    expect(older.vm.expiredPeriod).toBe('18 months')
+    older.destroy()
   })
 
   it('a first meeting with a client is a different state from a meeting with no client', async () => {

@@ -295,6 +295,47 @@ describe('a session in another firm is absent, not forbidden', () => {
   })
 })
 
+describe('a session listing a concept that no longer exists opens without it — item 15.33', () => {
+  // Mike's ruling, 2026-10-02: drop it quietly so the session saves again, and log it. Without
+  // this, putScope refused every save of such a session ("52 of 50 included") and the advisor
+  // could not untick a concept the screen no longer showed. A person in UAT cannot see why.
+  it('🔴 drops the removed id from the list and its steps, keeps the rest, and logs it', async () => {
+    store.getSession.mockResolvedValue({
+      id: 7,
+      firmId: FIRM,
+      clientId: 'client-1',
+      scope: {
+        domains: [],
+        frameworks: ['boston-model', 'define-your-business-owner-expectations', 'swot-pest'],
+        steps: [{ name: 'One', items: ['boston-model#1', 'define-your-business-owner-expectations#1', 'swot-pest'] }]
+      }
+    })
+    const log = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const res = makeRes()
+
+    await routes.getSession(req({ params: { id: 7 } }), res)
+
+    expect(res._status).toBe(200)
+    expect(res._body.session.scope.frameworks).toEqual(['boston-model', 'swot-pest'])
+    expect(res._body.session.scope.steps[0].items).toEqual(['boston-model#1', 'swot-pest'])
+    expect(log).toHaveBeenCalledWith(expect.stringContaining('define-your-business-owner-expectations'))
+    log.mockRestore()
+  })
+
+  it('leaves a session with nothing removed exactly as stored, and logs nothing', async () => {
+    const scope = { domains: [], frameworks: ['boston-model'], steps: [{ name: 'One', items: ['boston-model#1'] }] }
+    store.getSession.mockResolvedValue({ id: 7, firmId: FIRM, clientId: 'client-1', scope })
+    const log = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const res = makeRes()
+
+    await routes.getSession(req({ params: { id: 7 } }), res)
+
+    expect(res._body.session.scope).toEqual(scope)
+    expect(log).not.toHaveBeenCalled()
+    log.mockRestore()
+  })
+})
+
 describe('a box nobody authored is refused', () => {
   it('🔴 refuses an entry whose field does not belong to its framework', async () => {
     const res = makeRes()

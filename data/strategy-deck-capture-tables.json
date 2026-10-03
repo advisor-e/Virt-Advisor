@@ -2170,6 +2170,666 @@
           ]
         }
       ]
+    },
+    "Designing Your Landing Page": {
+      "file": "sales-marketing deck, pages 27, 28, 29 and 30",
+      "format": "deck-page",
+      "deck": "sales-marketing",
+      "page": 27,
+      "tables": [
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Section 1",
+                  "header": true
+                },
+                {
+                  "text": "Readers Logic",
+                  "header": true
+                },
+                {
+                  "text": "Landing Page Logic",
+                  "header": true
+                },
+                {
+                  "text": "Marketing Statement",
+                  "header": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Title"
+                },
+                {
+                  "text": "What can you do for me?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Grab attention with 1 big promise and attractive graphics that depict customer success.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Lose Weight As You Eat Doughnuts!",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Subtitle"
+                },
+                {
+                  "text": "What did you just promise? Did I read that right??",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Support the promise with a ‘tiny’ bit of expansion",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "You’ve never had so much fun losing weight before...",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Text Body"
+                },
+                {
+                  "text": "Sounds good but what exactly will this do for me?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "‘Spell Out’ the promise so it creates ‘theatre in their mind’",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Build muscle, burn fat and sleep longer with our revolutionary protein doughnuts.",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Widget"
+                },
+                {
+                  "text": "I’ve seen enough, what do I do now?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Call to Action (CTA) button - take them to 1st stage in our sales process",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Call to Action (CTA) button - linking to ‘free taste test’ - give their name, cell ph number & address.",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            }
+          ],
+          "title": "Section 1",
+          "notes": [
+            "Arrival Assumption: Reader arrived as a result or clicking a link from an outbound article/ advert placed in Facebook or LinkedIn.",
+            "First 7 secs - Have I arrived on the right page? (Is Logo and Colour consistent with advert etc) and does the page look professional/ appealing?"
+          ]
+        },
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Section 2",
+                  "header": true
+                },
+                {
+                  "text": "Readers Logic",
+                  "header": true
+                },
+                {
+                  "text": "Landing Page Logic",
+                  "header": true
+                },
+                {
+                  "text": "Marketing Statement",
+                  "header": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Text Body"
+                },
+                {
+                  "text": "I’m Not Convinced Yet - Tell me how you accomplish your promise",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Summarise how we accomplish our promise",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "We combine the finest whey isolate protein powder with organic buttermilk and Mongolian coconut husk to deliver a mouth watering doughnut that looks like a doughnut; feels like a doughnut in your mouth, but works to stimulate your Hippocampus and adrenal gonads to build muscle while you sleep!",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Text & Graphics"
+                },
+                {
+                  "text": "How can I believe you",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Show them 3 things to support what we just said.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Picture 1 - Organic Ingredients - text to explain Picture 2 - Yummy Doughnut - text to explain Picture 3 - Muscle bound guy, Attractive girl. - text to explain how results may vary.",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            }
+          ],
+          "title": "Section 2"
+        },
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Section 3",
+                  "header": true
+                },
+                {
+                  "text": "Readers Logic",
+                  "header": true
+                },
+                {
+                  "text": "Landing Page Logic",
+                  "header": true
+                },
+                {
+                  "text": "Marketing Statement",
+                  "header": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Title"
+                },
+                {
+                  "text": "Prove it!",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Let us show it to you.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "See For Yourself!",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Video"
+                },
+                {
+                  "text": "Okay this sounds good, but what would all of this look like in action?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Allow the reader to have a visual example of what we do to deliver on our promise.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Show our facilities Show the lab technicians doing yoga Show us carrying the ingredients through the Mongolian mountains Show us blending the mixture late into the night Show customers eating our doughnut and bursting with energy Show our customers getting promoted after eating our doughnuts (What we want them to Know, Feel, Do about our product)",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            }
+          ],
+          "title": "Section 3"
+        },
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Section 4",
+                  "header": true
+                },
+                {
+                  "text": "Readers Logic",
+                  "header": true
+                },
+                {
+                  "text": "Landing Page Logic",
+                  "header": true
+                },
+                {
+                  "text": "Marketing Statement",
+                  "header": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Title"
+                },
+                {
+                  "text": "Alright, I’m getting convinced, but how would I get started?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Here’s what we want you to do...",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "3 Steps to Your Weight Loss Success!",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Subtitle"
+                },
+                {
+                  "text": "What do I need to do, in sequence",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Sequence suggests movement, we want you to act now",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Step 1. Weigh yourself - picture 1 Step 2. Decide how much weight you want to lose - picture 2 Step 3. Sign up for our free taste test",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Widget"
+                },
+                {
+                  "text": "I’ve seen enough, what do I do now?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Call to Action (CTA) button - take them to 1st stage in our sales process",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Call to Action (CTA) button - linking to ‘free taste test’ - give their name, cell ph number & address.",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            }
+          ],
+          "title": "Section 4"
+        },
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Section 5",
+                  "header": true
+                },
+                {
+                  "text": "Readers Logic",
+                  "header": true
+                },
+                {
+                  "text": "Landing Page Logic",
+                  "header": true
+                },
+                {
+                  "text": "Marketing Statement",
+                  "header": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Title"
+                },
+                {
+                  "text": "I’m still not convinced, Who are these guys? Do they have any credibility?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Give background info on the team and provide assurance that we know what we’re talking about.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Meet The ‘Dream Team’",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Subtitle"
+                },
+                {
+                  "text": "Will these guys be around in future?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Tell them what makes us so committed - why we won’t give up on our promise to help them.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Our mission is to change the way people see food and sleep, forever!",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Text Body"
+                },
+                {
+                  "text": "What makes them ‘so special’?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Tell them what makes us special",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Bill discovered the secret formula when trekking through the Mongolian mountains, it was shared with him by the village chief after he fell, trying to save a kitten in a tree...",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Graphics Table"
+                },
+                {
+                  "text": "Show the team member photo, state their role, blurb and contact details - in a table format.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "",
+                  "merged": true,
+                  "across": true
+                },
+                {
+                  "text": "",
+                  "merged": true,
+                  "across": true
+                }
+              ]
+            }
+          ],
+          "title": "Section 5"
+        },
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Section 6",
+                  "header": true
+                },
+                {
+                  "text": "Readers Logic",
+                  "header": true
+                },
+                {
+                  "text": "Landing Page Logic",
+                  "header": true
+                },
+                {
+                  "text": "Marketing Statement",
+                  "header": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Title"
+                },
+                {
+                  "text": "How good is it? - Who else has it worked for?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Provide Social Proof",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Don’t just take our word for it, here’s what others have to say...",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Testimonial Graphics"
+                },
+                {
+                  "text": "Let me see them, learn their story.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Show them our success stories are people just like them.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Name - Photo Their Problem/ backstory Their Journey Their result What they now enjoy",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Subtitle"
+                },
+                {
+                  "text": "Will it work for me too?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Explain the results are regular and WHY it works.",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Anyone can enjoy rapid weight loss using our doughnuts because we help you match your body type to our product options with our exclusive 21 point optical assessment checklist.",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            }
+          ],
+          "title": "Section 6"
+        },
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Section 7",
+                  "header": true
+                },
+                {
+                  "text": "Readers Logic",
+                  "header": true
+                },
+                {
+                  "text": "Landing Page Logic",
+                  "header": true
+                },
+                {
+                  "text": "Marketing Statement",
+                  "header": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Widget"
+                },
+                {
+                  "text": "I’ve seen enough, what do I do now?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Call to Action (CTA) button - take them to 1st stage in our sales process",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Call to Action (CTA) button - linking to ‘free taste test’ - give their name, cell ph number & address.",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            }
+          ],
+          "title": "Section 7"
+        },
+        {
+          "columns": 4,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "text": "Section 8",
+                  "header": true
+                },
+                {
+                  "text": "Readers Logic",
+                  "header": true
+                },
+                {
+                  "text": "Landing Page Logic",
+                  "header": true
+                },
+                {
+                  "text": "Marketing Statement",
+                  "header": true
+                }
+              ]
+            },
+            {
+              "cells": [
+                {
+                  "text": "Footer"
+                },
+                {
+                  "text": "How do I get hold if you if I need to?",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "How you can get hold of us if you have any other questions / provide social media backlinks",
+                  "blank": true,
+                  "guide": true
+                },
+                {
+                  "text": "Company Entity Name, Phone Number, address, email, social media icons",
+                  "blank": true,
+                  "guide": true
+                }
+              ]
+            }
+          ],
+          "title": "Section 8"
+        }
+      ]
     }
   }
 }

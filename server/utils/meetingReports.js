@@ -87,17 +87,41 @@ function clock (seconds) {
  * strict comparison, and failing them would throw away true findings and teach nobody
  * anything. What this does NOT forgive is different words.
  *
+ * 🔴 EVERY ALPHABET, item 13.11. This kept a–z only, so "Gäste" became "g ste" and a word in
+ * Russian, Greek, Chinese or six more of the app's languages became nothing at all: Meeting
+ * Review could never confirm a true quote in them, and Wordsmith's must-keep check passed a
+ * draft that had dropped the phrase. Letters, their accents and numbers in any script are kept;
+ * NFC first, so an accent typed as a separate mark matches the same letter typed whole.
+ *
  * @param {*} text
  * @returns {string}
  */
 function normalise (text) {
   return String(text === null || text === undefined ? '' : text)
+    .normalize('NFC')
     .toLowerCase()
     .replace(/[‘’‚‛]/g, "'")
     .replace(/[“”„‟]/g, '"')
-    .replace(/[^a-z0-9' ]+/g, ' ')
+    .replace(/[^\p{L}\p{M}\p{N}' ]+/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+/** Chinese and Japanese write no spaces between words, so a quote there is counted in characters. */
+const UNSPACED_SCRIPT = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u
+
+/** The least a quote must hold to be evidence: words in a spaced language, characters in one without. */
+const MIN_QUOTE_WORDS = 4
+const MIN_QUOTE_CHARS_UNSPACED = 8
+
+/**
+ * Is a normalised quote long enough to be evidence rather than a coincidence?
+ * @param {string} needle - already normalised
+ * @returns {boolean}
+ */
+function longEnoughToCite (needle) {
+  if (UNSPACED_SCRIPT.test(needle)) { return needle.replace(/\s/g, '').length >= MIN_QUOTE_CHARS_UNSPACED }
+  return needle.split(' ').filter(Boolean).length >= MIN_QUOTE_WORDS
 }
 
 /**
@@ -111,7 +135,7 @@ function findQuote (segments, quote) {
   const needle = normalise(quote)
   // A quote of two or three words is not evidence of anything; it will match by accident and
   // then be printed under a timestamp as though it were a citation.
-  if (needle.split(' ').filter(Boolean).length < 4) { return null }
+  if (!longEnoughToCite(needle)) { return null }
 
   const rows = Array.isArray(segments) ? segments : []
   for (let i = 0; i < rows.length; i += 1) {

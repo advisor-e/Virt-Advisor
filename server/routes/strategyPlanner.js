@@ -372,6 +372,47 @@ async function createSession (req, res) {
  * @returns {404} when the session does not exist OR belongs to another firm — the two are
  *   deliberately indistinguishable.
  */
+/**
+ * The session as stored, less any concept that no longer exists.
+ *
+ * 🔴 MIKE'S RULING, 2026-10-02 (item 15.33): DROP IT QUIETLY AND LOG IT. Item 15.17 removed
+ * eight ids on 2026-09-23, and a session saved before then still listed them — so `putScope`,
+ * which refuses an unknown id, refused EVERY save of it, the scope count read "52 of 50", and
+ * the advisor could not untick a concept the screen no longer showed. The concept is gone and
+ * had no screen to open, so the advisor is told nothing; the log is the audit trail. The
+ * guard in `putScope` is unchanged — an unknown id SENT from the browser is still refused.
+ * The stored scope is cleaned by the next save, which carries what the screen now holds.
+ *
+ * @param {object} session  as `store.getSession` returns it
+ * @param {string} firmId
+ * @returns {Promise<object>} the same session, or a copy whose scope lists only live ids
+ */
+async function withoutRemovedConcepts (session, firmId) {
+  const scope = session && session.scope
+  if (!scope || !Array.isArray(scope.frameworks)) { return session }
+  const shipped = id => Boolean(frameworks.getFramework(id) || frameworks.getConcept(id))
+  const listed = scope.frameworks.concat(...(scope.steps || []).map(s => s.items || []))
+    .map(item => String(item).split('#')[0])
+  if (listed.every(shipped)) { return session }
+
+  // An imported concept counts only where this firm can see it (item 15.20).
+  const visible = await imported.loadVisible(firmId)
+  const live = id => shipped(id) || Object.prototype.hasOwnProperty.call(visible, id)
+  const removed = listed.filter(id => !live(id)).filter((id, i, all) => all.indexOf(id) === i)
+  if (!removed.length) { return session }
+
+  console.warn('[strategy-planner] session ' + session.id + ' opened without removed concept(s): ' +
+    removed.join(', '))
+  return Object.assign({}, session, {
+    scope: Object.assign({}, scope, {
+      frameworks: scope.frameworks.filter(live),
+      steps: (scope.steps || []).map(step => Object.assign({}, step, {
+        items: (step.items || []).filter(item => live(String(item).split('#')[0]))
+      }))
+    })
+  })
+}
+
 async function getSession (req, res) {
   const firmId = firmOf(req)
   if (!firmId) {
@@ -393,7 +434,7 @@ async function getSession (req, res) {
 
     res.send(200, {
       success: true,
-      session,
+      session: await withoutRemovedConcepts(session, firmId),
       entries,
       timeline,
       timestamp: new Date().toISOString()

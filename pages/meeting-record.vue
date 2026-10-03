@@ -6,11 +6,11 @@
   .hero.is-fullheight-with-navbar(v-else-if="!authorised")
     .hero-body
       .container.has-text-centered
-        p.title.is-4 Access Restricted
+        p.title.is-4 {{ $t('meetingPages.accessTitle') }}
         p.subtitle.is-6
-          | Please sign in to record a meeting.
+          | {{ $t('meetingPages.signInRecord') }}
           br
-          | Contact your account administrator if you think you should have access.
+          | {{ $t('meetingPages.contactAdmin') }}
 
   //- ── Screen C — the firm has not declared ──────────────────────────────────
   //- 🔴 A GATE NEEDS A LOCKED STATE. Without one an advisor at a firm that has not
@@ -24,52 +24,49 @@
   //- recording (server/routes/compliance.js requireDeclaration).
   .container.py-5(v-else-if="!gateOpen")
     .box.fcm-locked
-      p.title.is-5.mb-1 Not yet available at your firm
-      p.subtitle.is-6.has-text-grey Meeting Review
+      p.title.is-5.mb-1 {{ $t('meetingPages.lockedTitle') }}
+      p.subtitle.is-6.has-text-grey {{ $t('meetingPages.lockedSubtitle') }}
 
       p.mb-3
-        b Before anyone at this firm can record a client meeting, a firm manager needs to make one confirmation.
+        b {{ $t('meetingPages.lockedFirst') }}
 
-      p.is-size-7.mb-3
-        | Recording a client conversation carries legal obligations, and they differ by country.
-        |  Advisor-e has published its assessment of what this feature does with a client's
-        |  information —
-        b  your firm confirms it has read and understands the law as it applies here
-        | , and the recorder opens.
+      i18n.is-size-7.mb-3(path="meetingPages.lockedLaw" tag="p")
+        template(#confirm)
+          b {{ $t('meetingPages.lockedLawConfirm') }}
 
-      p.is-size-7.mb-4
-        b It is a one-off step and it takes a minute.
-        |  Ask a firm manager to open Firm Manager Hub, under Compliance.
+      i18n.is-size-7.mb-4(path="meetingPages.lockedOneOff" tag="p")
+        template(#lead)
+          b {{ $t('meetingPages.lockedOneOffLead') }}
 
       b-message(type="is-info" size="is-small")
-        | #[b Nothing is wrong, and this is not something you can fix yourself.] Everything else
-        |  in the app works normally. Your pre-set observation points are already there waiting —
-        |  you can review what this meeting is for; you just cannot record it yet.
+        i18n(path="meetingPages.lockedNothingWrong" tag="span")
+          template(#lead)
+            b {{ $t('meetingPages.lockedNothingWrongLead') }}
 
       .buttons.mt-4
         b-button(outlined @click="showPreset = !showPreset")
-          | {{ showPreset ? 'Hide my meeting pre-set' : 'Open my meeting pre-set' }}
+          | {{ showPreset ? $t('meetingPages.hidePreset') : $t('meetingPages.openPreset') }}
 
       template(v-if="showPreset")
         b-message(v-if="loadError" type="is-danger" size="is-small") {{ loadError }}
         template(v-else)
-          b-field(label="What kind of meeting?" label-position="on-border")
+          b-field(:label="$t('meetingPages.meetingKind')" label-position="on-border")
             b-select(v-model="scenarioId" expanded)
               option(v-for="s in scenarios" :key="s.id" :value="s.id") {{ s.name }}
-          h4.title.is-6.mt-4.mb-2 What you will be checked on
+          h4.title.is-6.mt-4.mb-2 {{ $t('meetingPages.checkedOn') }}
           p.is-size-7.has-text-grey(v-if="!points.length")
-            | Your firm has not set anything for this kind of meeting yet.
+            | {{ $t('meetingRecorder.noPoints') }}
           .mrp-pt(v-for="p in points" :key="p.id")
             span.mrp-box
             span {{ p.text }}
 
   .container.py-5(v-else)
-    h1.title.is-4 Record a meeting
+    h1.title.is-4 {{ $t('meetingPages.recordHeading') }}
 
     b-message(type="is-warning" size="is-small")
-      | #[b Not for a real client meeting yet.] The consent wording still needs a lawyer's
-      |  reading in each market, and the firm's data-protection groundwork is not finished.
-      |  Record yourself to try this out.
+      i18n(path="meetingPages.notRealYet" tag="span")
+        template(#lead)
+          b {{ $t('meetingPages.notRealYetLead') }}
 
     .has-text-centered.py-5(v-if="loadingPoints")
       b-loading(:is-full-page="false" :active="true")
@@ -82,7 +79,7 @@
       meeting-unfinished(:api-token="apiToken")
 
       .box
-        b-field(label="What kind of meeting?" label-position="on-border")
+        b-field(:label="$t('meetingPages.meetingKind')" label-position="on-border")
           b-select(v-model="scenarioId" expanded)
             option(v-for="s in scenarios" :key="s.id" :value="s.id") {{ s.name }}
 
@@ -93,23 +90,22 @@
         //- match on the advisor and the meeting type, checking one client's agreed actions
         //- against another client's transcript. The wording is the register's own, already
         //- approved and in use on the Virtual Advisor's client step.
-        b-field.mt-3(:label="$t('clientStep.title')" label-position="on-border")
+        b-field.mt-3(:label="$t('advisor.clientStep.title')" label-position="on-border")
           b-select(v-model="clientId" expanded)
-            option(value="") Not for a particular client
+            option(value="") {{ $t('meetingPages.noClient') }}
             option(v-for="c in clients" :key="c.id" :value="c.id") {{ c.name }}
         p.is-size-7.has-text-grey(v-if="!clients.length")
-          | Your firm has no clients on its register yet. You can still record — the meeting
-          |  simply will not be compared with a previous one.
+          | {{ $t('meetingPages.noClientsYet') }}
 
-        h4.title.is-6.mt-4.mb-2 What you will be checked on
+        h4.title.is-6.mt-4.mb-2 {{ $t('meetingPages.checkedOn') }}
         p.is-size-7.has-text-grey(v-if="!points.length")
-          | Your firm has not set anything for this kind of meeting yet. You can still record.
+          | {{ $t('meetingPages.nothingSetRecord') }}
         .mrp-pt(v-for="p in points" :key="p.id")
           span.mrp-box
           span {{ p.text }}
 
         .buttons.mt-4
-          b-button(type="is-primary" :disabled="!scenarioId" @click="started = true") Continue
+          b-button(type="is-primary" :disabled="!scenarioId" @click="started = true") {{ $t('meetingPages.continue') }}
 
     meeting-recorder(
       v-else
@@ -260,7 +256,7 @@ export default {
         this.scenarios = data.scenarios || []
         if (this.scenarios.length) { this.scenarioId = this.scenarios[0].id }
       } catch (err) {
-        this.loadError = 'Your meeting checklist could not be loaded: ' + err.message
+        this.loadError = this.$t('meetingPages.loadError', { error: err.message })
       } finally {
         this.loadingPoints = false
       }

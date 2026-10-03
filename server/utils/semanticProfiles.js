@@ -146,16 +146,34 @@ async function loadEffectiveProfiles () {
 }
 
 /**
+ * The library rows this screen reads.
+ *
+ * 🔴 THE PLATFORM'S LIBRARY, NOT THE SEED (item 7.31). The mentor's upload — or the master
+ * app's push — is the platform library for every firm without its own, so a screen read from
+ * the committed file alone listed pages the platform no longer holds and refused a profile
+ * for a page it does. The mentor tier alone authors profiles, so no firm's library applies.
+ *
+ * @param {Array<object>|null} [library] - from `loadEffectiveTemplates(null)`; null for the seed
+ * @returns {Array<object>}
+ */
+function libraryRows (library) {
+  if (Array.isArray(library) && library.length > 0) { return library }
+  return LIBRARY.templates || LIBRARY
+}
+
+/**
  * Every client tool the engine can recommend, with the profile in force for its page.
  *
  * ONE ROW PER PAGE, NAMING EVERY TOOL ON IT. The library holds 220 `do-the-job` tools on
  * 205 pages; a row's `templates` array carries all of them so no tool of Mike's is absent
  * from the screen, and `title` is the first — the page's primary tool.
  *
+ * @param {Array<object>|null} [library] - the platform library in force (item 7.31): the
+ *   mentor's or the master app's upload, the committed seed when absent
  * @returns {Promise<{rows: Array<object>, total: number, pages: number, thinCount: number}>}
  *   `rows` one per page; `total` the tool count (220), `pages` the row count (205).
  */
-async function listTemplateProfiles () {
+async function listTemplateProfiles (library) {
   const effective = await loadEffectiveProfiles()
   const compiled = compiledByPage()
   const byPage = new Map()
@@ -165,7 +183,7 @@ async function listTemplateProfiles () {
   // `templates.json` directly is what lets a row name every tool on its page — the whole
   // point of Mike's ruling. Its summary still comes through the registry, which is keyed by
   // page and therefore correct for a value the tools share.
-  const all = LIBRARY.templates || LIBRARY
+  const all = libraryRows(library)
 
   for (const template of all) {
     if (!template || !template.page || template.menuSection !== 'do-the-job') { continue }
@@ -287,10 +305,11 @@ async function effectiveProfileMap () {
 /**
  * Every page id the library holds a client tool on — what a PUT is validated against, so a
  * profile can never be saved for a page that does not exist.
+ * @param {Array<object>|null} [library] - the platform library in force (item 7.31)
  * @returns {Set<string>}
  */
-function libraryPages () {
-  const all = LIBRARY.templates || LIBRARY
+function libraryPages (library) {
+  const all = libraryRows(library)
   const pages = new Set()
   for (const t of all) {
     if (t && t.page && t.menuSection === 'do-the-job') { pages.add(t.page) }

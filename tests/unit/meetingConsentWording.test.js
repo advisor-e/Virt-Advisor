@@ -124,7 +124,9 @@ describe('the components do not carry their own copy of any of this', () => {
     const source = read('components/MeetingConsentPanel.vue')
     const template = /<template lang="pug">([\s\S]*?)<\/template>/.exec(source)[1]
     expect(template).not.toMatch(/\b\d+\s*months?\b/i)
-    expect(template).toContain('retentionPhrase')
+    // The figure arrives as a number of months and is worded in the reader's language (13.12).
+    expect(source).toContain('retentionMonths')
+    expect(source).toContain('retentionPeriod(this.retentionMonths)')
   })
 
   test('the spoken line exists in no component — it comes from the locale file', () => {

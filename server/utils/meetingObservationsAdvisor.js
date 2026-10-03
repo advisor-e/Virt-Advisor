@@ -165,20 +165,19 @@ const ADVISOR_SOURCE_LABELS = {
 }
 
 /**
- * The three source tiers an advisor is shown, and their approved labels.
+ * The three source tiers an advisor is shown.
  *
  * 🔴 THREE, NOT FIVE — Mike's ruling of 2026-09-08 (question 3). A point can come from the
  * mentor, a global group manager, a group manager or the firm, and the middle two COLLAPSE
  * into "From your firm": an advisor has no relationship with a global group manager or a
  * group manager, and would read "From the UK group" as a question rather than an answer.
  *
- * @type {Object.<string, string>}
+ * Only the tier is sent. Its label is worded on the screen, in the reader's language
+ * (`locales/en.json` → `meetingPreset.source*`, item 13.12).
+ *
+ * @type {string[]}
  */
-const SOURCE_TIER_LABELS = {
-  platform: 'From Advisor-e',
-  firm: 'From your firm',
-  advisor: 'Added by you'
-}
+const SOURCE_TIERS = ['platform', 'firm', 'advisor']
 
 /**
  * The one tier an advisor is told is Advisor-e. Taken from `tierChain.TIERS` rather than
@@ -457,7 +456,7 @@ function sourceTierOf (point) {
  *
  * @param {Array<object>} firmPoints - the firm's resolved points, each carrying `source`
  * @param {{declines: string[], own: object[]}} advisorState - this advisor, this scenario
- * @returns {Array<object>} points carrying `source`, `sourceTier` and `sourceLabel`
+ * @returns {Array<object>} points carrying `source` and `sourceTier`
  */
 function applyAdvisorLayer (firmPoints, advisorState) {
   const base = (Array.isArray(firmPoints) ? firmPoints : [])
@@ -478,8 +477,7 @@ function applyAdvisorLayer (firmPoints, advisorState) {
   )
 
   return resolved.map((p) => {
-    const tier = sourceTierOf(p)
-    return { ...p, sourceTier: tier, sourceLabel: SOURCE_TIER_LABELS[tier] }
+    return { ...p, sourceTier: sourceTierOf(p) }
   })
 }
 
@@ -496,17 +494,14 @@ function applyAdvisorLayer (firmPoints, advisorState) {
  *
  * @param {Array<object>} firmPoints - the firm's resolved points
  * @param {string[]} declinedIds
- * @returns {Array<object>} points carrying `sourceTier` and `sourceLabel`
+ * @returns {Array<object>} points carrying `sourceTier`
  */
 function setAsidePoints (firmPoints, declinedIds) {
   const declined = new Set(Array.isArray(declinedIds) ? declinedIds : [])
   if (!declined.size) { return [] }
   return (Array.isArray(firmPoints) ? firmPoints : [])
     .filter(p => p && declined.has(p.id))
-    .map((p) => {
-      const tier = sourceTierOf({ ...p, firmSource: p.source })
-      return { ...p, sourceTier: tier, sourceLabel: SOURCE_TIER_LABELS[tier] }
-    })
+    .map(p => ({ ...p, sourceTier: sourceTierOf({ ...p, firmSource: p.source }) }))
 }
 
 /**
@@ -625,7 +620,7 @@ module.exports = {
   DEV_FILES,
   ADVISOR_POINT_PREFIX,
   ADVISOR_SOURCE_LABELS,
-  SOURCE_TIER_LABELS,
+  SOURCE_TIERS,
   MAX_OWN_POINTS_PER_SCENARIO,
   validateAdvisorPoint,
   readAdvisorDeclines,

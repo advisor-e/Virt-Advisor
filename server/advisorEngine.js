@@ -903,13 +903,15 @@ function logAI (label, model, startTime, success, usage, reply) {
  * @param {string} answer - the model's raw first reply, markers included
  * @param {Array<{role: string, content: string}>} sourceMessages - what it was given
  * @param {string} model - the model id, so the retry runs on the same one
+ * @param {Array<object>|null} [library] - the firm's template library in force (item 7.29);
+ *   null for the committed seed
  * @returns {Promise<{answer: string, unresolved: Array<{name: string, route: string}>}>}
  *   the reply to use, and anything still wrong with it after the retry
  */
-async function correctTemplateHeadings (answer, sourceMessages, model) {
+async function correctTemplateHeadings (answer, sourceMessages, model, library) {
   let check
   try {
-    check = checkTemplateHeadings(stripModelMarker(stripTemplateMarker(answer)))
+    check = checkTemplateHeadings(stripModelMarker(stripTemplateMarker(answer)), library)
   } catch (e) {
     console.error('[advisor] template-heading check failed:', e.message)
     return { answer, unresolved: [] }
@@ -945,7 +947,7 @@ async function correctTemplateHeadings (answer, sourceMessages, model) {
     // An empty retry is not an improvement on a flawed answer: keep the one we have, and
     // with it the fault we already know about, so the note still reaches the advisor.
     if (!text) { return { answer, unresolved: check.offenders } }
-    const second = checkTemplateHeadings(stripModelMarker(stripTemplateMarker(text)))
+    const second = checkTemplateHeadings(stripModelMarker(stripTemplateMarker(text)), library)
     if (!second.ok) {
       console.warn('[advisor] template-heading check: the retry named ' +
         second.offenders.map(o => o.name).join(', ') + ' under a template heading too')
@@ -3744,7 +3746,7 @@ async function handleQuery (rawBody, res, identity) {
 
     // Fetch summaries for pre-selected templates — exact match, no keyword diffusion
     const _preSelectedSummaries = preFilteredNames && preFilteredNames.length > 0
-      ? getSummariesForTemplateNames(preFilteredNames)
+      ? getSummariesForTemplateNames(preFilteredNames, firmTemplates)
       : []
     const _preSelectedSummariesText = _preSelectedSummaries.length > 0
       ? '\n---\n\n## Template Content Summaries (' + _preSelectedSummaries.length + ' pre-selected)\n\n' +
@@ -4083,7 +4085,7 @@ async function handleQuery (rawBody, res, identity) {
           // `source` is recorded because the AI obeys the declaration instruction only
           // sometimes, and both paths return a plausible list — so a fallback is otherwise
           // invisible to everyone, including a tester in UAT. See item 4.53.
-          const _recommended = resolveRecommendedTemplatesWithSource(_p3Buffer)
+          const _recommended = resolveRecommendedTemplatesWithSource(_p3Buffer, firmTemplates)
           state.recommendedTemplates = _recommended.templates
           console.log('[advisor] recommendation source=' + _recommended.source +
             ' count=' + _recommended.templates.length + ' session=' + (sessionId || 'none'))
@@ -4174,7 +4176,7 @@ async function handleQuery (rawBody, res, identity) {
   const summariesApply = mode === 'client' || mode === 'discover'
   const allUserMsgs = trimmedHistory.filter(m => m.role === 'user').map(m => m.content).join(' ')
   const summaryQuery = allUserMsgs ? allUserMsgs + ' ' + query : query
-  const relevantSummaries = summariesApply && trimmedHistory.length >= 6 ? filterSummariesByQuery(summaryQuery, 10) : []
+  const relevantSummaries = summariesApply && trimmedHistory.length >= 6 ? filterSummariesByQuery(summaryQuery, 10, firmTemplates) : []
   const summariesText = formatSummariesForPrompt(relevantSummaries)
 
   const advisorProfileText = fencedAdvisorProfile(advisorProfile)
@@ -4207,7 +4209,7 @@ async function handleQuery (rawBody, res, identity) {
         detectLogicTree([...userMsgs, learnQuery].join(' '), firmLogicTrees)
     }
     if (learnTree && learnTree.mode === 'learn') {
-      learnSalesTreeText = buildLearnReferenceText(learnTree, firmMethodGuides)
+      learnSalesTreeText = buildLearnReferenceText(learnTree, firmMethodGuides, firmTemplates)
       // Learn enrichment (Mike's ruling 2026-07-16): when the picked coaching
       // tree has a VERIFIED domain-support file (explicit data mapping or
       // exact name match — never guessed), inject that richer coaching too.
@@ -4228,7 +4230,7 @@ async function handleQuery (rawBody, res, identity) {
     // their "sales/marketing/pricing" means the advisor selling THEIR services, the opposite
     // of the client's situation (design §2.5). See isClientDeliveryLearnTree.
     if (isClientDeliveryLearnTree(deepDiveTree)) {
-      deepDiveText = buildLearnReferenceText(deepDiveTree, firmMethodGuides)
+      deepDiveText = buildLearnReferenceText(deepDiveTree, firmMethodGuides, firmTemplates)
     }
   }
 
@@ -4378,11 +4380,11 @@ async function handleQuery (rawBody, res, identity) {
         // recorded — recording the discarded one would put a model on the Model Choices
         // screen that no advisor was ever sent to.
         const corrected = mode === 'discover'
-          ? await correctTemplateHeadings(_mainBuffer, _mainMessages, model)
+          ? await correctTemplateHeadings(_mainBuffer, _mainMessages, model, firmTemplates)
           : { answer: _mainBuffer, unresolved: [] }
         // A template named nearly right reaches the advisor in the library's own spelling,
         // before the video injector, so its tutorial sentence finds the real title too.
-        const titled = mode === 'discover' ? useLibraryTitles(corrected.answer) : { text: corrected.answer, renamed: [] }
+        const titled = mode === 'discover' ? useLibraryTitles(corrected.answer, firmTemplates) : { text: corrected.answer, renamed: [] }
         if (titled.renamed.length) {
           console.log('[advisor] library titles: ' + titled.renamed.map(r => `"${r.from}" -> "${r.to}"`).join(', '))
         }

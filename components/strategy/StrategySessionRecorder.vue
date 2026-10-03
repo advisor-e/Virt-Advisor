@@ -7,7 +7,7 @@
   .box(v-if="stage === 'consent1' || stage === 'consent2'")
     meeting-consent-panel(
       :step="stage === 'consent1' ? 1 : 2"
-      :retention-phrase="retentionPhrase"
+      :retention-months="retentionMonths"
       :elapsed-seconds="segmentSeconds"
       :busy="busy"
       @start="startFirst"
@@ -155,7 +155,8 @@ export default {
       stage: 'idle',
       busy: false,
       fatal: '',
-      retentionPhrase: '',
+      /** The firm's retention period in months; the consent panel words it (item 13.12). */
+      retentionMonths: null,
       meetingId: '',
       /** The server's own view of every segment (`publicSegments`). */
       segments: [],
@@ -219,7 +220,7 @@ export default {
     async loadConsentContext () {
       try {
         const data = await this.call('GET', '/api/meeting/consent')
-        this.retentionPhrase = data.retentionPhrase || ''
+        this.retentionMonths = data.retentionMonths || null
       } catch (err) {
         this.fatal = err.message
       }

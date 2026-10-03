@@ -45,8 +45,7 @@ function mountScreen () {
       resolved: { months: 18, source: 'platform' },
       ownMonths: null,
       min: 1,
-      max: 120,
-      phrase: '18 months'
+      max: 120
     })
   }))
   return mountWithBuefy(FirmMeetingObservations, {
@@ -163,8 +162,7 @@ describe('what advisors have set aside', () => {
           resolved: { months: 18, source: 'platform' },
           ownMonths: null,
           min: 1,
-          max: 120,
-          phrase: '18 months'
+          max: 120
         })
       })
     })

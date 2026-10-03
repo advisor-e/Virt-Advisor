@@ -115,7 +115,9 @@ describe('GET /api/meeting/observations/client/:clientId', () => {
     expect(own.sourceTier).toBe('client')
     expect(own.setBy.byName).toBe('Tom Boyd')
     expect(s.setAside.map(p => p.id)).toEqual(['mo-eoy-1'])
-    expect(s.setAside[0].setAsideLabel).toContain('Tom Boyd')
+    // Who set it aside travels as a name; the screen words the line (item 13.12).
+    expect(s.setAside[0].setBy.byName).toBe('Tom Boyd')
+    expect(s.setAside[0]).not.toHaveProperty('setAsideLabel')
     expect(res._body.maxOwnPerScenario).toBe(MAX_OWN_POINTS_PER_SCENARIO)
   })
 

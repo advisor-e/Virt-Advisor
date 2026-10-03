@@ -54,9 +54,18 @@ const {
   MAX_MONTHS,
   validateRetentionMonths,
   loadOwnRetention,
-  loadResolvedRetention,
-  retentionPhrase
+  loadResolvedRetention
 } = require('../utils/meetingRetention')
+
+/**
+ * A stored meeting's period, or the platform default where an old row holds none — the same
+ * fall-back the backend's English phrase used. The screens word it (item 13.12).
+ * @param {*} months
+ * @returns {number}
+ */
+function monthsOrDefault (months) {
+  return (Number.isInteger(months) && months >= 1) ? months : PLATFORM_DEFAULT_MONTHS
+}
 const {
   DIARIZING_MODEL,
   createTranscriptionClient
@@ -141,7 +150,7 @@ async function writeScopeConfig (scopeId, value, savedBy) {
  *
  * @route GET /api/firm-manager/meeting-retention
  * @returns {{resolved: object, ownMonths: (number|null), platformDefault: number,
- *   min: number, max: number, phrase: string}}
+ *   min: number, max: number}} - the screen words `resolved.months` itself (item 13.12)
  */
 async function getRetention (req, res) {
   try {
@@ -152,8 +161,7 @@ async function getRetention (req, res) {
       ownMonths,
       platformDefault: PLATFORM_DEFAULT_MONTHS,
       min: MIN_MONTHS,
-      max: MAX_MONTHS,
-      phrase: retentionPhrase(resolved.months)
+      max: MAX_MONTHS
     })
   } catch (err) {
     return serverError(res, err, 'read the retention period')
@@ -170,7 +178,7 @@ async function getRetention (req, res) {
  *
  * @route PUT /api/firm-manager/meeting-retention
  * @param {object} req.body - `{ months: number }`
- * @returns {{saved: true, months: number, phrase: string}}
+ * @returns {{saved: true, months: number}}
  */
 async function setRetention (req, res) {
   const checked = validateRetentionMonths((req.body || {}).months)
@@ -181,8 +189,7 @@ async function setRetention (req, res) {
     await writeScopeConfig(req.firmId, { months: checked.value }, req.userEmail)
     res.send(200, {
       saved: true,
-      months: checked.value,
-      phrase: retentionPhrase(checked.value)
+      months: checked.value
     })
   } catch (err) {
     return serverError(res, err, 'save the retention period')
@@ -202,7 +209,7 @@ async function resetRetention (req, res) {
   try {
     await writeScopeConfig(req.firmId, null, req.userEmail)
     const resolved = await loadResolvedRetention(req.firmId, readScopeConfig)
-    res.send(200, { reset: true, resolved, phrase: retentionPhrase(resolved.months) })
+    res.send(200, { reset: true, resolved })
   } catch (err) {
     return serverError(res, err, 'reset the retention period')
   }
@@ -221,14 +228,14 @@ async function resetRetention (req, res) {
  * retention figure and nothing else, which is the only part that varies.
  *
  * @route GET /api/meeting/consent
- * @returns {{retentionMonths: number, retentionPhrase: string, source: string}}
+ * @returns {{retentionMonths: number, source: string}} - the panel words the period in the
+ *   reader's language (item 13.12)
  */
 async function getConsentContext (req, res) {
   try {
     const resolved = await loadResolvedRetention(req.firmId, readScopeConfig)
     res.send(200, {
       retentionMonths: resolved.months,
-      retentionPhrase: retentionPhrase(resolved.months),
       source: resolved.source
     })
   } catch (err) {
@@ -275,7 +282,7 @@ function ownedMeeting (req, res) {
  * @route POST /api/meeting/recordings
  * @param {object} req.body - `{ scenarioId?: string, clientId?: string, segmented?: true,
  *   parts?: true (with segmented: an ordinary meeting in 20-minute parts), strategySessionId?: number }`
- * @returns {{meetingId: string, retentionMonths: number, retentionPhrase: string}}
+ * @returns {{meetingId: string, retentionMonths: number}}
  */
 async function startRecording (req, res) {
   try {
@@ -337,8 +344,7 @@ async function startRecording (req, res) {
     })
     res.send(201, {
       meetingId,
-      retentionMonths: meta.retentionMonths,
-      retentionPhrase: retentionPhrase(meta.retentionMonths)
+      retentionMonths: meta.retentionMonths
     })
   } catch (err) {
     return serverError(res, err, 'start the recording')
@@ -810,9 +816,10 @@ async function runReports (meetingId, ctx) {
         // Which kind of empty, so the screen can tell "your first meeting with this client"
         // from "you did not record this against a client" (approved drawing, 2026-09-07).
         reason: (meta && meta.clientId) ? 'first' : 'no_client',
-        // The firm's OWN period, rendered — Mike's ruling the same day that the expired panel
-        // names it, and `meetingRetention.js`'s standing rule that it is never hardcoded.
-        retentionPhrase: retentionPhrase(meta && meta.retentionMonths)
+        // The firm's OWN period — Mike's ruling the same day that the expired panel names it,
+        // and `meetingRetention.js`'s standing rule that it is never hardcoded. The screen
+        // words it in the reader's language (item 13.12).
+        retentionMonths: monthsOrDefault(meta && meta.retentionMonths)
       }
     } catch (err) {
       // A follow-through that cannot be looked up must not cost the advisor their coaching

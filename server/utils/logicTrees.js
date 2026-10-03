@@ -61,21 +61,46 @@ function isTemplateName (name) {
     !name.startsWith('[') && !name.startsWith('a ')
 }
 
-let _catalogueTitles = null
+let _seedRows = null
+
+/** One title set per library, built on first use and dropped with the library (item 7.31). */
+const _titlesByLibrary = new WeakMap()
+const _keysByLibrary = new WeakMap()
 
 /**
- * Titles the running app can actually serve, from data/templates.json — the
- * tracked mirror the app reads (NOT the raw export, which is gitignored and
- * absent on a fresh clone / CI).
+ * The library rows the gate reads: the one in force for the firm when the caller has it
+ * (item 7.31 — `templateLibrary.loadEffectiveTemplates`, firm → group → global → platform),
+ * else data/templates.json, the tracked mirror the app reads (NOT the raw export, which is
+ * gitignored and absent on a fresh clone / CI).
+ * @param {Array<object>|null} [library]
+ * @returns {Array<object>}
+ */
+function libraryRows (library) {
+  if (Array.isArray(library) && library.length > 0) { return library }
+  if (!_seedRows) {
+    const rows = loadReferenceFile('templates.json')
+    _seedRows = Array.isArray(rows) ? rows : []
+  }
+  return _seedRows
+}
+
+/**
+ * Titles the running app can actually serve to THIS firm.
+ *
+ * 🔴 WHICH LIBRARY, item 7.31. Read from the committed seed alone, a template a firm's own
+ * export added or renamed was withheld from the AI as unservable, and one it removed was
+ * named to an advisor who could not open it — the very failure this gate exists to stop.
+ *
+ * @param {Array<object>|null} [library] - the library in force; the seed when absent
  * @returns {Set<string>} empty set when the catalogue cannot be read
  */
-function catalogueTitles () {
-  if (_catalogueTitles) { return _catalogueTitles }
-  const rows = loadReferenceFile('templates.json')
-  _catalogueTitles = new Set(
-    Array.isArray(rows) ? rows.map(r => r && r.title).filter(Boolean) : []
-  )
-  return _catalogueTitles
+function catalogueTitles (library) {
+  const rows = libraryRows(library)
+  const hit = _titlesByLibrary.get(rows)
+  if (hit) { return hit }
+  const titles = new Set(rows.map(r => r && r.title).filter(Boolean))
+  _titlesByLibrary.set(rows, titles)
+  return titles
 }
 
 /**
@@ -88,11 +113,12 @@ function catalogueTitles () {
  * everything through and says so loudly, rather than silently muting the engine.
  *
  * @param {Array<string>} names
+ * @param {Array<object>|null} [library] - the firm's library in force (item 7.31)
  * @returns {{available: Array<string>, withheld: Array<string>}}
  */
-function splitByAvailability (names) {
+function splitByAvailability (names, library) {
   const list = Array.isArray(names) ? names : []
-  const titles = catalogueTitles()
+  const titles = catalogueTitles(library)
   if (titles.size === 0) {
     console.error('[logicTrees] WARNING: template catalogue unavailable — availability gate disabled, all declared templates will be emitted')
     return { available: list, withheld: [] }
@@ -105,8 +131,6 @@ function splitByAvailability (names) {
   return { available, withheld }
 }
 
-let _catalogueKeys = null
-
 /**
  * The same titles as `catalogueTitles`, normalised for comparison against a name
  * as it was written into a sentence. Prose is written by hand and punctuated
@@ -116,12 +140,16 @@ let _catalogueKeys = null
  * The normaliser is the Template Check screen's own, shared rather than copied,
  * so a name the screen reports as resolved is a name this gate lets through.
  *
+ * @param {Array<object>|null} [library] - the firm's library in force (item 7.31)
  * @returns {Set<string>} empty set when the catalogue cannot be read
  */
-function catalogueKeys () {
-  if (_catalogueKeys) { return _catalogueKeys }
-  _catalogueKeys = new Set([...catalogueTitles()].map(normalise))
-  return _catalogueKeys
+function catalogueKeys (library) {
+  const rows = libraryRows(library)
+  const hit = _keysByLibrary.get(rows)
+  if (hit) { return hit }
+  const keys = new Set([...catalogueTitles(library)].map(normalise))
+  _keysByLibrary.set(rows, keys)
+  return keys
 }
 
 /**
@@ -150,13 +178,14 @@ function catalogueKeys () {
  * sentence say it anyway would put back what the sibling gate just removed.
  *
  * @param {string} text - the instruction as written in the tree
+ * @param {Array<object>|null} [library] - the firm's library in force (item 7.31)
  * @returns {string} the surviving sentences, or '' when none survive
  */
-function withholdUnavailableNames (text) {
+function withholdUnavailableNames (text, library) {
   const s = String(text || '')
   if (!s.trim()) { return '' }
 
-  const titles = catalogueKeys()
+  const titles = catalogueKeys(library)
   if (titles.size === 0) {
     // FAIL-SAFE, AND IT POINTS THE OPPOSITE WAY TO `splitByAvailability` ON
     // PURPOSE. There, an unreadable catalogue must not withhold, because doing so
@@ -439,8 +468,10 @@ function explainDetection (message, firmTrees) {
  *   model reads firm-authored text as data, not instructions. Short structural
  *   labels (branch_name) are left as-is, mirroring how domain-support fences
  *   prose but not labels. Off by default → platform output is byte-identical.
+ * @param {Array<object>|null} [library] - the firm's template library in force, which the
+ *   availability gate reads (item 7.31); the committed seed when absent
  */
-function formatNodeForPrompt (node, allNodes, fence = false) {
+function formatNodeForPrompt (node, allNodes, fence = false, library = null) {
   const lines = []
   const fx = v => (fence ? fenceUntrusted(v) : v)
 
@@ -466,7 +497,7 @@ function formatNodeForPrompt (node, allNodes, fence = false) {
   //
   // Gated, because emitting it ungated is what made this unsafe to fix on its own
   // — a sentence here can name a tool the catalogue cannot serve yet.
-  const recommendation = withholdUnavailableNames(node.recommendation)
+  const recommendation = withholdUnavailableNames(node.recommendation, library)
   if (recommendation) {
     lines.push(`Action: ${fx(recommendation)}`)
   }
@@ -481,17 +512,17 @@ function formatNodeForPrompt (node, allNodes, fence = false) {
 
   // Every template list is gated: a name the catalogue cannot serve yet is held
   // back rather than named to the advisor. See the availability gate above.
-  const templates = splitByAvailability(node.templates).available
+  const templates = splitByAvailability(node.templates, library).available
   if (templates.length > 0) {
     lines.push(`Templates: ${templates.join(', ')}`)
   }
 
-  const ifUnsure = splitByAvailability(node.templates_if_unsure).available
+  const ifUnsure = splitByAvailability(node.templates_if_unsure, library).available
   if (ifUnsure.length > 0) {
     lines.push(`Templates if client is unsure: ${ifUnsure.join(', ')}`)
   }
 
-  const support = splitByAvailability(node.support_templates).available
+  const support = splitByAvailability(node.support_templates, library).available
   if (support.length > 0) {
     lines.push(`Support with: ${support[0]}`)
   }
@@ -585,7 +616,12 @@ function formatApproachGuidance (guidance) {
   return lines.join('\n')
 }
 
-function formatLogicTreeForPrompt (tree) {
+/**
+ * @param {Object|null} tree
+ * @param {Array<object>|null} [library] - the firm's template library in force (item 7.31)
+ * @returns {string}
+ */
+function formatLogicTreeForPrompt (tree, library = null) {
   if (!tree) { return '' }
 
   // A firm-overridden tree carries firm-authored branch text (tagged in
@@ -626,7 +662,7 @@ function formatLogicTreeForPrompt (tree) {
   const header = headerLines.join('\n')
 
   const nodeBlocks = (tree.nodes || [])
-    .map(node => formatNodeForPrompt(node, tree.nodes, fence))
+    .map(node => formatNodeForPrompt(node, tree.nodes, fence, library))
     .join('\n\n')
 
   // flat_if_then trees keep their rules at the tree level (`tree.branches`), not in nodes.
@@ -942,12 +978,14 @@ function formatCoachingScopeForPrompt (loadedIds) {
  * @param {Object|null} tree - a logic tree
  * @param {Object|null} [guideOverrides] - resolved method-guide override map, keyed
  *   by guide id (methodGuideConfig.loadResolvedGuideOverrides)
+ * @param {Array<object>|null} [library] - the reading firm's template library in force,
+ *   so the availability gate withholds only what THIS firm cannot open (item 7.31)
  * @returns {string|null}
  */
-function buildLearnReferenceText (tree, guideOverrides) {
+function buildLearnReferenceText (tree, guideOverrides, library = null) {
   if (!tree || tree.mode !== 'learn') { return null }
 
-  let text = formatLogicTreeForPrompt(tree)
+  let text = formatLogicTreeForPrompt(tree, library)
 
   // Guides whose content actually reaches this prompt. Collected as they are added
   // rather than assumed from the tree id, because a guide whose file fails to load
