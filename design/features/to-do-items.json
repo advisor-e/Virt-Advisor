@@ -197,7 +197,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Us",
+      "waitingOn": "Mike",
       "why": "The Strategy Planner's Suggest button reads only the client's last two saved conversation summaries. A client with none gets no suggestion, and the Virtual Advisor's intake answers and the client_planning logic tree never reach it.",
       "risk": "The first strategy meeting with a new client, when guidance matters most, gets none: the advisor reads all 48 rows and ticks by hand. Linking the logic tree needs a map from its branches to Mike's deck concepts, which is his content to author.",
       "askedBy": {
@@ -207,7 +207,7 @@
       },
       "touches": "server/utils/strategyPretick.js; server/routes/strategyPlanner.js postSuggest; components/strategy/StrategyScopeMenu.vue; the QUESTIONS array in server/advisorEngine.js (the source, not a copy); data/logic_trees.json client_planning; locales/en.json; design/features/strategy-planner.md.",
       "note": "BUILT, NOT GOOD ENOUGH YET. Mike's try-out 2026-10-03 failed: the suggestions did not make sense. CAUSE: none of the eight questions asks what the client needs, so the model chooses with no subject. RULED BY MIKE 2026-10-03: first, the Virtual Advisor's \"Tell me about a challenge your client is facing.\"; then a short description of the four planning domains, asking which the client is struggling with; then the rest; the AI chooses only from the domains picked. BUILT from design/mockups/strategy-suggest-intake.html (revision). Before/after on one invented client: generic planning steps became concepts fitting the client's problem (strategy-planner.md stage 6). Next: Mike's own try-out.",
-      "comment": "2026-09-30 - filed on Mike's request and ruling. Built the same day. MIKE'S CALL 2026-10-03: PROCEED, kept live - his try-out found the suggestions not good enough. 2026-10-03, on his pick: cause found, and his yes to the new first question. Score and scoreReason are ours; he has not ranked it.",
+      "comment": "2026-09-30 - filed on Mike's request and ruling. Built the same day. MIKE'S CALL 2026-10-03: PROCEED, kept live - his try-out found the suggestions not good enough. 2026-10-03, on his pick: cause found, and his yes to the new first question. MIKE'S CALL 2026-10-03 after the build: PROCEED - waits only on his try-out of the new opening questions. Score and scoreReason are ours; he has not ranked it.",
       "activeOn": {
         "machine": "laptop",
         "since": "2026-09-30"

@@ -40,7 +40,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 3 | **13.6** Translations mistake business words ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 4 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 5 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-30 |
-| 6 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | Us | **laptop**, since 2026-09-30 |
+| 6 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-09-30 |
 | 7 | **7.20** Send the AI only the context the advisor's topic needs ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
 | 8 | **7.22** Test whether a stronger model should write the main advisory answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 9 | **7.23** Keep a record of every AI call: model, prompt version, tokens and time taken ⚠ *not yet ranked by Mike* | 2 | — | Outside | — |
@@ -58,7 +58,7 @@ repository sees; the two never both appear, and the build stops if they would.
 | 21 | **22.9** cases.routes.test.js failed once in a full run and passed alone ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 22 | **15.34** The Strategy Planner's guided questions show in English on a translated screen ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**22 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
+**22 live items. Twelve need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
