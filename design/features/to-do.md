@@ -52,11 +52,11 @@ repository sees; the two never both appear, and the build stops if they would.
 | 15 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 16 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
 | 17 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 18 | **7.29** Template descriptions and the name check read the seed library, not each firm's uploaded library ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 19 | **7.30** About one Discover answer in 51 names a template that does not exist ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 20 | **22.3** First-load page code is 382 KB against the 300 KB limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 21 | **13.11** Text comparison drops accented letters, so a check could miss a changed word ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 22 | **13.12** Retention period, added-by and set-aside-by labels and backend errors reach meeting screens in English ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 18 | **7.30** About one Discover answer in 51 names a template that does not exist ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 19 | **22.3** First-load page code is 382 KB against the 300 KB limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 20 | **13.11** Text comparison drops accented letters, so a check could miss a changed word ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 21 | **13.12** Retention period, added-by and set-aside-by labels and backend errors reach meeting screens in English ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 22 | **7.31** Survey modules reading the built-in template file; decide which should read each firm's library ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 
 **22 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->

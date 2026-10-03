@@ -446,27 +446,6 @@
       "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
-      "ref": "7.29",
-      "name": "Template descriptions and the name check read the seed library, not each firm's uploaded library",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "robustness",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The live library is resolved through the cascade (firm, group, global, platform upload), but summaries.js titles each description, and tierLookup's isKnownTemplate checks names, against data/templates.json, the committed seed.",
-      "risk": "Harmless today: the seed and the latest master export were identical on 2026-10-02 (291 titles each). Once a tier uploads an export that renames a template, descriptions reach the AI under the old title and it names a template that does not exist - the fault fixed on 7.18, back by a side door.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-02 - found at shutdown, checking the 7.18 names fix against the advisory-engine Brief; filed on Mike's yes. A defect we found."
-      },
-      "touches": "server/utils/summaries.js withLibraryTitles; server/utils/tierLookup.js isKnownTemplate and nearestTemplateTitle; server/utils/templateLibrary.js, which resolves the library per scope; their callers in server/advisorEngine.js and server/courseEngine.js.",
-      "note": "Needs a design first: the summaries load once for the whole app, while the library resolves per firm. Measure: a test that renames a template in an uploaded library and proves the AI is shown the new title.",
-      "comment": "2026-10-02 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "7.30",
       "name": "About one Discover answer in 51 names a template that does not exist",
       "rankedByMike": false,
@@ -548,6 +527,27 @@
       },
       "touches": "server/utils/meetingRetention.js and registerRetention.js retentionPhrase; server/utils/meetingObservationsEntity.js entitySourceLabel and setAsideLabel; meetingObservations.js sourceLabel; their routes; MeetingConsentPanel.vue retentionSentence, MeetingReview.vue, MeetingPreset.vue; locales/en.json.",
       "note": "SCOPE FIRST. The backend already sends retentionMonths beside the phrase, so the screens can write the period themselves; the consent sentence takes the same care as the pinned consent wording. The source labels come from a pattern other features share (resolveInheritedRows), so check who else shows them before changing the shape.",
+      "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "7.31",
+      "name": "Survey modules reading the built-in template file; decide which should read each firm's library",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 2,
+      "scoreReason": "robustness - nothing visible until a firm uploads a different export",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "7.29 moved the AI's descriptions and name checks onto the firm's library. About seven other backend modules still require data/templates.json directly, so they ignore an uploaded export.",
+      "risk": "Harmless while the seed and the exports match. Once a firm's export differs, scoring, routing evidence or logic-tree serving could work from templates that firm does not hold. Some readers may be right to use the seed, which is why this is a survey first.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-03 - found scoping 7.29; filed on Mike's yes. A defect we found."
+      },
+      "touches": "server/utils/semanticProfiles.js, contentRouting.js, logicTrees.js, resolveTemplateName.js, quizOverrides.js, templateCheck.js, templateCheckPatch.js; the seed fallback in server/routes/firmManager.js. Reuse templateLibrary.loadEffectiveTemplates, as 7.29 did.",
+      "note": "SURVEY FIRST: for each module, say what it does with the library and whether a firm's upload should change it. Template Check may rightly compare against the master file. Fix only what the survey shows wrong, each proven like tests/unit/firmLibraryNames.test.js.",
       "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]

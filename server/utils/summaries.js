@@ -12,60 +12,102 @@ const { readFileSync } = require('fs')
 const { resolve } = require('path')
 const { STOP_WORDS } = require('./stop-words')
 
-let _summaries = null
+let _rich = null
+let _seed = null
 let _sectionDescriptions = null
-// Every master-library template title, filled by withLibraryTitles on first load.
-const _libraryTitles = new Set()
 
-function loadSummaries () {
-  if (_summaries) { return _summaries }
+/**
+ * 🔴 WHICH LIBRARY, item 7.29. A firm, or a tier above it, may upload its own template
+ * library (`templateLibrary.loadEffectiveTemplates`). The summaries the AI is shown are
+ * titled from, and topped up from, THAT library — or a template the firm's export renamed
+ * reaches the AI under its old name, the fault 7.18 fixed. Every reader below takes the
+ * library in force as an optional last argument; leaving it out, or passing null for "no
+ * tier has uploaded", reads the committed data/templates.json.
+ *
+ * One build per library, dropped with the library: templateLibrary hands out the same
+ * array for a minute at a time, so a WeakMap keyed on it rebuilds once per upload.
+ */
+const _builds = new WeakMap()
 
-  // Load rich content summaries
-  let rich = []
+/** content-summaries.json, read once. The same for every library. */
+function _loadRich () {
+  if (_rich) { return _rich }
   try {
-    rich = JSON.parse(readFileSync(resolve(process.cwd(), 'data/content-summaries.json'), 'utf8'))
+    _rich = JSON.parse(readFileSync(resolve(process.cwd(), 'data/content-summaries.json'), 'utf8'))
   } catch (err) {
     console.error('[summaries] Failed to load content-summaries.json:', err.message)
+    _rich = []
   }
+  return _rich
+}
 
-  // Build fallback entries from templates.json for any template not already covered.
+/** The committed seed, read once. An unreadable file is an empty library, said loudly. */
+function _seedLibrary () {
+  if (_seed) { return _seed }
+  try {
+    _seed = JSON.parse(readFileSync(resolve(process.cwd(), 'data/templates.json'), 'utf8'))
+  } catch (err) {
+    console.error('[summaries] Failed to read templates.json:', err.message)
+    _seed = []
+  }
+  return _seed
+}
+
+/**
+ * The summaries, and every title, for one library.
+ * @param {Array<object>|null} [library] - the library in force; null or empty for the seed
+ * @returns {{summaries: object[], titles: Set<string>}}
+ */
+function _buildFor (library) {
+  const rows = (Array.isArray(library) && library.length > 0) ? library : _seedLibrary()
+  const hit = _builds.get(rows)
+  if (hit) { return hit }
+
+  const rich = _loadRich().slice()
+
+  // Build fallback entries from the library for any template not already covered.
   // Uses the purpose field so every Do the Job template is visible to the AI copy layer.
   // NOTE: this deliberately does NOT gate on includedInClient. That field only governs
   // whether a CLIENT self-serving in Advisor-e can see the template — not whether an
   // advisor may recommend it with a client. It was removed here to stay consistent with
   // the recommendation engine (see templateResolver.js), so the ~77 advisor-with-client
   // templates that are now recommendable also get their purpose-based copy.
-  try {
-    const allTemplates = JSON.parse(readFileSync(resolve(process.cwd(), 'data/templates.json'), 'utf8'))
-    const richNames = new Set(rich.map(s => s.name))
-    // Also check alias targets so we don't duplicate aliased entries
-    const aliasTargets = new Set(Object.values(TEMPLATE_SUMMARY_ALIASES))
-    const richNamesWithAliases = new Set([...richNames, ...aliasTargets])
+  const richNames = new Set(rich.map(s => s.name))
+  // Also check alias targets so we don't duplicate aliased entries
+  const aliasTargets = new Set(Object.values(TEMPLATE_SUMMARY_ALIASES))
+  const richNamesWithAliases = new Set([...richNames, ...aliasTargets])
 
-    for (const t of allTemplates) {
-      if (
-        t.section === 'Do the Job' &&
-        t.purpose &&
-        t.purpose.trim() &&
-        !richNames.has(t.title) &&
-        !richNamesWithAliases.has(t.title)
-      ) {
-        rich.push({
-          name: t.title,
-          section: t.subSection || '',
-          purpose: t.purpose.trim(),
-          indicators: t.topic || '',
-          helpsOwner: '',
-          helpsAdvisor: ''
-        })
-      }
+  for (const t of rows) {
+    if (
+      t && t.section === 'Do the Job' &&
+      t.purpose &&
+      t.purpose.trim() &&
+      !richNames.has(t.title) &&
+      !richNamesWithAliases.has(t.title)
+    ) {
+      rich.push({
+        name: t.title,
+        section: t.subSection || '',
+        purpose: t.purpose.trim(),
+        indicators: t.topic || '',
+        helpsOwner: '',
+        helpsAdvisor: ''
+      })
     }
-  } catch (err) {
-    console.error('[summaries] Failed to build purpose fallbacks from templates.json:', err.message)
   }
 
-  _summaries = withLibraryTitles(rich)
-  return _summaries
+  const titles = new Set()
+  const build = { summaries: withLibraryTitles(rich, rows, titles), titles }
+  _builds.set(rows, build)
+  return build
+}
+
+/**
+ * @param {Array<object>|null} [library] - the library in force (item 7.29); the seed if absent
+ * @returns {object[]}
+ */
+function loadSummaries (library) {
+  return _buildFor(library).summaries
 }
 
 /**
@@ -74,26 +116,23 @@ function loadSummaries () {
  * content-summaries.json was extracted from a Google Doc, so 67 of its headings are the
  * doc's own ("4 Part Business Plan", "Advance.6. Organisational Review & Org Chart") and
  * match no template. The AI repeats whatever heading it is shown, so it offered advisors
- * templates that do not exist. Only the library — data/templates.json, the master export —
- * may name a template: a heading that is already a title keeps it; otherwise the titles come
- * from the summary's page links and the alias map. A summary that reaches no title gets an
- * empty list and is never shown to the AI as a template.
+ * templates that do not exist. Only the library — the master export, as uploaded for this
+ * firm or committed as data/templates.json (item 7.29) — may name a template: a heading that
+ * is already a title keeps it; otherwise the titles come from the summary's page links and
+ * the alias map. A summary that reaches no title gets an empty list and is never shown to
+ * the AI as a template.
  *
  * @param {object[]} rich - the loaded summaries
+ * @param {object[]} library - the template library in force
+ * @param {Set<string>} known - filled with every title the library holds
  * @returns {object[]} the same entries, each with `titles: string[]`
  */
-function withLibraryTitles (rich) {
-  const known = _libraryTitles
+function withLibraryTitles (rich, library, known) {
   const byPage = new Map()
-  try {
-    const all = JSON.parse(readFileSync(resolve(process.cwd(), 'data/templates.json'), 'utf8'))
-    for (const t of all) {
-      if (!t.title) { continue }
-      known.add(t.title)
-      if (t.page) { byPage.set(t.page, (byPage.get(t.page) || []).concat(t.title)) }
-    }
-  } catch (err) {
-    console.error('[summaries] Failed to read templates.json for library titles:', err.message)
+  for (const t of library) {
+    if (!t || !t.title) { continue }
+    known.add(t.title)
+    if (t.page) { byPage.set(t.page, (byPage.get(t.page) || []).concat(t.title)) }
   }
   const aliasTitles = {}
   Object.keys(TEMPLATE_SUMMARY_ALIASES).forEach((title) => {
@@ -127,11 +166,16 @@ function alsoDescribesLine (titles) {
 /**
  * Filter summaries by relevance to a query, returning up to maxResults.
  * Matches against purpose, indicators, helpsOwner, and helpsAdvisor fields.
+ *
+ * @param {string} query
+ * @param {number} [maxResults=15]
+ * @param {Array<object>|null} [library] - the library in force (item 7.29); the seed if absent
+ * @returns {object[]}
  */
-function filterSummariesByQuery (query, maxResults) {
+function filterSummariesByQuery (query, maxResults, library) {
   maxResults = maxResults || 15
   // Only summaries that name a library template — these feed the AI's prompt.
-  const summaries = loadSummaries().filter(s => s.titles.length > 0)
+  const summaries = loadSummaries(library).filter(s => s.titles.length > 0)
   const words = query.toLowerCase()
     .split(/\s+/)
     .filter(w => w.length > 3)
@@ -160,8 +204,8 @@ function filterSummariesByQuery (query, maxResults) {
  * Return ALL summaries (used when conversation history provides enough context
  * to warrant the full reference rather than keyword-filtered subset).
  */
-function getAllSummaries () {
-  return loadSummaries()
+function getAllSummaries (library) {
+  return loadSummaries(library)
 }
 
 function loadSectionDescriptions () {
@@ -361,9 +405,13 @@ function matchSummaryByTemplateName (summaries, templateName) {
  * Given a list of template names from the logic tree terminal nodes,
  * return matching summaries using fuzzy name matching.
  * De-duplicates by summary name.
+ *
+ * @param {string[]} templateNames
+ * @param {Array<object>|null} [library] - the library in force (item 7.29); the seed if absent
+ * @returns {object[]}
  */
-function getSummariesForTemplateNames (templateNames) {
-  const summaries = loadSummaries()
+function getSummariesForTemplateNames (templateNames, library) {
+  const { summaries, titles } = _buildFor(library)
   const byName = new Map()
   for (const name of templateNames) {
     const match = matchSummaryByTemplateName(summaries, name)
@@ -372,7 +420,7 @@ function getSummariesForTemplateNames (templateNames) {
     // not every title a shared summary covers. A logic-tree name that is not a title falls
     // back to the summary's own library titles.
     const hit = byName.get(match.name) || { ...match, titles: [] }
-    const add = _libraryTitles.has(name) ? [name] : match.titles
+    const add = titles.has(name) ? [name] : match.titles
     add.forEach((t) => { if (!hit.titles.includes(t)) { hit.titles.push(t) } })
     byName.set(match.name, hit)
   }

@@ -45,35 +45,60 @@ const TIER_RANK = { 'entry-level': 1, intermediate: 2, advanced: 3 }
 const NUMBER_WORDS = { one: '1', two: '2', three: '3', four: '4', five: '5', six: '6', seven: '7', eight: '8', nine: '9', ten: '10', eleven: '11', twelve: '12' }
 const NUMBER_WORD = /\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/g
 
-// Built once at require time: lowercase template title → tier
-const _titleToTier = new Map()
-
 /**
- * Punctuation-and-plural-insensitive title → the catalogue's own title. Built in the same
- * pass, so it can never describe a different set of templates than `_titleToTier`.
- * See `nearestTemplateTitle` for what it is for and why it exists.
+ * 🔴 WHICH LIBRARY, item 7.29. A firm, or a tier above it, may upload its own template
+ * library (`templateLibrary.loadEffectiveTemplates`), and every name check below must read
+ * THAT library — or a template the firm's export renamed is waved through under its old
+ * name. Every function takes the library in force as an optional last argument; leaving it
+ * out, or passing null for "no tier has uploaded", reads the committed data/templates.json.
+ *
+ * One index per library, built on first use and dropped with the library: templateLibrary
+ * hands out the same array for a minute at a time, so a WeakMap keyed on it rebuilds once
+ * per upload, never per call.
  */
-const _shapeToTitle = new Map()
+const _indexes = new WeakMap()
+let _seed = null
 
-;(function buildIndex () {
-  let templates
+/** The committed seed, read once. An unreadable file is an empty library, said loudly. */
+function _seedLibrary () {
+  if (_seed) { return _seed }
   try {
-    templates = require(path.resolve(process.cwd(), 'data/templates.json'))
+    _seed = require(path.resolve(process.cwd(), 'data/templates.json'))
   } catch (e) {
     console.error('[tierLookup] Could not load templates.json:', e.message)
-    return
+    _seed = []
   }
-  Object.values(templates).forEach((t) => {
-    if (t.title && t.subSection !== undefined) {
+  return _seed
+}
+
+/**
+ * The title indexes for one library.
+ *
+ * `titleToTier`: lowercase template title → tier. `shapeToTitle`: punctuation-and-plural-
+ * insensitive title → the library's own title, built in the same pass so it can never
+ * describe a different set of templates. See `nearestTemplateTitle` for why it exists.
+ *
+ * @param {Array<object>|null} [library] - the library in force; null or empty for the seed
+ * @returns {{titleToTier: Map<string, string|null>, shapeToTitle: Map<string, string>}}
+ */
+function _indexFor (library) {
+  const rows = (Array.isArray(library) && library.length > 0) ? library : _seedLibrary()
+  const hit = _indexes.get(rows)
+  if (hit) { return hit }
+  const index = { titleToTier: new Map(), shapeToTitle: new Map() }
+  Object.values(rows).forEach((t) => {
+    if (t && t.title && t.subSection !== undefined) {
       const tier = SUBSECTION_TIER[t.subSection] ?? null
-      _titleToTier.set(t.title.toLowerCase().trim(), tier)
+      index.titleToTier.set(t.title.toLowerCase().trim(), tier)
       // First title wins: two templates whose shapes collide keep the earlier one rather
       // than silently overwriting, the same discipline as the model short-form index.
       const shape = _shape(t.title)
-      if (shape && !_shapeToTitle.has(shape)) { _shapeToTitle.set(shape, t.title) }
+      if (shape && !index.shapeToTitle.has(shape)) { index.shapeToTitle.set(shape, t.title) }
     }
   })
-})()
+  _indexes.set(rows, index)
+  return index
+}
 
 /**
  * Given an array of template names, returns the highest capability tier
@@ -81,13 +106,14 @@ const _shapeToTitle = new Map()
  * Returns null if names is empty, all names are unrecognised, or all
  * matched templates belong to role-based Get Organised sections.
  */
-function getHighestTier (templateNames) {
+function getHighestTier (templateNames, library) {
   if (!Array.isArray(templateNames) || templateNames.length === 0) { return null }
 
+  const { titleToTier } = _indexFor(library)
   let highest = null
   for (const name of templateNames) {
     if (typeof name !== 'string') { continue }
-    const tier = _titleToTier.get(name.toLowerCase().trim())
+    const tier = titleToTier.get(name.toLowerCase().trim())
     if (!tier) { continue }
     if (highest === null || TIER_RANK[tier] > TIER_RANK[highest]) {
       highest = tier
@@ -136,9 +162,13 @@ const BOUNDARY = /[\s\-–—"'“”‘’(),.:;!?*_`[\]\n\r]/
 const EMPHASIS_BEFORE = /(\*\*|__|\*|_|`|^#{1,6}\s|^[-*+]\s|^\d+\.\s|["“'‘])\s*$/
 const EMPHASIS_AFTER = /^\s*(\*\*|__|\*|_|`|["”'’])/
 
-/** @param {string} title @returns {boolean} true if the catalogue knows this title. */
-function isKnownTemplate (title) {
-  return typeof title === 'string' && _titleToTier.has(title.toLowerCase().trim())
+/**
+ * @param {string} title
+ * @param {Array<object>|null} [library] - the library in force (item 7.29); the seed if absent
+ * @returns {boolean} true if that library holds this title
+ */
+function isKnownTemplate (title, library) {
+  return typeof title === 'string' && _indexFor(library).titleToTier.has(title.toLowerCase().trim())
 }
 
 /**
@@ -175,23 +205,25 @@ function _shape (title) {
  * what the AI was told to do in the first place.
  *
  * @param {string} title - the name as the AI wrote it
- * @returns {string|null} the catalogue's own title, or null when nothing is close
+ * @param {Array<object>|null} [library] - the library in force (item 7.29); the seed if absent
+ * @returns {string|null} the library's own title, or null when nothing is close
  */
-function nearestTemplateTitle (title) {
+function nearestTemplateTitle (title, library) {
   if (typeof title !== 'string' || !title.trim()) { return null }
   const key = _shape(title)
   if (!key) { return null }
-  return _shapeToTitle.get(key) || null
+  return _indexFor(library).shapeToTitle.get(key) || null
 }
 
 /**
  * Read the AI's declared recommendations out of the marker.
  *
  * @param {string} text - the full Phase 3 response
+ * @param {Array<object>|null} [library] - the library in force (item 7.29); the seed if absent
  * @returns {string[]|null} validated titles, or null when no marker was present (so the
  *   caller can tell "the AI declared nothing" from "the AI declared an empty list").
  */
-function extractDeclaredTemplates (text) {
+function extractDeclaredTemplates (text, library) {
   if (typeof text !== 'string') { return null }
   const open = text.lastIndexOf(TEMPLATE_MARK_OPEN)
   if (open === -1) { return null }
@@ -207,7 +239,7 @@ function extractDeclaredTemplates (text) {
     const name = raw.trim().replace(/^\*+|\*+$/g, '').trim()
     if (!name) { return }
     // Validate: the AI naming a template is not evidence that it exists.
-    if (!isKnownTemplate(name)) { return }
+    if (!isKnownTemplate(name, library)) { return }
     const key = name.toLowerCase()
     if (seen.has(key)) { return }
     seen.add(key)
@@ -232,13 +264,15 @@ function stripTemplateMarker (text) {
  * sentences — the defect that inflated capability tiers. Multi-word titles need no
  * emphasis: nobody writes "Receivership vs Liquidation" by accident.
  *
- * @param {string} text @returns {string[]}
+ * @param {string} text
+ * @param {Array<object>|null} [library] - the library in force (item 7.29); the seed if absent
+ * @returns {string[]}
  */
-function extractTemplatesFromText (text) {
+function extractTemplatesFromText (text, library) {
   if (typeof text !== 'string' || !text) { return [] }
   const found = []
   const lower = text.toLowerCase()
-  for (const [title] of _titleToTier) {
+  for (const [title] of _indexFor(library).titleToTier) {
     let from = 0
     let idx
     // Scan every occurrence: the first may be prose while a later one is emphasised.
@@ -274,22 +308,25 @@ function extractTemplatesFromText (text) {
  * Returning the source is what makes the fallback countable instead of invisible.
  *
  * @param {string} text - the full Phase 3 response, marker included
+ * @param {Array<object>|null} [library] - the library in force (item 7.29); the seed if absent
  * @returns {{templates: string[], source: 'declared'|'prose'}}
  */
-function resolveRecommendedTemplatesWithSource (text) {
-  const declared = extractDeclaredTemplates(text)
+function resolveRecommendedTemplatesWithSource (text, library) {
+  const declared = extractDeclaredTemplates(text, library)
   if (declared !== null) { return { templates: declared, source: 'declared' } }
-  return { templates: extractTemplatesFromText(text), source: 'prose' }
+  return { templates: extractTemplatesFromText(text, library), source: 'prose' }
 }
 
 /**
  * The recommendations for a Phase 3 response: the AI's own declaration when it made
  * one, otherwise the prose fallback.
  *
- * @param {string} text @returns {string[]}
+ * @param {string} text
+ * @param {Array<object>|null} [library] - the library in force (item 7.29); the seed if absent
+ * @returns {string[]}
  */
-function resolveRecommendedTemplates (text) {
-  return resolveRecommendedTemplatesWithSource(text).templates
+function resolveRecommendedTemplates (text, library) {
+  return resolveRecommendedTemplatesWithSource(text, library).templates
 }
 
 module.exports = {

@@ -392,6 +392,24 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.29 · Template descriptions and the name check read the seed library, not each firm's
+uploaded library.** ✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was built.**
+
+- **What it really was:** `summaries.js` titled every description, and `tierLookup` checked
+  every name, against `data/templates.json` alone, while the library itself resolves per firm.
+  Harmless while the seed and the export match; the day a firm's export renames a template,
+  its AI would be shown and allowed the old title.
+- **What was done, on Mike's yes:** `isKnownTemplate`, `nearestTemplateTitle`, the declared and
+  prose recommendation readers, `checkTemplateHeadings`, `useLibraryTitles` and the summaries
+  readers take the library in force as an optional last argument, null or absent meaning the
+  seed. One index or build per library, held in a WeakMap. Wired at the advisory chat's five
+  uses and the course builder's descriptions.
+- **What proves it:** `tests/unit/firmLibraryNames.test.js` renames a template in one firm's
+  upload, through the real `loadEffectiveTemplates` walk: that firm's AI is shown and checked
+  against the new title, a second firm keeps the old one. Against the old code it fails 4 of 7.
+  Full suite 697 files / 15,299 tests.
+- **Not checked here:** nothing on a screen changes until a firm uploads a renamed export.
+
 **13.9 · Meeting reports and set-up screens could not be translated.**
 ✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was built.**
 

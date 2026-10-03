@@ -70,6 +70,12 @@ block, and a calculator name on a line carrying its own page path (4.33's pairin
 logged on the server. Measured on the eight saved 7.18 runs: 24 near misses became 1, an unbolded
 name in brackets.
 
+**Every name check and every template description reads the firm's own library** (item 7.29,
+2026-10-03): the one in force for that firm through the cascade (`loadEffectiveTemplates`), and
+the committed `data/templates.json` only when no tier has uploaded one. So a firm whose export
+renames a template has its AI shown, checked and recorded against the new title.
+`tests/unit/firmLibraryNames.test.js`.
+
 ⚠ **That check recognises a model by its EXACT catalogue name or route.** Measured 2026-09-17
 against the shipped catalogues, the three "model named but no page path" cases are three
 different things, not one:

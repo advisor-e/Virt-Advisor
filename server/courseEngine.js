@@ -227,7 +227,8 @@ async function handleDesign (req, body, res) {
     // Cascade Phase 2: the library in force for this scope (nearest tier's
     // upload, whole), falling back to the committed seed when none exists.
     // The loader never rejects (its own contract), so no .catch here.
-    const templates = getOrgTemplates(orgTemplateIds || null, await loadEffectiveTemplates(req.firmId))
+    const library = await loadEffectiveTemplates(req.firmId)
+    const templates = getOrgTemplates(orgTemplateIds || null, library)
     const filtered = filterTemplatesByQuery(templates, allUserText)
     const templateContext = formatTemplatesForPrompt(filtered)
 
@@ -235,7 +236,8 @@ async function handleDesign (req, body, res) {
     // advisor engine's capped injection. Injecting all 278 summaries (~52k tokens)
     // blew the OpenAI per-minute token limit; the AI builds the course from the
     // already query-filtered template list above, so unrelated summaries add no value.
-    const summariesText = formatSummariesForPrompt(filterSummariesByQuery(allUserText, 12))
+    // Titled from the same library as the list above (item 7.29).
+    const summariesText = formatSummariesForPrompt(filterSummariesByQuery(allUserText, 12, library))
     const sectionDescText = formatSectionDescriptionsForPrompt()
 
     // Firm content overlay (Phase 0 — design/FIRM-EDITABLE-TABLES-PLAN.md §3):
