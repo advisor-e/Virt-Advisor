@@ -9,25 +9,25 @@
 
 ---
 
-## 2026-10-02 (late) · Laptop · branch `feat/advisor-progress`
+## 2026-10-03 · Laptop · branch `feat/advisor-progress`
 
-**9 ahead of master after this commit, 0 behind; suite green 696 suites / 15,276 tests on Node 14.15.**
-PR #155 (7.27, 7.21, Tension Point Scripts) merged to master today.
+**14 ahead of master, 0 behind; suite green 699 suites / 15,300 tests on Node 14.15. All in PR #156.**
 
-**15.22 proceeds — only the Sales Flowchart ruling is left (waits on Mike).** Built today:
-Landing Page Review (8 section tables, 58 boxes, S&M pp27–30) and a Notes box for the five
-teaching-only topics. **15.33 done** — sessions listing a removed concept open without it.
-**Fixed:** every Strategy Planner capture box lost the first letter typed into it.
+**Closed today:** 13.9 (meeting screens translate), 7.29 and 7.31 (everything asking "is this a
+real template?" reads the library in force), 13.11 (quote/phrase checks read every alphabet).
+**13.12** half-built: retention period and point labels worded on screen; backend errors wait on a
+whole-app design. **15.31** kept live: Mike's try-out found the suggestions not good enough.
+**Filed:** 22.9 (cases.routes.test.js failed once, passed alone).
 
 **FOR THE DESKTOP:**
 
-- **The capture boxes no longer use Buefy `lazy`.** They save on `change.native` and only signal
-  on `input` — `StrategyCaptureBox.vue`, `StrategyConceptCapture.vue`. Pinned by
-  `strategyCaptureSaveRate.test.js`; don't put `lazy` back.
-- **Grid capture can now be one table per section** (`tableTitle`, `tableNotes`, `span`), and a
-  concept can take a single Notes box (`captureNotes`). Shared files: `strategyCaptureForms.js`,
-  `strategyFrameworks.js`, `scripts/read-deck-capture-tables.js`, `pages/strategy-planner.vue`,
-  `server/routes/meetingSegments.js`, `locales/en.json`.
-- `data/strategy-deck-capture-tables.json` was regenerated; the 15 existing tables are identical.
+- **The backend no longer sends English wording** for the retention period (`retentionPhrase`,
+  `phrase`) or point labels (`sourceLabel`, `setAsideLabel`): months, tiers and names only. Screens
+  word them via `mixins/retentionPeriod.js` and `MeetingPreset.vue`. Don't reintroduce them.
+- **Pass the library in force** to `logicTrees.buildLearnReferenceText`, `tierLookup`, `summaries`,
+  `resolveTemplateName`, `findQuizBank` — `loadEffectiveTemplates(firmId)`, or `(null)` for mentor.
+- **`hubNoTypedEnglish.test.js` now also walks the three meeting pages.**
+- Shared files: `locales/en.json`, `server/advisorEngine.js`, `server/courseEngine.js`,
+  `server/routes/firmManager.js`, `server/routes/mentor.js`.
 
-**Still in hand here:** 8.6, 15.31 and 15.22, all waiting on Mike.
+**Still in hand here:** 15.22 and 8.6 (wait on Mike), 15.31 (waits on us, after the bugs).
