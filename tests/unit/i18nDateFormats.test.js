@@ -124,13 +124,12 @@ describe('formatDate / formatStamp — the hub screens\' dates (item 13.8)', () 
   })
 
   // GUARD. A date or number written with no locale follows the reader's BROWSER, so an English
-  // UAT tester sees nothing wrong while a German reader gets English. The one exception waits on
-  // other work: Meeting Review, untranslated as a whole screen, on item 13.9.
+  // UAT tester sees nothing wrong while a German reader gets English. No exceptions: Meeting
+  // Review, the last one, was brought in by item 13.9.
   test('no screen formats a date or number in the browser\'s language', () => {
     const fs = require('fs')
     const path = require('path')
     const root = path.join(__dirname, '../..')
-    const WAITING = ['components/MeetingReview.vue']
     const bad = /toLocale(Date|Time)?String\(\s*(\)|undefined|\[\]|'en-(AU|US|NZ)')/
     const offenders = []
     const walk = (d) => {
@@ -139,7 +138,6 @@ describe('formatDate / formatStamp — the hub screens\' dates (item 13.8)', () 
         if (e.isDirectory()) { walk(p); return }
         if (!/\.(vue|js)$/.test(e.name)) { return }
         const rel = path.relative(root, p).split(path.sep).join('/')
-        if (WAITING.includes(rel)) { return }
         fs.readFileSync(p, 'utf8').split(/\r?\n/).forEach((line, i) => {
           if (bad.test(line)) { offenders.push(rel + ':' + (i + 1)) }
         })

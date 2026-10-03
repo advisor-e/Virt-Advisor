@@ -6,8 +6,7 @@
   b-message(v-else-if="loadError" type="is-danger" size="is-small")
     | {{ loadError }}
     br
-    | Nothing was loaded, so this page is empty for a reason rather than because there is
-    |  nothing to show.
+    | {{ $t('meetingPages.nothingLoaded') }}
 
   template(v-else)
     //- ── Screen E of design/mockups/client-record-request.html ────────────────────────
@@ -18,105 +17,109 @@
     //- coaching finding whose evidence is now disputed must not read as settled.
     b-message(v-if="corrections.length" type="is-info" size="is-small")
       p.mb-1
-        b Your client has attached a statement to this meeting.
+        b {{ $t('meetingReview.correctionsLead') }}
       p(v-for="c in corrections" :key="c.id")
-        span(v-if="c.quoteAt") At {{ c.quoteAt }}, your client
-        span(v-else) Your client
-        |  disputes what the transcript records.
+        span(v-if="c.quoteAt") {{ $t('meetingReview.disputesAt', { at: c.quoteAt }) }}
+        span(v-else) {{ $t('meetingReview.disputes') }}
         template(v-if="c.quote")
-          |  The passage: #[i “{{ c.quote }}”]
+          = ' '
+          i18n(path="meetingReview.passage" tag="span")
+            template(#quote)
+              i “{{ c.quote }}”
         br
-        | Their statement: #[i “{{ c.statement }}”]
-      p.is-size-7.has-text-grey.mt-2
-        | The transcript has not been changed, and nothing in your notes has been altered. A
-        |  transcript records what was said rather than a claim about the world, so your
-        |  client’s statement is attached to it and travels with it from now on.
+        i18n(path="meetingReview.statement" tag="span")
+          template(#statement)
+            i “{{ c.statement }}”
+      p.is-size-7.has-text-grey.mt-2 {{ $t('meetingReview.correctionsNote') }}
 
     //- 🔴 A RELEASE SHOWS ONLY WHERE THE BREAK-GLASS WAS USED (ruling 2b). An advisor who
     //- released their own meeting does not need telling that they did — the backend returns
     //- nothing for that case, so this banner cannot appear for it.
     b-message(v-if="releasedWithoutYou" type="is-info" size="is-small")
       p.mb-1
-        b This meeting was released to your client on
-          |  {{ noticeDate(releasedWithoutYou.at) }} by {{ releasedWithoutYou.releasedBy }}.
-      p
-        | They recorded that you could no longer act on your client’s request. The transcript
-        |  and the Meeting Summary went; #[b these coaching notes did not, and never do.]
+        b {{ $t('meetingReview.released', { date: noticeDate(releasedWithoutYou.at), by: releasedWithoutYou.releasedBy }) }}
+      i18n(path="meetingReview.releasedBody" tag="p")
+        template(#kept)
+          b {{ $t('meetingReview.releasedKept') }}
 
     //- P11. A failure says so in those words. A tidy page of "no observations" must never be
     //- what a total failure looks like.
     //- Item 8.2 — a report the safety check blocked says which line, who said it and when.
     b-message(v-if="blockedMessage" type="is-danger" size="is-small") {{ blockedMessage }}
     b-message(v-else-if="state === 'failed'" type="is-danger" size="is-small")
-      | #[b Your reports could not be written.] The meeting was recorded and transcribed, but
-      |  both reports failed to generate. Nothing here is missing because the meeting was
-      |  quiet — try again, and tell someone if it keeps failing.
+      i18n(path="meetingReview.failed" tag="span")
+        template(#lead)
+          b {{ $t('meetingReview.failedLead') }}
     b-message(v-else-if="state === 'partial'" type="is-warning" size="is-small")
-      | #[b One of your two reports could not be written] ({{ error }}). What is below is
-      |  complete; what is absent is absent because it failed, not because there was nothing
-      |  to say.
+      i18n(path="meetingReview.partial" tag="span")
+        template(#lead)
+          b {{ $t('meetingReview.partialLead') }}
+        template(#error) {{ error }}
     b-message(v-else-if="state === 'generating'" type="is-info" size="is-small")
-      | Writing your reports. This takes a minute or two.
+      | {{ $t('meetingReview.generating') }}
 
     .has-text-centered.py-5(v-if="state === 'none'")
-      p.is-size-6.has-text-grey.mb-4 Your reports have not been written yet.
-      b-button(type="is-primary" :loading="starting" @click="generate") Write my reports
+      p.is-size-6.has-text-grey.mb-4 {{ $t('meetingReview.notYet') }}
+      b-button(type="is-primary" :loading="starting" @click="generate") {{ $t('meetingReview.write') }}
 
     //- ── Meeting Summary — the client's copy ──────────────────────────────────────
     .box.mb-5(v-if="summary")
       .mrev-hd
-        h3.title.is-5.mb-1 Meeting Summary
-        b-tag(v-if="summary.approvedAt" type="is-success" size="is-small") Approved
-        b-tag(v-else type="is-light" size="is-small") Draft — not sent
-      p.is-size-7.has-text-grey.mb-4
-        | Yours to edit. Nothing goes to your client until you send it.
+        h3.title.is-5.mb-1 {{ $t('meetingReview.summaryTitle') }}
+        b-tag(v-if="summary.approvedAt" type="is-success" size="is-small") {{ $t('meetingReview.approved') }}
+        b-tag(v-else type="is-light" size="is-small") {{ $t('meetingReview.draftNotSent') }}
+      p.is-size-7.has-text-grey.mb-4 {{ $t('meetingReview.yoursToEdit') }}
       //- Item 8.4, Decision E: a stretch of the meeting that could not be turned into text is
       //- named, never read across. For the advisor only; it is not part of the client's copy.
       b-message(v-if="missingSpans" type="is-warning" size="is-small")
         | {{ $t('meetingReportsGap.summary', { ranges: missingSpans }) }}
 
       template(v-if="!editing")
-        h5.mrev-h5 What we covered
+        h5.mrev-h5 {{ $t('meetingReview.covered') }}
         //- Line breaks kept: a strategy session's summary is one approved block per concept
         //- (item 8.4, Decision J). A single-paragraph summary reads exactly as before.
         p.is-size-6.mrev-covered {{ displayedCovered }}
 
         template(v-if="summary.actions && summary.actions.length")
-          h5.mrev-h5 What we agreed
+          h5.mrev-h5 {{ $t('meetingReview.agreed') }}
           ul.mrev-list
             li(v-for="(a, i) in summary.actions" :key="i")
               b(v-if="a.who") {{ a.who }} —&nbsp;
               span {{ a.what }}
-              span(v-if="a.when")  by #[b {{ a.when }}]
+              template(v-if="a.when")
+                = ' '
+                i18n(path="meetingReview.actionBy" tag="span")
+                  template(#when)
+                    b {{ a.when }}
 
         template(v-if="summary.next")
-          h5.mrev-h5 What happens next
+          h5.mrev-h5 {{ $t('meetingReview.next') }}
           p.is-size-6 {{ summary.next }}
 
         //- "Actions agreed" sits HERE and not among the measured figures. It cannot be
         //- counted, only understood, so it must not appear under a caption promising no AI.
-        p.is-size-7.has-text-grey.mt-4(v-if="summary.agreement")
-          | Actions were agreed at #[b {{ summary.agreement.at }}].
+        i18n.is-size-7.has-text-grey.mt-4(v-if="summary.agreement" path="meetingReview.agreementAt" tag="p")
+          template(#at)
+            b {{ summary.agreement.at }}
 
       b-input(v-else v-model="draft" type="textarea" rows="12")
 
       .buttons.mt-4
         template(v-if="editing")
-          b-button(type="is-primary" :loading="saving" @click="saveEdit") Save my changes
-          b-button(@click="cancelEdit") Cancel
+          b-button(type="is-primary" :loading="saving" @click="saveEdit") {{ $t('meetingReview.saveChanges') }}
+          b-button(@click="cancelEdit") {{ $t('meetingReview.cancel') }}
         template(v-else)
           b-button(type="is-primary" :loading="saving" @click="approve"
-            :disabled="Boolean(summary.approvedAt)") Approve this summary
-          b-button(@click="copyForClient") Copy for the client
-          b-button(@click="startEdit") Edit
+            :disabled="Boolean(summary.approvedAt)") {{ $t('meetingReview.approve') }}
+          b-button(@click="copyForClient") {{ $t('meetingReview.copy') }}
+          b-button(@click="startEdit") {{ $t('meetingReview.edit') }}
 
     //- ── My Coaching Notes — the advisor's own ────────────────────────────────────
     .box(v-if="coaching")
       .mrev-hd
-        h3.title.is-5.mb-1 My Coaching Notes
-        b-tag(type="is-light" size="is-small") Private to you
-      p.is-size-7.has-text-grey.mb-4
-        | Only you can see this. Nobody else can open it.
+        h3.title.is-5.mb-1 {{ $t('meetingReview.coachingTitle') }}
+        b-tag(type="is-light" size="is-small") {{ $t('meetingReview.privateTag') }}
+      p.is-size-7.has-text-grey.mb-4 {{ $t('meetingReview.onlyYou') }}
 
       b-message(v-if="missingSpans" type="is-warning" size="is-small")
         | {{ $t('meetingReportsGap.coaching', { ranges: missingSpans }) }}
@@ -124,39 +127,39 @@
       //- §5 trap 1. Degraded speaker separation must fail visibly: every figure below that
       //- depends on who spoke becomes a coin toss while still rendering as a confident number.
       b-message(v-if="attributionConfident === false" type="is-warning" size="is-small")
-        | #[b We could not reliably tell the two voices apart on this recording.] Everything
-        |  below that depends on who was speaking — the split, the longest stretch, the
-        |  questions — may be wrong. Treat it with caution rather than as a measurement.
+        i18n(path="meetingReview.voices" tag="span")
+          template(#lead)
+            b {{ $t('meetingReview.voicesLead') }}
 
       template(v-if="metrics && metrics.usable")
-        h4.mrev-h4 Who spoke, across {{ metrics.length.clock }}
+        h4.mrev-h4 {{ $t('meetingReview.whoSpoke', { length: metrics.length.clock }) }}
+        //- The bar's width is CSS and stays a plain number; only the label is written in the
+        //- reader's language (item 13.9).
         .mrev-split(v-if="metrics.talkTime.advisorPercent !== null")
           .mrev-adv(:style="{ width: metrics.talkTime.advisorPercent + '%' }")
-            | You · {{ metrics.talkTime.advisorPercent }}%
+            | {{ $t('meetingReview.youShare', { pct: pct100(metrics.talkTime.advisorPercent, 0) }) }}
           .mrev-cli(:style="{ width: metrics.talkTime.clientPercent + '%' }")
-            | Client · {{ metrics.talkTime.clientPercent }}%
+            | {{ $t('meetingReview.clientShare', { pct: pct100(metrics.talkTime.clientPercent, 0) }) }}
 
-        h4.mrev-h4 Measured, not judged
+        h4.mrev-h4 {{ $t('meetingReview.measured') }}
         .mrev-figs
           .mrev-fig
-            .k Longest stretch
+            .k {{ $t('meetingReview.longest') }}
             .v {{ metrics.longestMonologue.clock }}
-            .s without a pause for the client
+            .s {{ $t('meetingReview.longestSub') }}
           .mrev-fig
-            .k Open questions
+            .k {{ $t('meetingReview.openQuestions') }}
             .v {{ metrics.questions.open }}
-            .s against {{ metrics.questions.closed }} closed
+            .s {{ $t('meetingReview.openQuestionsSub', { closed: metrics.questions.closed }) }}
           .mrev-fig
-            .k Pause after asking
+            .k {{ $t('meetingReview.pause') }}
             .v {{ pauseValue }}
-            .s before you spoke again
+            .s {{ $t('meetingReview.pauseSub') }}
           .mrev-fig
-            .k Meeting length
+            .k {{ $t('meetingReview.length') }}
             .v {{ metrics.length.clock }}
-            .s from the first word to the last
-        p.is-size-7.has-text-grey.mt-2
-          | Counted from the transcript by arithmetic. No AI is involved, and none of these
-          |  can be wrong.
+            .s {{ $t('meetingReview.lengthSub') }}
+        p.is-size-7.has-text-grey.mt-2 {{ $t('meetingReview.arithmetic') }}
 
       //- ── Since we last met ──────────────────────────────────────────────
       //- Follow-through, from design/mockups/meeting-review-follow-through.html, APPROVED by
@@ -169,28 +172,22 @@
       //- exists to prevent — an advisor would read "no actions" as a fact about their client
       //- rather than a fact about the retention clock.
       template(v-if="followThrough")
-        h4.mrev-h4 Since we last met
+        h4.mrev-h4 {{ $t('meetingReview.sinceHeading') }}
 
         b-message(v-if="followThrough.expired" type="is-warning" size="is-small")
-          p.has-text-weight-semibold
-            | Your last meeting with this client was on {{ lastMetOn }}, and its transcript has
-            |  since been deleted.
+          p.has-text-weight-semibold {{ $t('meetingReview.expired', { date: lastMetOn }) }}
           p.is-size-7.mt-1(v-if="followThrough.retentionPhrase")
-            | Your firm keeps transcripts for {{ followThrough.retentionPhrase }}, which is what
-            |  your client was told, so what was agreed that day is no longer held anywhere.
+            | {{ $t('meetingReview.expiredRetention', { period: followThrough.retentionPhrase }) }}
 
         b-message(v-else-if="followThrough.none && followThrough.reason === 'no_client'" type="is-info" size="is-small")
-          | This meeting was not recorded against a client, so there is nothing to compare it
-          |  with. Choose the client before you start next time and this fills itself in.
+          | {{ $t('meetingReview.notAgainstClient') }}
 
         b-message(v-else-if="followThrough.none" type="is-info" size="is-small")
-          p.has-text-weight-semibold This is your first recorded meeting with this client.
-          p.is-size-7.mt-1 From your next one, what you agree today will appear here.
+          p.has-text-weight-semibold {{ $t('meetingReview.firstMeeting') }}
+          p.is-size-7.mt-1 {{ $t('meetingReview.fromNext') }}
 
         template(v-else)
-          p.is-size-7.has-text-grey.mb-3
-            | What you agreed with this client on {{ lastMetOn }}, and whether you came back to
-            |  it today.
+          p.is-size-7.has-text-grey.mb-3 {{ $t('meetingReview.followIntro', { date: lastMetOn }) }}
 
           .mrev-ob(
             v-for="(it, i) in followThrough.items"
@@ -202,31 +199,30 @@
               //- hour in a room and nothing of the months between, so it cannot know whether
               //- the action happened — only whether the adviser came back to it.
               b-tag(:type="it.state === 'found' ? 'is-success' : 'is-warning'" size="is-small")
-                | {{ it.state === 'found' ? 'You raised it' : 'Not raised' }}
+                | {{ it.state === 'found' ? $t('meetingReview.raised') : $t('meetingReview.notRaised') }}
 
             .mrev-owner(v-if="ownerLine(it)") {{ ownerLine(it) }}
 
             .mrev-quote(v-if="it.state === 'found'")
-              span.mrev-ts {{ it.at }} · you
+              span.mrev-ts {{ $t('meetingReview.tsWho', { at: it.at, who: $t('meetingReview.whoYou') }) }}
               q {{ it.quote }}
 
-            .mrev-note(v-else)
-              | The model was asked to quote where you came back to this and answered
-              |  #[code NOT FOUND]. It may still have happened — this says only that it was not
-              |  spoken about today.
+            i18n.mrev-note(v-else path="meetingReview.followNotFound" tag="div")
+              template(#code)
+                code {{ modelNotFound }}
 
             .mrev-links
               a.mrev-link(v-if="!disputedFollow(i)" @click="disputeFollow(i)")
-                | I disagree with this
-              span.mrev-disputed(v-if="disputedFollow(i)") You disagreed with this
+                | {{ $t('meetingReview.disagree') }}
+              span.mrev-disputed(v-if="disputedFollow(i)") {{ $t('meetingReview.disagreed') }}
 
-          p.mrev-ftfrom(v-if="lastMetOn")
-            | From your meeting with this client on #[b {{ lastMetOn }}].
+          i18n.mrev-ftfrom(v-if="lastMetOn" path="meetingReview.followFrom" tag="p")
+            template(#date)
+              b {{ lastMetOn }}
 
-      h4.mrev-h4 Your observation points
+      h4.mrev-h4 {{ $t('meetingRecorder.pointsHeading') }}
       p.is-size-6.has-text-grey.py-4(v-if="!coaching.findings.length")
-        | Your firm has not set any observation points for this kind of meeting, so there was
-        |  nothing to check against.
+        | {{ $t('meetingReview.noPointsSet') }}
 
       .mrev-ob(v-for="f in coaching.findings" :key="f.pointId" :class="obClass(f)")
         .mrev-obhd
@@ -236,36 +232,37 @@
         //- P4. A finding either quotes the transcript or declares the thing absent. An
         //- uncited one never reaches here — the backend drops it and reports not found.
         .mrev-quote(v-if="f.state === 'found'")
-          span.mrev-ts {{ f.at }} · you
+          span.mrev-ts {{ $t('meetingReview.tsWho', { at: f.at, who: $t('meetingReview.whoYou') }) }}
           q {{ f.quote }}
 
-        .mrev-note(v-else-if="f.state === 'not_found'")
-          | The model was asked to quote where this happened and answered #[code NOT FOUND].
+        i18n.mrev-note(v-else-if="f.state === 'not_found'" path="meetingReview.notFound" tag="div")
+          template(#code)
+            code {{ modelNotFound }}
 
         .mrev-note(v-else)
-          template(v-if="f.hint")
-            | A recording cannot hear this. You said #[i "{{ f.hint.phrase }}"] at
-            |  {{ f.hint.at }}, which often means it happened — but the software is guessing,
-            |  and says so.
-          template(v-else)
-            | A recording cannot hear this one, so only you can say whether it happened.
+          i18n(v-if="f.hint" path="meetingReview.hint" tag="span")
+            template(#phrase)
+              i "{{ f.hint.phrase }}"
+            template(#at) {{ f.hint.at }}
+          template(v-else) {{ $t('meetingReview.cannotHearOnly') }}
 
-        .mrev-answered(v-if="f.state === 'cannot_hear' && f.advisorAnswer !== null")
-          | You answered: #[b {{ f.advisorAnswer ? 'Yes, I did' : "No, I didn't" }}]
+        i18n.mrev-answered(v-if="f.state === 'cannot_hear' && f.advisorAnswer !== null" path="meetingReview.youAnswered" tag="div")
+          template(#answer)
+            b {{ f.advisorAnswer ? $t('meetingReview.yesIDid') : $t('meetingReview.noIDidnt') }}
 
         .mrev-links
           a.mrev-link(v-if="f.state === 'found'" @click="toggleContext(f.pointId)")
-            | {{ openContext === f.pointId ? 'Hide the transcript' : 'Show this in the transcript' }}
+            | {{ openContext === f.pointId ? $t('meetingReview.hideTranscript') : $t('meetingReview.showTranscript') }}
           template(v-if="f.state === 'cannot_hear' && f.advisorAnswer === null")
-            a.mrev-link(@click="answerHeard(f, true)") Yes, I did
-            a.mrev-link(@click="answerHeard(f, false)") No, I didn't
+            a.mrev-link(@click="answerHeard(f, true)") {{ $t('meetingReview.yesIDid') }}
+            a.mrev-link(@click="answerHeard(f, false)") {{ $t('meetingReview.noIDidnt') }}
           a.mrev-link(v-if="f.state !== 'cannot_hear' && !disputed(f)" @click="dispute(f)")
-            | I disagree with this
-          span.mrev-disputed(v-if="disputed(f)") You disagreed with this
+            | {{ $t('meetingReview.disagree') }}
+          span.mrev-disputed(v-if="disputed(f)") {{ $t('meetingReview.disagreed') }}
 
         .mrev-ctx(v-if="openContext === f.pointId")
           .mrev-ctxline(v-for="(s, i) in contextFor(f)" :key="i" :class="{ 'is-hit': s.hit }")
-            span.mrev-ts {{ s.at }} · {{ s.who }}
+            span.mrev-ts {{ $t('meetingReview.tsWho', { at: s.at, who: s.who }) }}
             span {{ s.text }}
 </template>
 
@@ -311,30 +308,32 @@
  *      and the manager aggregate is a later slice. A button that shared nothing would be worse
  *      than none — the same reasoning slice 1 used for "Start the meeting".
  *
- * ⚠ HARDCODED ENGLISH, MATCHING ITS SIBLINGS. `MeetingRecorder.vue` and `MeetingPreset.vue`
- * do the same; only `MeetingConsentPanel.vue` goes through `$t()`, because those are the words
- * a client is told and they must be translated per market by someone competent in the local
- * law. Nothing on this screen is spoken to a client.
+ * Every word on this screen comes from `locales/en.json` `meetingReview` (item 13.9), so an
+ * advisor reading in another language reads it in theirs. Dates and percentages are written
+ * in the reader's language too.
  *
  * Vue 2 Options API, Pug, Buefy.
  */
 
 import moderationMessage from '~/mixins/moderationMessage'
+import reportFormatMixin from '~/mixins/reportFormatMixin'
 import { clockOf } from '~/utils/meetingParts'
+import { formatDate } from '~/utils/dateLocale'
+import { numUpTo } from '~/utils/reportFormat'
 
 /** How much transcript to show either side of a citation. */
 const CONTEXT_SECONDS = 45
 
-/** Month names for the follow-through date, read in UTC to match how meetings are stamped. */
-const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-]
+/** The model's literal answer for an uncited point, shown as code. Never translated: it is what the model said. */
+const MODEL_NOT_FOUND = 'NOT FOUND'
+
+/** "10 March 2026" in English: the month as a word, so the date is never read the wrong way round. */
+const LONG_DATE = { day: 'numeric', month: 'long', year: 'numeric' }
 
 export default {
   name: 'MeetingReview',
 
-  mixins: [moderationMessage],
+  mixins: [moderationMessage, reportFormatMixin],
 
   props: {
     /** The caller's bearer token; the backend re-checks authorisation on every call. */
@@ -370,7 +369,8 @@ export default {
       summary: null,
       coaching: null,
       segments: [],
-      poller: null
+      poller: null,
+      modelNotFound: MODEL_NOT_FOUND
     }
   },
 
@@ -398,9 +398,8 @@ export default {
     lastMetOn () {
       const from = this.followThrough && this.followThrough.from
       if (!from || !from.at) { return '' }
-      const d = new Date(from.at)
-      if (isNaN(d.getTime())) { return '' }
-      return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear()
+      // Read in UTC to match how meetings are stamped.
+      return formatDate(from.at, this.$i18n.locale, { ...LONG_DATE, timeZone: 'UTC' })
     },
 
     /**
@@ -428,7 +427,7 @@ export default {
      */
     pauseValue () {
       const p = this.metrics && this.metrics.pauseAfterAsking
-      return (p && p.medianSeconds !== null) ? p.medianSeconds + 's' : '—'
+      return (p && p.medianSeconds !== null) ? numUpTo(p.medianSeconds, 1, this.$i18n.locale) + 's' : '—'
     }
   },
 
@@ -456,7 +455,7 @@ export default {
         this.segments = (data.transcript && data.transcript.segments) || []
         if (this.state === 'generating') { this.startPolling() } else { this.stopPolling() }
       } catch (err) {
-        this.loadError = 'Your reports could not be loaded: ' + err.message
+        this.loadError = this.$t('meetingReview.loadFailed', { error: err.message })
       } finally {
         this.loading = false
       }
@@ -496,10 +495,7 @@ export default {
      * @returns {string}
      */
     noticeDate (iso) {
-      if (!iso) { return 'an unrecorded date' }
-      const at = new Date(iso)
-      if (isNaN(at.getTime())) { return 'an unrecorded date' }
-      return at.toLocaleDateString('en-NZ', { day: 'numeric', month: 'long', year: 'numeric' })
+      return formatDate(iso, this.$i18n.locale, LONG_DATE) || this.$t('meetingReview.unrecordedDate')
     },
 
     /** Every call to the reports API, with both failure modes handled in one place. */
@@ -516,7 +512,7 @@ export default {
       try {
         res = await fetch(`/api/meeting/recordings/${this.meetingId}/reports${suffix}`, opts)
       } catch (netErr) {
-        throw new Error('the connection failed')
+        throw new Error(this.$t('meetingReview.connectionFailed'))
       }
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -541,7 +537,7 @@ export default {
         this.state = 'generating'
         this.startPolling()
       } catch (err) {
-        this.loadError = 'Your reports could not be started: ' + err.message
+        this.loadError = this.$t('meetingReview.startFailed', { error: err.message })
       } finally {
         this.starting = false
       }
@@ -565,7 +561,7 @@ export default {
         this.editing = false
         await this.load()
       } catch (err) {
-        this.loadError = 'Your changes could not be saved: ' + err.message
+        this.loadError = this.$t('meetingReview.saveFailed', { error: err.message })
       } finally {
         this.saving = false
       }
@@ -577,7 +573,7 @@ export default {
         await this.call('POST', '/summary/approve')
         await this.load()
       } catch (err) {
-        this.loadError = 'That could not be approved: ' + err.message
+        this.loadError = this.$t('meetingReview.approveFailed', { error: err.message })
       } finally {
         this.saving = false
       }
@@ -593,12 +589,12 @@ export default {
       const text = this.summaryAsText()
       try {
         await navigator.clipboard.writeText(text)
-        this.$buefy.toast.open({ message: 'Copied — paste it into your email', type: 'is-success' })
+        this.$buefy.toast.open({ message: this.$t('meetingReview.copied'), type: 'is-success' })
       } catch (err) {
         // Clipboard access is refused in some browsers and over plain HTTP. Saying so beats a
         // button that silently does nothing.
         this.$buefy.toast.open({
-          message: 'Your browser would not let the app copy that. Select the text and copy it yourself.',
+          message: this.$t('meetingReview.copyRefused'),
           type: 'is-warning',
           duration: 6000
         })
@@ -607,16 +603,16 @@ export default {
 
     /** The summary as plain text, in the order it is read on screen. */
     summaryAsText () {
-      const parts = ['Meeting Summary', '', this.displayedCovered]
+      const parts = [this.$t('meetingReview.summaryTitle'), '', this.displayedCovered]
       if (this.summary.actions && this.summary.actions.length) {
-        parts.push('', 'What we agreed')
+        parts.push('', this.$t('meetingReview.agreed'))
         this.summary.actions.forEach((a) => {
           const who = a.who ? a.who + ' — ' : ''
-          const when = a.when ? ' by ' + a.when : ''
+          const when = a.when ? ' ' + this.$t('meetingReview.actionBy', { when: a.when }) : ''
           parts.push('- ' + who + a.what + when)
         })
       }
-      if (this.summary.next) { parts.push('', 'What happens next', this.summary.next) }
+      if (this.summary.next) { parts.push('', this.$t('meetingReview.next'), this.summary.next) }
       return parts.join('\n')
     },
 
@@ -633,7 +629,7 @@ export default {
         await this.call('POST', '/coaching/dispute', { pointId: finding.pointId })
         await this.load()
       } catch (err) {
-        this.loadError = 'That could not be recorded: ' + err.message
+        this.loadError = this.$t('meetingReview.recordFailed', { error: err.message })
       }
     },
 
@@ -644,8 +640,8 @@ export default {
      * @returns {string}
      */
     ownerLine (item) {
-      const who = item && item.who ? 'Agreed by ' + item.who : ''
-      const when = item && item.when ? 'by ' + item.when : ''
+      const who = item && item.who ? this.$t('meetingReview.ownerAgreedBy', { who: item.who }) : ''
+      const when = item && item.when ? this.$t('meetingReview.ownerBy', { when: item.when }) : ''
       return [who, when].filter(Boolean).join(' · ')
     },
 
@@ -669,7 +665,7 @@ export default {
         await this.call('POST', '/coaching/dispute', { pointId: this.followPointId(i) })
         await this.load()
       } catch (err) {
-        this.loadError = 'That could not be recorded: ' + err.message
+        this.loadError = this.$t('meetingReview.recordFailed', { error: err.message })
       }
     },
 
@@ -679,7 +675,7 @@ export default {
         await this.call('POST', '/coaching/heard', { pointId: finding.pointId, answer })
         await this.load()
       } catch (err) {
-        this.loadError = 'That could not be recorded: ' + err.message
+        this.loadError = this.$t('meetingReview.recordFailed', { error: err.message })
       }
     },
 
@@ -695,7 +691,7 @@ export default {
         .filter(s => s.start >= at - CONTEXT_SECONDS && s.start <= at + CONTEXT_SECONDS)
         .map(s => ({
           at: this.asClock(s.start),
-          who: s.role === 'advisor' ? 'you' : (s.role === 'client' ? 'your client' : 'unclear'),
+          who: this.$t(s.role === 'advisor' ? 'meetingReview.whoYou' : (s.role === 'client' ? 'meetingReview.whoClient' : 'meetingReview.whoUnclear')),
           text: s.text,
           hit: s.start === at
         }))
@@ -716,8 +712,8 @@ export default {
     },
 
     stateLabel (f) {
-      if (f.state === 'found') { return 'Found' }
-      return f.state === 'not_found' ? 'Not found' : 'Cannot be heard'
+      if (f.state === 'found') { return this.$t('meetingReview.stateFound') }
+      return this.$t(f.state === 'not_found' ? 'meetingReview.stateNotFound' : 'meetingReview.stateCannotHear')
     }
   }
 }

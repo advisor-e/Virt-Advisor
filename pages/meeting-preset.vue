@@ -6,14 +6,14 @@
   .hero.is-fullheight-with-navbar(v-else-if="!authorised")
     .hero-body
       .container.has-text-centered
-        p.title.is-4 Access Restricted
+        p.title.is-4 {{ $t('meetingPages.accessTitle') }}
         p.subtitle.is-6
-          | Please sign in to see what your firm checks on in a meeting.
+          | {{ $t('meetingPages.signInPreset') }}
           br
-          | Contact your account administrator if you think you should have access.
+          | {{ $t('meetingPages.contactAdmin') }}
 
   .container.py-5(v-else)
-    h1.title.is-4 Before your meeting
+    h1.title.is-4 {{ $t('meetingPages.presetHeading') }}
     meeting-preset(:api-token="apiToken")
 </template>
 

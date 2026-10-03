@@ -11,42 +11,35 @@
   b-message(v-else-if="loadError" type="is-danger" size="is-small")
     | {{ loadError }}
     br
-    | Nothing was loaded, so this page is empty for a reason rather than because there is
-    |  nothing to show.
+    | {{ $t('meetingPages.nothingLoaded') }}
 
   template(v-else)
     .columns.is-variable.is-3
       .column
-        b-field(label="What kind of meeting?" label-position="on-border")
+        b-field(:label="$t('meetingPages.meetingKind')" label-position="on-border")
           b-select(v-model="scenarioId" expanded)
             option(v-for="s in scenarios" :key="s.id" :value="s.id") {{ s.name }}
       .column
         //- The business-entity level (2026-09-10): the same register the recorder reads, the
         //- same default. With nobody picked this is the screen it always was.
-        b-field(label="Who is this meeting with?" label-position="on-border")
+        b-field(:label="$t('meetingPreset.withWho')" label-position="on-border")
           b-select.mpre-client(v-model="clientId" expanded)
-            option(value="") Nobody in particular
+            option(value="") {{ $t('meetingPreset.nobody') }}
             option(v-for="c in clients" :key="c.id" :value="c.id") {{ c.name }}
-    p.is-size-7.has-text-grey.mb-3
-      | Pick a client to see, and change, what you check on with them in particular. Leave it
-      |  as it is and you see your usual list.
+    p.is-size-7.has-text-grey.mb-3 {{ $t('meetingPreset.pickClient') }}
     p.is-size-7.has-text-danger.mb-3(v-if="clientsError") {{ clientsError }}
 
     .box.mt-2(v-if="current")
-      h3.title.is-5.mb-1 What is this meeting for?
-      p.is-size-7.has-text-grey.mb-4(v-if="clientId")
-        | This is what you are checked on in a meeting of this kind with
-        |  #[strong {{ clientName }}]. Read it before you go in — that is most of the value,
-        |  before anything is recorded at all.
-      p.is-size-7.has-text-grey.mb-4(v-else)
-        | This is what your firm checks on in a meeting of this kind. Read it before you go
-        |  in — that is most of the value, before anything is recorded at all.
+      h3.title.is-5.mb-1 {{ $t('meetingPreset.forHeading') }}
+      i18n.is-size-7.has-text-grey.mb-4(v-if="clientId" path="meetingPreset.forClient" tag="p")
+        template(#client)
+          strong {{ clientName }}
+      p.is-size-7.has-text-grey.mb-4(v-else) {{ $t('meetingPreset.forFirm') }}
 
       b-message(v-if="saveError" type="is-danger" size="is-small") {{ saveError }}
 
       p.is-size-6.has-text-grey.py-4(v-if="!current.points.length && !current.setAside.length")
-        | Your firm has not set anything for this kind of meeting yet. Your manager can add
-        |  points on the Meeting Review tab.
+        | {{ $t('meetingPreset.nothingSet') }}
 
       .mpre-pt(v-for="p in current.points" :key="p.id")
         span.mpre-box
@@ -58,15 +51,15 @@
             //- (FirmMeetingObservations.vue) — hint phrases are read ONLY for a point carrying
             //- this flag, so offering them without it is a field nothing can reach.
             b-checkbox.mt-2(v-model="editCannotHear" size="is-small")
-              | This cannot be heard on a recording
+              | {{ $t('meetingPreset.cannotHear') }}
             b-field.mt-2(
               v-if="editCannotHear"
-              label="Words that hint it happened (optional)"
+              :label="$t('meetingPreset.hintLabel')"
               label-position="on-border")
-              b-input(v-model="editHints" placeholder="how are things at home · outside the business")
+              b-input(v-model="editHints" :placeholder="$t('meetingPreset.hintPlaceholder')")
             .buttons.mt-2
-              b-button(type="is-primary" size="is-small" :loading="saving" @click="saveEdit(p)") Save
-              b-button(type="is-light" size="is-small" @click="cancelEdit") Cancel
+              b-button(type="is-primary" size="is-small" :loading="saving" @click="saveEdit(p)") {{ $t('meetingPreset.save') }}
+              b-button(type="is-light" size="is-small" @click="cancelEdit") {{ $t('meetingPreset.cancel') }}
           template(v-else)
             span {{ p.text }}
             //- Question 4 (2026-09-08, and again 2026-09-10 for the client level): EVERY
@@ -77,8 +70,8 @@
           //- inherited point would be editing the level above — P14. Inside a client's list the
           //- advisor's own points are theirs alone and are edited on their own list.
           template(v-if="p.sourceTier === editableTier")
-            b-button(size="is-small" type="is-text" @click="startEdit(p)") Edit
-            b-button(size="is-small" type="is-text" :loading="saving" @click="removeOwn(p)") Remove
+            b-button(size="is-small" type="is-text" @click="startEdit(p)") {{ $t('meetingPreset.edit') }}
+            b-button(size="is-small" type="is-text" :loading="saving" @click="removeOwn(p)") {{ $t('meetingPreset.remove') }}
           b-button(
             v-else-if="canSetAside(p)"
             size="is-small" type="is-text" :loading="saving" @click="setAside(p, true)"
@@ -93,34 +86,30 @@
           span.mpre-box.is-off
           .mpre-body
             span.has-text-grey {{ p.text }}
-            .mpre-src(:class="'is-' + p.sourceTier") {{ p.sourceLabel }} · {{ clientId ? p.setAsideLabel : 'off for you only' }}
+            .mpre-src(:class="'is-' + p.sourceTier") {{ p.sourceLabel }} · {{ clientId ? p.setAsideLabel : $t('meetingPreset.offForYou') }}
           .mpre-acts
-            b-button(size="is-small" type="is-text" :loading="saving" @click="setAside(p, false)") Put it back
+            b-button(size="is-small" type="is-text" :loading="saving" @click="setAside(p, false)") {{ $t('meetingPreset.putBack') }}
 
       .mpre-add.mt-5
         template(v-if="adding")
           b-field(:label="reminderLabel" label-position="on-border")
             b-input(
               v-model="newText" :maxlength="300" type="textarea" rows="2"
-              :placeholder="clientId ? 'The succession question was raised again, gently — last time it closed the conversation.' : 'I asked what had changed at home, not just in the business.'"
+              :placeholder="clientId ? $t('meetingPreset.placeholderClient') : $t('meetingPreset.placeholderOwn')"
             )
           b-checkbox.mt-2(v-model="newCannotHear" size="is-small")
-            | This cannot be heard on a recording
+            | {{ $t('meetingPreset.cannotHear') }}
           b-field.mt-2(
             v-if="newCannotHear"
-            label="Words that hint it happened (optional)"
+            :label="$t('meetingPreset.hintLabel')"
             label-position="on-border")
-            b-input(v-model="newHints" placeholder="how are things at home · outside the business")
-          .notification.is-light.is-size-7.mt-2(v-if="clientId")
-            | This is for meetings with this client only. Whoever in your firm meets them will
-            |  see it, and your firm's list is not changed.
-          .notification.is-light.is-size-7.mt-2(v-else)
-            | This is for your meetings only. Your firm's list is not changed, and nobody else
-            |  sees this.
+            b-input(v-model="newHints" :placeholder="$t('meetingPreset.hintPlaceholder')")
+          .notification.is-light.is-size-7.mt-2(v-if="clientId") {{ $t('meetingPreset.forClientOnly') }}
+          .notification.is-light.is-size-7.mt-2(v-else) {{ $t('meetingPreset.forYouOnly') }}
           .buttons.mt-2
-            b-button(type="is-primary" :loading="saving" @click="addOwn") Add this point
-            b-button(type="is-light" @click="cancelAdd") Cancel
-        b-button(v-else type="is-light" @click="startAdd") {{ clientId ? 'Add a point for this client' : 'Add a point of my own' }}
+            b-button(type="is-primary" :loading="saving" @click="addOwn") {{ $t('meetingPreset.addThis') }}
+            b-button(type="is-light" @click="cancelAdd") {{ $t('meetingPreset.cancel') }}
+        b-button(v-else type="is-light" @click="startAdd") {{ clientId ? $t('meetingPreset.addForClient') : $t('meetingPreset.addOwn') }}
 </template>
 
 <script>
@@ -270,12 +259,12 @@ export default {
     },
     /** The set-aside verb and section heading, which carry the level in the label. */
     setAsideVerb () {
-      return this.clientId ? 'Not with this client' : 'Not for my meetings'
+      return this.clientId ? this.$t('meetingPreset.notWithClient') : this.$t('meetingPreset.notForMine')
     },
     reminderLabel () {
       return this.clientId
-        ? 'What you want to be reminded of, with ' + this.clientName
-        : 'What you want to be reminded of'
+        ? this.$t('meetingPreset.reminderClient', { client: this.clientName })
+        : this.$t('meetingPreset.reminder')
     }
   },
 
@@ -336,7 +325,7 @@ export default {
           this.scenarioId = this.scenarios[0].id
         }
       } catch (err) {
-        this.loadError = 'Your meeting checklist could not be loaded: ' + err.message
+        this.loadError = this.$t('meetingPages.loadError', { error: err.message })
       } finally {
         this.loading = false
       }
@@ -357,7 +346,7 @@ export default {
         this.clients = (data.clients || []).filter(c => c && c.id && c.name)
       } catch (err) {
         this.clients = []
-        this.clientsError = "Your firm's client list could not be loaded, so a client cannot be picked here: " + err.message
+        this.clientsError = this.$t('meetingPreset.clientsError', { error: err.message })
       }
     },
 
@@ -514,7 +503,7 @@ export default {
         }
         saved = true
       } catch (err) {
-        this.saveError = 'That could not be saved: ' + err.message
+        this.saveError = this.$t('meetingPreset.saveError', { error: err.message })
       }
       this.saving = false
       if (saved) { await this.load() }

@@ -101,7 +101,7 @@ describe('loading', () => {
     const wrapper = mountScreen({ ...LOADED, state: 'failed', summary: null, coaching: null })
     await flush()
     expect(wrapper.vm.state).toBe('failed')
-    expect(wrapper.text()).toContain('could not be written')
+    expect(wrapper.text()).toContain('meetingReview.failed')
   })
 
   it('says which report is missing when only one failed', async () => {
@@ -117,7 +117,7 @@ describe('loading', () => {
       mocks: { $buefy: { toast: { open: jest.fn() } } }
     })
     await flush()
-    expect(wrapper.vm.loadError).toContain('could not be loaded')
+    expect(wrapper.vm.loadError).toContain('meetingReview.loadFailed')
   })
 
   it('warns when the two voices could not be told apart', async () => {
@@ -125,7 +125,7 @@ describe('loading', () => {
     // fail visibly rather than render as a confident percentage.
     const wrapper = mountScreen({ ...LOADED, attributionConfident: false })
     await flush()
-    expect(wrapper.text()).toContain('could not reliably tell the two voices apart')
+    expect(wrapper.text()).toContain('meetingReview.voices')
   })
 
   it('🔴 names every stretch no report could read, above both reports — and says nothing for a whole meeting', async () => {
@@ -253,7 +253,7 @@ describe('the observation points', () => {
     }
     const wrapper = mountScreen({ ...LOADED, coaching: answered })
     await flush()
-    expect(wrapper.text()).toContain('You answered')
+    expect(wrapper.text()).toContain('meetingReview.youAnswered')
   })
 
   it('does not offer to disagree twice with the same point', async () => {
@@ -295,7 +295,7 @@ describe('the measured figures', () => {
     // It cannot be counted, only understood, so it comes from the summary with a citation.
     const wrapper = mountScreen()
     await flush()
-    expect(wrapper.text()).toContain('Actions were agreed at 1:30')
+    expect(wrapper.text()).toContain('meetingReview.agreementAt1:30')
   })
 })
 

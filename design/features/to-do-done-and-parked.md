@@ -392,6 +392,25 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**13.9 · Meeting reports and set-up screens could not be translated.**
+✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was built.**
+
+- **What it really was:** 185 phrases typed into the three meeting pages, `MeetingReview.vue`
+  and `MeetingPreset.vue`, plus one warning in `MeetingConsentPanel.vue`; the reports screen
+  wrote its dates New Zealand style and its talk-time % in English. Measured with the hub
+  guard's own checks. Found while measuring: the recording page's client box showed the raw
+  key `clientStep.title` - fixed on Mike's yes (`advisor.clientStep.title`).
+- **What was done, on Mike's yes:** every phrase moved word for word into `locales/en.json`
+  (`meetingPages`, `meetingReview`, `meetingPreset`, `meetingConsent.retentionUnreadable`),
+  bold parts as `<i18n>` slots; dates through `formatDate`, the % through `pct100`, the pause
+  through `numUpTo`. The model's literal NOT FOUND stays untranslated, as code.
+- **What proves it:** `hubNoTypedEnglish.test.js` now walks the three meeting pages too;
+  `i18nDateFormats.test.js` has no exemptions left. Full suite 696 files / 15,292 tests. A
+  production build walked in German: 0 English phrases, 0 raw keys on all three pages.
+- **Not checked here:** the reports screen with a real meeting in German - the laptop holds
+  none; the component tests cover it. Authored content (meeting types, observation points)
+  stays in the language it was written in, which is outside this item.
+
 **15.33 · A planner session holding a removed concept could never be saved again.**
 ✅ **Closed 2026-10-02 by Mike ("yes" to marking it done), the day it was found.**
 

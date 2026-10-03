@@ -10,9 +10,7 @@
       q.mcon-line {{ $t('meetingConsent.spokenLine') }}
 
     p.is-size-7.mt-4(v-if="retentionPhrase") {{ retentionSentence }}
-    b-message.mt-4(v-else type="is-warning" size="is-small")
-      | How long your firm keeps transcripts could not be read, so this screen cannot tell
-      |  your client. Recording is unavailable until it can.
+    b-message.mt-4(v-else type="is-warning" size="is-small") {{ $t('meetingConsent.retentionUnreadable') }}
 
     .buttons.mt-4
       b-button(

@@ -197,7 +197,7 @@
       "scoreReason": "the user is worse off",
       "blocker": false,
       "blocks": null,
-      "waitingOn": "Mike",
+      "waitingOn": "Us",
       "why": "The Strategy Planner's Suggest button reads only the client's last two saved conversation summaries. A client with none gets no suggestion, and the Virtual Advisor's intake answers and the client_planning logic tree never reach it.",
       "risk": "The first strategy meeting with a new client, when guidance matters most, gets none: the advisor reads all 48 rows and ticks by hand. Linking the logic tree needs a map from its branches to Mike's deck concepts, which is his content to author.",
       "askedBy": {
@@ -206,33 +206,12 @@
         "detail": "2026-09-30 - \"we need to focus on building the logic similar to the 'I've got a client who's got a problem with' section\", then yes to the planner asking the intake questions itself."
       },
       "touches": "server/utils/strategyPretick.js; server/routes/strategyPlanner.js postSuggest; components/strategy/StrategyScopeMenu.vue; the QUESTIONS array in server/advisorEngine.js (the source, not a copy); data/logic_trees.json client_planning; locales/en.json; design/features/strategy-planner.md.",
-      "note": "PROCEED. BUILT from design/mockups/strategy-suggest-intake.html: a client with no saved conversation is asked the Virtual Advisor's own questions, one at a time, and the count comes from session length. Every ruling and the measurement are in strategy-planner.md, stage 6. Walked in a browser: 90 minutes pre-ticked exactly 4. Three of the four measures are met; left is Mike's own try-out of the screen.",
-      "comment": "2026-09-30 - filed on Mike's request and ruling. Built the same day; MIKE'S CALL: PROCEED - next is his own try-out. Score and scoreReason are ours; he has not ranked it.",
+      "note": "BUILT, NOT GOOD ENOUGH YET. A client with no saved conversation is asked the Virtual Advisor's own questions, one at a time, and the count comes from session length (strategy-planner.md, stage 6). Mike's try-out 2026-10-03 failed the fourth measure: the suggestions did not make sense - \"this section needs work\". Next: improve them, after the bug fixes he asked for first.",
+      "comment": "2026-09-30 - filed on Mike's request and ruling. Built the same day. MIKE'S CALL 2026-10-03: PROCEED, kept live - his try-out found the suggestions not good enough; come back to it once the bugs are fixed. Score and scoreReason are ours; he has not ranked it.",
       "activeOn": {
         "machine": "laptop",
         "since": "2026-09-30"
       }
-    },
-    {
-      "ref": "13.9",
-      "name": "Meeting reports and set-up screens cannot be translated",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 3,
-      "scoreReason": "the user is worse off",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "The meeting reports screen and the meeting set-up screen type their English straight into the code, so an advisor reading in another language sees them in English.",
-      "risk": "The recorder component moved on 2026-10-01, but the recording PAGE around it did not: pages/meeting-record.vue still types 30 phrases, including the not-yet-available-at-your-firm gate and its legal-obligations wording, which takes the same care as the pinned consent wording. These are the only pages in the app with typed English (2026-10-02). The reports screen's own comment still defends the typed English by saying the recorder does the same, which is no longer true.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-01 - found building item 8.4's gap notice; Mike said yes to filing it. A defect we found, not a feature nobody asked for."
-      },
-      "touches": "components/MeetingReview.vue (about 130 lines of English, and the comment that defends it), components/MeetingPreset.vue, the three page files pages/meeting-record.vue (30 typed phrases), pages/meeting-review.vue (7) and pages/meeting-preset.vue (4), locales/en.json, and the report tests that read English text.",
-      "note": "Move the words unchanged, as the recorder's were (1e43a7e9). Read my reports and the consent wording are pinned and keep their exact words. Its numbers and dates need 13.8's helpers too - the talk-time % (lines 128-130) and the en-NZ date at line 480 (8.7, a duplicate, folded in 2026-10-01).",
-      "comment": "2026-10-01 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     },
     {
       "ref": "7.20",
@@ -549,6 +528,27 @@
       "touches": "normalise in server/utils/meetingReports.js and every caller: Meeting Review's quote verification, Wordsmith's checkDraft and the Wordsmith Lab.",
       "note": "MEASURE FIRST, on non-English transcripts: does it ever let a wrong word through? Any change must not loosen Meeting Review's checks. Wordsmith's invented-name check already reads accented letters (wordsOf, 13.7).",
       "comment": "2026-10-02 - filed on Mike's yes at shutdown. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "13.12",
+      "name": "Retention period, added-by and set-aside-by labels and backend errors reach meeting screens in English",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "The backend writes these words itself, so they stay English in any reader's language: retentionPhrase (\"18 months\"), the set-up screen's sourceLabel and setAsideLabel, and error messages such as \"No such meeting\".",
+      "risk": "The consent screen's privacy sentence, \"The transcript is kept for {months}\", reads German around an English period. The reports screen's retention line and every set-up point's source label do the same. Seen walking the meeting pages in German on 2026-10-03.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-03 - found proving 13.9 in German; filed on Mike's yes. A defect we found."
+      },
+      "touches": "server/utils/meetingRetention.js and registerRetention.js retentionPhrase; server/utils/meetingObservationsEntity.js entitySourceLabel and setAsideLabel; meetingObservations.js sourceLabel; their routes; MeetingConsentPanel.vue retentionSentence, MeetingReview.vue, MeetingPreset.vue; locales/en.json.",
+      "note": "SCOPE FIRST. The backend already sends retentionMonths beside the phrase, so the screens can write the period themselves; the consent sentence takes the same care as the pinned consent wording. The source labels come from a pattern other features share (resolveInheritedRows), so check who else shows them before changing the shape.",
+      "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }
