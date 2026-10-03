@@ -291,8 +291,13 @@ export default {
       const order = this.intakeQuestions.length
         ? this.intakeQuestions.map(q => q.field)
         : Object.keys(answers)
+      // The planning domains travel as ids; the advisor reads their names.
+      const options = (this.intakeQuestions.find(q => q.kind === 'planningDomains') || {}).options || []
+      const named = f => (f === 'planningDomains' && options.length
+        ? options.filter(o => String(answers[f] || '').split(',').includes(o.id)).map(o => o.name).join(', ')
+        : String(answers[f] || ''))
       return order
-        .map(f => String(answers[f] || '').trim())
+        .map(f => named(f).trim())
         .filter(Boolean)
         .map(a => (a.length > 40 ? a.slice(0, 39) + '…' : a))
         .join(' · ')

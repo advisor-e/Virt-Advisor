@@ -56,8 +56,13 @@ function modelReplying (content) {
   return create
 }
 
+// All four planning domains, so only the tests about decision G narrow the catalogue.
+const ALL_DOMAINS = frameworks.listPlanningDomains().map(d => d.id).join(',')
+
 function answers (over) {
   return Object.assign({
+    clientChallenge: 'A second crew next year, and the owner already works 60-hour weeks.',
+    planningDomains: ALL_DOMAINS,
     strategyPlanExists: 'No plan yet; the owner is new to planning.',
     growthStage: 'Lifestyle',
     advisoryStaircase: 'Step 2: Assimilation',
@@ -146,6 +151,32 @@ describe('a client with no conversation, answered', () => {
     expect(catalogue).not.toContain(frame + ' |')
   })
 
+  // Decision G, Mike 2026-10-03: the suggestion comes only from the domains picked. Nothing on
+  // screen shows a tester what the model was allowed to choose from.
+  it('shows the model only the picked domains, and drops a concept it names from outside them', async () => {
+    const all = frameworks.listConcepts()
+    const inside = all.find(c => c.planningDomain === 'business-targets')
+    const outside = all.find(c => c.planningDomain === 'sales-marketing-review')
+    const create = modelReplying(JSON.stringify({
+      ticks: [{ id: outside.id, reason: 'Fits.' }, { id: inside.id, reason: 'Fits.' }]
+    }))
+    const res = makeRes()
+    await routes.postSuggest(req({ clientId: CLIENT, answers: answers({ planningDomains: 'business-targets' }) }), res)
+
+    expect(res._body.suggestion.concepts.map(c => c.id)).toEqual([inside.id])
+    const catalogue = create.mock.calls[0][0].messages[1].content
+    expect(catalogue).toContain(inside.id + ' |')
+    expect(catalogue).not.toContain(outside.id + ' |')
+  })
+
+  it('refuses a set of answers with no usable planning domain, without calling the model', async () => {
+    const create = modelReplying(FIVE_TICKS)
+    const res = makeRes()
+    await routes.postSuggest(req({ clientId: CLIENT, answers: answers({ planningDomains: 'finance' }) }), res)
+    expect(res._status).toBe(400)
+    expect(create).not.toHaveBeenCalled()
+  })
+
   it('refuses incomplete answers without calling the model', async () => {
     const create = modelReplying(FIVE_TICKS)
     const res = makeRes()
@@ -183,7 +214,7 @@ describe('GET /api/strategy/suggest/questions', () => {
     await routes.getSuggestQuestions(Object.assign(req({}), { query: { firmId: 'firm-b' } }), res)
     expect(loadBlendedStaircase.mock.calls[0][0]).toBe(FIRM)
     expect(res._status).toBe(200)
-    expect(res._body.questions[0].field).toBe('strategyPlanExists')
+    expect(res._body.questions[0].field).toBe('clientChallenge')
   })
 
   it('fails with a safe envelope when the firm settings cannot be read', async () => {

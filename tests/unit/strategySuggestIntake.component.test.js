@@ -13,6 +13,8 @@
  *      set, so an early button would be a button that fails.
  *   3. A TYPED SESSION LENGTH OUTSIDE WHAT THE BACKEND ACCEPTS CANNOT BE CONFIRMED.
  *   4. REOPENED, THE ANSWERS ARE ALL THERE — changing one does not mean retyping eight.
+ *   5. THE PLANNING DOMAINS TAKE MORE THAN ONE PICK (decision F, Mike 2026-10-03) and travel as
+ *      the ids the backend checks — the screen shows names, so only a test sees the ids.
  */
 
 const { mountWithBuefy } = require('../helpers/mountComponent')
@@ -31,13 +33,21 @@ function mountIt (propsData) {
 async function answerCurrent (wrapper, value) {
   const vm = wrapper.vm
   const q = vm.currentQuestion
-  if (q.kind === 'text') { vm.draft = value || 'An answer.' } else { vm.choice = value }
+  if (q.kind === 'text') {
+    vm.draft = value || 'An answer.'
+  } else if (q.kind === 'planningDomains') {
+    vm.picks = value || ['business-targets']
+  } else {
+    vm.choice = value
+  }
   await vm.$nextTick()
   vm.confirm()
   await vm.$nextTick()
 }
 
 async function answerAll (wrapper) {
+  await answerCurrent(wrapper, 'A second crew, and the owner already works 60-hour weeks.')
+  await answerCurrent(wrapper, ['organisational-review', 'business-targets'])
   await answerCurrent(wrapper, 'No plan yet.')
   await answerCurrent(wrapper, 'Lifestyle')
   await answerCurrent(wrapper, wrapper.vm.staircaseSteps[1].name)
@@ -53,22 +63,46 @@ describe('one question at a time', () => {
     const wrapper = mountIt()
     expect(wrapper.findAll('.ssi-now')).toHaveLength(1)
     expect(wrapper.findAll('.ssi-done')).toHaveLength(0)
-    expect(wrapper.vm.currentQuestion.field).toBe('strategyPlanExists')
+    expect(wrapper.vm.currentQuestion.field).toBe('clientChallenge')
   })
 
   it('keeps each answered question on screen above the next', async () => {
     const wrapper = mountIt()
-    await answerCurrent(wrapper, 'No plan yet.')
-    await answerCurrent(wrapper, 'Lifestyle')
+    await answerCurrent(wrapper, 'A second crew.')
+    await answerCurrent(wrapper, ['business-targets'])
 
     expect(wrapper.findAll('.ssi-done')).toHaveLength(2)
-    expect(wrapper.vm.currentQuestion.field).toBe('advisoryStaircase')
+    expect(wrapper.vm.currentQuestion.field).toBe('strategyPlanExists')
   })
 
   it('does not record an empty answer', async () => {
     const wrapper = mountIt()
     await answerCurrent(wrapper, '   ')
-    expect(wrapper.vm.currentQuestion.field).toBe('strategyPlanExists')
+    expect(wrapper.vm.currentQuestion.field).toBe('clientChallenge')
+  })
+})
+
+describe('the planning domains', () => {
+  it('takes more than one pick, carried as ids in the domains\' own order', async () => {
+    const wrapper = mountIt()
+    await answerCurrent(wrapper, 'A second crew.')
+    await answerCurrent(wrapper, ['organisational-review', 'business-targets'])
+    expect(wrapper.vm.answers.planningDomains).toBe('business-targets,organisational-review')
+  })
+
+  it('cannot be confirmed with nothing picked', async () => {
+    const wrapper = mountIt()
+    await answerCurrent(wrapper, 'A second crew.')
+    await answerCurrent(wrapper, [])
+    expect(wrapper.vm.currentQuestion.field).toBe('planningDomains')
+  })
+
+  it('shows the advisor the names it picked, never the ids', async () => {
+    const wrapper = mountIt()
+    await answerCurrent(wrapper, 'A second crew.')
+    await answerCurrent(wrapper, ['business-targets', 'organisational-review'])
+    const q = QUESTIONS.find(x => x.kind === 'planningDomains')
+    expect(wrapper.vm.answerText(q)).toBe('Business Targets, Organisational Review')
   })
 })
 
@@ -99,6 +133,7 @@ describe('a typed session length', () => {
       const value = q.kind === 'growthStage'
         ? 'Lifestyle'
         : q.kind === 'staircase' ? wrapper.vm.staircaseSteps[0].name : undefined
+      // planningDomains takes answerCurrent's default pick
       await answerCurrent(wrapper, value)
     }
     expect(wrapper.vm.currentQuestion.kind).toBe('sessionLength')
@@ -126,7 +161,7 @@ describe('reopened after a suggestion', () => {
     expect(wrapper.vm.complete).toBe(true)
     expect(wrapper.findAll('.ssi-done')).toHaveLength(QUESTIONS.length)
 
-    wrapper.vm.edit(1) // the Growth Curve
+    wrapper.vm.edit(3) // the Growth Curve
     await wrapper.vm.$nextTick()
     expect(wrapper.vm.choice).toBe('Lifestyle')
     await answerCurrent(wrapper, 'Leverage')
@@ -135,5 +170,16 @@ describe('reopened after a suggestion', () => {
     const again = wrapper.emitted('submit')[0][0]
     expect(again.growthStage).toBe('Leverage')
     expect(again.strategyPlanExists).toBe(given.strategyPlanExists)
+  })
+
+  it('reopens the planning domains with the earlier picks in place', async () => {
+    const first = mountIt()
+    await answerAll(first)
+    first.vm.submit()
+
+    const wrapper = mountIt({ initialAnswers: first.emitted('submit')[0][0] })
+    wrapper.vm.edit(1)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.vm.picks).toEqual(['business-targets', 'organisational-review'])
   })
 })

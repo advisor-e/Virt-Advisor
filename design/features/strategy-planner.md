@@ -246,7 +246,17 @@ Outcomes Review as the model — the template whose purpose is to focus a sessio
 OUTCOMES across those four domains. The existing questions follow. **Ruled the same day from the
 drawing's revision:** more than one area may be picked (F); the AI suggests only from the areas
 picked, enforced in code (G); the panel's *"They are the same questions the Virtual Advisor asks."*
-is removed, no longer true (H).
+is removed, no longer true (H). Both new lines of wording approved exactly as written; the drawing's
+revision APPROVED TO BUILD FROM the same day.
+✅ **BUILT 2026-10-03.** `strategyIntake.js` asks `clientChallenge` then `planningDomains` (options from
+`planningDomains`, carried as ids in one string so the session store keeps them), and
+`conceptsInDomains` narrows the catalogue the model sees and the ids it may return.
+**Measured, one invented client, before and after, real model calls:** today's questions sent 47
+concepts and the AI chose generic planning steps (*Strategic Objective*, *Assess current position*);
+the revision sent 11 and it chose *Business Owner Expectations*, *Review Internal Insights Data*,
+*Define the Leadership Style*, *Develop Cascaded Operational Objectives* — the client's crew, hours and
+foremen. **Left: Mike's own try-out.** Not walked in a browser on the laptop; the screen is covered by
+`strategySuggestIntake.component.test.js`.
 **Impact test, stated before design:** *problem* — a new client's first strategy meeting gets no
 guidance, and every client's suggestion ignores the four lenses; *measurement* — new-client cases
 that get a suggestion (0 today), recall on Pivot's 9 (4 today), overlap across the five situations

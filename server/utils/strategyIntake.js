@@ -14,6 +14,13 @@
  *   - **His plan question first**, because he named it the more important.
  *   - **How many is set by the session's length, never by the model** — see `conceptCap`.
  *
+ * 🔴 REVISED 2026-10-03 — WHAT THE CLIENT NEEDS COMES FIRST. Mike's try-out failed: none of
+ * the questions said what the session is for, so the model chose with no subject. Two
+ * questions now open the sequence, on his rulings of that day: the client's challenge in the
+ * advisor's own words, then which of the four planning domains the client is struggling with
+ * (more than one may be picked — decision F). **The model may only choose from the domains
+ * picked, enforced here and not left to it** (decision G, `conceptsInDomains`).
+ *
  * 🔴 WHAT REACHES THE MODEL. The advisor's answers, as "question / answer" pairs, and nothing
  * else: no client, advisor, firm or case id. They are typed by a person, so the route passes
  * the typed ones to moderation (rule Z3, `design/OPENAI-ZDR-CONSTRAINTS.md`).
@@ -24,6 +31,18 @@
 const DOMAINS = require('../../data/domains.json')
 const { QUESTION_TEXT } = require('./intakeQuestions')
 const { BASE_STAIRCASE } = require('./staircaseConfig')
+const { listPlanningDomains } = require('./strategyFrameworks')
+
+/**
+ * The planning-domains question's two lines, approved by Mike exactly as written on
+ * 2026-10-03. The four descriptions between them are his too, from the Planning Outcomes
+ * Review's "Planning Domains Explained" page, read from `data/strategy-frameworks.json`.
+ */
+const DOMAIN_LEAD = 'Every planning session draws on four planning domains:'
+const DOMAIN_QUESTION = 'Which of these areas is the client struggling with? Choose all that apply.'
+
+/** How a multi-pick answer is carried: domain ids, in one string, so every store keeps it. */
+const DOMAIN_SEPARATOR = ','
 
 /**
  * Mike's timing rule, 2026-09-30, in his words: "allow 6mins for the frame (welcome, this is
@@ -63,6 +82,8 @@ const MAX_ANSWER_CHARS = 500
  * the three pickers are the Virtual Advisor's own, and the rest are the advisor's own words.
  */
 const SEQUENCE = [
+  { field: 'clientChallenge', kind: 'text' },
+  { field: 'planningDomains', kind: 'planningDomains' },
   { field: 'strategyPlanExists', kind: 'text' },
   { field: 'growthStage', kind: 'growthStage' },
   { field: 'advisoryStaircase', kind: 'staircase' },
@@ -92,7 +113,9 @@ function planQuestion () {
  * @param {object} [staircase] - the firm's resolved Staircase (`loadBlendedStaircase`), so a
  *   firm that reworded its Staircase question is asked in its own words, as the Virtual
  *   Advisor asks it
- * @returns {Array<{field: string, kind: string, text: string}>}
+ * @returns {Array<{field: string, kind: string, text: string, lead?: string,
+ *   options?: Array<{id: string, name: string, description: string}>}>} the planning-domains
+ *   question alone carries `lead` and `options`
  */
 function questions (staircase) {
   const authored = staircase && typeof staircase.selectorPrompt === 'string'
@@ -100,13 +123,45 @@ function questions (staircase) {
     : ''
   const textOf = {
     strategyPlanExists: planQuestion(),
-    advisoryStaircase: authored || BASE_STAIRCASE.selectorPrompt
+    advisoryStaircase: authored || BASE_STAIRCASE.selectorPrompt,
+    planningDomains: DOMAIN_QUESTION
   }
-  return SEQUENCE.map(q => ({
-    field: q.field,
-    kind: q.kind,
-    text: textOf[q.field] || QUESTION_TEXT[q.field] || ''
-  }))
+  return SEQUENCE.map((q) => {
+    const out = {
+      field: q.field,
+      kind: q.kind,
+      text: textOf[q.field] || QUESTION_TEXT[q.field] || ''
+    }
+    if (q.kind === 'planningDomains') {
+      out.lead = DOMAIN_LEAD
+      out.options = listPlanningDomains().map(d => ({ id: d.id, name: d.name, description: d.description }))
+    }
+    return out
+  })
+}
+
+/**
+ * The planning domains a picker answer names — known ids only, in the data's order, each once.
+ * @param {*} answer - ids joined by DOMAIN_SEPARATOR
+ * @returns {string[]} empty when none is usable
+ */
+function pickedDomains (answer) {
+  const picked = String(answer || '').split(DOMAIN_SEPARATOR).map(s => s.trim())
+  return listPlanningDomains().map(d => d.id).filter(id => picked.includes(id))
+}
+
+/**
+ * Decision G (Mike, 2026-10-03): the suggestion may only come from the domains picked. This
+ * narrows the catalogue the model is SHOWN; because the route's known-id list is built from
+ * the same narrowed list, a model naming a concept outside it is dropped as well.
+ *
+ * @param {Array<object>} concepts
+ * @param {string[]} domainIds - from `pickedDomains`
+ * @returns {Array<object>}
+ */
+function conceptsInDomains (concepts, domainIds) {
+  const keep = new Set(domainIds || [])
+  return (concepts || []).filter(c => c && keep.has(c.planningDomain))
 }
 
 /**
@@ -151,7 +206,9 @@ function normaliseAnswers (raw) {
   const answers = {}
   for (let i = 0; i < SEQUENCE.length; i++) {
     const field = SEQUENCE[i].field
-    const value = typeof raw[field] === 'string' ? raw[field].trim().slice(0, MAX_ANSWER_CHARS) : ''
+    let value = typeof raw[field] === 'string' ? raw[field].trim().slice(0, MAX_ANSWER_CHARS) : ''
+    // Rewritten to the known ids alone, so nothing else typed into the field travels on.
+    if (SEQUENCE[i].kind === 'planningDomains') { value = pickedDomains(value).join(DOMAIN_SEPARATOR) }
     if (!value) { return null }
     answers[field] = value
   }
@@ -182,7 +239,12 @@ function typedAnswers (answers) {
 function situationFromAnswers (answers, asked) {
   return (asked || [])
     .filter(q => answers && answers[q.field])
-    .map(q => q.text + '\n' + answers[q.field])
+    .map((q) => {
+      if (q.kind !== 'planningDomains') { return q.text + '\n' + answers[q.field] }
+      const ids = pickedDomains(answers[q.field])
+      const names = (q.options || []).filter(o => ids.includes(o.id)).map(o => o.name)
+      return q.text + '\n' + names.join(', ')
+    })
     .join('\n\n')
 }
 
@@ -195,7 +257,12 @@ module.exports = {
   MIN_SESSION_MINUTES,
   MAX_SESSION_MINUTES,
   SEQUENCE,
+  DOMAIN_LEAD,
+  DOMAIN_QUESTION,
+  DOMAIN_SEPARATOR,
   questions,
+  pickedDomains,
+  conceptsInDomains,
   sessionMinutes,
   conceptCap,
   normaliseAnswers,

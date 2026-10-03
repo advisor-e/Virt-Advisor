@@ -14,9 +14,22 @@
     )
       button.ssi-done-btn(type="button" @click="edit(i)")
         span.ssi-q {{ q.text }}
-        span.ssi-a {{ answers[q.field] }}
+        span.ssi-a {{ answerText(q) }}
 
     li.ssi-now(v-if="currentQuestion" :key="'now-' + currentQuestion.field")
+      //- The planning domains are described BEFORE they are asked about (Mike, 2026-10-03).
+      template(v-if="currentQuestion.kind === 'planningDomains'")
+        p.ssi-q.is-current {{ currentQuestion.lead }}
+        .ssi-options
+          label.ssi-opt(
+            v-for="d in currentQuestion.options"
+            :key="d.id"
+            :class="{ 'is-on': picks.includes(d.id) }"
+          )
+            input(type="checkbox" :value="d.id" v-model="picks")
+            span.ssi-opt-body
+              b {{ d.name }}
+              span {{ d.description }}
       p.ssi-q.is-current {{ currentQuestion.text }}
 
       //- The three pickers are the Virtual Advisor's own, reading the same lists.
@@ -62,7 +75,7 @@
           span {{ $t('strategyPlanner.timing.min') }}
 
       b-input.ssi-text(
-        v-else
+        v-else-if="currentQuestion.kind === 'text'"
         v-model="draft"
         maxlength="500"
         :has-counter="false"
@@ -104,6 +117,9 @@ import { SESSION_LENGTH_OPTIONS, OTHER } from '~/utils/sessionLengths'
  * their order and their wording come from `GET /api/strategy/suggest/questions`, which reads
  * the Virtual Advisor's own — this component invents none of them.
  *
+ * The drawing's revision of 2026-10-03 (approved to build from) puts the client's challenge
+ * and the planning domains first; the domains question is the one multi-pick here.
+ *
  * ⚠ A DEVIATION FROM THE DRAWING, AND WHY: the drawing's Screen 1 shows all six questions at
  * once. Mike ruled that out the same day ("guided assistance - not a survey"), and said a
  * redraw was not required. This is the build of his ruling, not of that panel.
@@ -114,11 +130,14 @@ export default {
   mixins: [staircaseMixin],
 
   props: {
-    /** `[{ field, kind, text }]` in the order they are asked. `kind` is one of the four below. */
+    /**
+     * `[{ field, kind, text }]` in the order they are asked. `kind` is one of the five below;
+     * a `planningDomains` question also carries `lead` and `options: [{ id, name, description }]`.
+     */
     questions: {
       type: Array,
       required: true,
-      validator: qs => qs.every(q => q && q.field && ['text', 'growthStage', 'staircase', 'sessionLength'].includes(q.kind))
+      validator: qs => qs.every(q => q && q.field && ['text', 'planningDomains', 'growthStage', 'staircase', 'sessionLength'].includes(q.kind))
     },
 
     /** `{ min, max }` — the typed "Other" length the backend will accept. */
@@ -139,6 +158,7 @@ export default {
       current: 0,
       draft: '',
       choice: '',
+      picks: [],
       otherMinutes: '',
       growthStages: growthFundamentals.stages,
       lengthOptions: SESSION_LENGTH_OPTIONS,
@@ -170,6 +190,11 @@ export default {
       const q = this.currentQuestion
       if (!q) { return '' }
       if (q.kind === 'text') { return this.draft.trim() }
+      // More than one may be picked (decision F); carried as ids in one string, in the
+      // domains' own order, which is the shape the backend and the session store keep.
+      if (q.kind === 'planningDomains') {
+        return (q.options || []).filter(o => this.picks.includes(o.id)).map(o => o.id).join(',')
+      }
       if (q.kind !== 'sessionLength' || this.choice !== OTHER) { return this.choice }
       const n = Number(this.otherMinutes)
       return Number.isInteger(n) && n >= this.minutes.min && n <= this.minutes.max ? n + ' mins' : ''
@@ -196,14 +221,27 @@ export default {
       const saved = q ? (this.answers[q.field] || '') : ''
       this.draft = q && q.kind === 'text' ? saved : ''
       this.choice = ''
+      this.picks = q && q.kind === 'planningDomains' && saved ? saved.split(',') : []
       this.otherMinutes = ''
-      if (!q || q.kind === 'text' || !saved) { return }
+      if (!q || q.kind === 'text' || q.kind === 'planningDomains' || !saved) { return }
       if (q.kind === 'sessionLength' && !SESSION_LENGTH_OPTIONS.includes(saved)) {
         this.choice = OTHER
         this.otherMinutes = String(parseInt(saved, 10) || '')
         return
       }
       this.choice = saved
+    },
+
+    /**
+     * An answer as the advisor reads it — the planning domains by name, never by id.
+     * @param {Object} q - one of `questions`
+     * @returns {string}
+     */
+    answerText (q) {
+      const a = this.answers[q.field] || ''
+      if (q.kind !== 'planningDomains') { return a }
+      const ids = a.split(',')
+      return (q.options || []).filter(o => ids.includes(o.id)).map(o => o.name).join(', ')
     },
 
     /** Record the current answer and reveal the next unanswered question. */

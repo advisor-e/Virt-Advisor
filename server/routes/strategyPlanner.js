@@ -642,10 +642,13 @@ async function postSuggest (req, res) {
       return
     }
 
-    // The guided path never offers the frame — its time is already counted (Mike, 2026-09-30).
-    // Leaving it out of `known` too means a model that names it anyway is dropped.
+    // The guided path never offers the frame — its time is already counted (Mike, 2026-09-30) —
+    // and offers only the planning domains the advisor picked (decision G, Mike 2026-10-03).
+    // Leaving the rest out of `known` too means a model that names one anyway is dropped.
     const concepts = intake
-      ? strategyIntake.suggestableConcepts(frameworks.listConcepts())
+      ? strategyIntake.conceptsInDomains(
+        strategyIntake.suggestableConcepts(frameworks.listConcepts()),
+        strategyIntake.pickedDomains(intake.answers.planningDomains))
       : frameworks.listConcepts()
     const cap = intake ? strategyIntake.conceptCap(intake.minutes) : 0
     let reply

@@ -16,6 +16,10 @@
  */
 
 const QUESTION_TEXT = Object.freeze({
+  // The opening sentence of the Virtual Advisor's "I have a client situation" card
+  // (`mode.client.desc`). That line goes on to promise template recommendations, which the
+  // planner does not give, so the planner asks this sentence alone (Mike, 2026-10-03).
+  clientChallenge: 'Tell me about a challenge your client is facing.',
   clientRaisedIssue: 'Has the client specifically requested help with this issue, or is it something you\'ve noticed?',
   growthStage: 'Where would you place them on the Growth Curve?',
   clientPersonality: 'Are they light-hearted and open to being challenged, or more discerning and careful about how they receive advice?',

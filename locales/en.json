@@ -6689,7 +6689,7 @@
       "suggestFailed": "The suggestion could not be produced just now. Tick the concepts yourself and try again later.",
       "suggestedBadge": "Suggested",
       "intakeHeading": "A few questions first",
-      "intakeIntro": "This client has no saved conversation, so the suggestion will come from your answers here. They are the same questions the Virtual Advisor asks.",
+      "intakeIntro": "This client has no saved conversation, so the suggestion will come from your answers here.",
       "intakeSuggest": "Suggest from these answers",
       "intakeSkip": "Tick them myself",
       "suggestBarAnswers": "Suggested, not applied. {count} row was pre-ticked from your answers, with one line saying why. | Suggested, not applied. {count} rows were pre-ticked from your answers, each with one line saying why.",
