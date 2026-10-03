@@ -233,6 +233,18 @@ measured prompt, so Pivot's 4 of 9 stands). The fourth is his own try-out of the
 slots on *Our Session Objective*, which **is** the frame his 6 minutes already cover. The guided
 suggestion now never offers it (`FRAME_CONCEPT_ID` in `strategyIntake.js`); the advisor can still
 tick it by hand.
+☑ **THE GUIDED QUESTIONS START BY ASKING WHAT THE CLIENT NEEDS — Mike, 2026-10-03.** His try-out
+failed the fourth measure: the suggestions did not make sense. The cause is the questions, not the
+model: all eight describe readiness, personality and the advisor, and none says what the session is
+for. In the Virtual Advisor the advisor has already named the problem before they are asked; here
+nothing does, and the drawing hid it because its sample answer to *"…help with this issue"* carried
+the subject. **Ruled:** the questions open with the Virtual Advisor's own *"Tell me about a challenge
+your client is facing."*, answered in the advisor's words. **Then — Mike, same day:** *"a quick
+description of the 4 planning domains (targets, orientation, sales & marketing and Organisational
+review) to THEN ask which of those 4 areas the client is struggling with"*, taking the Planning
+Outcomes Review as the model — the template whose purpose is to focus a session on the right
+OUTCOMES across those four domains. The existing questions follow. All of it goes to him in the
+drawing before anything is built.
 **Impact test, stated before design:** *problem* — a new client's first strategy meeting gets no
 guidance, and every client's suggestion ignores the four lenses; *measurement* — new-client cases
 that get a suggestion (0 today), recall on Pivot's 9 (4 today), overlap across the five situations

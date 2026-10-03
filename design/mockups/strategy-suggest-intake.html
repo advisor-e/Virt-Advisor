@@ -26,6 +26,11 @@
 
   THE CLIENT IS INVENTED. The six ticked rows in Screen 2 are an illustration of the
   shape, not a model result — no suggestion has been run on these answers.
+
+  REVISED 2026-10-03 — "Revision: what the client needs comes first", below the
+  measures. Mike's try-out failed: no question said what the session is for. Two new
+  opening questions, on his rulings of that day. The revision is NOT APPROVED TO BUILD
+  FROM; everything below it stays as approved and built on 2026-09-30.
 ================================================================================
 -->
 <style>
@@ -156,6 +161,130 @@ instead, and suggest from the answers. <b>Not approved to build from — nothing
     <div class="mg"><div class="n">Your call</div><div class="l">whether the number and difficulty fit the answers — no test can judge it</div></div>
   </div>
 </div>
+
+<!-- ============================================================ REVISION 2026-10-03 -->
+<h2>Revision 2026-10-03 — what the client needs comes first</h2>
+<div class="ask" style="background:#eefaf0;border-color:#a8dcb4;border-left-color:var(--rs-good)">
+  <h3 style="color:var(--rs-good)">Ruled by Mike 2026-10-03 · not yet approved to build from</h3>
+  <p><b>Why.</b> Your try-out on 3 Oct found the suggestions did not make sense. The cause: all
+  eight questions describe how ready the client is and who the advisor is — none says what the
+  session is <i>for</i>. In the Virtual Advisor the advisor has already named the problem before
+  those questions are asked; here nothing did. The drawing below hid it, because its sample answer
+  to <i>"…help with this issue"</i> carried the subject (<i>"they want a plan before taking on a
+  second crew"</i>).</p>
+  <p class="rec">Ruling 1: the questions open with the Virtual Advisor's own <i>"Tell me about a
+  challenge your client is facing."</i>, answered in the advisor's own words.</p>
+  <p class="rec">Ruling 2: "the next few questions should come after a quick description of the 4
+  planning domains (targets, orientation, sales &amp; marketing and Organisational review) to THEN
+  ask which of those 4 areas the client is struggling with" — with the Planning Outcomes Review as
+  the inspiration.</p>
+  <p>The Planning Outcomes Review is the template whose purpose is <i>"to make sure the planning
+  framework is focused on the correct business OUTCOMES"</i> across those four domains. Its
+  <b>"Planning Domains Explained"</b> page is already in the app, word for word, in
+  <code>data/strategy-frameworks.json</code> <code>planningDomains</code> — so the descriptions
+  below are yours, read from there, not written by us.</p>
+</div>
+
+<div class="measure">
+  <h3>How we will know the revision worked</h3>
+  <div class="mgrid">
+    <div class="mg"><div class="n">0 of 8</div><div class="l">questions today that say what the client needs — the AI picks with no subject</div></div>
+    <div class="mg"><div class="n">Before / after</div><div class="l">the exact text the AI receives, shown to you side by side before the try-out</div></div>
+    <div class="mg"><div class="n">Your call</div><div class="l">your 3 Oct try-out repeated, same client — do the suggestions now make sense?</div></div>
+  </div>
+</div>
+
+<p>Drawn as the build shows it — <b>one question at a time, every answered question staying
+visible above the next</b> (your ruling of 2026-09-30). Question 1 is answered; question 2 is
+the one now showing. The eight existing questions follow question 2, in their approved order.</p>
+
+<div class="screen">
+  <div class="chrome">
+    <b>1 · Scope session</b><span class="who">Kōwhai Landscaping Ltd (invented)</span>
+    <span class="count">0 of 48 chosen</span>
+  </div>
+  <div class="intake">
+    <p class="head">A few questions first</p>
+    <p class="intro">This client has no saved conversation, so the suggestion will come from your
+    answers here.<span class="proposed">see decision H</span></p>
+
+    <div class="qrow">
+      <p class="qt">1 · Tell me about a challenge your client is facing.<span class="lens">the subject</span></p>
+      <div class="field">The owner wants to take on a second crew next year, but is already working
+      60-hour weeks, the two foremen keep clashing, and nobody can say whether the numbers would
+      stack up.</div>
+    </div>
+
+    <div class="qrow">
+      <p class="qt">2 · Every planning session draws on four planning domains:<span class="proposed">proposed</span></p>
+      <div class="steps">
+        <div class="step on"><b>Business Targets</b>Revenue, profit and personal income targets, debt ratio and risk tolerance, work hours and leave expectations, and the specific focus areas the owner believes need attention.</div>
+        <div class="step"><b>Strategic Orientation</b>A challenging review of the actual business model — revenue streams, application of assets, target market — supported by external insights data and scenario modelling.</div>
+        <div class="step on"><b>Organisational Review</b>Communication and reporting channels, divisional roles and individual responsibilities, in order to improve efficiencies and team engagement.</div>
+        <div class="step"><b>Sales &amp; Marketing Review</b>How you attract attention to your product or service, how you convert attention into interest and action, and how you finally secure their custom.</div>
+      </div>
+      <p class="qt" style="margin-top:10px">Which of these four areas is the client struggling with?<span class="proposed">proposed</span></p>
+      <div class="go" style="margin-top:6px">
+        <button class="btn" type="button">Confirm selection</button>
+        <span class="hint">Two chosen — see decision F.</span>
+      </div>
+    </div>
+  </div>
+  <div class="gap">Questions 3 to 10 — your plan question, then the seven approved below — reveal one at a time after this. The 48 rows sit underneath, unticked.</div>
+</div>
+
+<h3>Decisions on the revision — one at a time, in this order</h3>
+
+<div class="ask">
+  <h3>Decision F — one area, or more than one</h3>
+  <p class="rec">Recommended: the advisor may pick more than one.</p>
+  <p>A real client often struggles in two — the example above is a targets problem and a people
+  problem at once — and the Planning Outcomes Review itself selects frameworks <i>"across the 4
+  planning domains"</i>, not from one. Picking one would force the advisor to drop half the story.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision G — what the chosen areas do to the suggestion</h3>
+  <p class="rec">Recommended: the AI may only suggest concepts from the areas picked — enforced in
+  code, as the session-length cap is.</p>
+  <p>That is what makes question 2 matter: the AI chooses from, say, 11 concepts instead of 47. Left
+  as a hint, the AI can still wander into a domain the advisor just ruled out — the same fault your
+  try-out found. The advisor can still tick any row by hand.</p>
+</div>
+
+<div class="ask">
+  <h3>Decision H — the panel introduction's second sentence</h3>
+  <p class="rec">Recommended: remove <i>"They are the same questions the Virtual Advisor asks."</i></p>
+  <p>You approved it on 2026-09-30, when it was true. Question 2 is not a Virtual Advisor question,
+  so it would no longer be. Nothing replaces it.</p>
+</div>
+
+<div class="mock">
+  <h3>Notes on the revision — not decisions</h3>
+  <ul>
+    <li><b>The order of the four is the Planning Domains Explained page's own</b> — Targets,
+      Orientation, Organisational, Sales &amp; Marketing — read from the data, so it matches the
+      menu underneath.</li>
+    <li><b>Question 1's sentence is reused, not shared.</b> In the Virtual Advisor it is the start of
+      a longer line (<code>mode.client.desc</code>) whose second half — <i>"I'll ask a few questions…
+      then recommend the right template(s)"</i> — does not fit here. So the same words get a key of
+      their own.</li>
+    <li><b>Question 1 is typed, so it passes the moderation check</b> like the other typed answers.
+      Question 2 is a picker — the app's own words — so it does not.</li>
+    <li><b>Question 4 now makes sense.</b> <i>"Has the client specifically requested help with this
+      issue…"</i> finally has an issue to refer to: the one named in question 1.</li>
+  </ul>
+</div>
+
+<h3>Wording we wrote for the revision — PROPOSED, not approved</h3>
+<table class="doc">
+  <tr><th>Where</th><th>Proposed wording</th></tr>
+  <tr><td>Question 2, lead-in</td><td>Every planning session draws on four planning domains:</td></tr>
+  <tr><td>Question 2, the question</td><td>Which of these four areas is the client struggling with?</td></tr>
+</table>
+<p>Question 1 (<i>"Tell me about a challenge your client is facing."</i>) and the four domain
+descriptions are your own words already — not proposed. <i>Confirm selection</i> is the Virtual
+Advisor's own picker button.</p>
 
 <!-- ============================================================ SCREEN 1 -->
 <h2>Screen 1 — the button is pressed, and the client has no conversation</h2>
