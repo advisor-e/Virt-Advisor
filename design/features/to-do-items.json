@@ -509,27 +509,6 @@
       "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it. MIKE'S CALL 2026-10-03: PROCEED - period and labels built; errors wait on a whole-app design."
     },
     {
-      "ref": "7.31",
-      "name": "Survey modules reading the built-in template file; decide which should read each firm's library",
-      "rankedByMike": false,
-      "kind": "defect",
-      "score": 2,
-      "scoreReason": "robustness - nothing visible until a firm uploads a different export",
-      "blocker": false,
-      "blocks": null,
-      "waitingOn": "Us",
-      "why": "7.29 moved the AI's descriptions and name checks onto the firm's library. About seven other backend modules still require data/templates.json directly, so they ignore an uploaded export.",
-      "risk": "Harmless while the seed and the exports match. Once a firm's export differs, scoring, routing evidence or logic-tree serving could work from templates that firm does not hold. Some readers may be right to use the seed, which is why this is a survey first.",
-      "askedBy": {
-        "who": "us",
-        "ours": true,
-        "detail": "2026-10-03 - found scoping 7.29; filed on Mike's yes. A defect we found."
-      },
-      "touches": "server/utils/semanticProfiles.js, contentRouting.js, logicTrees.js, resolveTemplateName.js, quizOverrides.js, templateCheck.js, templateCheckPatch.js; the seed fallback in server/routes/firmManager.js. Reuse templateLibrary.loadEffectiveTemplates, as 7.29 did.",
-      "note": "SURVEY FIRST: for each module, say what it does with the library and whether a firm's upload should change it. Template Check may rightly compare against the master file. Fix only what the survey shows wrong, each proven like tests/unit/firmLibraryNames.test.js.",
-      "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
-    },
-    {
       "ref": "22.9",
       "name": "cases.routes.test.js failed once in a full run and passed alone",
       "rankedByMike": false,

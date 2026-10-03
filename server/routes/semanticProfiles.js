@@ -40,6 +40,16 @@ const store = require('../utils/semanticProfiles')
 const overlay = require('../utils/firmOverlay')
 const { PLATFORM_SCOPE } = require('../utils/platformScope')
 const { SIGNAL_REGISTRY, SIGNAL_DESCRIPTIONS } = require('../utils/problemSignals')
+const { loadEffectiveTemplates } = require('../utils/templateLibrary')
+
+/**
+ * The platform's library in force — the mentor's or the master app's upload, null for the
+ * committed seed (item 7.31). Never rejects, so the routes below need no extra catch.
+ * @returns {Promise<Array<object>|null>}
+ */
+function platformLibrary () {
+  return loadEffectiveTemplates(null)
+}
 
 /**
  * GET /api/mentor/semantic-profiles — every client tool with the profile in force for it.
@@ -65,7 +75,7 @@ const { SIGNAL_REGISTRY, SIGNAL_DESCRIPTIONS } = require('../utils/problemSignal
  */
 async function list (req, res) {
   try {
-    const { rows, total, pages, thinCount } = await store.listTemplateProfiles()
+    const { rows, total, pages, thinCount } = await store.listTemplateProfiles(await platformLibrary())
     res.send(200, {
       success: true,
       templates: rows,
@@ -105,7 +115,7 @@ async function save (req, res) {
   const verdict = store.validateProfile(
     Object.assign({}, req.body, { page }),
     null,
-    store.libraryPages()
+    store.libraryPages(await platformLibrary())
   )
   if (!verdict.ok) {
     sendError(res, 400, verdict.code, verdict.message)
@@ -132,7 +142,7 @@ async function save (req, res) {
  */
 async function history (req, res) {
   const page = req.params && req.params.page
-  if (!store.libraryPages().has(page)) {
+  if (!store.libraryPages(await platformLibrary()).has(page)) {
     sendError(res, 400, 'INVALID_PROFILE', 'Unknown template page')
     return
   }
@@ -159,7 +169,7 @@ async function history (req, res) {
 async function restore (req, res) {
   const page = req.params && req.params.page
   const versionId = req.body && req.body.versionId
-  if (!store.libraryPages().has(page)) {
+  if (!store.libraryPages(await platformLibrary()).has(page)) {
     sendError(res, 400, 'INVALID_PROFILE', 'Unknown template page')
     return
   }

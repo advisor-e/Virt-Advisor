@@ -31,7 +31,7 @@ const { PLATFORM_SCOPE } = require('../utils/platformScope')
 // Validation shared with the firm's own import (firmManager.js importTemplates),
 // so the two upload doorways can never drift apart.
 const { validateTemplateImport, TEMPLATE_IMPORT_MAX_BYTES } = require('../utils/templateImport')
-const { clearTemplateCache } = require('../utils/templateLibrary')
+const { clearTemplateCache, loadEffectiveTemplates } = require('../utils/templateLibrary')
 const DOMAINS = require('../../data/domains.json')
 const firmManager = require('./firmManager')
 
@@ -295,7 +295,11 @@ async function listMentorCases (req, res) {
 async function getTemplateCheck (req, res) {
   try {
     const rulings = await loadRulings(overlay.loadFirmConfig)
-    const report = runTemplateCheck({ rulings })
+    // Checked against the platform's library in force — the mentor's or the master app's
+    // upload, the committed seed when neither exists (item 7.31): "the templates the app can
+    // actually open", as the check's own header puts it.
+    const templates = (await loadEffectiveTemplates(null)) || undefined
+    const report = runTemplateCheck({ rulings, templates })
     res.send(200, { success: true, counts: report.counts, findings: report.findings })
   } catch (err) {
     console.error('[mentor] getTemplateCheck failed:', err.message)
@@ -349,7 +353,10 @@ async function saveTemplateCheckRuling (req, res) {
 async function getTemplateCheckPatch (req, res) {
   try {
     const rulings = await loadRulings(overlay.loadFirmConfig)
-    const patch = buildTemplateCheckPatch({ rulings })
+    // The same library the check itself read (item 7.31), so a ruling is classified against
+    // the templates the mentor was shown.
+    const templates = (await loadEffectiveTemplates(null)) || undefined
+    const patch = buildTemplateCheckPatch({ rulings, templates })
     res.send(200, { success: true, patch })
   } catch (err) {
     console.error('[mentor] getTemplateCheckPatch failed:', err.message)

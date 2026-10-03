@@ -649,7 +649,8 @@ async function handleSession (req, body, res) {
 
   const openai = getOpenAI()
 
-  const templates = getOrgTemplates(orgTemplateIds || null, await loadEffectiveTemplates(req.firmId))
+  const library = await loadEffectiveTemplates(req.firmId)
+  const templates = getOrgTemplates(orgTemplateIds || null, library)
   const focusQuery = [sessionContext?.focus, sessionContext?.title, ...(sessionContext?.resources || [])].filter(Boolean).join(' ') || query
   const filtered = filterTemplatesByQuery(templates, focusQuery)
   const templateContext = formatTemplatesForPrompt(filtered)
@@ -687,7 +688,8 @@ async function handleSession (req, body, res) {
 
   // Logic tree reference — match session topic to a learn-mode logic tree
   const logicTree = detectLogicTree(domainQuery, firmLogicTrees)
-  const logicTreeContext = logicTree ? '\n\n' + (buildLearnReferenceText(logicTree, firmMethodGuides) || '') : ''
+  // Its availability gate reads the same library as the template list above (item 7.31).
+  const logicTreeContext = logicTree ? '\n\n' + (buildLearnReferenceText(logicTree, firmMethodGuides, library) || '') : ''
 
   const advisorContext = advisorProfile
     ? '\n\n## Advisor profile\n\n' +
@@ -785,7 +787,9 @@ async function handleQuizGenerate (req, body, res) {
   // prompt-injection route. A bank with no firm content produces byte-identical
   // text to before — locked by a test.
   const banks = await loadBlendedQuizBanks(req.firmId, loadFirmConfig)
-  const bank = findQuizBank(banks, sessionContext)
+  // Matched against THIS firm's library (item 7.31), the one the session's resources were
+  // grounded to — so a firm-only template's authored questions are found, not replaced.
+  const bank = findQuizBank(banks, sessionContext, (await loadEffectiveTemplates(req.firmId)) || undefined)
   // Provenance: which bank answered. `bankRef` (already on every question) is
   // only an entry NUMBER — meaningless without the bank it belongs to, so the
   // advisor's quiz review and any manager view cannot say where a question came
@@ -909,7 +913,8 @@ async function handleQuizGrade (req, body, res) {
   // numbers match. (If a manager edits the quiz between an advisor being asked
   // and answering, the numbering can shift under them — the same exposure any
   // mid-course config change has, and no worse than the previous behaviour.)
-  const bank = findQuizBank(await loadBlendedQuizBanks(req.firmId, loadFirmConfig), sessionContext)
+  const bank = findQuizBank(await loadBlendedQuizBanks(req.firmId, loadFirmConfig), sessionContext,
+    (await loadEffectiveTemplates(req.firmId)) || undefined)
   const bankRef = question && Number.isInteger(question.bankRef) ? question.bankRef : null
   const bankEntry = (bank && bankRef !== null && bank.entries.find(e => e.id === bankRef)) || null
   const guideBody = bankEntry

@@ -70,11 +70,15 @@ block, and a calculator name on a line carrying its own page path (4.33's pairin
 logged on the server. Measured on the eight saved 7.18 runs: 24 near misses became 1, an unbolded
 name in brackets.
 
-**Every name check and every template description reads the firm's own library** (item 7.29,
-2026-10-03): the one in force for that firm through the cascade (`loadEffectiveTemplates`), and
-the committed `data/templates.json` only when no tier has uploaded one. So a firm whose export
-renames a template has its AI shown, checked and recorded against the new title.
-`tests/unit/firmLibraryNames.test.js`.
+**Everything that asks "is this a real template?" reads the library in force** (items 7.29 and
+7.31, 2026-10-03), through the cascade (`loadEffectiveTemplates`), with the committed
+`data/templates.json` only when no tier has uploaded one. For a firm: the AI's template
+descriptions and name checks, the logic-tree availability gate (learn mode, the client
+deep-dive, the course builder), the quiz editor's pages and quiz-bank matching. For the
+mentor's Template Check and Template Profiles: the platform's library — the mentor's or the
+master app's upload. `tests/unit/firmLibraryNames.test.js`, `firmLibraryEverywhere.test.js`.
+⚠ Quiz banks are keyed by **title**, so a template a firm renames loses its authored questions
+under either library; only keying them by page would fix that.
 
 ⚠ **That check recognises a model by its EXACT catalogue name or route.** Measured 2026-09-17
 against the shipped catalogues, the three "model named but no page path" cases are three

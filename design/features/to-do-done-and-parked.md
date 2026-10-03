@@ -392,6 +392,29 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**7.31 · Modules reading the built-in template file instead of the library in force.**
+✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was filed, surveyed and built.**
+
+- **What it really was:** the survey found six readers that should follow the library in
+  force. A firm can upload its own export and the master app can push the platform's
+  (`integrationTemplates.js`), so these went stale for every firm the first time either
+  happened. Per firm: the logic-tree availability gate withheld templates a firm added and
+  named ones it removed; the quiz editor refused a firm's own page as "not in your library";
+  quiz-bank matching dropped authored questions for firm-only templates. For the mentor:
+  Template Check and Template Profiles judged against an old file. `contentRouting.js` (a
+  build-time report) and `firmManager.js`'s fallback were right and left alone.
+- **What was done, on Mike's yes:** `logicTrees` builds its title sets per library and
+  `buildLearnReferenceText` takes it (advisorEngine x2, courseEngine); the quiz routes and the
+  course builder pass the firm's library to `resolveTemplateName`, `validateQuizOverride` and
+  `findQuizBank`; `semanticProfiles` and the Template Check routes read
+  `loadEffectiveTemplates(null)`.
+- **What proves it:** `tests/unit/firmLibraryEverywhere.test.js` - one library with a template
+  renamed, added and removed; 10 checks, 4 of them plus the quiz editor's route failing on the
+  old code (a firm's own page refused 404). Full suite 699 files / 15,311 tests.
+- **Not checked here:** the course builder's two quiz-bank calls are not route-tested; the
+  module beneath them is. Quiz banks are keyed by title, so a renamed template loses its
+  questions under either library - recorded in advisory-engine.md.
+
 **13.11 · Text comparison dropped accented letters, so a check could miss a changed word.**
 ✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was measured and built.**
 

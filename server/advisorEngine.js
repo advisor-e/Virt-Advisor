@@ -4209,7 +4209,7 @@ async function handleQuery (rawBody, res, identity) {
         detectLogicTree([...userMsgs, learnQuery].join(' '), firmLogicTrees)
     }
     if (learnTree && learnTree.mode === 'learn') {
-      learnSalesTreeText = buildLearnReferenceText(learnTree, firmMethodGuides)
+      learnSalesTreeText = buildLearnReferenceText(learnTree, firmMethodGuides, firmTemplates)
       // Learn enrichment (Mike's ruling 2026-07-16): when the picked coaching
       // tree has a VERIFIED domain-support file (explicit data mapping or
       // exact name match — never guessed), inject that richer coaching too.
@@ -4230,7 +4230,7 @@ async function handleQuery (rawBody, res, identity) {
     // their "sales/marketing/pricing" means the advisor selling THEIR services, the opposite
     // of the client's situation (design §2.5). See isClientDeliveryLearnTree.
     if (isClientDeliveryLearnTree(deepDiveTree)) {
-      deepDiveText = buildLearnReferenceText(deepDiveTree, firmMethodGuides)
+      deepDiveText = buildLearnReferenceText(deepDiveTree, firmMethodGuides, firmTemplates)
     }
   }
 
