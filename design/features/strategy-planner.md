@@ -243,8 +243,10 @@ your client is facing."*, answered in the advisor's words. **Then — Mike, same
 description of the 4 planning domains (targets, orientation, sales & marketing and Organisational
 review) to THEN ask which of those 4 areas the client is struggling with"*, taking the Planning
 Outcomes Review as the model — the template whose purpose is to focus a session on the right
-OUTCOMES across those four domains. The existing questions follow. All of it goes to him in the
-drawing before anything is built.
+OUTCOMES across those four domains. The existing questions follow. **Ruled the same day from the
+drawing's revision:** more than one area may be picked (F); the AI suggests only from the areas
+picked, enforced in code (G); the panel's *"They are the same questions the Virtual Advisor asks."*
+is removed, no longer true (H).
 **Impact test, stated before design:** *problem* — a new client's first strategy meeting gets no
 guidance, and every client's suggestion ignores the four lenses; *measurement* — new-client cases
 that get a suggestion (0 today), recall on Pivot's 9 (4 today), overlap across the five situations
