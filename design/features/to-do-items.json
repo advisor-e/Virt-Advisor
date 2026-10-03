@@ -528,6 +528,27 @@
       "touches": "tests/unit/cases.routes.test.js and whatever shared state or timing it leans on; server/routes/cases.js if the route itself is order-dependent.",
       "note": "FIRST JOB: catch it failing with its message - run the full suite repeatedly with --json and keep every failure. Fix the cause it shows; never retry or skip the test.",
       "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
+    },
+    {
+      "ref": "15.34",
+      "name": "The Strategy Planner's guided questions show in English on a translated screen",
+      "rankedByMike": false,
+      "kind": "defect",
+      "score": 3,
+      "scoreReason": "the user is worse off",
+      "blocker": false,
+      "blocks": null,
+      "waitingOn": "Us",
+      "why": "GET /api/strategy/suggest/questions sends each question's English wording and the screen shows it as sent. The Virtual Advisor shows the same questions through locales/en.json, which the app translates.",
+      "risk": "An advisor working in another language meets all ten guided questions, and the four planning domains, in English on the one screen that decides a new client's session. Since the 2026-09-30 build.",
+      "askedBy": {
+        "who": "us",
+        "ours": true,
+        "detail": "2026-10-03 - found while building 15.31's two new questions; filed on Mike's yes. A defect we found."
+      },
+      "touches": "server/utils/strategyIntake.js questions(); server/utils/intakeQuestions.js; components/strategy/StrategySuggestIntake.vue; locales/en.json. The model still needs the English wording, so the prompt side stays on the backend.",
+      "note": "Follow the same design as 13.12, whose backend wording waits on one whole-app design - never a one-off here. The domain names and descriptions are content, not UI wording: check how the planner's menu translates them before choosing.",
+      "comment": "2026-10-03 - filed on Mike's yes. Score and scoreReason are ours; he has not ranked it."
     }
   ]
 }

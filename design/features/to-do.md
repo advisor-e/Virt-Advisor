@@ -56,8 +56,9 @@ repository sees; the two never both appear, and the build stops if they would.
 | 19 | **22.3** First-load page code is 387 KB against the 300 KB limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
 | 20 | **13.12** Backend error messages reach the screens in English, whatever the reader's language ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 | 21 | **22.9** cases.routes.test.js failed once in a full run and passed alone ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 22 | **15.34** The Strategy Planner's guided questions show in English on a translated screen ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**21 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
+**22 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list
