@@ -50,21 +50,25 @@ function moderationReport (err, ctx) {
   const category = err.moderation.category
   const sentence = err.moderation.sentence
   const opts = ctx || {}
+  const typed = (Array.isArray(opts.typed) ? opts.typed : [])
+    .filter(t => typeof t === 'string' && t.trim())
+    .map(normalise)
 
   if (Array.isArray(opts.segments)) {
     if (!sentence) { return { kind: 'meetingWhole', category } }
     const said = sentence.replace(TRANSCRIPT_LINE, '')
     const needle = normalise(said)
     const seg = needle ? opts.segments.find(s => normalise(s && s.text).includes(needle)) : null
-    // A flagged line that is not in the transcript came from the prompt's own framing.
-    if (!seg) { return { kind: 'app', category } }
+    if (!seg) {
+      // Item 8.6: a strategy session's Action Plan rows ride the coaching call beside the
+      // transcript, and they are the advisor's own typing.
+      if (needle && typed.some(t => t.includes(needle))) { return { kind: 'typed', category, sentence: said } }
+      // A flagged line in neither came from the prompt's own framing.
+      return { kind: 'app', category }
+    }
     const role = seg.role === 'advisor' || seg.role === 'client' ? seg.role : 'unknown'
     return { kind: 'meeting', category, sentence: said, speaker: role, time: clock(seg.start) }
   }
-
-  const typed = (Array.isArray(opts.typed) ? opts.typed : [])
-    .filter(t => typeof t === 'string' && t.trim())
-    .map(normalise)
 
   if (sentence) {
     const needle = normalise(sentence)

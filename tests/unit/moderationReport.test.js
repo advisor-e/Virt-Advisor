@@ -75,6 +75,12 @@ describe('a meeting transcript', () => {
   test('no single sentence to blame', () => {
     expect(moderationReport(block(null, 'the whole transcript'), { segments })).toEqual({ kind: 'meetingWhole', category: CAT })
   })
+
+  test('item 8.6: an Action Plan row the advisor typed is named as theirs, not the app\'s', () => {
+    const typed = ['Hire a sales lead · Sam · March']
+    expect(moderationReport(block('Hire a sales lead · Sam · March'), { segments, typed }))
+      .toEqual({ kind: 'typed', category: CAT, sentence: 'Hire a sales lead · Sam · March' })
+  })
 })
 
 describe('the error carries nothing a browser should not see', () => {

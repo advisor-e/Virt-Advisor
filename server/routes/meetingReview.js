@@ -775,9 +775,15 @@ async function runReports (meetingId, ctx) {
   // Item 8.2 — the first moderation block, reported against the transcript so the screen can
   // say who said the line and when. Both reports send the same transcript, so one is enough.
   let moderation = null
+  // Item 8.6 — Action Plan rows the advisor typed, which ride the coaching call. A block on one
+  // of them is the advisor's text, and the report must say so rather than blame the app.
+  let typedActions = []
   const noteBlock = (err) => {
     if (!moderation) {
-      moderation = moderationReport(err, { segments: (transcript && Array.isArray(transcript.segments)) ? transcript.segments : [] })
+      moderation = moderationReport(err, {
+        segments: (transcript && Array.isArray(transcript.segments)) ? transcript.segments : [],
+        typed: typedActions
+      })
     }
   }
 
@@ -811,7 +817,10 @@ async function runReports (meetingId, ctx) {
     let previousContext = {}
     try {
       const meta = store.readMeta(meetingId)
-      previous = followThrough.findPrevious(store, meta)
+      // Item 8.6: after a strategy session, the actions are that session's Action Plan rows.
+      previous = await followThrough.withPlanActions(
+        followThrough.findPrevious(store, meta), strategyStore.loadEntries, meta && meta.firmId)
+      typedActions = followThrough.typedTexts(previous && previous.actions)
       previousContext = {
         // Which kind of empty, so the screen can tell "your first meeting with this client"
         // from "you did not record this against a client" (approved drawing, 2026-09-07).

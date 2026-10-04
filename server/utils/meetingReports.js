@@ -603,7 +603,11 @@ async function generateCoachingNotes (args) {
   // the model with an empty list would spend money to be told nothing.
   if (asked.length) {
     const messages = buildCoachingMessages({ segments, points: asked })
-    const answered = await askModel(args, messages, 'coaching', segments.map(s => String((s && s.text) || '')),
+    // ZDR rule Z3: a strategy session's Action Plan rows were typed by a person, so they are
+    // moderated with the transcript (item 8.6). A summary's own actions were written by the model.
+    const spoken = segments.map(s => String((s && s.text) || ''))
+      .concat(followThrough.typedTexts((args.previous && args.previous.actions) || []))
+    const answered = await askModel(args, messages, 'coaching', spoken,
       Math.max(COACHING_MIN_TOKENS, COACHING_TOKENS_PER_POINT * asked.length))
     const reply = answered.reply
     provider = answered.provider

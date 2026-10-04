@@ -62,7 +62,8 @@ const MAX_ACTIONS = 12
  *
  * @param {object} store - `meetingAudioStore`
  * @param {object} current - the meeting record being reported on
- * @returns {{meetingId: string, at: string, actions: Array<object>, expired: boolean}|null}
+ * @returns {{meetingId: string, at: string, actions: Array<object>, expired: boolean,
+ *   strategySessionId: (number|null)}|null}
  *   null when there is no earlier meeting with this client at all
  */
 function findPrevious (store, current) {
@@ -102,12 +103,80 @@ function findPrevious (store, current) {
 
   // The meeting is known to have happened — its record survives an expiry — but its text is
   // gone. Saying "no actions were agreed" here would be a different and untrue statement.
+  const strategySessionId = best.strategySessionId || null
   if (!summary) {
-    return { meetingId: best.meetingId, at: best.createdAt, actions: [], expired: true }
+    return { meetingId: best.meetingId, at: best.createdAt, actions: [], expired: true, strategySessionId }
   }
 
   const actions = Array.isArray(summary.actions) ? summary.actions.slice(0, MAX_ACTIONS) : []
-  return { meetingId: best.meetingId, at: best.createdAt, actions, expired: false }
+  return { meetingId: best.meetingId, at: best.createdAt, actions, expired: false, strategySessionId }
+}
+
+/** The framework every strategy session closes on — its rows are what the client agreed. */
+const PLAN_FRAMEWORK = 'action-plan'
+
+const PLAN_FIELD = /^row-(\d+)-(objective|whom|when)$/
+
+/**
+ * A strategy session's agreed actions: the rows of its Action Plan that carry an objective.
+ *
+ * Item 8.6, Mike's ruling 2026-10-04. Decision J leaves a strategy session's summary with no
+ * actions, because a list pulled from the transcript by a model would be words the client never
+ * saw. The Action Plan IS the list they agreed, typed in the room, so it is the source instead.
+ *
+ * `typed` marks words a person wrote rather than heard, which the coaching call must moderate
+ * (ZDR rule Z3) where it need not moderate a summary the model itself produced.
+ *
+ * @param {Array<{frameworkId: string, fieldKey: string, value: string}>} entries - `loadEntries`
+ * @returns {Array<{who: string, what: string, when: string, typed: true}>} in row order
+ */
+function actionsFromPlan (entries) {
+  const rows = {}
+  ;(Array.isArray(entries) ? entries : []).forEach((e) => {
+    if (!e || e.frameworkId !== PLAN_FRAMEWORK) { return }
+    const m = PLAN_FIELD.exec(String(e.fieldKey || ''))
+    if (!m) { return }
+    const n = Number(m[1])
+    rows[n] = rows[n] || {}
+    rows[n][m[2]] = typeof e.value === 'string' ? e.value.trim() : ''
+  })
+  return Object.keys(rows)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map(n => rows[n])
+    .filter(r => r.objective)
+    .slice(0, MAX_ACTIONS)
+    .map(r => ({ who: r.whom || '', what: r.objective, when: r.when || '', typed: true }))
+}
+
+/**
+ * The words of each typed action, as one line apiece — what the coaching call moderates, and
+ * what a moderation block is matched against so it names the advisor's text, not the app's.
+ *
+ * @param {Array<object>} actions
+ * @returns {Array<string>}
+ */
+function typedTexts (actions) {
+  return (Array.isArray(actions) ? actions : [])
+    .filter(a => a && a.typed)
+    .map(a => [a.what, a.who, a.when].filter(Boolean).join(' · '))
+}
+
+/**
+ * When the previous meeting recorded a strategy session, take its actions from that session's
+ * Action Plan. Anything else is returned untouched — an ordinary meeting keeps its summary's
+ * actions, and an expired one stays expired, because the retention clock governs what this
+ * report may look back on whatever the plan still holds.
+ *
+ * @param {object|null} previous - from `findPrevious`
+ * @param {function(number, string): Promise<Array<object>>} loadEntries - `strategySessionStore.loadEntries`
+ * @param {string} firmId - the meeting's firm; the store returns nothing for another firm's session
+ * @returns {Promise<object|null>}
+ */
+async function withPlanActions (previous, loadEntries, firmId) {
+  if (!previous || previous.expired || !previous.strategySessionId) { return previous }
+  const entries = await loadEntries(previous.strategySessionId, firmId)
+  return Object.assign({}, previous, { actions: actionsFromPlan(entries) })
 }
 
 /**
@@ -118,11 +187,14 @@ function findPrevious (store, current) {
  */
 function actionPoints (actions) {
   const rows = Array.isArray(actions) ? actions : []
+  // One line each: an Action Plan row is typed text (item 8.6), and a line break inside it
+  // could otherwise pass for a further "- id" line in the prompt's list of points.
+  const line = v => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim() : '')
   return rows.map((a, i) => {
-    const what = (a && typeof a.what === 'string') ? a.what.trim() : ''
+    const what = line(a && a.what)
     if (!what) { return null }
-    const who = (a && typeof a.who === 'string' && a.who.trim()) ? a.who.trim() : ''
-    const when = (a && typeof a.when === 'string' && a.when.trim()) ? a.when.trim() : ''
+    const who = line(a && a.who)
+    const when = line(a && a.when)
     const tail = [who && ('agreed by ' + who), when && ('by ' + when)].filter(Boolean).join(', ')
     return {
       id: FOLLOW_PREFIX + i,
@@ -214,7 +286,11 @@ function buildBlock (previous, followFindings, context) {
 module.exports = {
   FOLLOW_PREFIX,
   MAX_ACTIONS,
+  PLAN_FRAMEWORK,
   findPrevious,
+  actionsFromPlan,
+  typedTexts,
+  withPlanActions,
   actionPoints,
   splitFindings,
   buildBlock

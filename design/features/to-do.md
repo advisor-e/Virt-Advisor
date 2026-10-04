@@ -39,26 +39,25 @@ repository sees; the two never both appear, and the build stops if they would.
 | 2 | **15.22** Sales Process Review's Sales Flowchart still needs Mike's ruling before it can capture ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-10-02 |
 | 3 | **13.6** Translations mistake business words ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
 | 4 | **22.2** The desktop's default Node is version 20, not the locked 14.15 ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 5 | **8.6** After a recorded strategy session the next meeting's coaching notes check nothing from it ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | **laptop**, since 2026-09-30 |
-| 6 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-09-30 |
-| 7 | **7.20** Send the AI only the context the advisor's topic needs ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
-| 8 | **7.22** Test whether a stronger model should write the main advisory answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 9 | **7.23** Keep a record of every AI call: model, prompt version, tokens and time taken ⚠ *not yet ranked by Mike* | 2 | — | Outside | — |
-| 10 | **28.1** Advisors cannot tell us an AI answer was wrong or useful ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 11 | **13.10** Only the advisory chat tells the AI which language to write in ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 12 | **40.2** The main advisory and course prompts cannot be seen or edited on any screen ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 13 | **22.5** Split the coding AI's rules into a short digest and an addendum of reasons ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 14 | **14.5** Give every feature Brief a one-screen current-state digest, with history moved out ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 15 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 16 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
-| 17 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
-| 18 | **7.30** About one Discover answer in 51 names a template that does not exist ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
-| 19 | **22.3** First-load page code is 387 KB against the 300 KB limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 20 | **13.12** Backend error messages reach the screens in English, whatever the reader's language ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
-| 21 | **22.9** cases.routes.test.js failed once in a full run and passed alone ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
-| 22 | **15.34** The Strategy Planner's guided questions show in English on a translated screen ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 5 | **15.31** Suggest for this client gives a new client nothing, and ignores the intake questions ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | **laptop**, since 2026-09-30 |
+| 6 | **7.20** Send the AI only the context the advisor's topic needs ⚠ *not yet ranked by Mike* | 4 | — | Us | — |
+| 7 | **7.22** Test whether a stronger model should write the main advisory answer ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 8 | **7.23** Keep a record of every AI call: model, prompt version, tokens and time taken ⚠ *not yet ranked by Mike* | 2 | — | Outside | — |
+| 9 | **28.1** Advisors cannot tell us an AI answer was wrong or useful ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 10 | **13.10** Only the advisory chat tells the AI which language to write in ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 11 | **40.2** The main advisory and course prompts cannot be seen or edited on any screen ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 12 | **22.5** Split the coding AI's rules into a short digest and an addendum of reasons ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 13 | **14.5** Give every feature Brief a one-screen current-state digest, with history moved out ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 14 | **14.6** Check automatically that the notes' claims about what is built match the code ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 15 | **22.7** Give the master team a short what-changed and what-to-test page with each release ⚠ *not yet ranked by Mike* | 2 | — | **Mike** | — |
+| 16 | **7.28** In a crisis the client chat keeps healthy-business tools while Discover leads with a survival tool ⚠ *not yet ranked by Mike* | 4 | — | **Mike** | — |
+| 17 | **7.30** About one Discover answer in 51 names a template that does not exist ⚠ *not yet ranked by Mike* | 3 | — | **Mike** | — |
+| 18 | **22.3** First-load page code is 387 KB against the 300 KB limit ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 19 | **13.12** Backend error messages reach the screens in English, whatever the reader's language ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
+| 20 | **22.9** cases.routes.test.js failed once in a full run and passed alone ⚠ *not yet ranked by Mike* | 2 | — | Us | — |
+| 21 | **15.34** The Strategy Planner's guided questions show in English on a translated screen ⚠ *not yet ranked by Mike* | 3 | — | Us | — |
 
-**22 live items. Twelve need Mike.** If this list passes about twenty, something is wrong.
+**21 live items. Eleven need Mike.** If this list passes about twenty, something is wrong.
 <!-- END GENERATED -->
 
 ### Settled by Mike on 2026-08-15 — off the live list

@@ -392,6 +392,27 @@ locked in the prompt. Either is fine; deciding by accident is not.
 
 ## 2. Closed recently, with what proved it
 
+**8.6 · After a recorded strategy session the next meeting's coaching notes checked nothing from it.**
+✅ **Closed 2026-10-04 by Mike ("yes" to marking it done), the day it was ruled and built.**
+
+- **What it really was - worse than filed:** Decision J leaves a strategy session's summary with
+  no actions, so the next meeting's "Since we last met" panel found that session and showed its
+  heading with nothing under it - reading as if nothing had been agreed at the meeting where most
+  was.
+- **What was done, on Mike's yes:** `meetingFollowThrough.withPlanActions` takes a previous
+  strategy session's actions from its Action Plan rows (objective, whom, when; a row with no
+  objective skipped), read for the meeting's own firm only. Expired meetings and ordinary
+  meetings unchanged; no screen or wording change. The typed rows are moderated with the
+  transcript (ZDR Z3), a block on one is named as the advisor's text (`moderationReport.js`), and
+  each action reaches the prompt as one line.
+- **What proves it:** 8 new tests in `meetingFollowThrough.test.js` and `moderationReport.test.js`.
+  On the laptop's stand-in store the panel went from 0 actions to 3, a blank row skipped, another
+  firm's id read nothing. One live coaching call on an invented transcript: the action raised came
+  back found with the advisor's verbatim words, the two not raised came back not raised, nothing
+  dropped.
+- **To see in UAT:** after a recorded strategy session, the next meeting's "Since we last met"
+  panel lists that session's Action Plan rows. Not checked here - the laptop has no MySQL.
+
 **7.31 · Modules reading the built-in template file instead of the library in force.**
 ✅ **Closed 2026-10-03 by Mike ("yes" to marking it done), the day it was filed, surveyed and built.**
 
