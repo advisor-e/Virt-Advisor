@@ -9,25 +9,22 @@
 
 ---
 
-## 2026-10-03 · Laptop · branch `feat/advisor-progress`
+## 2026-10-03 (afternoon) · Laptop · branch `feat/advisor-progress`
 
-**14 ahead of master, 0 behind; suite green 699 suites / 15,300 tests on Node 14.15. All in PR #156.**
+**6 ahead of master, 0 behind; suite green 699 suites / 15,324 tests on Node 14.15.**
 
-**Closed today:** 13.9 (meeting screens translate), 7.29 and 7.31 (everything asking "is this a
-real template?" reads the library in force), 13.11 (quote/phrase checks read every alphabet).
-**13.12** half-built: retention period and point labels worded on screen; backend errors wait on a
-whole-app design. **15.31** kept live: Mike's try-out found the suggestions not good enough.
-**Filed:** 22.9 (cases.routes.test.js failed once, passed alone).
+**15.31 rebuilt on Mike's rulings:** the new-client questions now open with *"Tell me about a
+challenge your client is facing."*, then the four planning domains (multi-pick); the AI chooses
+only from the domains picked. Drawing revision approved and built. Before/after on one invented
+client: generic planning steps → concepts fitting the client's problem. **Waits on Mike's
+try-out.** **Filed:** 15.34 (planner questions show in English on a translated screen).
 
 **FOR THE DESKTOP:**
 
-- **The backend no longer sends English wording** for the retention period (`retentionPhrase`,
-  `phrase`) or point labels (`sourceLabel`, `setAsideLabel`): months, tiers and names only. Screens
-  word them via `mixins/retentionPeriod.js` and `MeetingPreset.vue`. Don't reintroduce them.
-- **Pass the library in force** to `logicTrees.buildLearnReferenceText`, `tierLookup`, `summaries`,
-  `resolveTemplateName`, `findQuizBank` — `loadEffectiveTemplates(firmId)`, or `(null)` for mentor.
-- **`hubNoTypedEnglish.test.js` now also walks the three meeting pages.**
-- Shared files: `locales/en.json`, `server/advisorEngine.js`, `server/courseEngine.js`,
-  `server/routes/firmManager.js`, `server/routes/mentor.js`.
+- `strategyIntake.js` `SEQUENCE` now starts `clientChallenge`, `planningDomains`; the domains
+  answer is ids in ONE string (`business-targets,organisational-review`), because
+  `strategySessionStore.normaliseAnswers` keeps strings only. Don't change it to an array.
+- Shared files: `locales/en.json` (`strategyPlanner.menu.intakeIntro` shortened),
+  `server/routes/strategyPlanner.js` (`postSuggest`), `components/strategy/StrategyScopeMenu.vue`.
 
-**Still in hand here:** 15.22 and 8.6 (wait on Mike), 15.31 (waits on us, after the bugs).
+**Still in hand here:** 15.31 (waits on Mike's try-out), 15.22 and 8.6 (wait on Mike).
